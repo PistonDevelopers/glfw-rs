@@ -29,7 +29,7 @@ fn main ()
 	
 	while (!done)
 	{
-		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
+		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS  || !glfwGetWindowParam(GLFW_OPENED) as bool)
 		{
 		  break;
 		}
