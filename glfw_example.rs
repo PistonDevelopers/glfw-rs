@@ -24,14 +24,12 @@ fn main ()
 	
 	let title = #fmt("Opengl version - %d.%d rev %d", major, minor, rev);
 	glfwSetWindowTitle(title);
-	
-	let done = false;
-	
-	while (!done)
+
+	while (true)
 	{
 		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS  || !glfwGetWindowParam(GLFW_OPENED) as bool)
 		{
-		  break;
+            break;
 		}
 
 		glfwSwapBuffers();
