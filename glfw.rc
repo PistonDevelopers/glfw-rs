@@ -1,0 +1,6 @@
+#[link(name = "glfw", 
+	   vers = "0.1", 
+	   author = "alegalle", 
+	   uuid = "a1848f17-c60e-469d-8b12-8f1b45d2c31f",
+	   url = "")];
+#[crate_type = "lib"];
