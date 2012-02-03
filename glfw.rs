@@ -47,6 +47,8 @@
  *    distribution.
  *
  *************************************************************************/
+ 
+use std;
 
 const GLFW_VERSION_MAJOR : int =    2;
 const GLFW_VERSION_MINOR : int =    7;
@@ -237,7 +239,7 @@ const GLFW_BUTTONS : int =               0x00050003;
 /* glfwReadImage/glfwLoadTexture2D flags */
 const GLFW_NO_RESCALE_BIT : int =        0x00000001; /* Only for glfwReadImage */
 const GLFW_ORIGIN_UL_BIT : int =         0x00000002;
-const GLFW_BUILD_MIPMAPS_BIT : int =     0x00000004;/* Only for glfwLoadTexture2D */
+const GLFW_BUILD_MIPMAPS_BIT : int =     0x00000004; /* Only for glfwLoadTexture2D */
 const GLFW_ALPHA_MAP_BIT : int =         0x00000008;
 
 /* Time spans longer than this (seconds) are considered to be infinity */
@@ -328,183 +330,194 @@ native mod glfw
 }
 
 
-unsafe fn glfwInit() -> int {
-    ret glfw::glfwInit() as int;
+fn glfwInit() -> int {    
+    unsafe { ret glfw::glfwInit() as int; }
 }
 
-unsafe fn glfwTerminate() {
-    glfw::glfwTerminate();  
+fn glfwTerminate() {
+    unsafe { glfw::glfwTerminate(); }  
 }
 
-unsafe fn glfwGetVersion(major : *int, minor : *int, rev : *int) {
-    glfw::glfwGetVersion(major as *ctypes::c_int, minor as *ctypes::c_int, rev as *ctypes::c_int);
+fn glfwGetVersion(major : @int, minor : @int, rev : @int) {
+    unsafe { glfw::glfwGetVersion(ptr::addr_of(*major) as *ctypes::c_int, ptr::addr_of(*minor) as *ctypes::c_int, ptr::addr_of(*rev) as *ctypes::c_int); }
 }
 
 
-unsafe fn glfwOpenWindow(width : int, height : int, redbits : int, greenbits : int, bluebits : int, alphabits : int, depthbits : int, stencilbits : int, mode : int) -> int {
-    ret glfw::glfwOpenWindow(width as ctypes::c_int, height as ctypes::c_int, redbits as ctypes::c_int, greenbits as ctypes::c_int, bluebits as ctypes::c_int, alphabits as ctypes::c_int, depthbits as ctypes::c_int, stencilbits as ctypes::c_int, mode as ctypes::c_int) as int;
+fn glfwOpenWindow(width : int, height : int, redbits : int, greenbits : int, bluebits : int, alphabits : int, depthbits : int, stencilbits : int, mode : int) -> int {
+    unsafe { ret glfw::glfwOpenWindow(width as ctypes::c_int, height as ctypes::c_int, redbits as ctypes::c_int, greenbits as ctypes::c_int, bluebits as ctypes::c_int, alphabits as ctypes::c_int, depthbits as ctypes::c_int, stencilbits as ctypes::c_int, mode as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwOpenWindowHint(target : int, hint : int) {
-    glfw::glfwOpenWindowHint(target as ctypes::c_int, hint as ctypes::c_int);
+fn glfwOpenWindowHint(target : int, hint : int) {
+    unsafe { glfw::glfwOpenWindowHint(target as ctypes::c_int, hint as ctypes::c_int); }
 }
 
-unsafe fn glfwCloseWindow() {
-    glfw::glfwCloseWindow();
+fn glfwCloseWindow() {
+    unsafe { glfw::glfwCloseWindow(); }
 }
 
-unsafe fn glfwSetWindowTitle(title : str) {
+fn glfwSetWindowTitle(title : str) {
     let bytes = str::bytes(title);
-    glfw::glfwSetWindowTitle(vec::unsafe::to_ptr(bytes));
+    bytes += [0u8];
+    unsafe { glfw::glfwSetWindowTitle(vec::unsafe::to_ptr(bytes)); }
 }
 
-unsafe fn glfwGetWindowSize(width : *int, height : *int) {
-    glfw::glfwGetWindowSize(width as *ctypes::c_int, height as *ctypes::c_int);
+fn glfwGetWindowSize(width : @int, height : @int) {
+    unsafe { glfw::glfwGetWindowSize(ptr::addr_of(*width) as *ctypes::c_int, ptr::addr_of(*height) as *ctypes::c_int); }
 }
 
-unsafe fn glfwSetWindowSize(width : int, height : int) {
-    glfw::glfwSetWindowSize(width as ctypes::c_int, height as ctypes::c_int);
+fn glfwSetWindowSize(width : int, height : int) {
+    unsafe { glfw::glfwSetWindowSize(width as ctypes::c_int, height as ctypes::c_int); }
 }
 
-unsafe fn glfwSetWindowPos(x : int, y : int) {
-    glfw::glfwSetWindowPos(x as ctypes::c_int, y as ctypes::c_int);
+fn glfwSetWindowPos(x : int, y : int) {
+    unsafe { glfw::glfwSetWindowPos(x as ctypes::c_int, y as ctypes::c_int); }
 }
 
-unsafe fn glfwIconifyWindow() {
-    glfw::glfwIconifyWindow();
+fn glfwIconifyWindow() {
+    unsafe { glfw::glfwIconifyWindow(); }
 }
 
-unsafe fn glfwRestoreWindow() {
-    glfw::glfwRestoreWindow();
+fn glfwRestoreWindow() {
+    unsafe { glfw::glfwRestoreWindow(); }
 }
 
-unsafe fn glfwSwapBuffers() {
-    glfw::glfwSwapBuffers();
+fn glfwSwapBuffers() {
+    unsafe { glfw::glfwSwapBuffers(); }
 }
 
-unsafe fn glfwSwapInterval(interval : int) {
-    glfw::glfwSwapInterval(interval as ctypes::c_int);
+fn glfwSwapInterval(interval : int) {
+    unsafe { glfw::glfwSwapInterval(interval as ctypes::c_int); }
 }
 
-unsafe fn glfwGetWindowParam(param : int) -> int {
-    ret glfw::glfwGetWindowParam(param as ctypes::c_int) as int;
-}
-
- 
-unsafe fn glfwGetVideoModes(list : *GLFWvidmode, maxcount : int) -> int {
-    ret glfw::glfwGetVideoModes(list, maxcount as ctypes::c_int) as int;
-}
-
-unsafe fn glfwGetDesktopMode(mode : *GLFWvidmode) {
-    glfw::glfwGetDesktopMode(mode);
+fn glfwGetWindowParam(param : int) -> int {
+    unsafe { ret glfw::glfwGetWindowParam(param as ctypes::c_int) as int; }
 }
 
  
-unsafe fn glfwPollEvents() {
-    glfw::glfwPollEvents();
+fn glfwGetVideoModes(list : @GLFWvidmode, maxcount : int) -> int {
+    unsafe { ret glfw::glfwGetVideoModes(ptr::addr_of(*list), maxcount as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwWaitEvents() {
-    glfw::glfwWaitEvents();
-}
-
-unsafe fn glfwGetKey(key : int) -> int {
-    ret glfw::glfwGetKey(key as ctypes::c_int) as int;
-}
-
-unsafe fn glfwGetMouseButton(button : int) -> int {
-    ret glfw::glfwGetMouseButton(button as ctypes::c_int) as int;
-}
-
-unsafe fn glfwGetMousePos(xpos : *int, ypos : *int) {
-    glfw::glfwGetMousePos(xpos as *ctypes::c_int, ypos as *ctypes::c_int);
-}
-
-unsafe fn glfwSetMousePos(xpos : int, ypos : int) {
-    glfw::glfwSetMousePos(xpos as ctypes::c_int, ypos as ctypes::c_int);
-}
-
-unsafe fn glfwGetMouseWheel() -> int {
-    ret glfw::glfwGetMouseWheel() as int;
-}
-
-unsafe fn glfwSetMouseWheel(pos : int) {
-    glfw::glfwSetMouseWheel(pos as ctypes::c_int);
+fn glfwGetDesktopMode(mode : @GLFWvidmode) {
+    unsafe { glfw::glfwGetDesktopMode(ptr::addr_of(*mode)); }
 }
 
  
-unsafe fn glfwGetJoystickParam(joy : int, param : int) -> int {
-    ret glfw::glfwGetJoystickParam(joy as ctypes::c_int, param as ctypes::c_int) as int;
+fn glfwPollEvents() {
+    unsafe { glfw::glfwPollEvents(); }
 }
 
-unsafe fn glfwGetJoystickPos(joy : int, pos : *float, numaxes : int) -> int {
-    ret glfw::glfwGetJoystickPos(joy as ctypes::c_int, pos, numaxes as ctypes::c_int) as int;
+fn glfwWaitEvents() {
+    unsafe { glfw::glfwWaitEvents(); }
 }
 
-unsafe fn glfwGetJoystickButtons(joy : int, buttons : *u8, numbuttons : int) -> int {
-    ret glfw::glfwGetJoystickButtons(joy as ctypes::c_int, buttons, numbuttons as ctypes::c_int) as int;
+fn glfwGetKey(key : int) -> int {
+    unsafe { ret glfw::glfwGetKey(key as ctypes::c_int) as int; }
+}
+
+fn glfwGetMouseButton(button : int) -> int {
+    unsafe { ret glfw::glfwGetMouseButton(button as ctypes::c_int) as int; }
+}
+
+fn glfwGetMousePos(xpos : @int, ypos : @int) {
+    unsafe { glfw::glfwGetMousePos(ptr::addr_of(*xpos) as *ctypes::c_int, ptr::addr_of(*ypos) as *ctypes::c_int); }
+}
+
+fn glfwSetMousePos(xpos : int, ypos : int) {
+    unsafe { glfw::glfwSetMousePos(xpos as ctypes::c_int, ypos as ctypes::c_int); }
+}
+
+fn glfwGetMouseWheel() -> int {
+    unsafe { ret glfw::glfwGetMouseWheel() as int; }
+}
+
+fn glfwSetMouseWheel(pos : int) {
+    unsafe { glfw::glfwSetMouseWheel(pos as ctypes::c_int); }
 }
 
  
-unsafe fn glfwGetTime() -> float {
-    ret glfw::glfwGetTime();
+fn glfwGetJoystickParam(joy : int, param : int) -> int {
+    unsafe { ret glfw::glfwGetJoystickParam(joy as ctypes::c_int, param as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwSetTime(time : float) {
-    glfw::glfwSetTime(time);
+fn glfwGetJoystickPos(joy : int, pos : @float, numaxes : int) -> int {
+    unsafe { ret glfw::glfwGetJoystickPos(joy as ctypes::c_int, ptr::addr_of(*pos), numaxes as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwSleep(time : float) {
-    glfw::glfwSleep(time);
+fn glfwGetJoystickButtons(joy : int, buttons : @mutable [u8], numbuttons : int) -> int {
+    unsafe { 
+        let r = 0;
+        let b : [u8] = [];
+        vec::unsafe::set_len(b, numbuttons as uint);
+        r = glfw::glfwGetJoystickButtons(joy as ctypes::c_int, vec::unsafe::to_ptr(b), numbuttons as ctypes::c_int) as int;
+        *buttons = b;
+        ret r;
+    }
 }
 
  
-unsafe fn glfwExtensionSupported(extenstion : str) -> int {
+fn glfwGetTime() -> float {
+    unsafe { ret glfw::glfwGetTime(); }
+}
+
+fn glfwSetTime(time : float) {
+    unsafe { glfw::glfwSetTime(time); }
+}
+
+fn glfwSleep(time : float) {
+    unsafe { glfw::glfwSleep(time); }
+}
+
+ 
+fn glfwExtensionSupported(extenstion : str) -> int {
     let bytes = str::bytes(extenstion);
-    ret glfw::glfwExtensionSupported(vec::unsafe::to_ptr(bytes)) as int;
+    bytes += [0u8];
+    unsafe { ret glfw::glfwExtensionSupported(vec::unsafe::to_ptr(bytes)) as int; }
 }
 
-unsafe fn glfwGetProcAddress(procname : str) -> *uint {
+fn glfwGetProcAddress(procname : str) -> *uint {
     let bytes = str::bytes(procname);
-    ret glfw::glfwGetProcAddress(vec::unsafe::to_ptr(bytes)) as *uint;
+    bytes += [0u8];
+    unsafe { ret glfw::glfwGetProcAddress(vec::unsafe::to_ptr(bytes)) as *uint; }
 }
 
-unsafe fn glfwGetGLVersion(major : *int, minor : *int, rev : *int) {
-    glfw::glfwGetGLVersion(major as *ctypes::c_int, minor as *ctypes::c_int, rev as *ctypes::c_int);
-}
-
- 
-unsafe fn glfwEnable(token : int) {
-    glfw::glfwEnable(token as ctypes::c_int);
-}
-
-unsafe fn glfwDisable(token : int) {
-    glfw::glfwDisable(token as ctypes::c_int);
+fn glfwGetGLVersion(major : @int, minor : @int, rev : @int) {
+    unsafe { glfw::glfwGetGLVersion(ptr::addr_of(*major) as *ctypes::c_int, ptr::addr_of(*minor) as *ctypes::c_int, ptr::addr_of(*rev) as *ctypes::c_int); }
 }
 
  
-unsafe fn glfwReadImage(name : str, img : *GLFWimage, flags : int) -> int {
+fn glfwEnable(token : int) {
+    unsafe { glfw::glfwEnable(token as ctypes::c_int); }
+}
+
+fn glfwDisable(token : int) {
+    unsafe { glfw::glfwDisable(token as ctypes::c_int); }
+}
+
+ 
+fn glfwReadImage(name : str, img : @GLFWimage, flags : int) -> int {
     let bytes = str::bytes(name);
-    ret glfw::glfwReadImage(vec::unsafe::to_ptr(bytes), img, flags as ctypes::c_int) as int;
+    unsafe { ret glfw::glfwReadImage(vec::unsafe::to_ptr(bytes), ptr::addr_of(*img), flags as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwReadMemoryImage(data : *uint, size : uint, img : *GLFWimage, flags : int) -> int {
-    ret glfw::glfwReadMemoryImage(data as *ctypes::c_uint, size as ctypes::long, img, flags as ctypes::c_int) as int;
+fn glfwReadMemoryImage(data : *uint, size : uint, img : @GLFWimage, flags : int) -> int {
+    unsafe { ret glfw::glfwReadMemoryImage(data as *ctypes::c_uint, size as ctypes::long, ptr::addr_of(*img), flags as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwFreeImage(img : *GLFWimage) {
-    glfw::glfwFreeImage(img);
+fn glfwFreeImage(img : @GLFWimage) {
+    unsafe { glfw::glfwFreeImage(ptr::addr_of(*img)); }
 }
 
-unsafe fn glfwLoadTexture2D(name : str, flags : int) -> int {
+fn glfwLoadTexture2D(name : str, flags : int) -> int {
     let bytes = str::bytes(name);
-    ret glfw::glfwLoadTexture2D(vec::unsafe::to_ptr(bytes), flags as ctypes::c_int) as int;
+    bytes += [0u8];
+    unsafe { ret glfw::glfwLoadTexture2D(vec::unsafe::to_ptr(bytes), flags as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwLoadMemoryTexture2D(data : *uint, size : uint, flags : int) -> int {
-    ret glfw::glfwLoadMemoryTexture2D(data as *ctypes::c_uint, size as ctypes::long, flags as ctypes::c_int) as int;
+fn glfwLoadMemoryTexture2D(data : *uint, size : uint, flags : int) -> int {
+    unsafe { ret glfw::glfwLoadMemoryTexture2D(data as *ctypes::c_uint, size as ctypes::long, flags as ctypes::c_int) as int; }
 }
 
-unsafe fn glfwLoadTextureImage2D(img : *GLFWimage, flags : int) -> int {
-    ret glfw::glfwLoadTextureImage2D(img, flags as ctypes::c_int) as int;
+fn glfwLoadTextureImage2D(img : @GLFWimage, flags : int) -> int {
+    unsafe { ret glfw::glfwLoadTextureImage2D(ptr::addr_of(*img), flags as ctypes::c_int) as int; }
 }
