@@ -448,7 +448,7 @@ fn glfwGetJoystickButtons(joy : int, buttons : @mutable [u8], numbuttons : int) 
     unsafe { 
         let r = 0;
         let b : [u8] = [];
-        vec::unsafe::set_len(b, numbuttons as uint);
+        vec::grow(b, numbuttons as uint, 0u8);
         r = glfw::glfwGetJoystickButtons(joy as ctypes::c_int, vec::unsafe::to_ptr(b), numbuttons as ctypes::c_int) as int;
         *buttons = b;
         ret r;
