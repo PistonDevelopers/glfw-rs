@@ -269,42 +269,42 @@ type GLFWcond = *uint;
 native mod glfw
 {
 	/* GLFW initialization, termination and version querying */
-	fn glfwInit() -> ctypes::c_int;
+	fn glfwInit() -> libc::c_int;
 	fn glfwTerminate();
-	fn glfwGetVersion(major : *ctypes::c_int, minor : *ctypes::c_int, rev : *ctypes::c_int);
+	fn glfwGetVersion(major : *libc::c_int, minor : *libc::c_int, rev : *libc::c_int);
 	
 	/* Window handling */
-	fn glfwOpenWindow(width : ctypes::c_int, height : ctypes::c_int, redbits : ctypes::c_int, greenbits : ctypes::c_int, bluebits : ctypes::c_int, alphabits : ctypes::c_int, depthbits : ctypes::c_int, stencilbits : ctypes::c_int, mode : ctypes::c_int) -> ctypes::c_int;
-	fn glfwOpenWindowHint(target : ctypes::c_int, hint : ctypes::c_int);
+	fn glfwOpenWindow(width : libc::c_int, height : libc::c_int, redbits : libc::c_int, greenbits : libc::c_int, bluebits : libc::c_int, alphabits : libc::c_int, depthbits : libc::c_int, stencilbits : libc::c_int, mode : libc::c_int) -> libc::c_int;
+	fn glfwOpenWindowHint(target : libc::c_int, hint : libc::c_int);
 	fn glfwCloseWindow();
 	fn glfwSetWindowTitle(title : *u8);
-	fn glfwGetWindowSize(width : *ctypes::c_int, height : *ctypes::c_int);
-	fn glfwSetWindowSize(width : ctypes::c_int, height : ctypes::c_int);
-	fn glfwSetWindowPos(x : ctypes::c_int, y : ctypes::c_int);
+	fn glfwGetWindowSize(width : *libc::c_int, height : *libc::c_int);
+	fn glfwSetWindowSize(width : libc::c_int, height : libc::c_int);
+	fn glfwSetWindowPos(x : libc::c_int, y : libc::c_int);
 	fn glfwIconifyWindow();
 	fn glfwRestoreWindow();
 	fn glfwSwapBuffers();
-	fn glfwSwapInterval(interval : ctypes::c_int);
-	fn glfwGetWindowParam(param : ctypes::c_int) -> ctypes::c_int;
+	fn glfwSwapInterval(interval : libc::c_int);
+	fn glfwGetWindowParam(param : libc::c_int) -> libc::c_int;
 	
 	/* Video mode functions */
-	fn glfwGetVideoModes(list : *GLFWvidmode, maxcount : ctypes::c_int) -> ctypes::c_int;
+	fn glfwGetVideoModes(list : *GLFWvidmode, maxcount : libc::c_int) -> libc::c_int;
 	fn glfwGetDesktopMode(mode : *GLFWvidmode);
 	
 	/* Input handling */
 	fn glfwPollEvents();
 	fn glfwWaitEvents();
-	fn glfwGetKey(key : ctypes::c_int) -> ctypes::c_int;
-	fn glfwGetMouseButton(button : ctypes::c_int) -> ctypes::c_int;
-	fn glfwGetMousePos(xpos : *ctypes::c_int, ypos : *ctypes::c_int);
-	fn glfwSetMousePos(xpos : ctypes::c_int, ypos : ctypes::c_int);
-	fn glfwGetMouseWheel() -> ctypes::c_int;
-	fn glfwSetMouseWheel(pos : ctypes::c_int);
+	fn glfwGetKey(key : libc::c_int) -> libc::c_int;
+	fn glfwGetMouseButton(button : libc::c_int) -> libc::c_int;
+	fn glfwGetMousePos(xpos : *libc::c_int, ypos : *libc::c_int);
+	fn glfwSetMousePos(xpos : libc::c_int, ypos : libc::c_int);
+	fn glfwGetMouseWheel() -> libc::c_int;
+	fn glfwSetMouseWheel(pos : libc::c_int);
 	
 	/* Joystick input */
-	fn glfwGetJoystickParam(joy : ctypes::c_int, param : ctypes::c_int) -> ctypes::c_int;
-	fn glfwGetJoystickPos(joy : ctypes::c_int, pos : *float, numaxes : ctypes::c_int) -> ctypes::c_int;
-	fn glfwGetJoystickButtons(joy : ctypes::c_int, buttons : *u8, numbuttons : ctypes::c_int) -> ctypes::c_int;
+	fn glfwGetJoystickParam(joy : libc::c_int, param : libc::c_int) -> libc::c_int;
+	fn glfwGetJoystickPos(joy : libc::c_int, pos : *float, numaxes : libc::c_int) -> libc::c_int;
+	fn glfwGetJoystickButtons(joy : libc::c_int, buttons : *u8, numbuttons : libc::c_int) -> libc::c_int;
 	
 	/* Time */
 	fn glfwGetTime() -> float;
@@ -312,21 +312,21 @@ native mod glfw
 	fn glfwSleep(time : float);
 	
 	/* Extension support */
-	fn glfwExtensionSupported(extenstion : *u8) -> ctypes::c_int;
-	fn glfwGetProcAddress(procname : *u8) -> *ctypes::c_uint;
-	fn glfwGetGLVersion(major : *ctypes::c_int, minor : *ctypes::c_int, rev : *ctypes::c_int);
+	fn glfwExtensionSupported(extenstion : *u8) -> libc::c_int;
+	fn glfwGetProcAddress(procname : *u8) -> *libc::c_uint;
+	fn glfwGetGLVersion(major : *libc::c_int, minor : *libc::c_int, rev : *libc::c_int);
 	
 	/* Enable/disable functions */
-	fn glfwEnable(token : ctypes::c_int);
-	fn glfwDisable(token : ctypes::c_int);
+	fn glfwEnable(token : libc::c_int);
+	fn glfwDisable(token : libc::c_int);
 	
 	/* Image/texture I/O support */
-	fn glfwReadImage(name : *u8, img : *GLFWimage, flags : ctypes::c_int) -> ctypes::c_int;
-	fn glfwReadMemoryImage(data : *ctypes::c_uint, size : ctypes::long, img : *GLFWimage, flags : ctypes::c_int) -> ctypes::c_int;
+	fn glfwReadImage(name : *u8, img : *GLFWimage, flags : libc::c_int) -> libc::c_int;
+	fn glfwReadMemoryImage(data : *libc::c_uint, size : libc::c_long, img : *GLFWimage, flags : libc::c_int) -> libc::c_int;
 	fn glfwFreeImage(img : *GLFWimage);
-	fn glfwLoadTexture2D(name : *u8, flags : ctypes::c_int) -> ctypes::c_int;
-	fn glfwLoadMemoryTexture2D(data : *ctypes::c_uint, size : ctypes::long, flags : ctypes::c_int) -> ctypes::c_int;
-	fn glfwLoadTextureImage2D(img : *GLFWimage, flags : ctypes::c_int) -> ctypes::c_int;
+	fn glfwLoadTexture2D(name : *u8, flags : libc::c_int) -> libc::c_int;
+	fn glfwLoadMemoryTexture2D(data : *libc::c_uint, size : libc::c_long, flags : libc::c_int) -> libc::c_int;
+	fn glfwLoadTextureImage2D(img : *GLFWimage, flags : libc::c_int) -> libc::c_int;
 }
 
 
@@ -339,16 +339,16 @@ fn glfwTerminate() {
 }
 
 fn glfwGetVersion(major : @int, minor : @int, rev : @int) {
-    unsafe { glfw::glfwGetVersion(ptr::addr_of(*major) as *ctypes::c_int, ptr::addr_of(*minor) as *ctypes::c_int, ptr::addr_of(*rev) as *ctypes::c_int); }
+    unsafe { glfw::glfwGetVersion(ptr::addr_of(*major) as *libc::c_int, ptr::addr_of(*minor) as *libc::c_int, ptr::addr_of(*rev) as *libc::c_int); }
 }
 
 
 fn glfwOpenWindow(width : int, height : int, redbits : int, greenbits : int, bluebits : int, alphabits : int, depthbits : int, stencilbits : int, mode : int) -> int {
-    unsafe { ret glfw::glfwOpenWindow(width as ctypes::c_int, height as ctypes::c_int, redbits as ctypes::c_int, greenbits as ctypes::c_int, bluebits as ctypes::c_int, alphabits as ctypes::c_int, depthbits as ctypes::c_int, stencilbits as ctypes::c_int, mode as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwOpenWindow(width as libc::c_int, height as libc::c_int, redbits as libc::c_int, greenbits as libc::c_int, bluebits as libc::c_int, alphabits as libc::c_int, depthbits as libc::c_int, stencilbits as libc::c_int, mode as libc::c_int) as int; }
 }
 
 fn glfwOpenWindowHint(target : int, hint : int) {
-    unsafe { glfw::glfwOpenWindowHint(target as ctypes::c_int, hint as ctypes::c_int); }
+    unsafe { glfw::glfwOpenWindowHint(target as libc::c_int, hint as libc::c_int); }
 }
 
 fn glfwCloseWindow() {
@@ -356,21 +356,21 @@ fn glfwCloseWindow() {
 }
 
 fn glfwSetWindowTitle(title : str) {
-    let bytes = str::bytes(title);
+    let mut bytes = str::bytes(title);
     bytes += [0u8];
     unsafe { glfw::glfwSetWindowTitle(vec::unsafe::to_ptr(bytes)); }
 }
 
 fn glfwGetWindowSize(width : @int, height : @int) {
-    unsafe { glfw::glfwGetWindowSize(ptr::addr_of(*width) as *ctypes::c_int, ptr::addr_of(*height) as *ctypes::c_int); }
+    unsafe { glfw::glfwGetWindowSize(ptr::addr_of(*width) as *libc::c_int, ptr::addr_of(*height) as *libc::c_int); }
 }
 
 fn glfwSetWindowSize(width : int, height : int) {
-    unsafe { glfw::glfwSetWindowSize(width as ctypes::c_int, height as ctypes::c_int); }
+    unsafe { glfw::glfwSetWindowSize(width as libc::c_int, height as libc::c_int); }
 }
 
 fn glfwSetWindowPos(x : int, y : int) {
-    unsafe { glfw::glfwSetWindowPos(x as ctypes::c_int, y as ctypes::c_int); }
+    unsafe { glfw::glfwSetWindowPos(x as libc::c_int, y as libc::c_int); }
 }
 
 fn glfwIconifyWindow() {
@@ -386,16 +386,16 @@ fn glfwSwapBuffers() {
 }
 
 fn glfwSwapInterval(interval : int) {
-    unsafe { glfw::glfwSwapInterval(interval as ctypes::c_int); }
+    unsafe { glfw::glfwSwapInterval(interval as libc::c_int); }
 }
 
 fn glfwGetWindowParam(param : int) -> int {
-    unsafe { ret glfw::glfwGetWindowParam(param as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwGetWindowParam(param as libc::c_int) as int; }
 }
 
  
 fn glfwGetVideoModes(list : @GLFWvidmode, maxcount : int) -> int {
-    unsafe { ret glfw::glfwGetVideoModes(ptr::addr_of(*list), maxcount as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwGetVideoModes(ptr::addr_of(*list), maxcount as libc::c_int) as int; }
 }
 
 fn glfwGetDesktopMode(mode : @GLFWvidmode) {
@@ -412,19 +412,19 @@ fn glfwWaitEvents() {
 }
 
 fn glfwGetKey(key : int) -> int {
-    unsafe { ret glfw::glfwGetKey(key as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwGetKey(key as libc::c_int) as int; }
 }
 
 fn glfwGetMouseButton(button : int) -> int {
-    unsafe { ret glfw::glfwGetMouseButton(button as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwGetMouseButton(button as libc::c_int) as int; }
 }
 
 fn glfwGetMousePos(xpos : @int, ypos : @int) {
-    unsafe { glfw::glfwGetMousePos(ptr::addr_of(*xpos) as *ctypes::c_int, ptr::addr_of(*ypos) as *ctypes::c_int); }
+    unsafe { glfw::glfwGetMousePos(ptr::addr_of(*xpos) as *libc::c_int, ptr::addr_of(*ypos) as *libc::c_int); }
 }
 
 fn glfwSetMousePos(xpos : int, ypos : int) {
-    unsafe { glfw::glfwSetMousePos(xpos as ctypes::c_int, ypos as ctypes::c_int); }
+    unsafe { glfw::glfwSetMousePos(xpos as libc::c_int, ypos as libc::c_int); }
 }
 
 fn glfwGetMouseWheel() -> int {
@@ -432,24 +432,24 @@ fn glfwGetMouseWheel() -> int {
 }
 
 fn glfwSetMouseWheel(pos : int) {
-    unsafe { glfw::glfwSetMouseWheel(pos as ctypes::c_int); }
+    unsafe { glfw::glfwSetMouseWheel(pos as libc::c_int); }
 }
 
  
 fn glfwGetJoystickParam(joy : int, param : int) -> int {
-    unsafe { ret glfw::glfwGetJoystickParam(joy as ctypes::c_int, param as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwGetJoystickParam(joy as libc::c_int, param as libc::c_int) as int; }
 }
 
 fn glfwGetJoystickPos(joy : int, pos : @float, numaxes : int) -> int {
-    unsafe { ret glfw::glfwGetJoystickPos(joy as ctypes::c_int, ptr::addr_of(*pos), numaxes as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwGetJoystickPos(joy as libc::c_int, ptr::addr_of(*pos), numaxes as libc::c_int) as int; }
 }
 
-fn glfwGetJoystickButtons(joy : int, buttons : @mutable [u8], numbuttons : int) -> int {
+fn glfwGetJoystickButtons(joy : int, buttons : @mut [u8], numbuttons : int) -> int {
     unsafe { 
-        let r = 0;
-        let b : [u8] = [];
+        let mut r = 0;
+        let mut b : [u8] = [];
         vec::grow(b, numbuttons as uint, 0u8);
-        r = glfw::glfwGetJoystickButtons(joy as ctypes::c_int, vec::unsafe::to_ptr(b), numbuttons as ctypes::c_int) as int;
+        r = glfw::glfwGetJoystickButtons(joy as libc::c_int, vec::unsafe::to_ptr(b), numbuttons as libc::c_int) as int;
         *buttons = b;
         ret r;
     }
@@ -470,38 +470,38 @@ fn glfwSleep(time : float) {
 
  
 fn glfwExtensionSupported(extenstion : str) -> int {
-    let bytes = str::bytes(extenstion);
+    let mut bytes = str::bytes(extenstion);
     bytes += [0u8];
     unsafe { ret glfw::glfwExtensionSupported(vec::unsafe::to_ptr(bytes)) as int; }
 }
 
 fn glfwGetProcAddress(procname : str) -> *uint {
-    let bytes = str::bytes(procname);
+    let mut bytes = str::bytes(procname);
     bytes += [0u8];
     unsafe { ret glfw::glfwGetProcAddress(vec::unsafe::to_ptr(bytes)) as *uint; }
 }
 
 fn glfwGetGLVersion(major : @int, minor : @int, rev : @int) {
-    unsafe { glfw::glfwGetGLVersion(ptr::addr_of(*major) as *ctypes::c_int, ptr::addr_of(*minor) as *ctypes::c_int, ptr::addr_of(*rev) as *ctypes::c_int); }
+    unsafe { glfw::glfwGetGLVersion(ptr::addr_of(*major) as *libc::c_int, ptr::addr_of(*minor) as *libc::c_int, ptr::addr_of(*rev) as *libc::c_int); }
 }
 
  
 fn glfwEnable(token : int) {
-    unsafe { glfw::glfwEnable(token as ctypes::c_int); }
+    unsafe { glfw::glfwEnable(token as libc::c_int); }
 }
 
 fn glfwDisable(token : int) {
-    unsafe { glfw::glfwDisable(token as ctypes::c_int); }
+    unsafe { glfw::glfwDisable(token as libc::c_int); }
 }
 
  
 fn glfwReadImage(name : str, img : @GLFWimage, flags : int) -> int {
     let bytes = str::bytes(name);
-    unsafe { ret glfw::glfwReadImage(vec::unsafe::to_ptr(bytes), ptr::addr_of(*img), flags as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwReadImage(vec::unsafe::to_ptr(bytes), ptr::addr_of(*img), flags as libc::c_int) as int; }
 }
 
 fn glfwReadMemoryImage(data : *uint, size : uint, img : @GLFWimage, flags : int) -> int {
-    unsafe { ret glfw::glfwReadMemoryImage(data as *ctypes::c_uint, size as ctypes::long, ptr::addr_of(*img), flags as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwReadMemoryImage(data as *libc::c_uint, size as libc::c_long, ptr::addr_of(*img), flags as libc::c_int) as int; }
 }
 
 fn glfwFreeImage(img : @GLFWimage) {
@@ -509,15 +509,15 @@ fn glfwFreeImage(img : @GLFWimage) {
 }
 
 fn glfwLoadTexture2D(name : str, flags : int) -> int {
-    let bytes = str::bytes(name);
+    let mut bytes = str::bytes(name);
     bytes += [0u8];
-    unsafe { ret glfw::glfwLoadTexture2D(vec::unsafe::to_ptr(bytes), flags as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwLoadTexture2D(vec::unsafe::to_ptr(bytes), flags as libc::c_int) as int; }
 }
 
 fn glfwLoadMemoryTexture2D(data : *uint, size : uint, flags : int) -> int {
-    unsafe { ret glfw::glfwLoadMemoryTexture2D(data as *ctypes::c_uint, size as ctypes::long, flags as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwLoadMemoryTexture2D(data as *libc::c_uint, size as libc::c_long, flags as libc::c_int) as int; }
 }
 
 fn glfwLoadTextureImage2D(img : @GLFWimage, flags : int) -> int {
-    unsafe { ret glfw::glfwLoadTextureImage2D(ptr::addr_of(*img), flags as ctypes::c_int) as int; }
+    unsafe { ret glfw::glfwLoadTextureImage2D(ptr::addr_of(*img), flags as libc::c_int) as int; }
 }
