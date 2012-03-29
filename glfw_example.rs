@@ -23,7 +23,7 @@ fn main ()
 	let title = #fmt("Opengl version - %d.%d rev %d", *major, *minor, *rev);
 	glfwSetWindowTitle(title);
 
-    let done = false; 
+    let mut done = false; 
     
 	while (!done)
 	{
