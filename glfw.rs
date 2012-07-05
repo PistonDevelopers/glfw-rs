@@ -266,7 +266,7 @@ type GLFWmutex = *uint;
 type GLFWcond = *uint;
 
 
-native mod glfw
+extern mod glfw
 {
 	/* GLFW initialization, termination and version querying */
 	fn glfwInit() -> libc::c_int;
