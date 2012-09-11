@@ -60,188 +60,280 @@ const GLFW_VERSION_REVISION : int = 0;
 const GLFW_RELEASE          : int = 0;
 const GLFW_PRESS            : int = 1;
 
-/* Keyboard key definitions: 8-bit ISO-8859-1 (Latin 1) encoding is used
- * for printable keys (such as A-Z, 0-9 etc), and values above 256
- * represent special (non-printable) keys (e.g. F1, Page Up etc).
+/* Keyboard raw key codes.
+ * These key codes are inspired by the USB HID Usage Tables v1.12 (p. 53-60),
+ * but re-arranged to map to 7-bit ASCII for printable keys (function keys are
+ * put in the 256+ range).
+ * The naming of the key codes follow these rules:
+ *  - The US keyboard layout is used.
+ *  - Names of printable alpha-numeric characters are used (e.g. "A", "R",
+ *    "3", etc).
+ *  - For non-alphanumeric characters, Unicode:ish names are used (e.g.
+ *    "COMMA", "LEFT_SQUARE_BRACKET", etc). Note that some names do not
+ *    correspond to the Unicode standard (usually for brevity).
+ *  - Keys that lack a clear US mapping are named "WORLD_x".
+ *  - For non-printable keys, custom names are used (e.g. "F4",
+ *    "BACKSPACE", etc).
  */
-const GLFW_KEY_UNKNOWN      : int = -1;
-const GLFW_KEY_SPACE        : int = 32;
-const GLFW_KEY_SPECIAL      : int = 256;
-const GLFW_KEY_ESC          : int = 257;
-const GLFW_KEY_F1           : int = 258;
-const GLFW_KEY_F2           : int = 259;
-const GLFW_KEY_F3           : int = 260;
-const GLFW_KEY_F4           : int = 261;
-const GLFW_KEY_F5           : int = 262;
-const GLFW_KEY_F6           : int = 263;
-const GLFW_KEY_F7           : int = 264;
-const GLFW_KEY_F8           : int = 265;
-const GLFW_KEY_F9           : int = 266;
-const GLFW_KEY_F10          : int = 267;
-const GLFW_KEY_F11          : int = 268;
-const GLFW_KEY_F12          : int = 269;
-const GLFW_KEY_F13          : int = 270;
-const GLFW_KEY_F14          : int = 271;
-const GLFW_KEY_F15          : int = 272;
-const GLFW_KEY_F16          : int = 273;
-const GLFW_KEY_F17          : int = 274;
-const GLFW_KEY_F18          : int = 275;
-const GLFW_KEY_F19          : int = 276;
-const GLFW_KEY_F20          : int = 277;
-const GLFW_KEY_F21          : int = 278;
-const GLFW_KEY_F22          : int = 279;
-const GLFW_KEY_F23          : int = 280;
-const GLFW_KEY_F24          : int = 281;
-const GLFW_KEY_F25          : int = 282;
-const GLFW_KEY_UP           : int = 283;
-const GLFW_KEY_DOWN         : int = 284;
-const GLFW_KEY_LEFT         : int = 285;
-const GLFW_KEY_RIGHT        : int = 286;
-const GLFW_KEY_LSHIFT       : int = 287;
-const GLFW_KEY_RSHIFT       : int = 288;
-const GLFW_KEY_LCTRL        : int = 289;
-const GLFW_KEY_RCTRL        : int = 290;
-const GLFW_KEY_LALT         : int = 291;
-const GLFW_KEY_RALT         : int = 292;
-const GLFW_KEY_TAB          : int = 293;
-const GLFW_KEY_ENTER        : int = 294;
-const GLFW_KEY_BACKSPACE    : int = 295;
-const GLFW_KEY_INSERT       : int = 296;
-const GLFW_KEY_DEL          : int = 297;
-const GLFW_KEY_PAGEUP       : int = 298;
-const GLFW_KEY_PAGEDOWN     : int = 299;
-const GLFW_KEY_HOME         : int = 300;
-const GLFW_KEY_END          : int = 301;
-const GLFW_KEY_KP_0         : int = 302;
-const GLFW_KEY_KP_1         : int = 303;
-const GLFW_KEY_KP_2         : int = 304;
-const GLFW_KEY_KP_3         : int = 305;
-const GLFW_KEY_KP_4         : int = 306;
-const GLFW_KEY_KP_5         : int = 307;
-const GLFW_KEY_KP_6         : int = 308;
-const GLFW_KEY_KP_7         : int = 309;
-const GLFW_KEY_KP_8         : int = 310;
-const GLFW_KEY_KP_9         : int = 311;
-const GLFW_KEY_KP_DIVIDE    : int = 312;
-const GLFW_KEY_KP_MULTIPLY  : int = 313;
-const GLFW_KEY_KP_SUBTRACT  : int = 314;
-const GLFW_KEY_KP_ADD       : int = 315;
-const GLFW_KEY_KP_DECIMAL   : int = 316;
-const GLFW_KEY_KP_EQUAL     : int = 317;
-const GLFW_KEY_KP_ENTER     : int = 318;
-const GLFW_KEY_KP_NUM_LOCK  : int = 319;
-const GLFW_KEY_CAPS_LOCK    : int = 320;
-const GLFW_KEY_SCROLL_LOCK  : int = 321;
-const GLFW_KEY_PAUSE        : int = 322;
-const GLFW_KEY_LSUPER       : int = 323;
-const GLFW_KEY_RSUPER       : int = 324;
-const GLFW_KEY_MENU         : int = 325;
-const GLFW_KEY_LAST         : int = 325;
+/* Printable keys */
+const GLFW_KEY_SPACE            : int = 32
+const GLFW_KEY_APOSTROPHE       : int = 39  /* ' */
+const GLFW_KEY_COMMA            : int = 44  /* , */
+const GLFW_KEY_MINUS            : int = 45  /* - */
+const GLFW_KEY_PERIOD           : int = 46  /* . */
+const GLFW_KEY_SLASH            : int = 47  /* / */
+const GLFW_KEY_0                : int = 48
+const GLFW_KEY_1                : int = 49
+const GLFW_KEY_2                : int = 50
+const GLFW_KEY_3                : int = 51
+const GLFW_KEY_4                : int = 52
+const GLFW_KEY_5                : int = 53
+const GLFW_KEY_6                : int = 54
+const GLFW_KEY_7                : int = 55
+const GLFW_KEY_8                : int = 56
+const GLFW_KEY_9                : int = 57
+const GLFW_KEY_SEMICOLON        : int = 59  /* ; */
+const GLFW_KEY_EQUAL            : int = 61  /* = */
+const GLFW_KEY_A                : int = 65
+const GLFW_KEY_B                : int = 66
+const GLFW_KEY_C                : int = 67
+const GLFW_KEY_D                : int = 68
+const GLFW_KEY_E                : int = 69
+const GLFW_KEY_F                : int = 70
+const GLFW_KEY_G                : int = 71
+const GLFW_KEY_H                : int = 72
+const GLFW_KEY_I                : int = 73
+const GLFW_KEY_J                : int = 74
+const GLFW_KEY_K                : int = 75
+const GLFW_KEY_L                : int = 76
+const GLFW_KEY_M                : int = 77
+const GLFW_KEY_N                : int = 78
+const GLFW_KEY_O                : int = 79
+const GLFW_KEY_P                : int = 80
+const GLFW_KEY_Q                : int = 81
+const GLFW_KEY_R                : int = 82
+const GLFW_KEY_S                : int = 83
+const GLFW_KEY_T                : int = 84
+const GLFW_KEY_U                : int = 85
+const GLFW_KEY_V                : int = 86
+const GLFW_KEY_W                : int = 87
+const GLFW_KEY_X                : int = 88
+const GLFW_KEY_Y                : int = 89
+const GLFW_KEY_Z                : int = 90
+const GLFW_KEY_LEFT_BRACKET     : int = 91  /* [ */
+const GLFW_KEY_BACKSLASH        : int = 92  /* \ */
+const GLFW_KEY_RIGHT_BRACKET    : int = 93  /* ] */
+const GLFW_KEY_GRAVE_ACCENT     : int = 96  /* ` */
+const GLFW_KEY_WORLD_1          : int = 161 /* non-US #1 */
+const GLFW_KEY_WORLD_2          : int = 162 /* non-US #2 */
 
-/* Mouse button definitions */
-const GLFW_MOUSE_BUTTON_1       : int = 0;
-const GLFW_MOUSE_BUTTON_2       : int = 1;
-const GLFW_MOUSE_BUTTON_3       : int = 2;
-const GLFW_MOUSE_BUTTON_4       : int = 3;
-const GLFW_MOUSE_BUTTON_5       : int = 4;
-const GLFW_MOUSE_BUTTON_6       : int = 5;
-const GLFW_MOUSE_BUTTON_7       : int = 6;
-const GLFW_MOUSE_BUTTON_8       : int = 7;
-const GLFW_MOUSE_BUTTON_LAST    : int = 7;
+/* Function keys */
+const GLFW_KEY_ESCAPE           : int = 256
+const GLFW_KEY_ENTER            : int = 257
+const GLFW_KEY_TAB              : int = 258
+const GLFW_KEY_BACKSPACE        : int = 259
+const GLFW_KEY_INSERT           : int = 260
+const GLFW_KEY_DELETE           : int = 261
+const GLFW_KEY_RIGHT            : int = 262
+const GLFW_KEY_LEFT             : int = 263
+const GLFW_KEY_DOWN             : int = 264
+const GLFW_KEY_UP               : int = 265
+const GLFW_KEY_PAGE_UP          : int = 266
+const GLFW_KEY_PAGE_DOWN        : int = 267
+const GLFW_KEY_HOME             : int = 268
+const GLFW_KEY_END              : int = 269
+const GLFW_KEY_CAPS_LOCK        : int = 280
+const GLFW_KEY_SCROLL_LOCK      : int = 281
+const GLFW_KEY_NUM_LOCK         : int = 282
+const GLFW_KEY_PRINT_SCREEN     : int = 283
+const GLFW_KEY_PAUSE            : int = 284
+const GLFW_KEY_F1               : int = 290
+const GLFW_KEY_F2               : int = 291
+const GLFW_KEY_F3               : int = 292
+const GLFW_KEY_F4               : int = 293
+const GLFW_KEY_F5               : int = 294
+const GLFW_KEY_F6               : int = 295
+const GLFW_KEY_F7               : int = 296
+const GLFW_KEY_F8               : int = 297
+const GLFW_KEY_F9               : int = 298
+const GLFW_KEY_F10              : int = 299
+const GLFW_KEY_F11              : int = 300
+const GLFW_KEY_F12              : int = 301
+const GLFW_KEY_F13              : int = 302
+const GLFW_KEY_F14              : int = 303
+const GLFW_KEY_F15              : int = 304
+const GLFW_KEY_F16              : int = 305
+const GLFW_KEY_F17              : int = 306
+const GLFW_KEY_F18              : int = 307
+const GLFW_KEY_F19              : int = 308
+const GLFW_KEY_F20              : int = 309
+const GLFW_KEY_F21              : int = 310
+const GLFW_KEY_F22              : int = 311
+const GLFW_KEY_F23              : int = 312
+const GLFW_KEY_F24              : int = 313
+const GLFW_KEY_F25              : int = 314
+const GLFW_KEY_KP_0             : int = 320
+const GLFW_KEY_KP_1             : int = 321
+const GLFW_KEY_KP_2             : int = 322
+const GLFW_KEY_KP_3             : int = 323
+const GLFW_KEY_KP_4             : int = 324
+const GLFW_KEY_KP_5             : int = 325
+const GLFW_KEY_KP_6             : int = 326
+const GLFW_KEY_KP_7             : int = 327
+const GLFW_KEY_KP_8             : int = 328
+const GLFW_KEY_KP_9             : int = 329
+const GLFW_KEY_KP_DECIMAL       : int = 330
+const GLFW_KEY_KP_DIVIDE        : int = 331
+const GLFW_KEY_KP_MULTIPLY      : int = 332
+const GLFW_KEY_KP_SUBTRACT      : int = 333
+const GLFW_KEY_KP_ADD           : int = 334
+const GLFW_KEY_KP_ENTER         : int = 335
+const GLFW_KEY_KP_EQUAL         : int = 336
+const GLFW_KEY_LEFT_SHIFT       : int = 340
+const GLFW_KEY_LEFT_CONTROL     : int = 341
+const GLFW_KEY_LEFT_ALT         : int = 342
+const GLFW_KEY_LEFT_SUPER       : int = 343
+const GLFW_KEY_RIGHT_SHIFT      : int = 344
+const GLFW_KEY_RIGHT_CONTROL    : int = 345
+const GLFW_KEY_RIGHT_ALT        : int = 346
+const GLFW_KEY_RIGHT_SUPER      : int = 347
+const GLFW_KEY_MENU             : int = 348
+const GLFW_KEY_LAST             : int = GLFW_KEY_MENU
+
+/* GLFW 2.x key name aliases (deprecated) */
+const GLFW_KEY_ESC              : int = GLFW_KEY_ESCAPE
+const GLFW_KEY_DEL              : int = GLFW_KEY_DELETE
+const GLFW_KEY_PAGEUP           : int = GLFW_KEY_PAGE_UP
+const GLFW_KEY_PAGEDOWN         : int = GLFW_KEY_PAGE_DOWN
+const GLFW_KEY_KP_NUM_LOCK      : int = GLFW_KEY_NUM_LOCK
+const GLFW_KEY_LCTRL            : int = GLFW_KEY_LEFT_CONTROL
+const GLFW_KEY_LSHIFT           : int = GLFW_KEY_LEFT_SHIFT
+const GLFW_KEY_LALT             : int = GLFW_KEY_LEFT_ALT
+const GLFW_KEY_LSUPER           : int = GLFW_KEY_LEFT_SUPER
+const GLFW_KEY_RCTRL            : int = GLFW_KEY_RIGHT_CONTROL
+const GLFW_KEY_RSHIFT           : int = GLFW_KEY_RIGHT_SHIFT
+const GLFW_KEY_RALT             : int = GLFW_KEY_RIGHT_ALT
+const GLFW_KEY_RSUPER           : int = GLFW_KEY_RIGHT_SUPER
 
 /* Mouse button aliases */
-const GLFW_MOUSE_BUTTON_LEFT    : int = 0;
-const GLFW_MOUSE_BUTTON_RIGHT   : int = 1;
-const GLFW_MOUSE_BUTTON_MIDDLE  : int = 2;
+const GLFW_MOUSE_BUTTON_LEFT    : int = GLFW_MOUSE_BUTTON_1
+const GLFW_MOUSE_BUTTON_RIGHT   : int = GLFW_MOUSE_BUTTON_2
+const GLFW_MOUSE_BUTTON_MIDDLE  : int = GLFW_MOUSE_BUTTON_3
 
+/* Mouse button definitions */
+const GLFW_MOUSE_BUTTON_1       : int = 0
+const GLFW_MOUSE_BUTTON_2       : int = 1
+const GLFW_MOUSE_BUTTON_3       : int = 2
+const GLFW_MOUSE_BUTTON_4       : int = 3
+const GLFW_MOUSE_BUTTON_5       : int = 4
+const GLFW_MOUSE_BUTTON_6       : int = 5
+const GLFW_MOUSE_BUTTON_7       : int = 6
+const GLFW_MOUSE_BUTTON_8       : int = 7
+const GLFW_MOUSE_BUTTON_LAST    : int = GLFW_MOUSE_BUTTON_8
 
 /* Joystick identifiers */
-const GLFW_JOYSTICK_1           : int = 0;
-const GLFW_JOYSTICK_2           : int = 1;
-const GLFW_JOYSTICK_3           : int = 2;
-const GLFW_JOYSTICK_4           : int = 3;
-const GLFW_JOYSTICK_5           : int = 4;
-const GLFW_JOYSTICK_6           : int = 5;
-const GLFW_JOYSTICK_7           : int = 6;
-const GLFW_JOYSTICK_8           : int = 7;
-const GLFW_JOYSTICK_9           : int = 8;
-const GLFW_JOYSTICK_10          : int = 9;
-const GLFW_JOYSTICK_11          : int = 10;
-const GLFW_JOYSTICK_12          : int = 11;
-const GLFW_JOYSTICK_13          : int = 12;
-const GLFW_JOYSTICK_14          : int = 13;
-const GLFW_JOYSTICK_15          : int = 14;
-const GLFW_JOYSTICK_16          : int = 15;
-const GLFW_JOYSTICK_LAST        : int = 15;
-
+const GLFW_JOYSTICK_1           : int = 0
+const GLFW_JOYSTICK_2           : int = 1
+const GLFW_JOYSTICK_3           : int = 2
+const GLFW_JOYSTICK_4           : int = 3
+const GLFW_JOYSTICK_5           : int = 4
+const GLFW_JOYSTICK_6           : int = 5
+const GLFW_JOYSTICK_7           : int = 6
+const GLFW_JOYSTICK_8           : int = 7
+const GLFW_JOYSTICK_9           : int = 8
+const GLFW_JOYSTICK_10          : int = 9
+const GLFW_JOYSTICK_11          : int = 10
+const GLFW_JOYSTICK_12          : int = 11
+const GLFW_JOYSTICK_13          : int = 12
+const GLFW_JOYSTICK_14          : int = 13
+const GLFW_JOYSTICK_15          : int = 14
+const GLFW_JOYSTICK_16          : int = 15
+const GLFW_JOYSTICK_LAST        : int = GLFW_JOYSTICK_16
 
 /*************************************************************************
  * Other definitions
  *************************************************************************/
 
-/* glfwOpenWindow modes */ 
-const GLFW_WINDOW               : int = 0x00010001;
-const GLFW_FULLSCREEN           : int = 0x00010002;
+/* glfwCreateWindow modes */
+const GLFW_WINDOWED             : int = 0x00010001
+const GLFW_FULLSCREEN           : int = 0x00010002
 
 /* glfwGetWindowParam tokens */
-const GLFW_OPENED               : int = 0x00020001;
-const GLFW_ACTIVE               : int = 0x00020002;
-const GLFW_ICONIFIED            : int = 0x00020003;
-const GLFW_ACCELERATED          : int = 0x00020004;
-const GLFW_RED_BITS             : int = 0x00020005;
-const GLFW_GREEN_BITS           : int = 0x00020006;
-const GLFW_BLUE_BITS            : int = 0x00020007;
-const GLFW_ALPHA_BITS           : int = 0x00020008;
-const GLFW_DEPTH_BITS           : int = 0x00020009;
-const GLFW_STENCIL_BITS         : int = 0x0002000A;
+const GLFW_ACTIVE               : int = 0x00020001
+const GLFW_ICONIFIED            : int = 0x00020002
+const GLFW_CLOSE_REQUESTED      : int = 0x00020003
+const GLFW_OPENGL_REVISION      : int = 0x00020004
 
-/* The following constants are used for both glfwGetWindowParam
- * and glfwOpenWindowHint
+/* glfwWindowHint tokens */
+const GLFW_RED_BITS             : int = 0x00021000
+const GLFW_GREEN_BITS           : int = 0x00021001
+const GLFW_BLUE_BITS            : int = 0x00021002
+const GLFW_ALPHA_BITS           : int = 0x00021003
+const GLFW_DEPTH_BITS           : int = 0x00021004
+const GLFW_STENCIL_BITS         : int = 0x00021005
+const GLFW_REFRESH_RATE         : int = 0x00021006
+const GLFW_ACCUM_RED_BITS       : int = 0x00021007
+const GLFW_ACCUM_GREEN_BITS     : int = 0x00021008
+const GLFW_ACCUM_BLUE_BITS      : int = 0x00021009
+const GLFW_ACCUM_ALPHA_BITS     : int = 0x0002100A
+const GLFW_AUX_BUFFERS          : int = 0x0002100B
+const GLFW_STEREO               : int = 0x0002100C
+const GLFW_WINDOW_RESIZABLE     : int = 0x0002100D
+const GLFW_FSAA_SAMPLES         : int = 0x0002100E
+
+/* The following constants are used with both glfwGetWindowParam
+ * and glfwWindowHint
  */
-const GLFW_REFRESH_RATE             : int = 0x0002000B;
-const GLFW_ACCUM_RED_BITS           : int = 0x0002000C;
-const GLFW_ACCUM_GREEN_BITS         : int = 0x0002000D;
-const GLFW_ACCUM_BLUE_BITS          : int = 0x0002000E;
-const GLFW_ACCUM_ALPHA_BITS         : int = 0x0002000F;
-const GLFW_AUX_BUFFERS              : int = 0x00020010;
-const GLFW_STEREO                   : int = 0x00020011;
-const GLFW_WINDOW_NO_RESIZE         : int = 0x00020012;
-const GLFW_FSAA_SAMPLES             : int = 0x00020013;
-const GLFW_OPENGL_VERSION_MAJOR     : int = 0x00020014;
-const GLFW_OPENGL_VERSION_MINOR     : int = 0x00020015;
-const GLFW_OPENGL_FORWARD_COMPAT    : int = 0x00020016;
-const GLFW_OPENGL_DEBUG_CONTEXT     : int = 0x00020017;
-const GLFW_OPENGL_PROFILE           : int = 0x00020018;
+const GLFW_OPENGL_VERSION_MAJOR     : int = 0x0002100F
+const GLFW_OPENGL_VERSION_MINOR     : int = 0x00021010
+const GLFW_OPENGL_FORWARD_COMPAT    : int = 0x00021011
+const GLFW_OPENGL_DEBUG_CONTEXT     : int = 0x00021012
+const GLFW_OPENGL_PROFILE           : int = 0x00021013
+const GLFW_OPENGL_ROBUSTNESS        : int = 0x00021014
 
-/* GLFW_OPENGL_PROFILE tokens */
-const GLFW_OPENGL_CORE_PROFILE      : int = 0x00050001;
-const GLFW_OPENGL_COMPAT_PROFILE    : int = 0x00050002;
+/* GLFW_OPENGL_ROBUSTNESS mode tokens */
+const GLFW_OPENGL_NO_ROBUSTNESS         : int = 0x00000000
+const GLFW_OPENGL_NO_RESET_NOTIFICATION : int = 0x00000001
+const GLFW_OPENGL_LOSE_CONTEXT_ON_RESET : int = 0x00000002
 
-/* glfwEnable/glfwDisable tokens */ 
-const GLFW_MOUSE_CURSOR             : int = 0x00030001;
-const GLFW_STICKY_KEYS              : int = 0x00030002;
-const GLFW_STICKY_MOUSE_BUTTONS     : int = 0x00030003;
-const GLFW_SYSTEM_KEYS              : int = 0x00030004;
-const GLFW_KEY_REPEAT               : int = 0x00030005;
-const GLFW_AUTO_POLL_EVENTS         : int = 0x00030006;
+/* GLFW_OPENGL_PROFILE bit tokens */
+const GLFW_OPENGL_NO_PROFILE    0x00000000
+const GLFW_OPENGL_CORE_PROFILE  0x00000001
+const GLFW_OPENGL_COMPAT_PROFILE 0x00000002
+const GLFW_OPENGL_ES2_PROFILE   0x00000004
 
-/* glfwWaitThread wait modes */
-const GLFW_WAIT                     : int = 0x00040001;
-const GLFW_NOWAIT                   : int = 0x00040002;
+/* glfwGetInputMode/glfwSetInputMode tokens */
+const GLFW_CURSOR_MODE              : int = 0x00030001
+const GLFW_STICKY_KEYS              : int = 0x00030002
+const GLFW_STICKY_MOUSE_BUTTONS     : int = 0x00030003
+const GLFW_SYSTEM_KEYS              : int = 0x00030004
+const GLFW_KEY_REPEAT               : int = 0x00030005
+
+/* GLFW_CURSOR_MODE values */
+const GLFW_CURSOR_NORMAL            : int = 0x00040001
+const GLFW_CURSOR_HIDDEN            : int = 0x00040002
+const GLFW_CURSOR_CAPTURED          : int = 0x00040003
 
 /* glfwGetJoystickParam tokens */
-const GLFW_PRESENT                  : int = 0x00050001;
-const GLFW_AXES                     : int = 0x00050002;
-const GLFW_BUTTONS                  : int = 0x00050003;
+const GLFW_PRESENT                  : int = 0x00050001
+const GLFW_AXES                     : int = 0x00050002
+const GLFW_BUTTONS                  : int = 0x00050003
 
-/* glfwReadImage/glfwLoadTexture2D flags */
-const GLFW_NO_RESCALE_BIT           : int = 0x00000001; /* Only for glfwReadImage */
-const GLFW_ORIGIN_UL_BIT            : int = 0x00000002;
-const GLFW_BUILD_MIPMAPS_BIT        : int = 0x00000004; /* Only for glfwLoadTexture2D */
-const GLFW_ALPHA_MAP_BIT            : int = 0x00000008;
+/* glfwGetError/glfwErrorString tokens */
+const GLFW_NO_ERROR                 : int = 0
+const GLFW_NOT_INITIALIZED          : int = 0x00070001
+const GLFW_NO_CURRENT_CONTEXT       : int = 0x00070002
+const GLFW_INVALID_ENUM             : int = 0x00070003
+const GLFW_INVALID_VALUE            : int = 0x00070004
+const GLFW_OUT_OF_MEMORY            : int = 0x00070005
+const GLFW_OPENGL_UNAVAILABLE       : int = 0x00070006
+const GLFW_VERSION_UNAVAILABLE      : int = 0x00070007
+const GLFW_PLATFORM_ERROR           : int = 0x00070008
+const GLFW_WINDOW_NOT_ACTIVE        : int = 0x00070009
+const GLFW_FORMAT_UNAVAILABLE       : int = 0x0007000A
 
-/* Time spans longer than this (seconds) are considered to be infinity */
-const GLFW_INFINITY                 : int = 100000;
+/* Gamma ramps */
+const GLFW_GAMMA_RAMP_SIZE          : int = 256
 
 type GLFWvidmode = {
 	Width      : int,
