@@ -48,17 +48,17 @@
  
 use std;
 
-const GLFW_VERSION_MAJOR    : int = 3;
-const GLFW_VERSION_MINOR    : int = 0;
-const GLFW_VERSION_REVISION : int = 0;
+const GLFW_VERSION_MAJOR        : int = 3;
+const GLFW_VERSION_MINOR        : int = 0;
+const GLFW_VERSION_REVISION     : int = 0;
 
 /*************************************************************************
  * Input handling definitions
  *************************************************************************/
 
 /* Key and button state/action definitions */
-const GLFW_RELEASE          : int = 0;
-const GLFW_PRESS            : int = 1;
+const GLFW_RELEASE              : int = 0;
+const GLFW_PRESS                : int = 1;
 
 /* Keyboard raw key codes.
  * These key codes are inspired by the USB HID Usage Tables v1.12 (p. 53-60),
@@ -255,41 +255,41 @@ const GLFW_JOYSTICK_LAST        : int = GLFW_JOYSTICK_16
  *************************************************************************/
 
 /* glfwCreateWindow modes */
-const GLFW_WINDOWED             : int = 0x00010001
-const GLFW_FULLSCREEN           : int = 0x00010002
+const GLFW_WINDOWED                     : int = 0x00010001
+const GLFW_FULLSCREEN                   : int = 0x00010002
 
 /* glfwGetWindowParam tokens */
-const GLFW_ACTIVE               : int = 0x00020001
-const GLFW_ICONIFIED            : int = 0x00020002
-const GLFW_CLOSE_REQUESTED      : int = 0x00020003
-const GLFW_OPENGL_REVISION      : int = 0x00020004
+const GLFW_ACTIVE                       : int = 0x00020001
+const GLFW_ICONIFIED                    : int = 0x00020002
+const GLFW_CLOSE_REQUESTED              : int = 0x00020003
+const GLFW_OPENGL_REVISION              : int = 0x00020004
 
 /* glfwWindowHint tokens */
-const GLFW_RED_BITS             : int = 0x00021000
-const GLFW_GREEN_BITS           : int = 0x00021001
-const GLFW_BLUE_BITS            : int = 0x00021002
-const GLFW_ALPHA_BITS           : int = 0x00021003
-const GLFW_DEPTH_BITS           : int = 0x00021004
-const GLFW_STENCIL_BITS         : int = 0x00021005
-const GLFW_REFRESH_RATE         : int = 0x00021006
-const GLFW_ACCUM_RED_BITS       : int = 0x00021007
-const GLFW_ACCUM_GREEN_BITS     : int = 0x00021008
-const GLFW_ACCUM_BLUE_BITS      : int = 0x00021009
-const GLFW_ACCUM_ALPHA_BITS     : int = 0x0002100A
-const GLFW_AUX_BUFFERS          : int = 0x0002100B
-const GLFW_STEREO               : int = 0x0002100C
-const GLFW_WINDOW_RESIZABLE     : int = 0x0002100D
-const GLFW_FSAA_SAMPLES         : int = 0x0002100E
+const GLFW_RED_BITS                     : int = 0x00021000
+const GLFW_GREEN_BITS                   : int = 0x00021001
+const GLFW_BLUE_BITS                    : int = 0x00021002
+const GLFW_ALPHA_BITS                   : int = 0x00021003
+const GLFW_DEPTH_BITS                   : int = 0x00021004
+const GLFW_STENCIL_BITS                 : int = 0x00021005
+const GLFW_REFRESH_RATE                 : int = 0x00021006
+const GLFW_ACCUM_RED_BITS               : int = 0x00021007
+const GLFW_ACCUM_GREEN_BITS             : int = 0x00021008
+const GLFW_ACCUM_BLUE_BITS              : int = 0x00021009
+const GLFW_ACCUM_ALPHA_BITS             : int = 0x0002100A
+const GLFW_AUX_BUFFERS                  : int = 0x0002100B
+const GLFW_STEREO                       : int = 0x0002100C
+const GLFW_WINDOW_RESIZABLE             : int = 0x0002100D
+const GLFW_FSAA_SAMPLES                 : int = 0x0002100E
 
 /* The following constants are used with both glfwGetWindowParam
  * and glfwWindowHint
  */
-const GLFW_OPENGL_VERSION_MAJOR     : int = 0x0002100F
-const GLFW_OPENGL_VERSION_MINOR     : int = 0x00021010
-const GLFW_OPENGL_FORWARD_COMPAT    : int = 0x00021011
-const GLFW_OPENGL_DEBUG_CONTEXT     : int = 0x00021012
-const GLFW_OPENGL_PROFILE           : int = 0x00021013
-const GLFW_OPENGL_ROBUSTNESS        : int = 0x00021014
+const GLFW_OPENGL_VERSION_MAJOR         : int = 0x0002100F
+const GLFW_OPENGL_VERSION_MINOR         : int = 0x00021010
+const GLFW_OPENGL_FORWARD_COMPAT        : int = 0x00021011
+const GLFW_OPENGL_DEBUG_CONTEXT         : int = 0x00021012
+const GLFW_OPENGL_PROFILE               : int = 0x00021013
+const GLFW_OPENGL_ROBUSTNESS            : int = 0x00021014
 
 /* GLFW_OPENGL_ROBUSTNESS mode tokens */
 const GLFW_OPENGL_NO_ROBUSTNESS         : int = 0x00000000
@@ -297,43 +297,43 @@ const GLFW_OPENGL_NO_RESET_NOTIFICATION : int = 0x00000001
 const GLFW_OPENGL_LOSE_CONTEXT_ON_RESET : int = 0x00000002
 
 /* GLFW_OPENGL_PROFILE bit tokens */
-const GLFW_OPENGL_NO_PROFILE    0x00000000
-const GLFW_OPENGL_CORE_PROFILE  0x00000001
-const GLFW_OPENGL_COMPAT_PROFILE 0x00000002
-const GLFW_OPENGL_ES2_PROFILE   0x00000004
+const GLFW_OPENGL_NO_PROFILE            : int = 0x00000000
+const GLFW_OPENGL_CORE_PROFILE          : int = 0x00000001
+const GLFW_OPENGL_COMPAT_PROFILE        : int = 0x00000002
+const GLFW_OPENGL_ES2_PROFILE           : int = 0x00000004
 
 /* glfwGetInputMode/glfwSetInputMode tokens */
-const GLFW_CURSOR_MODE              : int = 0x00030001
-const GLFW_STICKY_KEYS              : int = 0x00030002
-const GLFW_STICKY_MOUSE_BUTTONS     : int = 0x00030003
-const GLFW_SYSTEM_KEYS              : int = 0x00030004
-const GLFW_KEY_REPEAT               : int = 0x00030005
+const GLFW_CURSOR_MODE                  : int = 0x00030001
+const GLFW_STICKY_KEYS                  : int = 0x00030002
+const GLFW_STICKY_MOUSE_BUTTONS         : int = 0x00030003
+const GLFW_SYSTEM_KEYS                  : int = 0x00030004
+const GLFW_KEY_REPEAT                   : int = 0x00030005
 
 /* GLFW_CURSOR_MODE values */
-const GLFW_CURSOR_NORMAL            : int = 0x00040001
-const GLFW_CURSOR_HIDDEN            : int = 0x00040002
-const GLFW_CURSOR_CAPTURED          : int = 0x00040003
+const GLFW_CURSOR_NORMAL                : int = 0x00040001
+const GLFW_CURSOR_HIDDEN                : int = 0x00040002
+const GLFW_CURSOR_CAPTURED              : int = 0x00040003
 
 /* glfwGetJoystickParam tokens */
-const GLFW_PRESENT                  : int = 0x00050001
-const GLFW_AXES                     : int = 0x00050002
-const GLFW_BUTTONS                  : int = 0x00050003
+const GLFW_PRESENT                      : int = 0x00050001
+const GLFW_AXES                         : int = 0x00050002
+const GLFW_BUTTONS                      : int = 0x00050003
 
 /* glfwGetError/glfwErrorString tokens */
-const GLFW_NO_ERROR                 : int = 0
-const GLFW_NOT_INITIALIZED          : int = 0x00070001
-const GLFW_NO_CURRENT_CONTEXT       : int = 0x00070002
-const GLFW_INVALID_ENUM             : int = 0x00070003
-const GLFW_INVALID_VALUE            : int = 0x00070004
-const GLFW_OUT_OF_MEMORY            : int = 0x00070005
-const GLFW_OPENGL_UNAVAILABLE       : int = 0x00070006
-const GLFW_VERSION_UNAVAILABLE      : int = 0x00070007
-const GLFW_PLATFORM_ERROR           : int = 0x00070008
-const GLFW_WINDOW_NOT_ACTIVE        : int = 0x00070009
-const GLFW_FORMAT_UNAVAILABLE       : int = 0x0007000A
+const GLFW_NO_ERROR                     : int = 0
+const GLFW_NOT_INITIALIZED              : int = 0x00070001
+const GLFW_NO_CURRENT_CONTEXT           : int = 0x00070002
+const GLFW_INVALID_ENUM                 : int = 0x00070003
+const GLFW_INVALID_VALUE                : int = 0x00070004
+const GLFW_OUT_OF_MEMORY                : int = 0x00070005
+const GLFW_OPENGL_UNAVAILABLE           : int = 0x00070006
+const GLFW_VERSION_UNAVAILABLE          : int = 0x00070007
+const GLFW_PLATFORM_ERROR               : int = 0x00070008
+const GLFW_WINDOW_NOT_ACTIVE            : int = 0x00070009
+const GLFW_FORMAT_UNAVAILABLE           : int = 0x0007000A
 
 /* Gamma ramps */
-const GLFW_GAMMA_RAMP_SIZE          : int = 256
+const GLFW_GAMMA_RAMP_SIZE              : int = 256
 
 /*************************************************************************
  * Typedefs
