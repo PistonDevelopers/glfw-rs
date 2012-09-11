@@ -335,25 +335,46 @@ const GLFW_FORMAT_UNAVAILABLE       : int = 0x0007000A
 /* Gamma ramps */
 const GLFW_GAMMA_RAMP_SIZE          : int = 256
 
+/*************************************************************************
+ * Typedefs
+ *************************************************************************/
+
+// /* OpenGL function pointer type */
+// typedef void (*GLFWglproc)(void);
+
+/* Window handle type */
+// typedef void* GLFWwindow;
+type GLFWwindow = *uint;
+
+// /* Function pointer types */
+// typedef void (* GLFWerrorfun)(int,const char*);
+// typedef void (* GLFWwindowsizefun)(GLFWwindow,int,int);
+// typedef int  (* GLFWwindowclosefun)(GLFWwindow);
+// typedef void (* GLFWwindowrefreshfun)(GLFWwindow);
+// typedef void (* GLFWwindowfocusfun)(GLFWwindow,int);
+// typedef void (* GLFWwindowiconifyfun)(GLFWwindow,int);
+// typedef void (* GLFWmousebuttonfun)(GLFWwindow,int,int);
+// typedef void (* GLFWcursorposfun)(GLFWwindow,int,int);
+// typedef void (* GLFWcursorenterfun)(GLFWwindow,int);
+// typedef void (* GLFWscrollfun)(GLFWwindow,double,double);
+// typedef void (* GLFWkeyfun)(GLFWwindow,int,int);
+// typedef void (* GLFWcharfun)(GLFWwindow,int);
+
+/* The video mode structure used by glfwGetVideoModes */
 type GLFWvidmode = {
-	Width      : int,
-	Height     : int,
-	RedBits    : int,
-	BlueBits   : int,
-	GreenBits  : int
+	width      : int,
+	height     : int,
+	redBits    : int,
+	blueBits   : int,
+	greenBits  : int
 };
 
-type GLFWimage = {
-    Width          : int,
-	Height         : int,
-	Format         : int, 
-	BytesPerPixel  : int, 
-	Data           : *u8
-};
-
-type GLFWthread = int;
-type GLFWmutex = *uint;
-type GLFWcond = *uint;
+/* Gamma ramp */
+type GLFWgammaramp = {
+    red     : [u16 * GLFW_GAMMA_RAMP_SIZE],
+    green   : [u16 * GLFW_GAMMA_RAMP_SIZE],
+    blue    : [u16 * GLFW_GAMMA_RAMP_SIZE]
+}
 
 
 extern mod glfw3
