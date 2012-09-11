@@ -1,0 +1,5 @@
+#[link(name = "glfw3", 
+	   vers = "0.1", 
+	   author = "alegalle (original glfw bindings), Brendan Zabarauskas (glfw3 alterations)",
+	   url = "https://github.com/bjz/glfw3-rs")];
+#[crate_type = "lib"];

@@ -50,9 +50,9 @@
  
 use std;
 
-const GLFW_VERSION_MAJOR : int =    2;
-const GLFW_VERSION_MINOR : int =    7;
-const GLFW_VERSION_REVISION : int = 2;
+const GLFW_VERSION_MAJOR    : int = 3;
+const GLFW_VERSION_MINOR    : int = 0;
+const GLFW_VERSION_REVISION : int = 0;
 
 /*************************************************************************
  * Input handling definitions
@@ -266,7 +266,7 @@ type GLFWmutex = *uint;
 type GLFWcond = *uint;
 
 
-extern mod glfw
+extern mod glfw3
 {
 	/* GLFW initialization, termination and version querying */
 	fn glfwInit() -> libc::c_int;

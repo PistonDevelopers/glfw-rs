@@ -1,7 +1,7 @@
 use std;
-use glfw;
+use glfw3;
 
-import glfw::*;
+import glfw3::*;
 
 fn main ()
 {
