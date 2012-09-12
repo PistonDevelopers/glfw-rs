@@ -49,6 +49,11 @@
 use std;
 import libc::*;
 
+#[nolink]
+#[cfg(target_os = "macos")]
+#[link_args="-framework Foundation -framework AppKit -framework IOKit -framework OpenGL"]
+extern mod osx_frameworks {}
+
 const GLFW_VERSION_MAJOR        : int = 3;
 const GLFW_VERSION_MINOR        : int = 0;
 const GLFW_VERSION_REVISION     : int = 0;
