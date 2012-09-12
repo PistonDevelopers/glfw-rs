@@ -385,8 +385,8 @@ struct GLFWgammaramp {
 }
 
 
-extern mod glfw3
-{
+extern mod glfw3 {
+    
     /* GLFW initialization, termination and version querying */
     fn glfwInit() -> c_int;                                                             // GLFWAPI int  glfwInit(void);
     fn glfwTerminate();                                                                 // GLFWAPI void glfwTerminate(void);
@@ -461,7 +461,7 @@ extern mod glfw3
     
     /* OpenGL support */
     fn glfwMakeContextCurrent(window: &mut GLFWwindow);                                 // GLFWAPI void glfwMakeContextCurrent(GLFWwindow window);
-    fn glfwGetCurrentContext() -> &mut GLFWwindow;                                           // GLFWAPI GLFWwindow glfwGetCurrentContext(void);
+    fn glfwGetCurrentContext() -> &mut GLFWwindow;                                      // GLFWAPI GLFWwindow glfwGetCurrentContext(void);
     fn glfwSwapBuffers(window: &mut GLFWwindow);                                        // GLFWAPI void  glfwSwapBuffers(GLFWwindow window);
     fn glfwSwapInterval(interval: c_int);                                               // GLFWAPI void  glfwSwapInterval(int interval);
     fn glfwExtensionSupported(extension: *c_char) -> c_int;                             // GLFWAPI int   glfwExtensionSupported(const char* extension);
