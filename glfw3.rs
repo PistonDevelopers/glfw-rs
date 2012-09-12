@@ -511,19 +511,22 @@ fn glfwErrorString(error: int) -> ~str {
 
 /* Video mode functions */
 
-// fn glfwGetVideoModes() -> ~[GLFWvidmode] {
-//     let mut count = 0;
-//     unsafe {
-//         let modes = glfwGetVideoModes(count);
-//     }
-//     // ???
-// }
+fn glfwGetVideoModes() -> ~[GLFWvidmode] {
+    let mut count = 0;
+    let mut mode_ptr: *GLFWvidmode;
+    let mut modes: ~[GLFWvidmode];
+    unsafe {
+        mode_ptr = glfw3::glfwGetVideoModes(&mut count);
+        modes = vec::unsafe::from_buf(mode_ptr, count as uint);
+    }
+    return modes;
+}
 
-// fn glfwGetDesktopMode() -> GLFWvidmode {
-//     let mut mode: GLFWvidmode;
-//     unsafe { glfw3::glfwGetDesktopMode(&mut mode); }
-//     return mode;
-// }
+fn glfwGetDesktopMode() -> GLFWvidmode {
+    let mut mode = GLFWvidmode { width: 0, height : 0, redBits: 0, blueBits: 0, greenBits: 0 }; // initialisation is necessary
+    unsafe { glfw3::glfwGetDesktopMode(&mut mode); }
+    return mode;
+}
 
 /* Gamma ramp functions */
 
@@ -531,11 +534,11 @@ fn glfwSetGamma(gamma: float) {
     unsafe { glfw3::glfwSetGamma(gamma as c_float); }
 }
 
-// fn glfwGetGammaRamp() -> GLFWgammaramp {
-//     let mut ramp: GLFWgammaramp;
-//     unsafe { glfw3::glfwGetGammaRamp(&mut ramp); }
-//     return ramp;
-// }
+fn glfwGetGammaRamp() -> GLFWgammaramp {
+    let mut ramp = GLFWgammaramp { red: [0, ..256], green: [0, ..256], blue: [0, ..256] }; // initialisation is necessary
+    unsafe { glfw3::glfwGetGammaRamp(&mut ramp); }
+    return ramp;
+}
 
 fn glfwSetGammaRamp(ramp: &mut GLFWgammaramp) {
     unsafe { glfw3::glfwSetGammaRamp(ramp) }
