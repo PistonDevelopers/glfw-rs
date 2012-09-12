@@ -54,6 +54,10 @@ import libc::*;
 #[link_args="-framework Foundation -framework AppKit -framework IOKit -framework OpenGL"]
 extern mod osx_frameworks {}
 
+/*************************************************************************
+ * GLFW version
+ *************************************************************************/
+ 
 const GLFW_VERSION_MAJOR        : int = 3;
 const GLFW_VERSION_MINOR        : int = 0;
 const GLFW_VERSION_REVISION     : int = 0;
@@ -352,6 +356,7 @@ const GLFW_GAMMA_RAMP_SIZE              : int = 256;
 /* Window handle type */
 type GLFWwindow_ptr = *c_void;        // typedef void* GLFWwindow;
 
+// Wraps * pointer in a struct for safety 
 struct GLFWwindow {
     ptr: GLFWwindow_ptr
 }
