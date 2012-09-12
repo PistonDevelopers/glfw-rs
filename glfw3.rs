@@ -386,14 +386,14 @@ struct GLFWvidmode {
     greenBits  : int
 }
 
-// /* Gamma ramp */
-// struct GLFWgammaramp {
-//     red     : [c_ushort * GLFW_GAMMA_RAMP_SIZE],      // unsigned short red[GLFW_GAMMA_RAMP_SIZE];
-//     green   : [c_ushort * GLFW_GAMMA_RAMP_SIZE],      // unsigned short green[GLFW_GAMMA_RAMP_SIZE];
-//     blue    : [c_ushort * GLFW_GAMMA_RAMP_SIZE]       // unsigned short blue[GLFW_GAMMA_RAMP_SIZE];
-// }
-
 /* Gamma ramp */
+/* See https://github.com/mozilla/rust/issues/3469
+struct GLFWgammaramp {
+    red     : [c_ushort * GLFW_GAMMA_RAMP_SIZE],      // unsigned short red[GLFW_GAMMA_RAMP_SIZE];
+    green   : [c_ushort * GLFW_GAMMA_RAMP_SIZE],      // unsigned short green[GLFW_GAMMA_RAMP_SIZE];
+    blue    : [c_ushort * GLFW_GAMMA_RAMP_SIZE]       // unsigned short blue[GLFW_GAMMA_RAMP_SIZE];
+}
+*/
 struct GLFWgammaramp {
     red     : [c_ushort * 256],      // unsigned short red[GLFW_GAMMA_RAMP_SIZE];
     green   : [c_ushort * 256],      // unsigned short green[GLFW_GAMMA_RAMP_SIZE];
