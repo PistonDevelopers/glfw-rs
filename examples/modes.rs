@@ -1,6 +1,5 @@
 use std;
 use glfw3;
-import to_str::ToStr;
 import glfw3::*;
 
 fn main() {
@@ -21,7 +20,7 @@ fn main() {
 
 fn mode_str(mode: GLFWvidmode) -> ~str {
     fmt!("%d x %d\t%d (%d %d %d)",
-          mode.width as int, mode.height as int,
-          (mode.redBits + mode.blueBits + mode.greenBits) as int,
-          mode.redBits as int, mode.blueBits as int, mode.greenBits as int)
+         mode.width as int, mode.height as int,
+         (mode.redBits + mode.blueBits + mode.greenBits) as int,
+         mode.redBits as int, mode.blueBits as int, mode.greenBits as int)
 }
