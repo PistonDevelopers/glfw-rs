@@ -9,11 +9,7 @@ fn main() {
     io::println(~"GLFW version: " + glfwGetVersionString());
     
     // get version tuple
-    let version = glfwGetVersion();
-    match version {
-        (major, minor, rev) => {
-            io::println(fmt!("GLFW version: %d.%d.%d", major, minor, rev));
-        }
-    }
+    let (major, minor, rev) = glfwGetVersion();
+    io::println(fmt!("GLFW version: %d.%d.%d", major, minor, rev));
     
 }
