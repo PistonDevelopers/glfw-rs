@@ -4,18 +4,24 @@ import to_str::ToStr;
 import glfw3::*;
 
 fn main() {
+    if (glfwInit() == 0) {
+        fail(~"glfwInit() failed\n");
+    }
     
     let dt_mode = glfwGetDesktopMode();
-    io::println(mode_str(dt_mode));
+    io::println(~"Desktop mode:\n" + mode_str(dt_mode));
     
     let modes = glfwGetVideoModes();
     
-    for vec::each(modes) |m| {
-        io::println(mode_str(m));
-    }
+    io::println(~"Available modes:");
+    modes.map(|m| { io::println(mode_str(m)) });
     
+    glfwTerminate();
 }
 
 fn mode_str(mode: GLFWvidmode) -> ~str {
-    fmt!("%dpx x %dpx r: %d g: %d b: %d", mode.width, mode.height , mode.redBits, mode.blueBits, mode.greenBits)
+    fmt!("%d x %d\t%d (%d %d %d)",
+          mode.width as int, mode.height as int,
+          (mode.redBits + mode.blueBits + mode.greenBits) as int,
+          mode.redBits as int, mode.blueBits as int, mode.greenBits as int)
 }

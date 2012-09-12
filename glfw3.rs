@@ -379,11 +379,11 @@ type GLFWcharfun            = *u8;  // typedef void (* GLFWcharfun)(GLFWwindow,i
 
 /* The video mode structure used by glfwGetVideoModes */
 struct GLFWvidmode {
-    width      : int,
-    height     : int,
-    redBits    : int,
-    blueBits   : int,
-    greenBits  : int
+    width      : c_int,
+    height     : c_int,
+    redBits    : c_int,
+    blueBits   : c_int,
+    greenBits  : c_int
 }
 
 /* Gamma ramp */
@@ -521,7 +521,7 @@ fn glfwErrorString(error: int) -> ~str {
 /* Video mode functions */
 
 fn glfwGetVideoModes() -> ~[GLFWvidmode] {
-    let mut count = 0;
+    let mut count: c_int = 0;
     let mut mode_ptr: *GLFWvidmode;
     let mut modes: ~[GLFWvidmode];
     unsafe {
