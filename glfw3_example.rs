@@ -3,37 +3,26 @@ use glfw3;
 
 import glfw3::*;
 
-fn main ()
-{
-	if (glfwInit() == 0)
-	{
-		fail("glfwInit() failed\n");
-	}
-	
-	if (glfwOpenWindow(800, 600, 5, 6, 5, 0, 0, 0, GLFW_WINDOW) == 0)
-	{
-		fail("glfwOpenWindow() failed\n");
-	}
-	
-	let major : @int = @0;
-	let minor : @int = @0;
-	let rev   : @int = @0;
-	glfwGetGLVersion(major, minor, rev);
-	
-	let title = #fmt("Opengl version - %d.%d rev %d", *major, *minor, *rev);
-	glfwSetWindowTitle(title);
+fn main () {
+    
+    if (glfwInit() == 0) {
+        fail(~"glfwInit() failed\n");
+    }
+    
+    let mut window = glfwCreateWindow(800, 600, GLFW_WINDOWED, ~"Hello, I am a window.");
+    if (window.ptr as bool == false) {
+        fail(~"glfwOpenWindow() failed\n");
+    }
 
     let mut done = false; 
     
-	while (!done)
-	{
-		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS  || !glfwGetWindowParam(GLFW_OPENED) as bool)
-		{
+    while (!done) {
+        if (glfwGetKey(&mut window, GLFW_KEY_ESC) == GLFW_PRESS || !glfwGetWindowParam(&mut window, GLFW_CLOSE_REQUESTED) as bool) {
             done = true;
-		}
+        }
 
-		glfwSwapBuffers();
+        glfwSwapBuffers(&mut window);
     }  
 
-	glfwTerminate();
+    glfwTerminate();
 }
