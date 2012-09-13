@@ -425,7 +425,7 @@ extern mod glfw3 {
     
     /* Window handling */
     fn glfwWindowHint(target: c_int, hint: c_int);                                      // GLFWAPI void glfwWindowHint(int target, int hint);
-    fn glfwCreateWindow(width: c_int, height: c_int, mode: c_int, title: *c_char, share: GLFWwindow_ptr) -> c_int; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
+    fn glfwCreateWindow(width: c_int, height: c_int, mode: c_int, title: *c_char, share: GLFWwindow_ptr) -> GLFWwindow_ptr; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
     fn glfwDestroyWindow(window: GLFWwindow_ptr);                                       // GLFWAPI void glfwDestroyWindow(GLFWwindow window);
     fn glfwSetWindowTitle(window: GLFWwindow_ptr, title: *c_char);                      // GLFWAPI void glfwSetWindowTitle(GLFWwindow window, const char* title);
     fn glfwGetWindowSize(window: GLFWwindow_ptr, width: &mut c_int, height: &mut c_int);// GLFWAPI void glfwGetWindowSize(GLFWwindow window, int* width, int* height);
@@ -561,28 +561,24 @@ fn glfwWindowHint(target: int, hint: int) {
 
 fn glfwCreateWindow(width: int, height: int, mode: int, title: ~str) -> GLFWwindow {
     unsafe {
-        do str::as_c_str(title) |c_title| {
-            GLFWwindow {
-                ptr: glfw3::glfwCreateWindow(width as c_int,
-                                             height as c_int,
-                                             mode as c_int,
-                                             c_title,
-                                             ptr::null()) as GLFWwindow_ptr
-            }
+        GLFWwindow {
+            ptr: glfw3::glfwCreateWindow(width as c_int,
+                                         height as c_int,
+                                         mode as c_int,
+                                         str::as_c_str(title, |p| {p}),
+                                         ptr::null())
         }
     }
 }
 
 fn glfwCreateWindowShared(width: int, height: int, mode: int, title: ~str, share: &mut GLFWwindow) -> GLFWwindow {
     unsafe {
-        do str::as_c_str(title) |c_title| {
-            GLFWwindow {
-                ptr: glfw3::glfwCreateWindow(width as c_int,
-                                             height as c_int,
-                                             mode as c_int,
-                                             c_title,
-                                             share.ptr) as GLFWwindow_ptr
-            }
+        GLFWwindow {
+            ptr: glfw3::glfwCreateWindow(width as c_int,
+                                         height as c_int,
+                                         mode as c_int,
+                                         str::as_c_str(title, |p| {p}),
+                                         share.ptr)
         }
     }
 }
@@ -595,9 +591,7 @@ fn glfwDestroyWindow(window: &mut GLFWwindow) {
 
 fn glfwSetWindowTitle(window: &mut GLFWwindow, title: ~str) {
     unsafe {
-        do str::as_c_str(title) |c_title| {
-            glfw3::glfwSetWindowTitle(window.ptr, c_title)
-        }
+        glfw3::glfwSetWindowTitle(window.ptr, str::as_c_str(title, |p| {p}))
     }
 }
 
