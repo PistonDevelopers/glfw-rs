@@ -711,11 +711,11 @@ fn glfwGetClipboardString(window: &mut GLFWwindow) -> ~str {
 
 /* Time */
 
-fn glfwGetTime() -> i64 {
-    unsafe { glfw3::glfwGetTime() as i64 }
+fn glfwGetTime() -> f64 {
+    unsafe { glfw3::glfwGetTime() as f64 }
 }
 
-fn glfwSetTime(time: i64) {
+fn glfwSetTime(time: f64) {
     unsafe { glfw3::glfwSetTime(time as c_double); }
 }
 
