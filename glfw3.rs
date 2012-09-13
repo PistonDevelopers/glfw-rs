@@ -51,7 +51,7 @@ import libc::*;
 
 #[nolink]
 #[cfg(target_os = "macos")]
-#[link_args="-framework Foundation -framework AppKit -framework IOKit -framework OpenGL"]
+#[link_args="-framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
 extern mod osx_frameworks {}
 
 /*************************************************************************
