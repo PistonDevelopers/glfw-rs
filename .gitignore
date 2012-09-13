@@ -2,3 +2,5 @@
 *.o
 *.dylib*
 *.dSYM
+build
+lib
