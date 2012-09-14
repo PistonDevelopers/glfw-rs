@@ -17,3 +17,6 @@ version: builddir
 	
 window: builddir
 	rustc window.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
+	
+basicwindow: builddir
+	rustc basicwindow.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
