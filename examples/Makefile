@@ -1,10 +1,16 @@
-RS_FLAGS	:= -g -L ../lib
+RS_FLAGS	:= -L ../lib
+# RS_FLAGS	:= -g -L ../lib 		# causes "error: internal compiler error: create_function: unexpected sort of node"
 BUILD_DIR	:= build
+
 
 all: modes time version window
 	
 builddir:
 	@mkdir -p $(BUILD_DIR)
+	
+	
+callbacks: builddir
+	rustc callbacks.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
 	
 modes: builddir
 	rustc modes.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
@@ -17,6 +23,3 @@ version: builddir
 	
 window: builddir
 	rustc window.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
-basicwindow: builddir
-	rustc basicwindow.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)

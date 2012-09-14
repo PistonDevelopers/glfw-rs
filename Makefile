@@ -9,7 +9,7 @@ BUILD_DIR      = $(ROOT_DIR)/lib
 $(TARGET):
 	@echo "Building $(TARGET)"
 	@mkdir -p $(BUILD_DIR)
-	@rustc $(SRC_DIR)/$(SRC_CRATE) --lib -g --out-dir=$(BUILD_DIR)
+	@rustc $(SRC_DIR)/$(SRC_CRATE) --lib --out-dir=$(BUILD_DIR)
 	@echo "Success! \o/"
 
 all: $(TARGET)
