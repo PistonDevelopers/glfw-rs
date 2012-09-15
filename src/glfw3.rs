@@ -48,6 +48,8 @@
  
 use std;
 import libc::*;
+import vec::unsafe::from_buf;
+import vec::map;
 
 #[nolink]
 #[cfg(target_os = "macos")]
@@ -464,7 +466,7 @@ extern mod glfw3 {
     
     /* Joystick input */
     fn glfwGetJoystickParam(joy: c_int, param: c_int) -> c_int;                         // GLFWAPI int glfwGetJoystickParam(int joy, int param);
-    fn glfwGetJoystickAxes(joy: c_int, axes: &mut c_float, numaxes: c_int) -> c_int;    // GLFWAPI int glfwGetJoystickAxes(int joy, float* axes, int numaxes);
+    fn glfwGetJoystickAxes(joy: c_int, axes: *c_float, numaxes: c_int) -> c_int;    // GLFWAPI int glfwGetJoystickAxes(int joy, float* axes, int numaxes);
     fn glfwGetJoystickButtons(joy: c_int, buttons: *c_uchar, numbuttons: c_int) -> c_int; // GLFWAPI int glfwGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
     
     /* Clipboard */
@@ -526,7 +528,7 @@ fn glfwGetVideoModes() -> ~[GLFWvidmode] {
     let mut modes: ~[GLFWvidmode];
     unsafe {
         mode_ptr = glfw3::glfwGetVideoModes(&mut count);
-        modes = vec::unsafe::from_buf(mode_ptr, count as uint);
+        modes = from_buf(mode_ptr, count as uint);
     }
     return modes;
 }
@@ -692,8 +694,41 @@ fn glfwGetJoystickParam(joy: int, param: int) -> int {
     unsafe { glfw3::glfwGetJoystickParam(joy as c_int, param as c_int) as int }
 }
 
-// TODO: glfwGetJoystickAxes
-// TODO: glfwGetJoystickButtons
+/**
+ * Somebody with a joystick will have to test this. I don't have one, unfortunately.
+ *
+ * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
+ */
+fn glfwGetJoystickAxes(joy: int, numaxes: int) -> Option<~[float]> {
+    let axes: ~[float];
+    
+    unsafe {
+        let axes_ptr: *c_float = ptr::null();
+        let n = glfw3::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
+        axes = from_buf(axes_ptr, n).map(|a| { a as float });   // Could be inefficient
+    }
+    
+    if numaxes > 0 { Some(axes) }
+    else           { None }
+}
+
+/**
+ * Somebody with a joystick will have to test this. I don't have one, unfortunately.
+ *
+ * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
+ */
+fn glfwGetJoystickButtons(joy: int, numbuttons: int) -> Option<~[char]> {
+    let buttons: ~[char];
+    
+    unsafe {
+        let buttons_ptr: *c_uchar = ptr::null();
+        let n = glfw3::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
+        buttons = from_buf(buttons_ptr, n).map(|a| { a as char });; // Could be inefficient
+    }
+    
+    if numbuttons > 0 { Some(buttons) }
+    else              { None }
+}
 
 /* Clipboard */
 
