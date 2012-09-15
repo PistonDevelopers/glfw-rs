@@ -483,7 +483,7 @@ extern mod glfw3 {
     fn glfwSwapBuffers(window: GLFWwindow_ptr);                                         // GLFWAPI void  glfwSwapBuffers(GLFWwindow window);
     fn glfwSwapInterval(interval: c_int);                                               // GLFWAPI void  glfwSwapInterval(int interval);
     fn glfwExtensionSupported(extension: *c_char) -> c_int;                             // GLFWAPI int   glfwExtensionSupported(const char* extension);
-    // TODO: GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
+    fn glfwGetProcAddress(procname: *c_char) -> GLFWglproc;                             // GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
     fn glfwCopyContext(src: GLFWwindow_ptr, dst: GLFWwindow_ptr, mask: c_ulong);        // GLFWAPI void  glfwCopyContext(GLFWwindow src, GLFWwindow dst, unsigned long mask);
 }
 
@@ -780,7 +780,9 @@ fn glfwExtensionSupported(extension: ~str) -> int {
     }
 }
 
-// TODO: glfwGetProcAddress
+fn glfwGetProcAddress(procname: ~str) -> GLFWglproc {
+    unsafe { glfw3::glfwGetProcAddress(str::as_c_str(procname, |p| {p})) }
+}
 
 fn glfwCopyContext(src: &GLFWwindow, dst: &mut GLFWwindow, mask: u32) {
     unsafe { glfw3::glfwCopyContext(src.ptr, dst.ptr, mask as c_ulong); }

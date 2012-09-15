@@ -27,7 +27,6 @@ GLFW3 bindings for Rust. Based on alegalle's [rust_glfw](https://github.com/aleg
 - Implement and wrap the last outstanding function bindings:
   - glfwSetWindowUserPointer
   - glfwGetWindowUserPointer
-  - glfwGetProcAddress
 - Double check my pointer usage and code, get reviews and analysis from peers
 - Add a tutorial to this readme
 - Document wrapper functions
