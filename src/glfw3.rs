@@ -1,20 +1,9 @@
-/************************************************************************
- * GLFW Bindings for rust
- * 
- * All glfw functions are represented except the following
- * 
- * 
- * The thread functions : glfw has some thread control functions,
- * these are not required to use glfw, and they would almost certainly
- * not play well with rust tasks so they are left out.
- * 
- * The callback function : These will be put in with rust supports
- * C calling rust code.  Luckily glfw offers these functions as an
- * option.  You do not need them to use the library, so with this
- * file and glfw installed you can set up a useful opengl context 
- * with rust 0.1!
- * 
- * 
+/*************************************************************************
+ * GLFW3 Bindings for rust (based off alegalle's rust_glfw)
+ *
+ * For instructions and more information check out the github repository at 
+ * https://github.com/bjz/glfw3-rs/
+ *
  *************************************************************************/
  
  /*************************************************************************
