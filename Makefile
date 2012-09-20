@@ -15,5 +15,4 @@ $(TARGET):
 all: $(TARGET)
 
 clean:
-	rm -R -f $(BUILD_DIR)/*
-	rm -R -f $(TEST_BUILD_DIR)/*
+	rm -R -f $(BUILD_DIR)
