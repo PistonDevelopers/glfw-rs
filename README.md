@@ -41,6 +41,7 @@ In order to use glfw-rs it is essential that you run your main loop from the mai
 - [Niko Matsakis](https://github.com/nikomatsakis), [Brian Anderson](https://github.com/brson/) and [Patrick Walton](https://github.com/pcwalton): for generously spending a ton of their time helping me out with my many problems and questions. Cheers guys!
 
 ## Todo:
+- Fix examples/time.rs
 - Wrap callback functions so that the user doesn't need to deal with external functions:
   - glfwSetErrorCallback
   - glfwSetWindowSizeCallback
@@ -57,7 +58,6 @@ In order to use glfw-rs it is essential that you run your main loop from the mai
 - Implement and wrap the last outstanding function bindings:
   - glfwSetWindowUserPointer
   - glfwGetWindowUserPointer
-- Double check my pointer usage and code, get reviews and analysis from peers
 - Document wrapper functions
 - Register with Cargo Central?
 - Into the future:

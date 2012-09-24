@@ -3,11 +3,10 @@ RS_FLAGS	:= -L ../lib
 BUILD_DIR	:= build
 
 
-all: modes time version window
+all: callbacks modes time version window
 	
 builddir:
 	@mkdir -p $(BUILD_DIR)
-	
 	
 callbacks: builddir
 	rustc callbacks.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)

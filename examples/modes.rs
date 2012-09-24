@@ -1,6 +1,6 @@
-use std;
-use glfw3;
-import glfw3::*;
+extern mod std;
+extern mod glfw3;
+use glfw3::*;
 
 fn main() {
     if (glfwInit() == 0) {
