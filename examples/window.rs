@@ -26,7 +26,7 @@ fn main() {
         
         let mut done = false;
         
-        while (!done) {
+        while !done {
             glfwPollEvents();
             if (glfwGetKey(&window, GLFW_KEY_ESC) == GLFW_PRESS || glfwGetWindowParam(&window, GLFW_CLOSE_REQUESTED) != 0) {
                 done = true;
