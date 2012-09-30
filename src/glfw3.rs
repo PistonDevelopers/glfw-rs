@@ -419,7 +419,7 @@ extern mod glfw3 {
     fn glfwCreateWindow(width: c_int, height: c_int, mode: c_int, title: *c_char, share: GLFWwindowPtr) -> GLFWwindowPtr; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
     fn glfwDestroyWindow(window: GLFWwindowPtr);                                        // GLFWAPI void glfwDestroyWindow(GLFWwindow window);
     fn glfwSetWindowTitle(window: GLFWwindowPtr, title: *c_char);                       // GLFWAPI void glfwSetWindowTitle(GLFWwindow window, const char* title);
-    fn glfwGetWindowSize(window: GLFWwindowPtr, width: &mut c_int, height: &mut c_int   // GLFWAPI void glfwGetWindowSize(GLFWwindow window, int* width, int* height);
+    fn glfwGetWindowSize(window: GLFWwindowPtr, width: &mut c_int, height: &mut c_int); // GLFWAPI void glfwGetWindowSize(GLFWwindow window, int* width, int* height);
     fn glfwSetWindowSize(window: GLFWwindowPtr, width: c_int, height: c_int);           // GLFWAPI void glfwSetWindowSize(GLFWwindow window, int width, int height);
     fn glfwGetWindowPos(window: GLFWwindowPtr, xpos: &mut c_int, ypos: &mut c_int);     // GLFWAPI void glfwGetWindowPos(GLFWwindow window, int* xpos, int* ypos);
     fn glfwSetWindowPos(window: GLFWwindowPtr, xpos: c_int, ypos: c_int);               // GLFWAPI void glfwSetWindowPos(GLFWwindow window, int xpos, int ypos);
