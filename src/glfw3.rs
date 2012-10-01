@@ -694,7 +694,7 @@ pub fn glfwGetJoystickAxes(joy: int, numaxes: int) -> Option<~[float]> {
     unsafe {
         let axes_ptr: *c_float = ptr::null();
         let n = glfw3::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
-        axes = from_buf(axes_ptr, n).map(|a| { a as float });   // Could be inefficient
+        axes = from_buf(axes_ptr, n).map(|a| *a as float );   // Could be inefficient
     }
     
     if numaxes > 0 { Some(axes) }
@@ -712,7 +712,7 @@ pub fn glfwGetJoystickButtons(joy: int, numbuttons: int) -> Option<~[char]> {
     unsafe {
         let buttons_ptr: *c_uchar = ptr::null();
         let n = glfw3::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
-        buttons = from_buf(buttons_ptr, n).map(|a| { a as char });; // Could be inefficient
+        buttons = from_buf(buttons_ptr, n).map(|a| *a as char ); // Could be inefficient
     }
     
     if numbuttons > 0 { Some(buttons) }
