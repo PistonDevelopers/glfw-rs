@@ -550,25 +550,25 @@ pub fn glfwWindowHint(target: int, hint: int) {
     unsafe { glfw3::glfwWindowHint(target as c_int, hint as c_int); }
 }
 
-pub fn glfwCreateWindow(width: int, height: int, mode: int, title: ~str) -> GLFWwindow {
+pub fn glfwCreateWindow(width: int, height: int, mode: int, title: &str) -> GLFWwindow {
     unsafe {
         GLFWwindow {
             ptr: glfw3::glfwCreateWindow(width as c_int,
                                          height as c_int,
                                          mode as c_int,
-                                         str::as_c_str(title, |p| {p}),
+                                         str::as_c_str(title, |p| p),
                                          ptr::null())
         }
     }
 }
 
-pub fn glfwCreateWindowShared(width: int, height: int, mode: int, title: ~str, share: &mut GLFWwindow) -> GLFWwindow {
+pub fn glfwCreateWindowShared(width: int, height: int, mode: int, title: &str, share: &mut GLFWwindow) -> GLFWwindow {
     unsafe {
         GLFWwindow {
             ptr: glfw3::glfwCreateWindow(width as c_int,
                                          height as c_int,
                                          mode as c_int,
-                                         str::as_c_str(title, |p| {p}),
+                                         str::as_c_str(title, |p| p),
                                          share.ptr)
         }
     }
@@ -580,9 +580,9 @@ pub fn glfwDestroyWindow(window: &mut GLFWwindow) {
     }
 }
 
-pub fn glfwSetWindowTitle(window: &GLFWwindow, title: ~str) {
+pub fn glfwSetWindowTitle(window: &GLFWwindow, title: &str) {
     unsafe {
-        glfw3::glfwSetWindowTitle(window.ptr, str::as_c_str(title, |p| {p}))
+        glfw3::glfwSetWindowTitle(window.ptr, str::as_c_str(title, |p| p))
     }
 }
 
@@ -721,12 +721,8 @@ pub fn glfwGetJoystickButtons(joy: int, numbuttons: int) -> Option<~[char]> {
 
 /* Clipboard */
 
-pub fn glfwSetClipboardString(window: &GLFWwindow, string: ~str) {
-    unsafe {
-        do str::as_c_str(string) |c_string| {
-            glfw3::glfwSetClipboardString(window.ptr, c_string);
-        }
-    }
+pub fn glfwSetClipboardString(window: &GLFWwindow, string: &str) {
+    unsafe { glfw3::glfwSetClipboardString(window.ptr, str::as_c_str(string, |p| p)); }
 }
 
 pub fn glfwGetClipboardString(window: &GLFWwindow) -> ~str {
@@ -761,7 +757,7 @@ pub fn glfwSwapInterval(interval: int) {
     unsafe { glfw3::glfwSwapInterval(interval as c_int); }
 }
 
-pub fn glfwExtensionSupported(extension: ~str) -> int {
+pub fn glfwExtensionSupported(extension: &str) -> int {
     unsafe {
         do str::as_c_str(extension) |c_extension| {
             glfw3::glfwExtensionSupported(c_extension) as int
@@ -769,8 +765,8 @@ pub fn glfwExtensionSupported(extension: ~str) -> int {
     }
 }
 
-pub fn glfwGetProcAddress(procname: ~str) -> GLFWglproc {
-    unsafe { glfw3::glfwGetProcAddress(str::as_c_str(procname, |p| {p})) }
+pub fn glfwGetProcAddress(procname: &str) -> GLFWglproc {
+    unsafe { glfw3::glfwGetProcAddress(str::as_c_str(procname, |p| p)) }
 }
 
 pub fn glfwCopyContext(src: &GLFWwindow, dst: &mut GLFWwindow, mask: u32) {
