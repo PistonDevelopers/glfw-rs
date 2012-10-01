@@ -286,12 +286,19 @@ pub const GLFW_FSAA_SAMPLES                 : int = 0x0002100E;
 /* The following constants are used with both glfwGetWindowParam
  * and glfwWindowHint
  */
-pub const GLFW_OPENGL_VERSION_MAJOR         : int = 0x0002100F;
-pub const GLFW_OPENGL_VERSION_MINOR         : int = 0x00021010;
-pub const GLFW_OPENGL_FORWARD_COMPAT        : int = 0x00021011;
-pub const GLFW_OPENGL_DEBUG_CONTEXT         : int = 0x00021012;
-pub const GLFW_OPENGL_PROFILE               : int = 0x00021013;
-pub const GLFW_OPENGL_ROBUSTNESS            : int = 0x00021014;
+pub const GLFW_CLIENT_API                   : int = 0x00022000;
+pub const GLFW_OPENGL_VERSION_MAJOR         : int = 0x00022001;
+pub const GLFW_OPENGL_VERSION_MINOR         : int = 0x00022002;
+pub const GLFW_OPENGL_FORWARD_COMPAT        : int = 0x00022003;
+pub const GLFW_OPENGL_DEBUG_CONTEXT         : int = 0x00022004;
+pub const GLFW_OPENGL_PROFILE               : int = 0x00022005;
+pub const GLFW_OPENGL_ROBUSTNESS            : int = 0x00022006;
+pub const GLFW_RESIZABLE                    : int = 0x00022007;
+pub const GLFW_VISIBLE                      : int = 0x00022008;
+ 
+/* GLFW_CLIENT_API tokens */
+pub const GLFW_OPENGL_API                   : int = 0x00000001;
+pub const GLFW_OPENGL_ES_API                : int = 0x00000002;
 
 /* GLFW_OPENGL_ROBUSTNESS mode tokens */
 pub const GLFW_OPENGL_NO_ROBUSTNESS         : int = 0x00000000;
@@ -302,7 +309,6 @@ pub const GLFW_OPENGL_LOSE_CONTEXT_ON_RESET : int = 0x00000002;
 pub const GLFW_OPENGL_NO_PROFILE            : int = 0x00000000;
 pub const GLFW_OPENGL_CORE_PROFILE          : int = 0x00000001;
 pub const GLFW_OPENGL_COMPAT_PROFILE        : int = 0x00000002;
-pub const GLFW_OPENGL_ES2_PROFILE           : int = 0x00000004;
 
 /* glfwGetInputMode/glfwSetInputMode tokens */
 pub const GLFW_CURSOR_MODE                  : int = 0x00030001;
