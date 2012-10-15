@@ -1,6 +1,6 @@
 # glfw-rs
 
-*Warning: these bindings are currently in development and may be incomplete, out of date or error-prone.*
+*Warning: these bindings are currently in development and may be incomplete, out of date or error-prone. Please let me know if you have any problems and I'll do my best to resolve them. :)*
 
 GLFW3 bindings for Rust. Based on alegalle's [rust_glfw](https://github.com/alegalle/rust_glfw) bindings but heavily modified to work with the latest development versions of [GLFW](https://github.com/elmindreda/glfw) and [Rust](https://github.com/mozilla/rust).
 
@@ -18,7 +18,9 @@ Basically GLFW is a lightweight alternative to [SDL](http://www.libsdl.org/) and
 
 ### Building glfw-rs
 
-1. Make sure you have the latest version of GLFW built and installed on your system. This can be cloned from the project's [Github repository](https://github.com/elmindreda/glfw). Note: the version that is available from [glfw.org](http://www.glfw.org/) is _very_ out of date, and will not work with these bindings.
+1. Make sure you have the latest version of GLFW built and installed on your system. This can be cloned from the project's [Github repository](https://github.com/elmindreda/glfw). Note:
+  - The version that is available from [glfw.org](http://www.glfw.org/) is _very_ out of date, and will not work with these bindings.
+  - GLFW builds as a static library as default which doesn't work well with Rust, so you'll have to set the `BUILD_SHARED_LIBS` CMake option to true _before_ you build and install it.
 2. Make sure you have the latest version of Rust built and installed. As with GLFW, this can be clone from the [github repository](https://github.com/mozilla/rust).
 3. Clone this repository: `$ git clone https://github.com/bjz/glfw3-rs.git`, then `$ cd glfw-rs`.
 4. Run `$ make`. This will build the library to the `./lib` directory.
