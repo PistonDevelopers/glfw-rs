@@ -1,22 +1,21 @@
 extern mod std;
 extern mod glfw3;
-use glfw3::*;
 
 fn main() {
     
-    if (glfwInit() == 0) {
+    if (glfw3::init() == 0) {
         fail(~"glfwInit() failed\n");
     }
     
     let mut time = 0f64;
-    glfwSetTime(time);
+    glfw3::set_time(time);
     
     for 40.times {
-        let newTime = glfwGetTime();
+        let newTime = glfw3::get_time();
         let delta = newTime - time;
         time = newTime;
         io::println(fmt!("dt: %?", delta));
     }
     
-    glfwTerminate();
+    glfw3::terminate();
 }
