@@ -40,10 +40,28 @@ use libc::*;
 use vec::from_buf;
 use vec::map;
 
+
+// Include OS X Frameworks
 #[nolink]
 #[cfg(target_os = "macos")]
 #[link_args="-framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
 extern mod osx_frameworks {}
+
+// GLFW Linking
+
+#[link_name = "glfw"]
+#[cfg(target_os = "macos")]
+extern mod linkhack {}
+
+#[link_name = "glfw"]
+#[cfg(target_os = "linux")]
+extern mod linkhack {}
+
+// TODO: Fix GLFW linking on windows
+// #[link_name = "???"]
+// #[cfg(target_os = "windows")]
+// extern mod linkhack{}
+
 
 /*************************************************************************
  * GLFW version
@@ -397,8 +415,8 @@ pub struct GLFWgammaramp {
     blue    : [c_ushort * 256]       // unsigned short blue[GLFW_GAMMA_RAMP_SIZE];
 }
 
-
-pub extern mod glfw3 {
+#[nolink]
+pub extern mod cfns {
     
     /* GLFW initialization, termination and version querying */
     fn glfwInit() -> c_int;                                                             // GLFWAPI int  glfwInit(void);
@@ -486,31 +504,31 @@ pub extern mod glfw3 {
 /* GLFW initialization, termination and version querying */
     
 pub fn glfwInit() -> int {    
-    unsafe { glfw3::glfwInit() as int }
+    unsafe { cfns::glfwInit() as int }
 }
 
 pub fn glfwTerminate() {
-    unsafe { glfw3::glfwTerminate(); }  
+    unsafe { cfns::glfwTerminate(); }  
 }
 
 pub fn glfwGetVersion() -> (int, int, int) {
     let mut major = 0, minor = 0, rev = 0;
-    unsafe { glfw3::glfwGetVersion(&mut major, &mut minor, &mut rev); }
+    unsafe { cfns::glfwGetVersion(&mut major, &mut minor, &mut rev); }
     return (major as int, minor as int, rev as int);
 }
 
 pub fn glfwGetVersionString() -> ~str {
-    unsafe { str::raw::from_c_str(glfw3::glfwGetVersionString()) }
+    unsafe { str::raw::from_c_str(cfns::glfwGetVersionString()) }
 }
 
 /* Error handling */
 
 pub fn glfwGetError() -> int {
-    unsafe { glfw3::glfwGetError() as int }
+    unsafe { cfns::glfwGetError() as int }
 }
 
 pub fn glfwErrorString(error: int) -> ~str {
-    unsafe { str::raw::from_c_str(glfw3::glfwErrorString(error as c_int)) }
+    unsafe { str::raw::from_c_str(cfns::glfwErrorString(error as c_int)) }
 }
 
 // TODO: glfwSetErrorCallback
@@ -522,7 +540,7 @@ pub fn glfwGetVideoModes() -> ~[GLFWvidmode] {
     let mut mode_ptr: *GLFWvidmode;
     let mut modes: ~[GLFWvidmode];
     unsafe {
-        mode_ptr = glfw3::glfwGetVideoModes(&mut count);
+        mode_ptr = cfns::glfwGetVideoModes(&mut count);
         modes = from_buf(mode_ptr, count as uint);
     }
     return modes;
@@ -530,39 +548,39 @@ pub fn glfwGetVideoModes() -> ~[GLFWvidmode] {
 
 pub fn glfwGetDesktopMode() -> GLFWvidmode {
     let mut mode = GLFWvidmode { width: 0, height : 0, redBits: 0, blueBits: 0, greenBits: 0 }; // initialisation is necessary
-    unsafe { glfw3::glfwGetDesktopMode(&mut mode); }
+    unsafe { cfns::glfwGetDesktopMode(&mut mode); }
     return mode;
 }
 
 /* Gamma ramp functions */
 
 pub fn glfwSetGamma(gamma: float) {
-    unsafe { glfw3::glfwSetGamma(gamma as c_float); }
+    unsafe { cfns::glfwSetGamma(gamma as c_float); }
 }
 
 pub fn glfwGetGammaRamp() -> GLFWgammaramp {
     let mut ramp = GLFWgammaramp { red: [0, ..256], green: [0, ..256], blue: [0, ..256] }; // initialisation is necessary
-    unsafe { glfw3::glfwGetGammaRamp(&mut ramp); }
+    unsafe { cfns::glfwGetGammaRamp(&mut ramp); }
     return ramp;
 }
 
 pub fn glfwSetGammaRamp(ramp: &mut GLFWgammaramp) {
-    unsafe { glfw3::glfwSetGammaRamp(ramp) }
+    unsafe { cfns::glfwSetGammaRamp(ramp) }
 }
 
 /* Window handling */
 
 pub fn glfwWindowHint(target: int, hint: int) {
-    unsafe { glfw3::glfwWindowHint(target as c_int, hint as c_int); }
+    unsafe { cfns::glfwWindowHint(target as c_int, hint as c_int); }
 }
 
 pub fn glfwCreateWindow(width: int, height: int, mode: int, title: &str) -> GLFWwindow {
     unsafe {
         GLFWwindow {
-            ptr: glfw3::glfwCreateWindow(width as c_int,
+            ptr: cfns::glfwCreateWindow(width as c_int,
                                          height as c_int,
                                          mode as c_int,
-                                         str::as_c_str(title, |p| p),
+                                         str::as_c_str(title, |a| a),
                                          ptr::null())
         }
     }
@@ -571,10 +589,10 @@ pub fn glfwCreateWindow(width: int, height: int, mode: int, title: &str) -> GLFW
 pub fn glfwCreateWindowShared(width: int, height: int, mode: int, title: &str, share: &mut GLFWwindow) -> GLFWwindow {
     unsafe {
         GLFWwindow {
-            ptr: glfw3::glfwCreateWindow(width as c_int,
+            ptr: cfns::glfwCreateWindow(width as c_int,
                                          height as c_int,
                                          mode as c_int,
-                                         str::as_c_str(title, |p| p),
+                                         str::as_c_str(title, |a| a),
                                          share.ptr)
         }
     }
@@ -582,46 +600,46 @@ pub fn glfwCreateWindowShared(width: int, height: int, mode: int, title: &str, s
 
 pub fn glfwDestroyWindow(window: &mut GLFWwindow) {
     unsafe {
-        glfw3::glfwDestroyWindow(window.ptr)
+        cfns::glfwDestroyWindow(window.ptr)
     }
 }
 
 pub fn glfwSetWindowTitle(window: &GLFWwindow, title: &str) {
     unsafe {
-        glfw3::glfwSetWindowTitle(window.ptr, str::as_c_str(title, |p| p))
+        cfns::glfwSetWindowTitle(window.ptr, str::as_c_str(title, |a| a))
     }
 }
 
 pub fn glfwGetWindowSize(window: &GLFWwindow) -> (int, int) {
     let mut width = 0, height = 0;
-    unsafe { glfw3::glfwGetWindowSize(window.ptr, &mut width, &mut height)}
+    unsafe { cfns::glfwGetWindowSize(window.ptr, &mut width, &mut height)}
     return (width as int, height as int);
 }
 
 pub fn glfwSetWindowSize(window: &GLFWwindow, width: int, height: int) {
-    unsafe { glfw3::glfwSetWindowSize(window.ptr, width as c_int, height as c_int); }
+    unsafe { cfns::glfwSetWindowSize(window.ptr, width as c_int, height as c_int); }
 }
 
 pub fn glfwGetWindowPos(window: &GLFWwindow) -> (int, int) {
     let mut xpos = 0, ypos = 0;
-    unsafe { glfw3::glfwGetWindowPos(window.ptr, &mut xpos, &mut ypos); }
+    unsafe { cfns::glfwGetWindowPos(window.ptr, &mut xpos, &mut ypos); }
     return (xpos as int, ypos as int);
 }
 
 pub fn glfwSetWindowPos(window: &GLFWwindow, xpos: int, ypos: int) {
-    unsafe { glfw3::glfwSetWindowPos(window.ptr, xpos as c_int, ypos as c_int); }
+    unsafe { cfns::glfwSetWindowPos(window.ptr, xpos as c_int, ypos as c_int); }
 }
 
 pub fn glfwIconifyWindow(window: &GLFWwindow) {
-    unsafe { glfw3::glfwIconifyWindow(window.ptr); }
+    unsafe { cfns::glfwIconifyWindow(window.ptr); }
 }
 
 pub fn glfwRestoreWindow(window: &GLFWwindow) {
-    unsafe { glfw3::glfwRestoreWindow(window.ptr); }
+    unsafe { cfns::glfwRestoreWindow(window.ptr); }
 }
 
 pub fn glfwGetWindowParam(window: &GLFWwindow, param: int) -> int {
-    unsafe { glfw3::glfwGetWindowParam(window.ptr, param as c_int) as int }
+    unsafe { cfns::glfwGetWindowParam(window.ptr, param as c_int) as int }
 }
 
 // TODO: glfwSetWindowUserPointer
@@ -635,44 +653,44 @@ pub fn glfwGetWindowParam(window: &GLFWwindow, param: int) -> int {
 /* Event handling */
 
 pub fn glfwPollEvents() {    
-    unsafe { glfw3::glfwPollEvents(); }
+    unsafe { cfns::glfwPollEvents(); }
 }
  
 pub fn glfwWaitEvents() {    
-    unsafe { glfw3::glfwWaitEvents(); }
+    unsafe { cfns::glfwWaitEvents(); }
 }
 
 /* Input handling */
 
 pub fn glfwGetInputMode(window: &GLFWwindow, mode: int) -> int {
-    unsafe { glfw3::glfwGetInputMode(window.ptr, mode as c_int) as int }
+    unsafe { cfns::glfwGetInputMode(window.ptr, mode as c_int) as int }
 }
 
 pub fn glfwSetInputMode(window: &GLFWwindow, mode: int, value: int) {
-    unsafe { glfw3::glfwSetInputMode(window.ptr, mode as c_int, value as c_int); }
+    unsafe { cfns::glfwSetInputMode(window.ptr, mode as c_int, value as c_int); }
 }
 
 pub fn glfwGetKey(window: &GLFWwindow, key: int) -> int {
-    unsafe { glfw3::glfwGetKey(window.ptr, key as c_int) as int }
+    unsafe { cfns::glfwGetKey(window.ptr, key as c_int) as int }
 }
 
 pub fn glfwGetMouseButton(window: &GLFWwindow, button: int) -> int {
-    unsafe { glfw3::glfwGetMouseButton(window.ptr, button as c_int) as int }
+    unsafe { cfns::glfwGetMouseButton(window.ptr, button as c_int) as int }
 }
 
 pub fn glfwGetCursorPos(window: &GLFWwindow) -> (int, int) {
     let mut xpos = 0, ypos = 0;
-    unsafe { glfw3::glfwGetCursorPos(window.ptr, &mut xpos, &mut ypos); }
+    unsafe { cfns::glfwGetCursorPos(window.ptr, &mut xpos, &mut ypos); }
     return (xpos as int, ypos as int);
 }
 
 pub fn glfwSetCursorPos(window: &GLFWwindow, xpos: int, ypos: int) {
-    unsafe { glfw3::glfwSetCursorPos(window.ptr, xpos as c_int, ypos as c_int); }
+    unsafe { cfns::glfwSetCursorPos(window.ptr, xpos as c_int, ypos as c_int); }
 }
 
 pub fn glfwGetScrollOffset(window: &GLFWwindow) -> (f64, f64) {
     let mut xpos = 0f64, ypos = 0f64;
-    unsafe { glfw3::glfwGetScrollOffset(window.ptr, &mut xpos, &mut ypos); }
+    unsafe { cfns::glfwGetScrollOffset(window.ptr, &mut xpos, &mut ypos); }
     return (xpos as f64, ypos as f64);
 }
 
@@ -686,7 +704,7 @@ pub fn glfwGetScrollOffset(window: &GLFWwindow) -> (f64, f64) {
 /* Joystick input */
 
 pub fn glfwGetJoystickParam(joy: int, param: int) -> int {
-    unsafe { glfw3::glfwGetJoystickParam(joy as c_int, param as c_int) as int }
+    unsafe { cfns::glfwGetJoystickParam(joy as c_int, param as c_int) as int }
 }
 
 /**
@@ -699,7 +717,7 @@ pub fn glfwGetJoystickAxes(joy: int, numaxes: int) -> Option<~[float]> {
     
     unsafe {
         let axes_ptr: *c_float = ptr::null();
-        let n = glfw3::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
+        let n = cfns::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
         axes = from_buf(axes_ptr, n).map(|a| *a as float );   // Could be inefficient
     }
     
@@ -717,7 +735,7 @@ pub fn glfwGetJoystickButtons(joy: int, numbuttons: int) -> Option<~[char]> {
     
     unsafe {
         let buttons_ptr: *c_uchar = ptr::null();
-        let n = glfw3::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
+        let n = cfns::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
         buttons = from_buf(buttons_ptr, n).map(|a| *a as char ); // Could be inefficient
     }
     
@@ -728,53 +746,53 @@ pub fn glfwGetJoystickButtons(joy: int, numbuttons: int) -> Option<~[char]> {
 /* Clipboard */
 
 pub fn glfwSetClipboardString(window: &GLFWwindow, string: &str) {
-    unsafe { glfw3::glfwSetClipboardString(window.ptr, str::as_c_str(string, |p| p)); }
+    unsafe { cfns::glfwSetClipboardString(window.ptr, str::as_c_str(string, |a| a)); }
 }
 
 pub fn glfwGetClipboardString(window: &GLFWwindow) -> ~str {
-    unsafe { str::raw::from_c_str(glfw3::glfwGetClipboardString(window.ptr)) }
+    unsafe { str::raw::from_c_str(cfns::glfwGetClipboardString(window.ptr)) }
 }
 
 /* Time */
 
 pub fn glfwGetTime() -> f64 {
-    unsafe { glfw3::glfwGetTime() as f64 }
+    unsafe { cfns::glfwGetTime() as f64 }
 }
 
 pub fn glfwSetTime(time: f64) {
-    unsafe { glfw3::glfwSetTime(time as c_double); }
+    unsafe { cfns::glfwSetTime(time as c_double); }
 }
 
 /* OpenGL support */
 
 pub fn glfwMakeContextCurrent(window: &GLFWwindow) {
-    unsafe { glfw3::glfwMakeContextCurrent(window.ptr); }
+    unsafe { cfns::glfwMakeContextCurrent(window.ptr); }
 }
 
 pub fn glfwGetCurrentContext() -> GLFWwindow {
-    unsafe { GLFWwindow { ptr: glfw3::glfwGetCurrentContext() } }
+    unsafe { GLFWwindow { ptr: cfns::glfwGetCurrentContext() } }
 }
 
 pub fn glfwSwapBuffers(window: &GLFWwindow) {
-    unsafe { glfw3::glfwSwapBuffers(window.ptr); }
+    unsafe { cfns::glfwSwapBuffers(window.ptr); }
 }
 
 pub fn glfwSwapInterval(interval: int) {
-    unsafe { glfw3::glfwSwapInterval(interval as c_int); }
+    unsafe { cfns::glfwSwapInterval(interval as c_int); }
 }
 
 pub fn glfwExtensionSupported(extension: &str) -> int {
     unsafe {
         do str::as_c_str(extension) |c_extension| {
-            glfw3::glfwExtensionSupported(c_extension) as int
+            cfns::glfwExtensionSupported(c_extension) as int
         }
     }
 }
 
 pub fn glfwGetProcAddress(procname: &str) -> GLFWglproc {
-    unsafe { glfw3::glfwGetProcAddress(str::as_c_str(procname, |p| p)) }
+    unsafe { cfns::glfwGetProcAddress(str::as_c_str(procname, |a| a)) }
 }
 
 pub fn glfwCopyContext(src: &GLFWwindow, dst: &mut GLFWwindow, mask: u32) {
-    unsafe { glfw3::glfwCopyContext(src.ptr, dst.ptr, mask as c_ulong); }
+    unsafe { cfns::glfwCopyContext(src.ptr, dst.ptr, mask as c_ulong); }
 }
