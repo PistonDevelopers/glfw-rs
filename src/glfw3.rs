@@ -37,7 +37,7 @@
  
 extern mod std;
 use libc::*;
-use vec::raw::from_buf;
+use vec::from_buf;
 use vec::map;
 
 #[nolink]

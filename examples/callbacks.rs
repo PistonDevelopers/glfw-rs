@@ -50,8 +50,8 @@ fn main() {
 
 // For now you have use external functions for the callbacks. This will be changed in the future.
 
-extern fn errorCallback(key: libc::c_int, name: *libc::c_char) {
-    unsafe { io::println(fmt!("Error in window %?: %s", key, str::raw::from_c_str(name))); }
+extern fn errorCallback(error: libc::c_int, name: *libc::c_char) {
+    unsafe { io::println(fmt!("GLFW Error: %s", str::raw::from_c_str(name))); }
 }
 
 extern fn keyCallback(window: GLFWwindow, key: libc::c_int, action: libc::c_int) {
