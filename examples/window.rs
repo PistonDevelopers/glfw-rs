@@ -26,7 +26,7 @@ fn main() {
         
         while !done {
             glfw3::poll_events();
-            if (glfw3::get_key(&window, glfw3::KEY_ESC) == glfw3::PRESS || glfw3::get_window_param(&window, glfw3::CLOSE_REQUESTED) != 0) {
+            if (window.get_key(glfw3::KEY_ESC) == glfw3::PRESS || window.get_param(glfw3::CLOSE_REQUESTED) != 0) {
                 done = true;
             }
         }
