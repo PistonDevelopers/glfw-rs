@@ -511,7 +511,7 @@ pub fn terminate() {
     unsafe { cfns::glfwTerminate(); }  
 }
 
-ppub fn get_version() -> (int, int, int) {
+pub fn get_version() -> (int, int, int) {
     let mut major = 0, minor = 0, rev = 0;
     unsafe { cfns::glfwGetVersion(&mut major, &mut minor, &mut rev); }
     return (major as int, minor as int, rev as int);
