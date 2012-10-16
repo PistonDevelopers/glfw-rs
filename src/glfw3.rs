@@ -605,7 +605,6 @@ pub fn destroy_window(window: &mut Window) {
 }
 
 impl Window {
-    
     pub fn set_title(title: &str) {
         unsafe {
             cfns::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))
@@ -643,17 +642,15 @@ impl Window {
     pub fn get_param(param: int) -> int {
         unsafe { cfns::glfwGetWindowParam(self.ptr, param as c_int) as int }
     }
-
+    
+    // TODO: glfwSetWindowUserPointer
+    // TODO: glfwGetWindowUserPointer
+    // TODO: glfwSetWindowSizeCallback
+    // TODO: glfwSetWindowCloseCallback
+    // TODO: glfwSetWindowRefreshCallback
+    // TODO: glfwSetWindowFocusCallback
+    // TODO: glfwSetWindowIconifyCallback
 }
-
-
-// TODO: glfwSetWindowUserPointer
-// TODO: glfwGetWindowUserPointer
-// TODO: glfwSetWindowSizeCallback
-// TODO: glfwSetWindowCloseCallback
-// TODO: glfwSetWindowRefreshCallback
-// TODO: glfwSetWindowFocusCallback
-// TODO: glfwSetWindowIconifyCallback
 
 /* Event handling */
 
@@ -699,13 +696,14 @@ impl Window {
         unsafe { cfns::glfwGetScrollOffset(self.ptr, &mut xpos, &mut ypos); }
         return (xpos as f64, ypos as f64);
     }
+    
+    // TODO: glfwSetKeyCallback
+    // TODO: glfwSetCharCallback
+    // TODO: glfwSetMouseButtonCallback
+    // TODO: glfwSetCursorPosCallback
+    // TODO: glfwSetCursorEnterCallback
+    // TODO: glfwSetScrollCallback
 }
-// TODO: glfwSetKeyCallback
-// TODO: glfwSetCharCallback
-// TODO: glfwSetMouseButtonCallback
-// TODO: glfwSetCursorPosCallback
-// TODO: glfwSetCursorEnterCallback
-// TODO: glfwSetScrollCallback
 
 /* Joystick input */
 
@@ -752,7 +750,6 @@ pub fn get_joystick_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
 /* Clipboard */
 
 impl Window {
-
     pub fn set_clipboard_string(string: &str) {
         unsafe { cfns::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a)); }
     }

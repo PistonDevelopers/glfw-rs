@@ -63,7 +63,7 @@ extern fn mouseButtonCallback(window: glfw3::Window, btn: libc::c_int, action: l
 fn buttonStateString(state: int) -> ~str {
     if      state == glfw3::RELEASE { ~"Released" }
     else if state == glfw3::PRESS   { ~"Pressed"  }
-    else                          { ~"Unknown"  }
+    else                            { ~"Unknown"  }
 }
 
 fn keyString(key: int) -> ~str {
