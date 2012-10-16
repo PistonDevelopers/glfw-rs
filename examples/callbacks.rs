@@ -16,9 +16,9 @@ fn main() {
         
         // Register event callbacks
         unsafe {
-            glfw3::cfns::glfwSetErrorCallback(errorCallback);
-            glfw3::cfns::glfwSetKeyCallback(keyCallback);
-            glfw3::cfns::glfwSetMouseButtonCallback(mouseButtonCallback);
+            glfw3::api::glfwSetErrorCallback(errorCallback);
+            glfw3::api::glfwSetKeyCallback(keyCallback);
+            glfw3::api::glfwSetMouseButtonCallback(mouseButtonCallback);
         }
         
         let mut window = glfw3::create_window(800, 600, glfw3::WINDOWED, ~"Hello, I am a window.");
