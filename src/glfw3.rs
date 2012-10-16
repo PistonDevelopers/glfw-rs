@@ -501,11 +501,11 @@ pub extern mod api {
 /* GLFW initialization, termination and version querying */
 
 pub fn init() -> int {    
-    unsafe { api::glfwInit() as int }
+    api::glfwInit() as int
 }
 
 pub fn terminate() {
-    unsafe { api::glfwTerminate(); }  
+    api::glfwTerminate(); 
 }
 
 pub fn get_version() -> (int, int, int) {
@@ -521,7 +521,7 @@ pub fn get_version_string() -> ~str {
 /* Error handling */
 
 pub fn get_error() -> int {
-    unsafe { api::glfwGetError() as int }
+    api::glfwGetError() as int
 }
 
 pub fn error_string(error: int) -> ~str {
@@ -552,7 +552,7 @@ pub fn get_desktop_mode() -> VidMode {
 /* Gamma ramp functions */
 
 pub fn set_gamma(gamma: float) {
-    unsafe { api::glfwSetGamma(gamma as c_float); }
+    api::glfwSetGamma(gamma as c_float);
 }
 
 pub fn get_gamma_ramp() -> GammaRamp {
@@ -568,7 +568,7 @@ pub fn set_gamma_ramp(ramp: &mut GammaRamp) {
 /* Window handling */
 
 pub fn window_hint(target: int, hint: int) {
-    unsafe { api::glfwWindowHint(target as c_int, hint as c_int); }
+    api::glfwWindowHint(target as c_int, hint as c_int);
 }
 
 pub fn create_window(width: int, height: int, mode: int, title: &str) -> Window {
@@ -596,16 +596,12 @@ pub fn create_shared_window(width: int, height: int, mode: int, title: &str, sha
 }
 
 pub fn destroy_window(window: &mut Window) {
-    unsafe {
-        api::glfwDestroyWindow(window.ptr)
-    }
+    api::glfwDestroyWindow(window.ptr);
 }
 
 impl Window {
     pub fn set_title(title: &str) {
-        unsafe {
-            api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))
-        }
+        api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))
     }
 
     pub fn get_size() -> (int, int) {
@@ -615,7 +611,7 @@ impl Window {
     }
 
     pub fn set_size(width: int, height: int) {
-        unsafe { api::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
+        api::glfwSetWindowSize(self.ptr, width as c_int, height as c_int);
     }
 
     pub fn get_pos() -> (int, int) {
@@ -625,19 +621,19 @@ impl Window {
     }
 
     pub fn set_pos(xpos: int, ypos: int) {
-        unsafe { api::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
+        api::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int);
     }
 
     pub fn iconify() {
-        unsafe { api::glfwIconifyWindow(self.ptr); }
+        api::glfwIconifyWindow(self.ptr);
     }
 
     pub fn restore() {
-        unsafe { api::glfwRestoreWindow(self.ptr); }
+        api::glfwRestoreWindow(self.ptr);
     }
 
     pub fn get_param(param: int) -> int {
-        unsafe { api::glfwGetWindowParam(self.ptr, param as c_int) as int }
+        api::glfwGetWindowParam(self.ptr, param as c_int) as int
     }
     
     // TODO: glfwSetWindowUserPointer
@@ -652,30 +648,30 @@ impl Window {
 /* Event handling */
 
 pub fn poll_events() {    
-    unsafe { api::glfwPollEvents(); }
+    api::glfwPollEvents();
 }
  
 pub fn wait_events() {    
-    unsafe { api::glfwWaitEvents(); }
+    api::glfwWaitEvents();
 }
 
 /* Input handling */
 
 impl Window {
     pub fn get_input_mode(mode: int) -> int {
-        unsafe { api::glfwGetInputMode(self.ptr, mode as c_int) as int }
+        api::glfwGetInputMode(self.ptr, mode as c_int) as int
     }
 
     pub fn set_input_mode(mode: int, value: int) {
-        unsafe { api::glfwSetInputMode(self.ptr, mode as c_int, value as c_int); }
+        api::glfwSetInputMode(self.ptr, mode as c_int, value as c_int);
     }
 
     pub fn get_key(key: int) -> int {
-        unsafe { api::glfwGetKey(self.ptr, key as c_int) as int }
+        api::glfwGetKey(self.ptr, key as c_int) as int
     }
 
     pub fn get_mouse_button(button: int) -> int {
-        unsafe { api::glfwGetMouseButton(self.ptr, button as c_int) as int }
+        api::glfwGetMouseButton(self.ptr, button as c_int) as int
     }
 
     pub fn get_cursor_pos() -> (int, int) {
@@ -685,7 +681,7 @@ impl Window {
     }
 
     pub fn set_cursor_pos(xpos: int, ypos: int) {
-        unsafe { api::glfwSetCursorPos(self.ptr, xpos as c_int, ypos as c_int); }
+        api::glfwSetCursorPos(self.ptr, xpos as c_int, ypos as c_int);
     }
 
     pub fn get_scroll_offset() -> (f64, f64) {
@@ -705,7 +701,7 @@ impl Window {
 /* Joystick input */
 
 pub fn get_joystick_param(joy: int, param: int) -> int {
-    unsafe { api::glfwGetJoystickParam(joy as c_int, param as c_int) as int }
+    api::glfwGetJoystickParam(joy as c_int, param as c_int) as int
 }
 
 /**
@@ -748,7 +744,7 @@ pub fn get_joystick_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
 
 impl Window {
     pub fn set_clipboard_string(string: &str) {
-        unsafe { api::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a)); }
+        api::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a));
     }
 
     pub fn get_clipboard_string() -> ~str {
@@ -759,47 +755,43 @@ impl Window {
 /* Time */
 
 pub fn get_time() -> f64 {
-    unsafe { api::glfwGetTime() as f64 }
+    api::glfwGetTime() as f64
 }
 
 pub fn set_time(time: f64) {
-    unsafe { api::glfwSetTime(time as c_double); }
+    api::glfwSetTime(time as c_double);
 }
 
 /* OpenGL support */
 
 impl Window {
     pub fn make_context_current() {
-        unsafe { api::glfwMakeContextCurrent(self.ptr); }
+        api::glfwMakeContextCurrent(self.ptr);
     }
 }
 
 pub fn get_current_context() -> Window {
-    unsafe { Window { ptr: api::glfwGetCurrentContext() } }
+    Window { ptr: api::glfwGetCurrentContext() }
 }
 
 impl Window {
     pub fn swap_buffers() {
-        unsafe { api::glfwSwapBuffers(self.ptr); }
+        api::glfwSwapBuffers(self.ptr);
     }
 }
 
 pub fn swap_interval(interval: int) {
-    unsafe { api::glfwSwapInterval(interval as c_int); }
+    api::glfwSwapInterval(interval as c_int);
 }
 
 pub fn extension_supported(extension: &str) -> int {
-    unsafe {
-        do str::as_c_str(extension) |c_extension| {
-            api::glfwExtensionSupported(c_extension) as int
-        }
-    }
+    api::glfwExtensionSupported(str::as_c_str(extension, |a| a)) as int
 }
 
 pub fn get_proc_address(procname: &str) -> GLProc {
-    unsafe { api::glfwGetProcAddress(str::as_c_str(procname, |a| a)) }
+    api::glfwGetProcAddress(str::as_c_str(procname, |a| a))
 }
 
 pub fn copy_context(src: &Window, dst: &mut Window, mask: u32) {
-    unsafe { api::glfwCopyContext(src.ptr, dst.ptr, mask as c_ulong); }
+    api::glfwCopyContext(src.ptr, dst.ptr, mask as c_ulong);
 }
