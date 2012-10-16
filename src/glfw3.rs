@@ -37,9 +37,6 @@
  
 extern mod std;
 use libc::*;
-use vec::from_buf;
-use vec::map;
-
 
 // Include OS X Frameworks
 #[nolink]
@@ -541,7 +538,7 @@ pub fn get_video_modes() -> ~[VidMode] {
     let mut modes: ~[VidMode];
     unsafe {
         mode_ptr = api::glfwGetVideoModes(&mut count);
-        modes = from_buf(mode_ptr, count as uint);
+        modes = vec::from_buf(mode_ptr, count as uint);
     }
     return modes;
 }
@@ -722,7 +719,7 @@ pub fn get_joystick_axes(joy: int, numaxes: int) -> Option<~[float]> {
     unsafe {
         let axes_ptr: *c_float = ptr::null();
         let n = api::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
-        axes = from_buf(axes_ptr, n).map(|a| *a as float );   // Could be inefficient
+        axes = vec::from_buf(axes_ptr, n).map(|a| *a as float );   // Could be inefficient
     }
     
     if numaxes > 0 { Some(axes) }
@@ -740,7 +737,7 @@ pub fn get_joystick_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
     unsafe {
         let buttons_ptr: *c_uchar = ptr::null();
         let n = api::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
-        buttons = from_buf(buttons_ptr, n).map(|a| *a as char ); // Could be inefficient
+        buttons = vec::from_buf(buttons_ptr, n).map(|a| *a as char ); // Could be inefficient
     }
     
     if numbuttons > 0 { Some(buttons) }
