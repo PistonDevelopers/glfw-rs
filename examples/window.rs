@@ -22,6 +22,8 @@ fn main() {
             fail(~"glfwOpenWindow() failed\n");
         }
         
+        window.make_context_current();
+        
         let mut done = false;
         
         while !done {

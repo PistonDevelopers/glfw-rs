@@ -771,8 +771,10 @@ pub fn set_time(time: f64) {
 
 /* OpenGL support */
 
-pub fn make_context_current(window: &Window) {
-    unsafe { cfns::glfwMakeContextCurrent(window.ptr); }
+impl Window {
+    pub fn make_context_current() {
+        unsafe { cfns::glfwMakeContextCurrent(self.ptr); }
+    }
 }
 
 pub fn get_current_context() -> Window {
