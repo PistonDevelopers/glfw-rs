@@ -414,7 +414,6 @@ pub struct GammaRamp {
 
 #[nolink]
 pub extern mod api {
-    
     /* GLFW initialization, termination and version querying */
     fn glfwInit() -> c_int;                                                             // GLFWAPI int  glfwInit(void);
     fn glfwTerminate();                                                                 // GLFWAPI void glfwTerminate(void);
@@ -427,8 +426,8 @@ pub extern mod api {
     fn glfwSetErrorCallback(cbfun: ErrorFun);                                           // GLFWAPI void glfwSetErrorCallback(GLFWerrorfun cbfun);
     
     /* Video mode functions */
-    fn glfwGetVideoModes(count: &mut c_int) -> *VidMode;                            // GLFWAPI GLFWvidmode* glfwGetVideoModes(int* count);
-    fn glfwGetDesktopMode(mode: &mut VidMode);                                      // GLFWAPI void glfwGetDesktopMode(GLFWvidmode* mode);
+    fn glfwGetVideoModes(count: &mut c_int) -> *VidMode;                                // GLFWAPI GLFWvidmode* glfwGetVideoModes(int* count);
+    fn glfwGetDesktopMode(mode: &mut VidMode);                                          // GLFWAPI void glfwGetDesktopMode(GLFWvidmode* mode);
     
     /* Gamma ramp functions */
     fn glfwSetGamma(gamma: c_float);                                                    // GLFWAPI void glfwSetGamma(float gamma);
