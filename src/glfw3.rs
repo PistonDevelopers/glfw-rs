@@ -534,13 +534,11 @@ pub fn error_string(error: int) -> ~str {
 
 pub fn get_video_modes() -> ~[VidMode] {
     let mut count: c_int = 0;
-    let mut mode_ptr: *VidMode;
-    let mut modes: ~[VidMode];
-    unsafe {
-        mode_ptr = api::glfwGetVideoModes(&mut count);
-        modes = vec::from_buf(mode_ptr, count as uint);
-    }
-    return modes;
+    let mode_ptr = api::glfwGetVideoModes(&mut count);
+    let modes: ~[VidMode];
+    unsafe { modes = vec::from_buf(mode_ptr, count as uint); }
+    
+    return move modes;
 }
 
 pub fn get_desktop_mode() -> VidMode {
@@ -710,15 +708,13 @@ pub fn get_joystick_param(joy: int, param: int) -> int {
  * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
  */
 pub fn get_joystick_axes(joy: int, numaxes: int) -> Option<~[float]> {
+    let axes_ptr: *c_float = ptr::null();
+    let n = api::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
+    
     let axes: ~[float];
+    unsafe { axes = vec::from_buf(axes_ptr, n).map(|a| *a as float); }   // Could be inefficient
     
-    unsafe {
-        let axes_ptr: *c_float = ptr::null();
-        let n = api::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
-        axes = vec::from_buf(axes_ptr, n).map(|a| *a as float );   // Could be inefficient
-    }
-    
-    if numaxes > 0 { Some(axes) }
+    if numaxes > 0 { Some(move axes) }
     else           { None }
 }
 
@@ -728,15 +724,13 @@ pub fn get_joystick_axes(joy: int, numaxes: int) -> Option<~[float]> {
  * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
  */
 pub fn get_joystick_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
+    let buttons_ptr: *c_uchar = ptr::null();
+    let n = api::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
+    
     let buttons: ~[char];
+    unsafe { buttons = vec::from_buf(buttons_ptr, n).map(|a| *a as char ); } // Could be inefficient
     
-    unsafe {
-        let buttons_ptr: *c_uchar = ptr::null();
-        let n = api::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
-        buttons = vec::from_buf(buttons_ptr, n).map(|a| *a as char ); // Could be inefficient
-    }
-    
-    if numbuttons > 0 { Some(buttons) }
+    if numbuttons > 0 { Some(move buttons) }
     else              { None }
 }
 
