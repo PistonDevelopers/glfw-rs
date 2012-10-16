@@ -604,51 +604,53 @@ pub fn destroy_window(window: &mut Window) {
     }
 }
 
-pub fn set_window_title(window: &Window, title: &str) {
-    unsafe {
-        cfns::glfwSetWindowTitle(window.ptr, str::as_c_str(title, |a| a))
+impl Window {
+    pub fn set_title(title: &str) {
+        unsafe {
+            cfns::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))
+        }
     }
-}
 
-pub fn get_window_size(window: &Window) -> (int, int) {
-    let mut width = 0, height = 0;
-    unsafe { cfns::glfwGetWindowSize(window.ptr, &mut width, &mut height)}
-    return (width as int, height as int);
-}
+    pub fn get_size() -> (int, int) {
+        let mut width = 0, height = 0;
+        unsafe { cfns::glfwGetWindowSize(self.ptr, &mut width, &mut height)}
+        return (width as int, height as int);
+    }
 
-pub fn set_window_size(window: &Window, width: int, height: int) {
-    unsafe { cfns::glfwSetWindowSize(window.ptr, width as c_int, height as c_int); }
-}
+    pub fn set_size(width: int, height: int) {
+        unsafe { cfns::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
+    }
 
-pub fn get_window_pos(window: &Window) -> (int, int) {
-    let mut xpos = 0, ypos = 0;
-    unsafe { cfns::glfwGetWindowPos(window.ptr, &mut xpos, &mut ypos); }
-    return (xpos as int, ypos as int);
-}
+    pub fn get_pos() -> (int, int) {
+        let mut xpos = 0, ypos = 0;
+        unsafe { cfns::glfwGetWindowPos(self.ptr, &mut xpos, &mut ypos); }
+        return (xpos as int, ypos as int);
+    }
 
-pub fn set_window_pos(window: &Window, xpos: int, ypos: int) {
-    unsafe { cfns::glfwSetWindowPos(window.ptr, xpos as c_int, ypos as c_int); }
-}
+    pub fn set_pos(xpos: int, ypos: int) {
+        unsafe { cfns::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
+    }
 
-pub fn iconify_window(window: &Window) {
-    unsafe { cfns::glfwIconifyWindow(window.ptr); }
-}
+    pub fn iconify() {
+        unsafe { cfns::glfwIconifyWindow(self.ptr); }
+    }
 
-pub fn restore_window(window: &Window) {
-    unsafe { cfns::glfwRestoreWindow(window.ptr); }
-}
+    pub fn restore() {
+        unsafe { cfns::glfwRestoreWindow(self.ptr); }
+    }
 
-pub fn get_window_param(window: &Window, param: int) -> int {
-    unsafe { cfns::glfwGetWindowParam(window.ptr, param as c_int) as int }
+    pub fn get_param(param: int) -> int {
+        unsafe { cfns::glfwGetWindowParam(self.ptr, param as c_int) as int }
+    }
+    
+    // TODO: glfwSetWindowUserPointer
+    // TODO: glfwGetWindowUserPointer
+    // TODO: glfwSetWindowSizeCallback
+    // TODO: glfwSetWindowCloseCallback
+    // TODO: glfwSetWindowRefreshCallback
+    // TODO: glfwSetWindowFocusCallback
+    // TODO: glfwSetWindowIconifyCallback
 }
-
-// TODO: glfwSetWindowUserPointer
-// TODO: glfwGetWindowUserPointer
-// TODO: glfwSetWindowSizeCallback
-// TODO: glfwSetWindowCloseCallback
-// TODO: glfwSetWindowRefreshCallback
-// TODO: glfwSetWindowFocusCallback
-// TODO: glfwSetWindowIconifyCallback
 
 /* Event handling */
 
@@ -662,44 +664,46 @@ pub fn wait_events() {
 
 /* Input handling */
 
-pub fn get_input_mode(window: &Window, mode: int) -> int {
-    unsafe { cfns::glfwGetInputMode(window.ptr, mode as c_int) as int }
-}
+impl Window {
+    pub fn get_input_mode(mode: int) -> int {
+        unsafe { cfns::glfwGetInputMode(self.ptr, mode as c_int) as int }
+    }
 
-pub fn set_input_mode(window: &Window, mode: int, value: int) {
-    unsafe { cfns::glfwSetInputMode(window.ptr, mode as c_int, value as c_int); }
-}
+    pub fn set_input_mode(mode: int, value: int) {
+        unsafe { cfns::glfwSetInputMode(self.ptr, mode as c_int, value as c_int); }
+    }
 
-pub fn get_key(window: &Window, key: int) -> int {
-    unsafe { cfns::glfwGetKey(window.ptr, key as c_int) as int }
-}
+    pub fn get_key(key: int) -> int {
+        unsafe { cfns::glfwGetKey(self.ptr, key as c_int) as int }
+    }
 
-pub fn get_mouse_button(window: &Window, button: int) -> int {
-    unsafe { cfns::glfwGetMouseButton(window.ptr, button as c_int) as int }
-}
+    pub fn get_mouse_button(button: int) -> int {
+        unsafe { cfns::glfwGetMouseButton(self.ptr, button as c_int) as int }
+    }
 
-pub fn get_cursor_pos(window: &Window) -> (int, int) {
-    let mut xpos = 0, ypos = 0;
-    unsafe { cfns::glfwGetCursorPos(window.ptr, &mut xpos, &mut ypos); }
-    return (xpos as int, ypos as int);
-}
+    pub fn get_cursor_pos() -> (int, int) {
+        let mut xpos = 0, ypos = 0;
+        unsafe { cfns::glfwGetCursorPos(self.ptr, &mut xpos, &mut ypos); }
+        return (xpos as int, ypos as int);
+    }
 
-pub fn set_cursor_pos(window: &Window, xpos: int, ypos: int) {
-    unsafe { cfns::glfwSetCursorPos(window.ptr, xpos as c_int, ypos as c_int); }
-}
+    pub fn set_cursor_pos(xpos: int, ypos: int) {
+        unsafe { cfns::glfwSetCursorPos(self.ptr, xpos as c_int, ypos as c_int); }
+    }
 
-pub fn get_scroll_offset(window: &Window) -> (f64, f64) {
-    let mut xpos = 0f64, ypos = 0f64;
-    unsafe { cfns::glfwGetScrollOffset(window.ptr, &mut xpos, &mut ypos); }
-    return (xpos as f64, ypos as f64);
+    pub fn get_scroll_offset() -> (f64, f64) {
+        let mut xpos = 0f64, ypos = 0f64;
+        unsafe { cfns::glfwGetScrollOffset(self.ptr, &mut xpos, &mut ypos); }
+        return (xpos as f64, ypos as f64);
+    }
+    
+    // TODO: glfwSetKeyCallback
+    // TODO: glfwSetCharCallback
+    // TODO: glfwSetMouseButtonCallback
+    // TODO: glfwSetCursorPosCallback
+    // TODO: glfwSetCursorEnterCallback
+    // TODO: glfwSetScrollCallback
 }
-
-// TODO: glfwSetKeyCallback
-// TODO: glfwSetCharCallback
-// TODO: glfwSetMouseButtonCallback
-// TODO: glfwSetCursorPosCallback
-// TODO: glfwSetCursorEnterCallback
-// TODO: glfwSetScrollCallback
 
 /* Joystick input */
 
@@ -745,12 +749,14 @@ pub fn get_joystick_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
 
 /* Clipboard */
 
-pub fn set_clipboard_string(window: &Window, string: &str) {
-    unsafe { cfns::glfwSetClipboardString(window.ptr, str::as_c_str(string, |a| a)); }
-}
+impl Window {
+    pub fn set_clipboard_string(string: &str) {
+        unsafe { cfns::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a)); }
+    }
 
-pub fn get_clipboard_string(window: &Window) -> ~str {
-    unsafe { str::raw::from_c_str(cfns::glfwGetClipboardString(window.ptr)) }
+    pub fn get_clipboard_string() -> ~str {
+        unsafe { str::raw::from_c_str(cfns::glfwGetClipboardString(self.ptr)) }
+    }
 }
 
 /* Time */
@@ -765,16 +771,20 @@ pub fn set_time(time: f64) {
 
 /* OpenGL support */
 
-pub fn make_context_current(window: &Window) {
-    unsafe { cfns::glfwMakeContextCurrent(window.ptr); }
+impl Window {
+    pub fn make_context_current() {
+        unsafe { cfns::glfwMakeContextCurrent(self.ptr); }
+    }
 }
 
 pub fn get_current_context() -> Window {
     unsafe { Window { ptr: cfns::glfwGetCurrentContext() } }
 }
 
-pub fn swap_buffers(window: &Window) {
-    unsafe { cfns::glfwSwapBuffers(window.ptr); }
+impl Window {
+    pub fn swap_buffers() {
+        unsafe { cfns::glfwSwapBuffers(self.ptr); }
+    }
 }
 
 pub fn swap_interval(interval: int) {

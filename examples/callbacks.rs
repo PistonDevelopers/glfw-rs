@@ -31,13 +31,13 @@ fn main() {
             fail(~"glfwOpenWindow() failed\n");
         }
         
-        glfw3::set_input_mode(&window, glfw3::STICKY_KEYS, 1);
+        window.set_input_mode(glfw3::STICKY_KEYS, 1);
         
         let mut done = false;
         
         while (!done) {
             glfw3::poll_events();
-            if (glfw3::get_key(&window, glfw3::KEY_ESC) == glfw3::PRESS || glfw3::get_window_param(&window, glfw3::CLOSE_REQUESTED) != 0) {
+            if (window.get_key(glfw3::KEY_ESC) == glfw3::PRESS || window.get_param(glfw3::CLOSE_REQUESTED) != 0) {
                 done = true;
             }
         } 
@@ -63,7 +63,7 @@ extern fn mouseButtonCallback(window: glfw3::Window, btn: libc::c_int, action: l
 fn buttonStateString(state: int) -> ~str {
     if      state == glfw3::RELEASE { ~"Released" }
     else if state == glfw3::PRESS   { ~"Pressed"  }
-    else                          { ~"Unknown"  }
+    else                            { ~"Unknown"  }
 }
 
 fn keyString(key: int) -> ~str {
