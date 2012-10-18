@@ -64,22 +64,24 @@ extern mod linkhack {}
 // #[cfg(target_os = "windows")]
 // extern mod linkhack{}
 
+// This typedef is not actually specified in GLFW, but is added for clarity
+pub type Enum = c_int;
 
 /*************************************************************************
  * GLFW version
  *************************************************************************/
  
-pub const VERSION_MAJOR        : int = 3;
-pub const VERSION_MINOR        : int = 0;
-pub const VERSION_REVISION     : int = 0;
+pub const VERSION_MAJOR        : Enum = 3;
+pub const VERSION_MINOR        : Enum = 0;
+pub const VERSION_REVISION     : Enum = 0;
 
 /*************************************************************************
  * Input handling definitions
  *************************************************************************/
 
 /* Key and button state/action definitions */
-pub const RELEASE              : int = 0;
-pub const PRESS                : int = 1;
+pub const RELEASE              : Enum = 0;
+pub const PRESS                : Enum = 1;
 
 /* Keyboard raw key codes.
  * These key codes are inspired by the USB HID Usage Tables v1.12 (p. 53-60),
@@ -98,270 +100,270 @@ pub const PRESS                : int = 1;
  */
  
 /* Printable keys */
-pub const KEY_SPACE            : int = 32;
-pub const KEY_APOSTROPHE       : int = 39;  /* ' */
-pub const KEY_COMMA            : int = 44;  /* , */
-pub const KEY_MINUS            : int = 45;  /* - */
-pub const KEY_PERIOD           : int = 46;  /* . */
-pub const KEY_SLASH            : int = 47;  /* / */
-pub const KEY_0                : int = 48;
-pub const KEY_1                : int = 49;
-pub const KEY_2                : int = 50;
-pub const KEY_3                : int = 51;
-pub const KEY_4                : int = 52;
-pub const KEY_5                : int = 53;
-pub const KEY_6                : int = 54;
-pub const KEY_7                : int = 55;
-pub const KEY_8                : int = 56;
-pub const KEY_9                : int = 57;
-pub const KEY_SEMICOLON        : int = 59;  /* ; */
-pub const KEY_EQUAL            : int = 61;  /* = */
-pub const KEY_A                : int = 65;
-pub const KEY_B                : int = 66;
-pub const KEY_C                : int = 67;
-pub const KEY_D                : int = 68;
-pub const KEY_E                : int = 69;
-pub const KEY_F                : int = 70;
-pub const KEY_G                : int = 71;
-pub const KEY_H                : int = 72;
-pub const KEY_I                : int = 73;
-pub const KEY_J                : int = 74;
-pub const KEY_K                : int = 75;
-pub const KEY_L                : int = 76;
-pub const KEY_M                : int = 77;
-pub const KEY_N                : int = 78;
-pub const KEY_O                : int = 79;
-pub const KEY_P                : int = 80;
-pub const KEY_Q                : int = 81;
-pub const KEY_R                : int = 82;
-pub const KEY_S                : int = 83;
-pub const KEY_T                : int = 84;
-pub const KEY_U                : int = 85;
-pub const KEY_V                : int = 86;
-pub const KEY_W                : int = 87;
-pub const KEY_X                : int = 88;
-pub const KEY_Y                : int = 89;
-pub const KEY_Z                : int = 90;
-pub const KEY_LEFT_BRACKET     : int = 91;  /* [ */
-pub const KEY_BACKSLASH        : int = 92;  /* \ */
-pub const KEY_RIGHT_BRACKET    : int = 93;  /* ] */
-pub const KEY_GRAVE_ACCENT     : int = 96;  /* ` */
-pub const KEY_WORLD_1          : int = 161; /* non-US #1 */
-pub const KEY_WORLD_2          : int = 162; /* non-US #2 */
+pub const KEY_SPACE            : Enum = 32;
+pub const KEY_APOSTROPHE       : Enum = 39;  /* ' */
+pub const KEY_COMMA            : Enum = 44;  /* , */
+pub const KEY_MINUS            : Enum = 45;  /* - */
+pub const KEY_PERIOD           : Enum = 46;  /* . */
+pub const KEY_SLASH            : Enum = 47;  /* / */
+pub const KEY_0                : Enum = 48;
+pub const KEY_1                : Enum = 49;
+pub const KEY_2                : Enum = 50;
+pub const KEY_3                : Enum = 51;
+pub const KEY_4                : Enum = 52;
+pub const KEY_5                : Enum = 53;
+pub const KEY_6                : Enum = 54;
+pub const KEY_7                : Enum = 55;
+pub const KEY_8                : Enum = 56;
+pub const KEY_9                : Enum = 57;
+pub const KEY_SEMICOLON        : Enum = 59;  /* ; */
+pub const KEY_EQUAL            : Enum = 61;  /* = */
+pub const KEY_A                : Enum = 65;
+pub const KEY_B                : Enum = 66;
+pub const KEY_C                : Enum = 67;
+pub const KEY_D                : Enum = 68;
+pub const KEY_E                : Enum = 69;
+pub const KEY_F                : Enum = 70;
+pub const KEY_G                : Enum = 71;
+pub const KEY_H                : Enum = 72;
+pub const KEY_I                : Enum = 73;
+pub const KEY_J                : Enum = 74;
+pub const KEY_K                : Enum = 75;
+pub const KEY_L                : Enum = 76;
+pub const KEY_M                : Enum = 77;
+pub const KEY_N                : Enum = 78;
+pub const KEY_O                : Enum = 79;
+pub const KEY_P                : Enum = 80;
+pub const KEY_Q                : Enum = 81;
+pub const KEY_R                : Enum = 82;
+pub const KEY_S                : Enum = 83;
+pub const KEY_T                : Enum = 84;
+pub const KEY_U                : Enum = 85;
+pub const KEY_V                : Enum = 86;
+pub const KEY_W                : Enum = 87;
+pub const KEY_X                : Enum = 88;
+pub const KEY_Y                : Enum = 89;
+pub const KEY_Z                : Enum = 90;
+pub const KEY_LEFT_BRACKET     : Enum = 91;  /* [ */
+pub const KEY_BACKSLASH        : Enum = 92;  /* \ */
+pub const KEY_RIGHT_BRACKET    : Enum = 93;  /* ] */
+pub const KEY_GRAVE_ACCENT     : Enum = 96;  /* ` */
+pub const KEY_WORLD_1          : Enum = 161; /* non-US #1 */
+pub const KEY_WORLD_2          : Enum = 162; /* non-US #2 */
 
 /* Function keys */
-pub const KEY_ESCAPE           : int = 256;
-pub const KEY_ENTER            : int = 257;
-pub const KEY_TAB              : int = 258;
-pub const KEY_BACKSPACE        : int = 259;
-pub const KEY_INSERT           : int = 260;
-pub const KEY_DELETE           : int = 261;
-pub const KEY_RIGHT            : int = 262;
-pub const KEY_LEFT             : int = 263;
-pub const KEY_DOWN             : int = 264;
-pub const KEY_UP               : int = 265;
-pub const KEY_PAGE_UP          : int = 266;
-pub const KEY_PAGE_DOWN        : int = 267;
-pub const KEY_HOME             : int = 268;
-pub const KEY_END              : int = 269;
-pub const KEY_CAPS_LOCK        : int = 280;
-pub const KEY_SCROLL_LOCK      : int = 281;
-pub const KEY_NUM_LOCK         : int = 282;
-pub const KEY_PRINT_SCREEN     : int = 283;
-pub const KEY_PAUSE            : int = 284;
-pub const KEY_F1               : int = 290;
-pub const KEY_F2               : int = 291;
-pub const KEY_F3               : int = 292;
-pub const KEY_F4               : int = 293;
-pub const KEY_F5               : int = 294;
-pub const KEY_F6               : int = 295;
-pub const KEY_F7               : int = 296;
-pub const KEY_F8               : int = 297;
-pub const KEY_F9               : int = 298;
-pub const KEY_F10              : int = 299;
-pub const KEY_F11              : int = 300;
-pub const KEY_F12              : int = 301;
-pub const KEY_F13              : int = 302;
-pub const KEY_F14              : int = 303;
-pub const KEY_F15              : int = 304;
-pub const KEY_F16              : int = 305;
-pub const KEY_F17              : int = 306;
-pub const KEY_F18              : int = 307;
-pub const KEY_F19              : int = 308;
-pub const KEY_F20              : int = 309;
-pub const KEY_F21              : int = 310;
-pub const KEY_F22              : int = 311;
-pub const KEY_F23              : int = 312;
-pub const KEY_F24              : int = 313;
-pub const KEY_F25              : int = 314;
-pub const KEY_KP_0             : int = 320;
-pub const KEY_KP_1             : int = 321;
-pub const KEY_KP_2             : int = 322;
-pub const KEY_KP_3             : int = 323;
-pub const KEY_KP_4             : int = 324;
-pub const KEY_KP_5             : int = 325;
-pub const KEY_KP_6             : int = 326;
-pub const KEY_KP_7             : int = 327;
-pub const KEY_KP_8             : int = 328;
-pub const KEY_KP_9             : int = 329;
-pub const KEY_KP_DECIMAL       : int = 330;
-pub const KEY_KP_DIVIDE        : int = 331;
-pub const KEY_KP_MULTIPLY      : int = 332;
-pub const KEY_KP_SUBTRACT      : int = 333;
-pub const KEY_KP_ADD           : int = 334;
-pub const KEY_KP_ENTER         : int = 335;
-pub const KEY_KP_EQUAL         : int = 336;
-pub const KEY_LEFT_SHIFT       : int = 340;
-pub const KEY_LEFT_CONTROL     : int = 341;
-pub const KEY_LEFT_ALT         : int = 342;
-pub const KEY_LEFT_SUPER       : int = 343;
-pub const KEY_RIGHT_SHIFT      : int = 344;
-pub const KEY_RIGHT_CONTROL    : int = 345;
-pub const KEY_RIGHT_ALT        : int = 346;
-pub const KEY_RIGHT_SUPER      : int = 347;
-pub const KEY_MENU             : int = 348;
-pub const KEY_LAST             : int = KEY_MENU;
+pub const KEY_ESCAPE           : Enum = 256;
+pub const KEY_ENTER            : Enum = 257;
+pub const KEY_TAB              : Enum = 258;
+pub const KEY_BACKSPACE        : Enum = 259;
+pub const KEY_INSERT           : Enum = 260;
+pub const KEY_DELETE           : Enum = 261;
+pub const KEY_RIGHT            : Enum = 262;
+pub const KEY_LEFT             : Enum = 263;
+pub const KEY_DOWN             : Enum = 264;
+pub const KEY_UP               : Enum = 265;
+pub const KEY_PAGE_UP          : Enum = 266;
+pub const KEY_PAGE_DOWN        : Enum = 267;
+pub const KEY_HOME             : Enum = 268;
+pub const KEY_END              : Enum = 269;
+pub const KEY_CAPS_LOCK        : Enum = 280;
+pub const KEY_SCROLL_LOCK      : Enum = 281;
+pub const KEY_NUM_LOCK         : Enum = 282;
+pub const KEY_PRINT_SCREEN     : Enum = 283;
+pub const KEY_PAUSE            : Enum = 284;
+pub const KEY_F1               : Enum = 290;
+pub const KEY_F2               : Enum = 291;
+pub const KEY_F3               : Enum = 292;
+pub const KEY_F4               : Enum = 293;
+pub const KEY_F5               : Enum = 294;
+pub const KEY_F6               : Enum = 295;
+pub const KEY_F7               : Enum = 296;
+pub const KEY_F8               : Enum = 297;
+pub const KEY_F9               : Enum = 298;
+pub const KEY_F10              : Enum = 299;
+pub const KEY_F11              : Enum = 300;
+pub const KEY_F12              : Enum = 301;
+pub const KEY_F13              : Enum = 302;
+pub const KEY_F14              : Enum = 303;
+pub const KEY_F15              : Enum = 304;
+pub const KEY_F16              : Enum = 305;
+pub const KEY_F17              : Enum = 306;
+pub const KEY_F18              : Enum = 307;
+pub const KEY_F19              : Enum = 308;
+pub const KEY_F20              : Enum = 309;
+pub const KEY_F21              : Enum = 310;
+pub const KEY_F22              : Enum = 311;
+pub const KEY_F23              : Enum = 312;
+pub const KEY_F24              : Enum = 313;
+pub const KEY_F25              : Enum = 314;
+pub const KEY_KP_0             : Enum = 320;
+pub const KEY_KP_1             : Enum = 321;
+pub const KEY_KP_2             : Enum = 322;
+pub const KEY_KP_3             : Enum = 323;
+pub const KEY_KP_4             : Enum = 324;
+pub const KEY_KP_5             : Enum = 325;
+pub const KEY_KP_6             : Enum = 326;
+pub const KEY_KP_7             : Enum = 327;
+pub const KEY_KP_8             : Enum = 328;
+pub const KEY_KP_9             : Enum = 329;
+pub const KEY_KP_DECIMAL       : Enum = 330;
+pub const KEY_KP_DIVIDE        : Enum = 331;
+pub const KEY_KP_MULTIPLY      : Enum = 332;
+pub const KEY_KP_SUBTRACT      : Enum = 333;
+pub const KEY_KP_ADD           : Enum = 334;
+pub const KEY_KP_ENTER         : Enum = 335;
+pub const KEY_KP_EQUAL         : Enum = 336;
+pub const KEY_LEFT_SHIFT       : Enum = 340;
+pub const KEY_LEFT_CONTROL     : Enum = 341;
+pub const KEY_LEFT_ALT         : Enum = 342;
+pub const KEY_LEFT_SUPER       : Enum = 343;
+pub const KEY_RIGHT_SHIFT      : Enum = 344;
+pub const KEY_RIGHT_CONTROL    : Enum = 345;
+pub const KEY_RIGHT_ALT        : Enum = 346;
+pub const KEY_RIGHT_SUPER      : Enum = 347;
+pub const KEY_MENU             : Enum = 348;
+pub const KEY_LAST             : Enum = KEY_MENU;
 
 /* GLFW 2.x key name aliases (deprecated) */
-pub const KEY_ESC              : int = KEY_ESCAPE;
-pub const KEY_DEL              : int = KEY_DELETE;
-pub const KEY_PAGEUP           : int = KEY_PAGE_UP;
-pub const KEY_PAGEDOWN         : int = KEY_PAGE_DOWN;
-pub const KEY_KP_NUM_LOCK      : int = KEY_NUM_LOCK;
-pub const KEY_LCTRL            : int = KEY_LEFT_CONTROL;
-pub const KEY_LSHIFT           : int = KEY_LEFT_SHIFT;
-pub const KEY_LALT             : int = KEY_LEFT_ALT;
-pub const KEY_LSUPER           : int = KEY_LEFT_SUPER;
-pub const KEY_RCTRL            : int = KEY_RIGHT_CONTROL;
-pub const KEY_RSHIFT           : int = KEY_RIGHT_SHIFT;
-pub const KEY_RALT             : int = KEY_RIGHT_ALT;
-pub const KEY_RSUPER           : int = KEY_RIGHT_SUPER;
+pub const KEY_ESC              : Enum = KEY_ESCAPE;
+pub const KEY_DEL              : Enum = KEY_DELETE;
+pub const KEY_PAGEUP           : Enum = KEY_PAGE_UP;
+pub const KEY_PAGEDOWN         : Enum = KEY_PAGE_DOWN;
+pub const KEY_KP_NUM_LOCK      : Enum = KEY_NUM_LOCK;
+pub const KEY_LCTRL            : Enum = KEY_LEFT_CONTROL;
+pub const KEY_LSHIFT           : Enum = KEY_LEFT_SHIFT;
+pub const KEY_LALT             : Enum = KEY_LEFT_ALT;
+pub const KEY_LSUPER           : Enum = KEY_LEFT_SUPER;
+pub const KEY_RCTRL            : Enum = KEY_RIGHT_CONTROL;
+pub const KEY_RSHIFT           : Enum = KEY_RIGHT_SHIFT;
+pub const KEY_RALT             : Enum = KEY_RIGHT_ALT;
+pub const KEY_RSUPER           : Enum = KEY_RIGHT_SUPER;
 
 /* Mouse button aliases */
-pub const MOUSE_BUTTON_LEFT    : int = MOUSE_BUTTON_1;
-pub const MOUSE_BUTTON_RIGHT   : int = MOUSE_BUTTON_2;
-pub const MOUSE_BUTTON_MIDDLE  : int = MOUSE_BUTTON_3;
+pub const MOUSE_BUTTON_LEFT    : Enum = MOUSE_BUTTON_1;
+pub const MOUSE_BUTTON_RIGHT   : Enum = MOUSE_BUTTON_2;
+pub const MOUSE_BUTTON_MIDDLE  : Enum = MOUSE_BUTTON_3;
 
 /* Mouse button definitions */
-pub const MOUSE_BUTTON_1       : int = 0;
-pub const MOUSE_BUTTON_2       : int = 1;
-pub const MOUSE_BUTTON_3       : int = 2;
-pub const MOUSE_BUTTON_4       : int = 3;
-pub const MOUSE_BUTTON_5       : int = 4;
-pub const MOUSE_BUTTON_6       : int = 5;
-pub const MOUSE_BUTTON_7       : int = 6;
-pub const MOUSE_BUTTON_8       : int = 7;
-pub const MOUSE_BUTTON_LAST    : int = MOUSE_BUTTON_8;
+pub const MOUSE_BUTTON_1       : Enum = 0;
+pub const MOUSE_BUTTON_2       : Enum = 1;
+pub const MOUSE_BUTTON_3       : Enum = 2;
+pub const MOUSE_BUTTON_4       : Enum = 3;
+pub const MOUSE_BUTTON_5       : Enum = 4;
+pub const MOUSE_BUTTON_6       : Enum = 5;
+pub const MOUSE_BUTTON_7       : Enum = 6;
+pub const MOUSE_BUTTON_8       : Enum = 7;
+pub const MOUSE_BUTTON_LAST    : Enum = MOUSE_BUTTON_8;
 
 /* Joystick identifiers */
-pub const JOYSTICK_1           : int = 0;
-pub const JOYSTICK_2           : int = 1;
-pub const JOYSTICK_3           : int = 2;
-pub const JOYSTICK_4           : int = 3;
-pub const JOYSTICK_5           : int = 4;
-pub const JOYSTICK_6           : int = 5;
-pub const JOYSTICK_7           : int = 6;
-pub const JOYSTICK_8           : int = 7;
-pub const JOYSTICK_9           : int = 8;
-pub const JOYSTICK_10          : int = 9;
-pub const JOYSTICK_11          : int = 10;
-pub const JOYSTICK_12          : int = 11;
-pub const JOYSTICK_13          : int = 12;
-pub const JOYSTICK_14          : int = 13;
-pub const JOYSTICK_15          : int = 14;
-pub const JOYSTICK_16          : int = 15;
-pub const JOYSTICK_LAST        : int = JOYSTICK_16;
+pub const JOYSTICK_1           : Enum = 0;
+pub const JOYSTICK_2           : Enum = 1;
+pub const JOYSTICK_3           : Enum = 2;
+pub const JOYSTICK_4           : Enum = 3;
+pub const JOYSTICK_5           : Enum = 4;
+pub const JOYSTICK_6           : Enum = 5;
+pub const JOYSTICK_7           : Enum = 6;
+pub const JOYSTICK_8           : Enum = 7;
+pub const JOYSTICK_9           : Enum = 8;
+pub const JOYSTICK_10          : Enum = 9;
+pub const JOYSTICK_11          : Enum = 10;
+pub const JOYSTICK_12          : Enum = 11;
+pub const JOYSTICK_13          : Enum = 12;
+pub const JOYSTICK_14          : Enum = 13;
+pub const JOYSTICK_15          : Enum = 14;
+pub const JOYSTICK_16          : Enum = 15;
+pub const JOYSTICK_LAST        : Enum = JOYSTICK_16;
 
 /*************************************************************************
  * Other definitions
  *************************************************************************/
 
 /* glfwCreateWindow modes */
-pub const WINDOWED                     : int = 0x00010001;
-pub const FULLSCREEN                   : int = 0x00010002;
+pub const WINDOWED                     : Enum = 0x00010001;
+pub const FULLSCREEN                   : Enum = 0x00010002;
 
 /* glfwGetWindowParam tokens */
-pub const ACTIVE                       : int = 0x00020001;
-pub const ICONIFIED                    : int = 0x00020002;
-pub const CLOSE_REQUESTED              : int = 0x00020003;
-pub const OPENGL_REVISION              : int = 0x00020004;
+pub const ACTIVE                       : Enum = 0x00020001;
+pub const ICONIFIED                    : Enum = 0x00020002;
+pub const CLOSE_REQUESTED              : Enum = 0x00020003;
+pub const OPENGL_REVISION              : Enum = 0x00020004;
 
 /* glfwWindowHint tokens */
-pub const RED_BITS                     : int = 0x00021000;
-pub const GREEN_BITS                   : int = 0x00021001;
-pub const BLUE_BITS                    : int = 0x00021002;
-pub const ALPHA_BITS                   : int = 0x00021003;
-pub const DEPTH_BITS                   : int = 0x00021004;
-pub const STENCIL_BITS                 : int = 0x00021005;
-pub const REFRESH_RATE                 : int = 0x00021006;
-pub const ACCUM_RED_BITS               : int = 0x00021007;
-pub const ACCUM_GREEN_BITS             : int = 0x00021008;
-pub const ACCUM_BLUE_BITS              : int = 0x00021009;
-pub const ACCUM_ALPHA_BITS             : int = 0x0002100A;
-pub const AUX_BUFFERS                  : int = 0x0002100B;
-pub const STEREO                       : int = 0x0002100C;
-pub const WINDOW_RESIZABLE             : int = 0x0002100D;
-pub const FSAA_SAMPLES                 : int = 0x0002100E;
+pub const RED_BITS                     : Enum = 0x00021000;
+pub const GREEN_BITS                   : Enum = 0x00021001;
+pub const BLUE_BITS                    : Enum = 0x00021002;
+pub const ALPHA_BITS                   : Enum = 0x00021003;
+pub const DEPTH_BITS                   : Enum = 0x00021004;
+pub const STENCIL_BITS                 : Enum = 0x00021005;
+pub const REFRESH_RATE                 : Enum = 0x00021006;
+pub const ACCUM_RED_BITS               : Enum = 0x00021007;
+pub const ACCUM_GREEN_BITS             : Enum = 0x00021008;
+pub const ACCUM_BLUE_BITS              : Enum = 0x00021009;
+pub const ACCUM_ALPHA_BITS             : Enum = 0x0002100A;
+pub const AUX_BUFFERS                  : Enum = 0x0002100B;
+pub const STEREO                       : Enum = 0x0002100C;
+pub const WINDOW_RESIZABLE             : Enum = 0x0002100D;
+pub const FSAA_SAMPLES                 : Enum = 0x0002100E;
 
 /* The following constants are used with both glfwGetWindowParam
  * and glfwWindowHint
  */
-pub const CLIENT_API                   : int = 0x00022000;
-pub const OPENGL_VERSION_MAJOR         : int = 0x00022001;
-pub const OPENGL_VERSION_MINOR         : int = 0x00022002;
-pub const OPENGL_FORWARD_COMPAT        : int = 0x00022003;
-pub const OPENGL_DEBUG_CONTEXT         : int = 0x00022004;
-pub const OPENGL_PROFILE               : int = 0x00022005;
-pub const OPENGL_ROBUSTNESS            : int = 0x00022006;
-pub const RESIZABLE                    : int = 0x00022007;
-pub const VISIBLE                      : int = 0x00022008;
+pub const CLIENT_API                   : Enum = 0x00022000;
+pub const OPENGL_VERSION_MAJOR         : Enum = 0x00022001;
+pub const OPENGL_VERSION_MINOR         : Enum = 0x00022002;
+pub const OPENGL_FORWARD_COMPAT        : Enum = 0x00022003;
+pub const OPENGL_DEBUG_CONTEXT         : Enum = 0x00022004;
+pub const OPENGL_PROFILE               : Enum = 0x00022005;
+pub const OPENGL_ROBUSTNESS            : Enum = 0x00022006;
+pub const RESIZABLE                    : Enum = 0x00022007;
+pub const VISIBLE                      : Enum = 0x00022008;
  
 /* GLFW_CLIENT_API tokens */
-pub const OPENGL_API                   : int = 0x00000001;
-pub const OPENGL_ES_API                : int = 0x00000002;
+pub const OPENGL_API                   : Enum = 0x00000001;
+pub const OPENGL_ES_API                : Enum = 0x00000002;
 
 /* GLFW_OPENGL_ROBUSTNESS mode tokens */
-pub const OPENGL_NO_ROBUSTNESS         : int = 0x00000000;
-pub const OPENGL_NO_RESET_NOTIFICATION : int = 0x00000001;
-pub const OPENGL_LOSE_CONTEXT_ON_RESET : int = 0x00000002;
+pub const OPENGL_NO_ROBUSTNESS         : Enum = 0x00000000;
+pub const OPENGL_NO_RESET_NOTIFICATION : Enum = 0x00000001;
+pub const OPENGL_LOSE_CONTEXT_ON_RESET : Enum = 0x00000002;
 
 /* GLFW_OPENGL_PROFILE bit tokens */
-pub const OPENGL_NO_PROFILE            : int = 0x00000000;
-pub const OPENGL_CORE_PROFILE          : int = 0x00000001;
-pub const OPENGL_COMPAT_PROFILE        : int = 0x00000002;
+pub const OPENGL_NO_PROFILE            : Enum = 0x00000000;
+pub const OPENGL_CORE_PROFILE          : Enum = 0x00000001;
+pub const OPENGL_COMPAT_PROFILE        : Enum = 0x00000002;
 
 /* glfwGetInputMode/glfwSetInputMode tokens */
-pub const CURSOR_MODE                  : int = 0x00030001;
-pub const STICKY_KEYS                  : int = 0x00030002;
-pub const STICKY_MOUSE_BUTTONS         : int = 0x00030003;
-pub const SYSTEM_KEYS                  : int = 0x00030004;
-pub const KEY_REPEAT                   : int = 0x00030005;
+pub const CURSOR_MODE                  : Enum = 0x00030001;
+pub const STICKY_KEYS                  : Enum = 0x00030002;
+pub const STICKY_MOUSE_BUTTONS         : Enum = 0x00030003;
+pub const SYSTEM_KEYS                  : Enum = 0x00030004;
+pub const KEY_REPEAT                   : Enum = 0x00030005;
 
 /* GLFW_CURSOR_MODE values */
-pub const CURSOR_NORMAL                : int = 0x00040001;
-pub const CURSOR_HIDDEN                : int = 0x00040002;
-pub const CURSOR_CAPTURED              : int = 0x00040003;
+pub const CURSOR_NORMAL                : Enum = 0x00040001;
+pub const CURSOR_HIDDEN                : Enum = 0x00040002;
+pub const CURSOR_CAPTURED              : Enum = 0x00040003;
 
 /* glfwGetJoystickParam tokens */
-pub const PRESENT                      : int = 0x00050001;
-pub const AXES                         : int = 0x00050002;
-pub const BUTTONS                      : int = 0x00050003;
+pub const PRESENT                      : Enum = 0x00050001;
+pub const AXES                         : Enum = 0x00050002;
+pub const BUTTONS                      : Enum = 0x00050003;
 
 /* glfwGetError/glfwErrorString tokens */
-pub const NO_ERROR                     : int = 0;
-pub const NOT_INITIALIZED              : int = 0x00070001;
-pub const NO_CURRENT_CONTEXT           : int = 0x00070002;
-pub const INVALID_ENUM                 : int = 0x00070003;
-pub const INVALID_VALUE                : int = 0x00070004;
-pub const OUT_OF_MEMORY                : int = 0x00070005;
-pub const OPENGL_UNAVAILABLE           : int = 0x00070006;
-pub const VERSION_UNAVAILABLE          : int = 0x00070007;
-pub const PLATFORM_ERROR               : int = 0x00070008;
-pub const WINDOW_NOT_ACTIVE            : int = 0x00070009;
-pub const FORMAT_UNAVAILABLE           : int = 0x0007000A;
+pub const NO_ERROR                     : Enum = 0;
+pub const NOT_INITIALIZED              : Enum = 0x00070001;
+pub const NO_CURRENT_CONTEXT           : Enum = 0x00070002;
+pub const INVALID_ENUM                 : Enum = 0x00070003;
+pub const INVALID_VALUE                : Enum = 0x00070004;
+pub const OUT_OF_MEMORY                : Enum = 0x00070005;
+pub const OPENGL_UNAVAILABLE           : Enum = 0x00070006;
+pub const VERSION_UNAVAILABLE          : Enum = 0x00070007;
+pub const PLATFORM_ERROR               : Enum = 0x00070008;
+pub const WINDOW_NOT_ACTIVE            : Enum = 0x00070009;
+pub const FORMAT_UNAVAILABLE           : Enum = 0x0007000A;
 
 /* Gamma ramps */
-pub const GAMMA_RAMP_SIZE              : int = 256;
+pub const GAMMA_RAMP_SIZE              : Enum = 256;
 
 /*************************************************************************
  * Typedefs
@@ -377,17 +379,17 @@ pub struct Window {
 }
 
 /* Function pointer types */
-pub type ErrorFun           = @fn(error: int, format: ~str);
+pub type ErrorFun           = @fn(error: Enum, format: ~str);
 pub type WindowSizeFun      = @fn(window: Window, width: int, height: int);
 pub type WindowCloseFun     = @fn(window: Window) -> bool;
 pub type WindowRefreshFun   = @fn(window: Window);
 pub type WindowFocusFun     = @fn(window: Window, activated: bool);
 pub type WindowIconifyFun   = @fn(window: Window, iconified: bool);
-pub type MouseButtonFun     = @fn(window: Window, button: int, action: int);
+pub type MouseButtonFun     = @fn(window: Window, button: Enum, action: Enum);
 pub type CursorPosFun       = @fn(window: Window, x: int, y: int);
 pub type CursorEnterFun     = @fn(window: Window, entered: bool);
 pub type ScrollFun          = @fn(window: Window, x: f64, y: f64);
-pub type KeyFun             = @fn(window: Window, key: int, action: int);
+pub type KeyFun             = @fn(window: Window, key: Enum, action: Enum);
 pub type CharFun            = @fn(window: Window, character: char);
 
 /* The video mode structure used by glfwGetVideoModes */
@@ -441,8 +443,8 @@ pub mod api {
         fn glfwGetVersionString() -> *c_char;                                               // GLFWAPI const char* glfwGetVersionString(void);
 
         /* Error handling */
-        fn glfwGetError() -> c_int;                                                         // GLFWAPI int glfwGetError(void);
-        fn glfwErrorString(error: c_int) -> *c_char;                                        // GLFWAPI const char* glfwErrorString(int error);
+        fn glfwGetError() -> Enum;                                                          // GLFWAPI int glfwGetError(void);
+        fn glfwErrorString(error: Enum) -> *c_char;                                         // GLFWAPI const char* glfwErrorString(int error);
         fn glfwSetErrorCallback(cbfun: GLFWerrorfun);                                       // GLFWAPI void glfwSetErrorCallback(GLFWerrorfun cbfun);
         
         /* Video mode functions */
@@ -455,8 +457,8 @@ pub mod api {
         fn glfwSetGammaRamp(ramp: &mut GammaRamp);                                          // GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp);
         
         /* Window handling */
-        fn glfwWindowHint(target: c_int, hint: c_int);                                      // GLFWAPI void glfwWindowHint(int target, int hint);
-        fn glfwCreateWindow(width: c_int, height: c_int, mode: c_int, title: *c_char, share: GLFWwindow) -> GLFWwindow; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
+        fn glfwWindowHint(target: Enum, hint: c_int);                                       // GLFWAPI void glfwWindowHint(int target, int hint);
+        fn glfwCreateWindow(width: c_int, height: c_int, mode: Enum, title: *c_char, share: GLFWwindow) -> GLFWwindow; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
         fn glfwDestroyWindow(window: GLFWwindow);                                           // GLFWAPI void glfwDestroyWindow(GLFWwindow window);
         fn glfwSetWindowTitle(window: GLFWwindow, title: *c_char);                          // GLFWAPI void glfwSetWindowTitle(GLFWwindow window, const char* title);
         fn glfwGetWindowSize(window: GLFWwindow, width: &mut c_int, height: &mut c_int);    // GLFWAPI void glfwGetWindowSize(GLFWwindow window, int* width, int* height);
@@ -465,7 +467,7 @@ pub mod api {
         fn glfwSetWindowPos(window: GLFWwindow, xpos: c_int, ypos: c_int);                  // GLFWAPI void glfwSetWindowPos(GLFWwindow window, int xpos, int ypos);
         fn glfwIconifyWindow(window: GLFWwindow);                                           // GLFWAPI void glfwIconifyWindow(GLFWwindow window);
         fn glfwRestoreWindow(window: GLFWwindow);                                           // GLFWAPI void glfwRestoreWindow(GLFWwindow window);
-        fn glfwGetWindowParam(window: GLFWwindow, param: c_int) -> c_int;                   // GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);
+        fn glfwGetWindowParam(window: GLFWwindow, param: Enum) -> c_int;                    // GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);
         fn glfwSetWindowUserPointer(window: GLFWwindow, pointer: *c_void);                  // GLFWAPI void glfwSetWindowUserPointer(GLFWwindow window, void* pointer);
         fn glfwGetWindowUserPointer(window: GLFWwindow) -> *c_void;                         // GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow window);
         fn glfwSetWindowSizeCallback(cbfun: GLFWwindowsizefun);                             // GLFWAPI void glfwSetWindowSizeCallback(GLFWwindowsizefun cbfun);
@@ -479,10 +481,10 @@ pub mod api {
         fn glfwWaitEvents();                                                                // GLFWAPI void glfwWaitEvents(void);
 
         /* Input handling */
-        fn glfwGetInputMode(window: GLFWwindow, mode: c_int) -> c_int;                      // GLFWAPI int  glfwGetInputMode(GLFWwindow window, int mode);
-        fn glfwSetInputMode(window: GLFWwindow, mode: c_int, value: c_int);                 // GLFWAPI void glfwSetInputMode(GLFWwindow window, int mode, int value);
-        fn glfwGetKey(window: GLFWwindow, key: c_int) -> c_int;                             // GLFWAPI int  glfwGetKey(GLFWwindow window, int key);
-        fn glfwGetMouseButton(window: GLFWwindow, button: c_int) -> c_int;                  // GLFWAPI int  glfwGetMouseButton(GLFWwindow window, int button);
+        fn glfwGetInputMode(window: GLFWwindow, mode: Enum) -> c_int;                       // GLFWAPI int  glfwGetInputMode(GLFWwindow window, int mode);
+        fn glfwSetInputMode(window: GLFWwindow, mode: Enum, value: c_int);                  // GLFWAPI void glfwSetInputMode(GLFWwindow window, int mode, int value);
+        fn glfwGetKey(window: GLFWwindow, key: Enum) -> Enum;                               // GLFWAPI int  glfwGetKey(GLFWwindow window, int key);
+        fn glfwGetMouseButton(window: GLFWwindow, button: Enum) -> Enum;                    // GLFWAPI int  glfwGetMouseButton(GLFWwindow window, int button);
         fn glfwGetCursorPos(window: GLFWwindow, xpos: &mut c_int, ypos: &mut c_int);        // GLFWAPI void glfwGetCursorPos(GLFWwindow window, int* xpos, int* ypos);
         fn glfwSetCursorPos(window: GLFWwindow, xpos: c_int, ypos: c_int);                  // GLFWAPI void glfwSetCursorPos(GLFWwindow window, int xpos, int ypos);
         fn glfwGetScrollOffset(window: GLFWwindow, xoffset: &mut c_double, yoffset: &mut c_double); // GLFWAPI void glfwGetScrollOffset(GLFWwindow window, double* xoffset, double* yoffset);
@@ -494,7 +496,7 @@ pub mod api {
         fn glfwSetScrollCallback(cbfun: GLFWscrollfun);                                     // GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun);
         
         /* Joystick input */
-        fn glfwGetJoystickParam(joy: c_int, param: c_int) -> c_int;                         // GLFWAPI int glfwGetJoystickParam(int joy, int param);
+        fn glfwGetJoystickParam(joy: c_int, param: Enum) -> c_int;                          // GLFWAPI int glfwGetJoystickParam(int joy, int param);
         fn glfwGetJoystickAxes(joy: c_int, axes: *c_float, numaxes: c_int) -> c_int;        // GLFWAPI int glfwGetJoystickAxes(int joy, float* axes, int numaxes);
         fn glfwGetJoystickButtons(joy: c_int, buttons: *c_uchar, numbuttons: c_int) -> c_int; // GLFWAPI int glfwGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
         
@@ -540,12 +542,12 @@ pub fn get_version_string() -> ~str {
 
 /* Error handling */
 
-pub fn get_error() -> int {
-    api::glfwGetError() as int
+pub fn get_error() -> Enum {
+    api::glfwGetError()
 }
 
-pub fn error_string(error: int) -> ~str {
-    unsafe { str::raw::from_c_str(api::glfwErrorString(error as c_int)) }
+pub fn error_string(error: Enum) -> ~str {
+    unsafe { str::raw::from_c_str(api::glfwErrorString(error)) }
 }
 
 // TODO: glfwSetErrorCallback
@@ -556,10 +558,10 @@ pub fn set_error_callback(cbfun: @ErrorFun) {
     api::glfwSetErrorCallback(error_callback);
 }
 
-priv extern fn error_callback(error: libc::c_int, format: *libc::c_char) {
+priv extern fn error_callback(error: Enum, format: *c_char) {
     unsafe {
         match local_data_get(tls_errorfun) {
-            Some(f) => { (*f)(error as int, str::raw::from_c_str(format)); }
+            Some(f) => { (*f)(error, str::raw::from_c_str(format)); }
             None => {}
         }
     }
@@ -600,30 +602,30 @@ pub fn set_gamma_ramp(ramp: &mut GammaRamp) {
 
 /* Window handling */
 
-pub fn window_hint(target: int, hint: int) {
-    api::glfwWindowHint(target as c_int, hint as c_int);
+pub fn window_hint(target: Enum, hint: int) {
+    api::glfwWindowHint(target, hint as c_int);
 }
 
-pub fn create_window(width: int, height: int, mode: int, title: &str) -> Window {
+pub fn create_window(width: int, height: int, mode: Enum, title: &str) -> Window {
     unsafe {
         Window {
             ptr: api::glfwCreateWindow(width as c_int,
-                                         height as c_int,
-                                         mode as c_int,
-                                         str::as_c_str(title, |a| a),
-                                         ptr::null())
+                                       height as c_int,
+                                       mode,
+                                       str::as_c_str(title, |a| a),
+                                       ptr::null())
         }
     }
 }
 
-pub fn create_shared_window(width: int, height: int, mode: int, title: &str, share: &mut Window) -> Window {
+pub fn create_shared_window(width: int, height: int, mode: Enum, title: &str, share: &mut Window) -> Window {
     unsafe {
         Window {
             ptr: api::glfwCreateWindow(width as c_int,
-                                         height as c_int,
-                                         mode as c_int,
-                                         str::as_c_str(title, |a| a),
-                                         share.ptr)
+                                       height as c_int,
+                                       mode,
+                                       str::as_c_str(title, |a| a),
+                                       share.ptr)
         }
     }
 }
@@ -665,7 +667,7 @@ impl Window {
         api::glfwRestoreWindow(self.ptr);
     }
 
-    pub fn get_param(param: int) -> int {
+    pub fn get_param(param: Enum) -> int {
         api::glfwGetWindowParam(self.ptr, param as c_int) as int
     }
     
@@ -772,20 +774,20 @@ pub fn wait_events() {
 /* Input handling */
 
 impl Window {
-    pub fn get_input_mode(mode: int) -> int {
-        api::glfwGetInputMode(self.ptr, mode as c_int) as int
+    pub fn get_input_mode(mode: Enum) -> int {
+        api::glfwGetInputMode(self.ptr, mode) as int
     }
 
-    pub fn set_input_mode(mode: int, value: int) {
-        api::glfwSetInputMode(self.ptr, mode as c_int, value as c_int);
+    pub fn set_input_mode(mode: Enum, value: int) {
+        api::glfwSetInputMode(self.ptr, mode, value as c_int);
     }
 
-    pub fn get_key(key: int) -> int {
-        api::glfwGetKey(self.ptr, key as c_int) as int
+    pub fn get_key(key: Enum) -> Enum {
+        api::glfwGetKey(self.ptr, key)
     }
 
-    pub fn get_mouse_button(button: int) -> int {
-        api::glfwGetMouseButton(self.ptr, button as c_int) as int
+    pub fn get_mouse_button(button: Enum) -> Enum {
+        api::glfwGetMouseButton(self.ptr, button)
     }
 
     pub fn get_cursor_pos() -> (int, int) {
@@ -812,10 +814,10 @@ pub fn set_key_callback(cbfun: @KeyFun) {
     api::glfwSetKeyCallback(key_callback);
 }
 
-extern fn key_callback(window: api::GLFWwindow, key: c_int, action: c_int) {
+extern fn key_callback(window: api::GLFWwindow, key: Enum, action: Enum) {
     unsafe {
         match local_data_get(tls_keyfun) {
-            Some(f) => { (*f)(Window { ptr: window }, key as int, action as int); }
+            Some(f) => { (*f)(Window { ptr: window }, key, action); }
             None => {}
         }
     }
@@ -844,10 +846,10 @@ pub fn set_mouse_button_callback(cbfun: @MouseButtonFun) {
     api::glfwSetMouseButtonCallback(mouse_button_callback);
 }
 
-extern fn mouse_button_callback(window: api::GLFWwindow, button: c_int, action: c_int) {
+extern fn mouse_button_callback(window: api::GLFWwindow, button: Enum, action: Enum) {
     unsafe {
         match local_data_get(tls_mousebuttonfun) {
-            Some(f) => { (*f)(Window { ptr: window }, button as int, action as int); }
+            Some(f) => { (*f)(Window { ptr: window }, button, action); }
             None => {}
         }
     }
@@ -855,7 +857,7 @@ extern fn mouse_button_callback(window: api::GLFWwindow, button: c_int, action: 
 
 fn tls_cursorposfun(_v: @CursorPosFun) {}
 
-pub fn set_cursor_pos_callback(cbfun: @KeyFun) {
+pub fn set_cursor_pos_callback(cbfun: @CursorPosFun) {
     unsafe { local_data_set(tls_cursorposfun, cbfun); }
     api::glfwSetCursorPosCallback(cursor_pos_callback);
 }
@@ -904,8 +906,8 @@ extern fn scroll_callback(window: api::GLFWwindow, x: c_double, y: c_double) {
 
 /* Joystick input */
 
-pub fn get_joystick_param(joy: int, param: int) -> int {
-    api::glfwGetJoystickParam(joy as c_int, param as c_int) as int
+pub fn get_joystick_param(joy: int, param: Enum) -> int {
+    api::glfwGetJoystickParam(joy as c_int, param) as int
 }
 
 /**
