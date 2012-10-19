@@ -467,6 +467,8 @@ pub mod api {
         fn glfwSetWindowPos(window: GLFWwindow, xpos: c_int, ypos: c_int);                  // GLFWAPI void glfwSetWindowPos(GLFWwindow window, int xpos, int ypos);
         fn glfwIconifyWindow(window: GLFWwindow);                                           // GLFWAPI void glfwIconifyWindow(GLFWwindow window);
         fn glfwRestoreWindow(window: GLFWwindow);                                           // GLFWAPI void glfwRestoreWindow(GLFWwindow window);
+        fn glfwShowWindow(window: GLFWwindow);                                              // GLFWAPI void glfwShowWindow(GLFWwindow window);
+        fn glfwHideWindow(window: GLFWwindow);                                              // GLFWAPI void glfwHideWindow(GLFWwindow window);
         fn glfwGetWindowParam(window: GLFWwindow, param: Enum) -> c_int;                    // GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);
         fn glfwSetWindowUserPointer(window: GLFWwindow, pointer: *c_void);                  // GLFWAPI void glfwSetWindowUserPointer(GLFWwindow window, void* pointer);
         fn glfwGetWindowUserPointer(window: GLFWwindow) -> *c_void;                         // GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow window);
@@ -665,6 +667,14 @@ pub impl Window {
     
     fn restore() {
         api::glfwRestoreWindow(self.ptr);
+    }
+    
+    fn show() {
+        api::glfwShowWindow(self.ptr);
+    }
+    
+    fn hide() {
+        api::glfwHideWindow(self.ptr);
     }
 
     fn get_param(param: Enum) -> int {
