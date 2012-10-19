@@ -550,7 +550,6 @@ pub fn error_string(error: Enum) -> ~str {
     unsafe { str::raw::from_c_str(api::glfwErrorString(error)) }
 }
 
-// TODO: glfwSetErrorCallback
 fn tls_errorfun(_v: @ErrorFun) {}
 
 pub fn set_error_callback(cbfun: @ErrorFun) {
@@ -558,7 +557,7 @@ pub fn set_error_callback(cbfun: @ErrorFun) {
     api::glfwSetErrorCallback(error_callback);
 }
 
-priv extern fn error_callback(error: Enum, format: *c_char) {
+extern fn error_callback(error: Enum, format: *c_char) {
     unsafe {
         match local_data_get(tls_errorfun) {
             Some(f) => { (*f)(error, str::raw::from_c_str(format)); }
@@ -634,48 +633,49 @@ pub fn destroy_window(window: &mut Window) {
     api::glfwDestroyWindow(window.ptr);
 }
 
-impl Window {
-    pub fn set_title(title: &str) {
+pub impl Window {
+    
+    fn set_title(title: &str) {
         api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))
     }
-
-    pub fn get_size() -> (int, int) {
+    
+    fn get_size() -> (int, int) {
         let mut width = 0, height = 0;
         unsafe { api::glfwGetWindowSize(self.ptr, &mut width, &mut height)}
         return (width as int, height as int);
     }
-
-    pub fn set_size(width: int, height: int) {
+    
+    fn set_size(width: int, height: int) {
         api::glfwSetWindowSize(self.ptr, width as c_int, height as c_int);
     }
-
-    pub fn get_pos() -> (int, int) {
+    
+    fn get_pos() -> (int, int) {
         let mut xpos = 0, ypos = 0;
         unsafe { api::glfwGetWindowPos(self.ptr, &mut xpos, &mut ypos); }
         return (xpos as int, ypos as int);
     }
-
-    pub fn set_pos(xpos: int, ypos: int) {
+    
+    fn set_pos(xpos: int, ypos: int) {
         api::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int);
     }
-
-    pub fn iconify() {
+    
+    fn iconify() {
         api::glfwIconifyWindow(self.ptr);
     }
-
-    pub fn restore() {
+    
+    fn restore() {
         api::glfwRestoreWindow(self.ptr);
     }
 
-    pub fn get_param(param: Enum) -> int {
+    fn get_param(param: Enum) -> int {
         api::glfwGetWindowParam(self.ptr, param as c_int) as int
     }
     
-    pub fn set_user_pointer(pointer: *c_void) {
+    fn set_user_pointer(pointer: *c_void) {
         api::glfwSetWindowUserPointer(self.ptr, pointer);
     }
     
-    pub fn get_user_pointer() -> *c_void {
+    fn get_user_pointer() -> *c_void {
         api::glfwGetWindowUserPointer(self.ptr)
     }
 }
@@ -773,34 +773,34 @@ pub fn wait_events() {
 
 /* Input handling */
 
-impl Window {
-    pub fn get_input_mode(mode: Enum) -> int {
+pub impl Window {
+    fn get_input_mode(mode: Enum) -> int {
         api::glfwGetInputMode(self.ptr, mode) as int
     }
-
-    pub fn set_input_mode(mode: Enum, value: int) {
+    
+    fn set_input_mode(mode: Enum, value: int) {
         api::glfwSetInputMode(self.ptr, mode, value as c_int);
     }
-
-    pub fn get_key(key: Enum) -> Enum {
+    
+    fn get_key(key: Enum) -> Enum {
         api::glfwGetKey(self.ptr, key)
     }
-
-    pub fn get_mouse_button(button: Enum) -> Enum {
+    
+    fn get_mouse_button(button: Enum) -> Enum {
         api::glfwGetMouseButton(self.ptr, button)
     }
-
-    pub fn get_cursor_pos() -> (int, int) {
+    
+    fn get_cursor_pos() -> (int, int) {
         let mut xpos = 0, ypos = 0;
         unsafe { api::glfwGetCursorPos(self.ptr, &mut xpos, &mut ypos); }
         return (xpos as int, ypos as int);
     }
-
-    pub fn set_cursor_pos(xpos: int, ypos: int) {
+    
+    fn set_cursor_pos(xpos: int, ypos: int) {
         api::glfwSetCursorPos(self.ptr, xpos as c_int, ypos as c_int);
     }
-
-    pub fn get_scroll_offset() -> (f64, f64) {
+    
+    fn get_scroll_offset() -> (f64, f64) {
         let mut xpos = 0f64, ypos = 0f64;
         unsafe { api::glfwGetScrollOffset(self.ptr, &mut xpos, &mut ypos); }
         return (xpos as f64, ypos as f64);
@@ -944,12 +944,12 @@ pub fn get_joystick_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
 
 /* Clipboard */
 
-impl Window {
-    pub fn set_clipboard_string(string: &str) {
+pub impl Window {
+    fn set_clipboard_string(string: &str) {
         api::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a));
     }
-
-    pub fn get_clipboard_string() -> ~str {
+    
+    fn get_clipboard_string() -> ~str {
         unsafe { str::raw::from_c_str(api::glfwGetClipboardString(self.ptr)) }
     }
 }
@@ -966,8 +966,8 @@ pub fn set_time(time: f64) {
 
 /* OpenGL support */
 
-impl Window {
-    pub fn make_context_current() {
+pub impl Window {
+    fn make_context_current() {
         api::glfwMakeContextCurrent(self.ptr);
     }
 }
