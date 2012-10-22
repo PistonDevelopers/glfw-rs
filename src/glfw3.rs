@@ -457,6 +457,7 @@ pub mod api {
         fn glfwSetGammaRamp(ramp: &mut GammaRamp);                                          // GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp);
         
         /* Window handling */
+        fn glfwDefaultWindowHints();                                                        // GLFWAPI void glfwDefaultWindowHints(void);
         fn glfwWindowHint(target: Enum, hint: c_int);                                       // GLFWAPI void glfwWindowHint(int target, int hint);
         fn glfwCreateWindow(width: c_int, height: c_int, mode: Enum, title: *c_char, share: GLFWwindow) -> GLFWwindow; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
         fn glfwDestroyWindow(window: GLFWwindow);                                           // GLFWAPI void glfwDestroyWindow(GLFWwindow window);
@@ -602,6 +603,10 @@ pub fn set_gamma_ramp(ramp: &mut GammaRamp) {
 }
 
 /* Window handling */
+
+pub fn default_window_hints() {
+    api::glfwDefaultWindowHints();
+}
 
 pub fn window_hint(target: Enum, hint: int) {
     api::glfwWindowHint(target, hint as c_int);
