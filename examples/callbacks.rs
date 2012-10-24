@@ -58,7 +58,7 @@ fn main() {
 
 // For now you have use external functions for the callbacks. This will be changed in the future.
 
-fn error_callback(error: glfw3::Enum, name: ~str) {
+fn error_callback(error: libc::c_int, name: ~str) {
     io::println(fmt!("GLFW Error: %s", name));
 }
 
@@ -86,7 +86,7 @@ fn window_iconify_callback(window: glfw3::Window, iconified: bool) {
     else { io::println(~"Window was maximised."); }
 }
 
-fn key_callback(window: glfw3::Window, key: glfw3::Enum, action: glfw3::Enum) {
+fn key_callback(window: glfw3::Window, key: libc::c_int, action: libc::c_int) {
     io::println(fmt!("Key %s: %s", to_key_str(key), to_action_str(action)));
     
     // FIXME: this should trigger the window refresh callback.
@@ -99,7 +99,7 @@ fn char_callback(window: glfw3::Window, character: char) {
     io::println(fmt!("Character: '%?'", character));
 }
 
-fn mouse_button_callback(window: glfw3::Window, button: glfw3::Enum, action: glfw3::Enum) {
+fn mouse_button_callback(window: glfw3::Window, button: libc::c_int, action: libc::c_int) {
     io::println(fmt!("Mouse Button %s: %s", to_mouse_button_str(button), to_action_str(action)));
 }
 
@@ -117,13 +117,13 @@ fn scroll_callback(window: glfw3::Window, x: f64, y: f64) {
     window.set_title(fmt!("Scroll position: [ %?, %? ]", x, y));
 }
 
-fn to_action_str(state: glfw3::Enum) -> ~str {
+fn to_action_str(state: libc::c_int) -> ~str {
     if      state == glfw3::RELEASE { ~"Released" }
     else if state == glfw3::PRESS   { ~"Pressed"  }
     else                            { ~"Unknown"  }
 }
 
-fn to_key_str(key: glfw3::Enum) -> ~str {
+fn to_key_str(key: libc::c_int) -> ~str {
     /* Printable keys */
     if      key == glfw3::KEY_SPACE           { ~"Space"         }
     else if key == glfw3::KEY_APOSTROPHE      { ~"Apostrophe"    }
@@ -250,7 +250,7 @@ fn to_key_str(key: glfw3::Enum) -> ~str {
     else                                      { ~"Unknown"       }
 }
 
-fn to_mouse_button_str(btn: glfw3::Enum) -> ~str {
+fn to_mouse_button_str(btn: libc::c_int) -> ~str {
     if      btn == glfw3::MOUSE_BUTTON_LEFT   { ~"Left"    }
     else if btn == glfw3::MOUSE_BUTTON_RIGHT  { ~"Right"   }
     else if btn == glfw3::MOUSE_BUTTON_MIDDLE { ~"Middle"  }
