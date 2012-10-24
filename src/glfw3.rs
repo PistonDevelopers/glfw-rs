@@ -37,6 +37,7 @@
  
 extern mod std;
 use libc::*;
+use ptr::{to_unsafe_ptr, addr_of};
 
 use task::local_data:: {
     local_data_get,
@@ -439,86 +440,86 @@ pub mod api {
         /* GLFW initialization, termination and version querying */
         fn glfwInit() -> c_int;                                                             // GLFWAPI int  glfwInit(void);
         fn glfwTerminate();                                                                 // GLFWAPI void glfwTerminate(void);
-        fn glfwGetVersion(major: &mut c_int, minor: &mut c_int, rev: &mut c_int);           // GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev);
+        fn glfwGetVersion(++major: *c_int, ++minor: *c_int, ++rev: *c_int);                 // GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev);
         fn glfwGetVersionString() -> *c_char;                                               // GLFWAPI const char* glfwGetVersionString(void);
 
         /* Error handling */
         fn glfwGetError() -> Enum;                                                          // GLFWAPI int glfwGetError(void);
-        fn glfwErrorString(error: Enum) -> *c_char;                                         // GLFWAPI const char* glfwErrorString(int error);
-        fn glfwSetErrorCallback(cbfun: GLFWerrorfun);                                       // GLFWAPI void glfwSetErrorCallback(GLFWerrorfun cbfun);
+        fn glfwErrorString(++error: Enum) -> *c_char;                                       // GLFWAPI const char* glfwErrorString(int error);
+        fn glfwSetErrorCallback(++cbfun: GLFWerrorfun);                                     // GLFWAPI void glfwSetErrorCallback(GLFWerrorfun cbfun);
         
         /* Video mode functions */
-        fn glfwGetVideoModes(count: &mut c_int) -> *VidMode;                                // GLFWAPI GLFWvidmode* glfwGetVideoModes(int* count);
-        fn glfwGetDesktopMode(mode: &mut VidMode);                                          // GLFWAPI void glfwGetDesktopMode(GLFWvidmode* mode);
+        fn glfwGetVideoModes(++count: *c_int) -> *VidMode;                                  // GLFWAPI GLFWvidmode* glfwGetVideoModes(int* count);
+        fn glfwGetDesktopMode(++mode: *VidMode);                                            // GLFWAPI void glfwGetDesktopMode(GLFWvidmode* mode);
         
         /* Gamma ramp functions */
-        fn glfwSetGamma(gamma: c_float);                                                    // GLFWAPI void glfwSetGamma(float gamma);
-        fn glfwGetGammaRamp(ramp: &mut GammaRamp);                                          // GLFWAPI void glfwGetGammaRamp(GLFWgammaramp* ramp);
-        fn glfwSetGammaRamp(ramp: &mut GammaRamp);                                          // GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp);
+        fn glfwSetGamma(++gamma: c_float);                                                  // GLFWAPI void glfwSetGamma(float gamma);
+        fn glfwGetGammaRamp(++ramp: *GammaRamp);                                            // GLFWAPI void glfwGetGammaRamp(GLFWgammaramp* ramp);
+        fn glfwSetGammaRamp(++ramp: *GammaRamp);                                            // GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp);
         
         /* Window handling */
         fn glfwDefaultWindowHints();                                                        // GLFWAPI void glfwDefaultWindowHints(void);
-        fn glfwWindowHint(target: Enum, hint: c_int);                                       // GLFWAPI void glfwWindowHint(int target, int hint);
-        fn glfwCreateWindow(width: c_int, height: c_int, mode: Enum, title: *c_char, share: GLFWwindow) -> GLFWwindow; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
-        fn glfwDestroyWindow(window: GLFWwindow);                                           // GLFWAPI void glfwDestroyWindow(GLFWwindow window);
-        fn glfwSetWindowTitle(window: GLFWwindow, title: *c_char);                          // GLFWAPI void glfwSetWindowTitle(GLFWwindow window, const char* title);
-        fn glfwGetWindowSize(window: GLFWwindow, width: &mut c_int, height: &mut c_int);    // GLFWAPI void glfwGetWindowSize(GLFWwindow window, int* width, int* height);
-        fn glfwSetWindowSize(window: GLFWwindow, width: c_int, height: c_int);              // GLFWAPI void glfwSetWindowSize(GLFWwindow window, int width, int height);
-        fn glfwGetWindowPos(window: GLFWwindow, xpos: &mut c_int, ypos: &mut c_int);        // GLFWAPI void glfwGetWindowPos(GLFWwindow window, int* xpos, int* ypos);
-        fn glfwSetWindowPos(window: GLFWwindow, xpos: c_int, ypos: c_int);                  // GLFWAPI void glfwSetWindowPos(GLFWwindow window, int xpos, int ypos);
-        fn glfwIconifyWindow(window: GLFWwindow);                                           // GLFWAPI void glfwIconifyWindow(GLFWwindow window);
-        fn glfwRestoreWindow(window: GLFWwindow);                                           // GLFWAPI void glfwRestoreWindow(GLFWwindow window);
-        fn glfwShowWindow(window: GLFWwindow);                                              // GLFWAPI void glfwShowWindow(GLFWwindow window);
-        fn glfwHideWindow(window: GLFWwindow);                                              // GLFWAPI void glfwHideWindow(GLFWwindow window);
-        fn glfwGetWindowParam(window: GLFWwindow, param: Enum) -> c_int;                    // GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);
-        fn glfwSetWindowUserPointer(window: GLFWwindow, pointer: *c_void);                  // GLFWAPI void glfwSetWindowUserPointer(GLFWwindow window, void* pointer);
-        fn glfwGetWindowUserPointer(window: GLFWwindow) -> *c_void;                         // GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow window);
-        fn glfwSetWindowSizeCallback(cbfun: GLFWwindowsizefun);                             // GLFWAPI void glfwSetWindowSizeCallback(GLFWwindowsizefun cbfun);
-        fn glfwSetWindowCloseCallback(cbfun: GLFWwindowclosefun);                           // GLFWAPI void glfwSetWindowCloseCallback(GLFWwindowclosefun cbfun);
-        fn glfwSetWindowRefreshCallback(cbfun: GLFWwindowrefreshfun);                       // GLFWAPI void glfwSetWindowRefreshCallback(GLFWwindowrefreshfun cbfun);
-        fn glfwSetWindowFocusCallback(cbfun: GLFWwindowfocusfun);                           // GLFWAPI void glfwSetWindowFocusCallback(GLFWwindowfocusfun cbfun);
-        fn glfwSetWindowIconifyCallback(cbfun: GLFWwindowiconifyfun);                       // GLFWAPI void glfwSetWindowIconifyCallback(GLFWwindowiconifyfun cbfun);
+        fn glfwWindowHint(++target: Enum, ++hint: c_int);                                   // GLFWAPI void glfwWindowHint(int target, int hint);
+        fn glfwCreateWindow(++width: c_int, ++height: c_int, ++mode: Enum, ++title: *c_char, ++share: GLFWwindow) -> GLFWwindow; // GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
+        fn glfwDestroyWindow(++window: GLFWwindow);                                         // GLFWAPI void glfwDestroyWindow(GLFWwindow window);
+        fn glfwSetWindowTitle(++window: GLFWwindow, ++title: *c_char);                      // GLFWAPI void glfwSetWindowTitle(GLFWwindow window, const char* title);
+        fn glfwGetWindowSize(++window: GLFWwindow, ++width: *c_int, ++height: *c_int);      // GLFWAPI void glfwGetWindowSize(GLFWwindow window, int* width, int* height);
+        fn glfwSetWindowSize(++window: GLFWwindow, ++width: c_int, ++height: c_int);        // GLFWAPI void glfwSetWindowSize(GLFWwindow window, int width, int height);
+        fn glfwGetWindowPos(++window: GLFWwindow, ++xpos: *c_int, ++ypos: *c_int);          // GLFWAPI void glfwGetWindowPos(GLFWwindow window, int* xpos, int* ypos);
+        fn glfwSetWindowPos(++window: GLFWwindow, ++xpos: c_int, ++ypos: c_int);            // GLFWAPI void glfwSetWindowPos(GLFWwindow window, int xpos, int ypos);
+        fn glfwIconifyWindow(++window: GLFWwindow);                                         // GLFWAPI void glfwIconifyWindow(GLFWwindow window);
+        fn glfwRestoreWindow(++window: GLFWwindow);                                         // GLFWAPI void glfwRestoreWindow(GLFWwindow window);
+        fn glfwShowWindow(++window: GLFWwindow);                                            // GLFWAPI void glfwShowWindow(GLFWwindow window);
+        fn glfwHideWindow(++window: GLFWwindow);                                            // GLFWAPI void glfwHideWindow(GLFWwindow window);
+        fn glfwGetWindowParam(++window: GLFWwindow, ++param: Enum) -> c_int;                // GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);
+        fn glfwSetWindowUserPointer(++window: GLFWwindow, ++pointer: *c_void);              // GLFWAPI void glfwSetWindowUserPointer(GLFWwindow window, void* pointer);
+        fn glfwGetWindowUserPointer(++window: GLFWwindow) -> *c_void;                       // GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow window);
+        fn glfwSetWindowSizeCallback(++cbfun: GLFWwindowsizefun);                           // GLFWAPI void glfwSetWindowSizeCallback(GLFWwindowsizefun cbfun);
+        fn glfwSetWindowCloseCallback(++cbfun: GLFWwindowclosefun);                         // GLFWAPI void glfwSetWindowCloseCallback(GLFWwindowclosefun cbfun);
+        fn glfwSetWindowRefreshCallback(++cbfun: GLFWwindowrefreshfun);                     // GLFWAPI void glfwSetWindowRefreshCallback(GLFWwindowrefreshfun cbfun);
+        fn glfwSetWindowFocusCallback(++cbfun: GLFWwindowfocusfun);                         // GLFWAPI void glfwSetWindowFocusCallback(GLFWwindowfocusfun cbfun);
+        fn glfwSetWindowIconifyCallback(++cbfun: GLFWwindowiconifyfun);                     // GLFWAPI void glfwSetWindowIconifyCallback(GLFWwindowiconifyfun cbfun);
 
         /* Event handling */
         fn glfwPollEvents();                                                                // GLFWAPI void glfwPollEvents(void);
         fn glfwWaitEvents();                                                                // GLFWAPI void glfwWaitEvents(void);
 
         /* Input handling */
-        fn glfwGetInputMode(window: GLFWwindow, mode: Enum) -> c_int;                       // GLFWAPI int  glfwGetInputMode(GLFWwindow window, int mode);
-        fn glfwSetInputMode(window: GLFWwindow, mode: Enum, value: c_int);                  // GLFWAPI void glfwSetInputMode(GLFWwindow window, int mode, int value);
-        fn glfwGetKey(window: GLFWwindow, key: Enum) -> Enum;                               // GLFWAPI int  glfwGetKey(GLFWwindow window, int key);
-        fn glfwGetMouseButton(window: GLFWwindow, button: Enum) -> Enum;                    // GLFWAPI int  glfwGetMouseButton(GLFWwindow window, int button);
-        fn glfwGetCursorPos(window: GLFWwindow, xpos: &mut c_int, ypos: &mut c_int);        // GLFWAPI void glfwGetCursorPos(GLFWwindow window, int* xpos, int* ypos);
-        fn glfwSetCursorPos(window: GLFWwindow, xpos: c_int, ypos: c_int);                  // GLFWAPI void glfwSetCursorPos(GLFWwindow window, int xpos, int ypos);
-        fn glfwGetScrollOffset(window: GLFWwindow, xoffset: &mut c_double, yoffset: &mut c_double); // GLFWAPI void glfwGetScrollOffset(GLFWwindow window, double* xoffset, double* yoffset);
-        fn glfwSetKeyCallback(cbfun: GLFWkeyfun);                                           // GLFWAPI void glfwSetKeyCallback(GLFWkeyfun cbfun);
-        fn glfwSetCharCallback(cbfun: GLFWcharfun);                                         // GLFWAPI void glfwSetCharCallback(GLFWcharfun cbfun);
-        fn glfwSetMouseButtonCallback(cbfun: GLFWmousebuttonfun);                           // GLFWAPI void glfwSetMouseButtonCallback(GLFWmousebuttonfun cbfun);
-        fn glfwSetCursorPosCallback(cbfun: GLFWcursorposfun);                               // GLFWAPI void glfwSetCursorPosCallback(GLFWcursorposfun cbfun);
-        fn glfwSetCursorEnterCallback(cbfun: GLFWcursorenterfun);                           // GLFWAPI void glfwSetCursorEnterCallback(GLFWcursorenterfun cbfun);
-        fn glfwSetScrollCallback(cbfun: GLFWscrollfun);                                     // GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun);
+        fn glfwGetInputMode(++window: GLFWwindow, ++mode: Enum) -> c_int;                   // GLFWAPI int  glfwGetInputMode(GLFWwindow window, int mode);
+        fn glfwSetInputMode(++window: GLFWwindow, ++mode: Enum, ++value: c_int);            // GLFWAPI void glfwSetInputMode(GLFWwindow window, int mode, int value);
+        fn glfwGetKey(++window: GLFWwindow, ++key: Enum) -> Enum;                           // GLFWAPI int  glfwGetKey(GLFWwindow window, int key);
+        fn glfwGetMouseButton(++window: GLFWwindow, ++button: Enum) -> Enum;                // GLFWAPI int  glfwGetMouseButton(GLFWwindow window, int button);
+        fn glfwGetCursorPos(++window: GLFWwindow, ++xpos: *c_int, ++ypos: *c_int);          // GLFWAPI void glfwGetCursorPos(GLFWwindow window, int* xpos, int* ypos);
+        fn glfwSetCursorPos(++window: GLFWwindow, ++xpos: c_int, ++ypos: c_int);            // GLFWAPI void glfwSetCursorPos(GLFWwindow window, int xpos, int ypos);
+        fn glfwGetScrollOffset(++window: GLFWwindow, ++xoffset: *c_double, ++yoffset: *c_double); // GLFWAPI void glfwGetScrollOffset(GLFWwindow window, double* xoffset, double* yoffset);
+        fn glfwSetKeyCallback(++cbfun: GLFWkeyfun);                                         // GLFWAPI void glfwSetKeyCallback(GLFWkeyfun cbfun);
+        fn glfwSetCharCallback(++cbfun: GLFWcharfun);                                       // GLFWAPI void glfwSetCharCallback(GLFWcharfun cbfun);
+        fn glfwSetMouseButtonCallback(++cbfun: GLFWmousebuttonfun);                         // GLFWAPI void glfwSetMouseButtonCallback(GLFWmousebuttonfun cbfun);
+        fn glfwSetCursorPosCallback(++cbfun: GLFWcursorposfun);                             // GLFWAPI void glfwSetCursorPosCallback(GLFWcursorposfun cbfun);
+        fn glfwSetCursorEnterCallback(++cbfun: GLFWcursorenterfun);                         // GLFWAPI void glfwSetCursorEnterCallback(GLFWcursorenterfun cbfun);
+        fn glfwSetScrollCallback(++cbfun: GLFWscrollfun);                                   // GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun);
         
         /* Joystick input */
-        fn glfwGetJoystickParam(joy: c_int, param: Enum) -> c_int;                          // GLFWAPI int glfwGetJoystickParam(int joy, int param);
-        fn glfwGetJoystickAxes(joy: c_int, axes: *c_float, numaxes: c_int) -> c_int;        // GLFWAPI int glfwGetJoystickAxes(int joy, float* axes, int numaxes);
-        fn glfwGetJoystickButtons(joy: c_int, buttons: *c_uchar, numbuttons: c_int) -> c_int; // GLFWAPI int glfwGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
+        fn glfwGetJoystickParam(++joy: c_int, ++param: Enum) -> c_int;                      // GLFWAPI int glfwGetJoystickParam(int joy, int param);
+        fn glfwGetJoystickAxes(++joy: c_int, ++axes: *c_float, ++numaxes: c_int) -> c_int;  // GLFWAPI int glfwGetJoystickAxes(int joy, float* axes, int numaxes);
+        fn glfwGetJoystickButtons(++joy: c_int, ++buttons: *c_uchar, ++numbuttons: c_int) -> c_int; // GLFWAPI int glfwGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
         
         /* Clipboard */
-        fn glfwSetClipboardString(window: GLFWwindow, string: *c_char);                     // GLFWAPI void glfwSetClipboardString(GLFWwindow window, const char* string);
-        fn glfwGetClipboardString(window: GLFWwindow) -> *c_char;                           // GLFWAPI const char* glfwGetClipboardString(GLFWwindow window);
+        fn glfwSetClipboardString(++window: GLFWwindow, string: *c_char);                   // GLFWAPI void glfwSetClipboardString(GLFWwindow window, const char* string);
+        fn glfwGetClipboardString(++window: GLFWwindow) -> *c_char;                         // GLFWAPI const char* glfwGetClipboardString(GLFWwindow window);
         
         /* Time */
         fn glfwGetTime() -> c_double;                                                       // GLFWAPI double glfwGetTime(void);
-        fn glfwSetTime(time: c_double);                                                     // GLFWAPI void   glfwSetTime(double time);
+        fn glfwSetTime(++time: c_double);                                                   // GLFWAPI void   glfwSetTime(double time);
         
         /* OpenGL support */
-        fn glfwMakeContextCurrent(window: GLFWwindow);                                      // GLFWAPI void glfwMakeContextCurrent(GLFWwindow window);
+        fn glfwMakeContextCurrent(++window: GLFWwindow);                                    // GLFWAPI void glfwMakeContextCurrent(GLFWwindow window);
         fn glfwGetCurrentContext() -> GLFWwindow;                                           // GLFWAPI GLFWwindow glfwGetCurrentContext(void);
-        fn glfwSwapBuffers(window: GLFWwindow);                                             // GLFWAPI void  glfwSwapBuffers(GLFWwindow window);
-        fn glfwSwapInterval(interval: c_int);                                               // GLFWAPI void  glfwSwapInterval(int interval);
-        fn glfwExtensionSupported(extension: *c_char) -> c_int;                             // GLFWAPI int   glfwExtensionSupported(const char* extension);
-        fn glfwGetProcAddress(procname: *c_char) -> GLProc;                                 // GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
-        fn glfwCopyContext(src: GLFWwindow, dst: GLFWwindow, mask: c_ulong);                // GLFWAPI void  glfwCopyContext(GLFWwindow src, GLFWwindow dst, unsigned long mask);
+        fn glfwSwapBuffers(++window: GLFWwindow);                                           // GLFWAPI void  glfwSwapBuffers(GLFWwindow window);
+        fn glfwSwapInterval(++interval: c_int);                                             // GLFWAPI void  glfwSwapInterval(int interval);
+        fn glfwExtensionSupported(++extension: *c_char) -> c_int;                           // GLFWAPI int   glfwExtensionSupported(const char* extension);
+        fn glfwGetProcAddress(++procname: *c_char) -> GLProc;                               // GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
+        fn glfwCopyContext(++src: GLFWwindow, ++dst: GLFWwindow, ++mask: c_ulong);          // GLFWAPI void  glfwCopyContext(GLFWwindow src, GLFWwindow dst, unsigned long mask);
     }
 }
 
@@ -534,8 +535,16 @@ pub fn terminate() {
 }
 
 pub fn get_version() -> (int, int, int) {
-    let mut major = 0, minor = 0, rev = 0;
-    unsafe { api::glfwGetVersion(&mut major, &mut minor, &mut rev); }
+    let major: c_int = 0;
+    let minor: c_int = 0;
+    let rev:   c_int = 0;
+    unsafe {
+        api::glfwGetVersion(
+            to_unsafe_ptr(&major),
+            to_unsafe_ptr(&minor),
+            to_unsafe_ptr(&rev)
+        );
+    }
     return (major as int, minor as int, rev as int);
 }
 
@@ -572,17 +581,25 @@ extern fn error_callback(error: Enum, format: *c_char) {
 /* Video mode functions */
 
 pub fn get_video_modes() -> ~[VidMode] {
-    let mut count: c_int = 0;
-    let mode_ptr = api::glfwGetVideoModes(&mut count);
+    let count: c_int = 0;
     let modes: ~[VidMode];
-    unsafe { modes = vec::from_buf(mode_ptr, count as uint); }
+    
+    let ptr = api::glfwGetVideoModes(to_unsafe_ptr(&count));
+    unsafe { modes = vec::from_buf(ptr, count as uint); }
     
     return move modes;
 }
 
 pub fn get_desktop_mode() -> VidMode {
-    let mut mode = VidMode { width: 0, height : 0, redBits: 0, blueBits: 0, greenBits: 0 }; // initialisation is necessary
-    unsafe { api::glfwGetDesktopMode(&mut mode); }
+    let mode = VidMode {
+        width:     0,
+        height :   0,
+        redBits:   0,
+        blueBits:  0,
+        greenBits: 0,
+    };
+    unsafe { api::glfwGetDesktopMode(to_unsafe_ptr(&mode)); }
+    
     return mode;
 }
 
@@ -593,13 +610,18 @@ pub fn set_gamma(gamma: float) {
 }
 
 pub fn get_gamma_ramp() -> GammaRamp {
-    let mut ramp = GammaRamp { red: [0, ..256], green: [0, ..256], blue: [0, ..256] }; // initialisation is necessary
-    unsafe { api::glfwGetGammaRamp(&mut ramp); }
+    let ramp = GammaRamp {
+        red:   [0, ..256],
+        green: [0, ..256],
+        blue:  [0, ..256],
+    };
+    unsafe { api::glfwGetGammaRamp(to_unsafe_ptr(&ramp)); }
+    
     return ramp;
 }
 
-pub fn set_gamma_ramp(ramp: &mut GammaRamp) {
-    unsafe { api::glfwSetGammaRamp(ramp) }
+pub fn set_gamma_ramp(ramp: &GammaRamp) {
+    unsafe { api::glfwSetGammaRamp(addr_of(&*ramp)) } // I'm not sure if addr_of is the right function to use here...
 }
 
 /* Window handling */
@@ -624,7 +646,7 @@ pub fn create_window(width: int, height: int, mode: Enum, title: &str) -> Window
     }
 }
 
-pub fn create_shared_window(width: int, height: int, mode: Enum, title: &str, share: &mut Window) -> Window {
+pub fn create_shared_window(width: int, height: int, mode: Enum, title: &str, share: &Window) -> Window {
     unsafe {
         Window {
             ptr: api::glfwCreateWindow(width as c_int,
@@ -647,8 +669,16 @@ pub impl Window {
     }
     
     fn get_size() -> (int, int) {
-        let mut width = 0, height = 0;
-        unsafe { api::glfwGetWindowSize(self.ptr, &mut width, &mut height)}
+        let width:  c_int = 0;
+        let height: c_int = 0;
+        unsafe {
+            api::glfwGetWindowSize(
+                self.ptr,
+                to_unsafe_ptr(&width),
+                to_unsafe_ptr(&height)
+            );
+        }
+        
         return (width as int, height as int);
     }
     
@@ -657,8 +687,16 @@ pub impl Window {
     }
     
     fn get_pos() -> (int, int) {
-        let mut xpos = 0, ypos = 0;
-        unsafe { api::glfwGetWindowPos(self.ptr, &mut xpos, &mut ypos); }
+        let xpos: c_int = 0;
+        let ypos: c_int = 0;
+        unsafe {
+            api::glfwGetWindowPos(
+                self.ptr,
+                to_unsafe_ptr(&xpos),
+                to_unsafe_ptr(&ypos)
+            );
+        }
+        
         return (xpos as int, ypos as int);
     }
     
@@ -806,8 +844,16 @@ pub impl Window {
     }
     
     fn get_cursor_pos() -> (int, int) {
-        let mut xpos = 0, ypos = 0;
-        unsafe { api::glfwGetCursorPos(self.ptr, &mut xpos, &mut ypos); }
+        let xpos: c_int = 0;
+        let ypos: c_int = 0;
+        unsafe {
+            api::glfwGetCursorPos(
+                self.ptr,
+                to_unsafe_ptr(&xpos),
+                to_unsafe_ptr(&ypos)
+            );
+        }
+        
         return (xpos as int, ypos as int);
     }
     
@@ -816,8 +862,16 @@ pub impl Window {
     }
     
     fn get_scroll_offset() -> (f64, f64) {
-        let mut xpos = 0f64, ypos = 0f64;
-        unsafe { api::glfwGetScrollOffset(self.ptr, &mut xpos, &mut ypos); }
+        let xpos: f64 = 0f64;
+        let ypos: f64 = 0f64;
+        unsafe {
+            api::glfwGetScrollOffset(
+                self.ptr,
+                to_unsafe_ptr(&xpos),
+                to_unsafe_ptr(&ypos)
+            );
+        }
+        
         return (xpos as f64, ypos as f64);
     }
 }
