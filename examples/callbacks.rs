@@ -14,22 +14,6 @@ fn main() {
             fail(~"glfwInit() failed\n");
         }
         
-        // Register event callbacks
-        
-        glfw3::set_error_callback(@error_callback);
-        glfw3::set_window_size_callback(@window_size_callback);
-        glfw3::set_window_close_callback(@window_close_callback);
-        glfw3::set_window_refresh_callback(@window_refresh_callback);  // FIXME
-        glfw3::set_window_focus_callback(@window_focus_callback);
-        glfw3::set_window_iconify_callback(@window_iconify_callback);
-        
-        glfw3::set_key_callback(@key_callback);
-        glfw3::set_char_callback(@char_callback);
-        glfw3::set_mouse_button_callback(@mouse_button_callback);
-        glfw3::set_cursor_pos_callback(@cursor_pos_callback);
-        glfw3::set_cursor_enter_callback(@cursor_enter_callback);
-        glfw3::set_scroll_callback(@scroll_callback);  // FIXME
-        
         glfw3::window_hint(glfw3::RESIZABLE, 1);
         
         let mut window = glfw3::create_window(800, 600, glfw3::WINDOWED, "Hello, I am a window.");
@@ -41,6 +25,24 @@ fn main() {
         }
         
         window.set_input_mode(glfw3::STICKY_KEYS, 1);
+        
+        // Register event callbacks
+        
+        glfw3::set_error_callback(@error_callback);
+        
+        window.set_size_callback(@window_size_callback);
+        window.set_close_callback(@window_close_callback);
+        window.set_refresh_callback(@window_refresh_callback);  // FIXME
+        window.set_focus_callback(@window_focus_callback);
+        window.set_iconify_callback(@window_iconify_callback);
+        
+        window.set_key_callback(@key_callback);
+        window.set_char_callback(@char_callback);
+        window.set_mouse_button_callback(@mouse_button_callback);
+        window.set_cursor_pos_callback(@cursor_pos_callback);
+        window.set_cursor_enter_callback(@cursor_enter_callback);
+        window.set_scroll_callback(@scroll_callback);  // FIXME
+        
         window.make_context_current();
         
         let mut done = false;
