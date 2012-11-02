@@ -1,5 +1,5 @@
 /*************************************************************************
- * GLFW3 Bindings for rust (based off alegalle's rust_glfw)
+ * GLFW3 Bindings for Rust by Brendan Zabarauskas
  *
  * For instructions and more information check out the github repository at 
  * https://github.com/bjz/glfw3-rs/
