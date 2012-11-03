@@ -753,77 +753,10 @@ pub impl Window {
         unsafe { local_data_set(tls_windowiconifyfun, cbfun); }
         api::glfwSetWindowIconifyCallback(self.ptr, window_iconify_callback);
     }
-}
-
-fn tls_windowsizefun(_v: @WindowSizeFun) {}
-
-extern fn window_size_callback(window: api::GLFWwindow, width: c_int, height: c_int) {
-    unsafe {
-        match local_data_get(tls_windowsizefun) {
-            Some(f) => { (*f)(Window { ptr: window }, width as int, height as int); }
-            None => {}
-        }
-    }
-}
-
-fn tls_windowclosefun(_v: @WindowCloseFun) {}
-
-extern fn window_close_callback(window: api::GLFWwindow) -> c_int {
-    unsafe {
-        match local_data_get(tls_windowclosefun) {
-            Some(f) => { (*f)(Window { ptr: window }) as c_int }
-            None => { false as c_int }
-        }
-    }
-}
-
-// FIXME: Doesn't seem to work at the moment. See ../examples/callbacks.rs
-fn tls_windowrefreshfun(_v: @WindowRefreshFun) {}
-
-extern fn window_refresh_callback(window: api::GLFWwindow) {
-    unsafe {
-        match local_data_get(tls_windowrefreshfun) {
-            Some(f) => { (*f)(Window { ptr: window }); }
-            None => {}
-        }
-    }
-}
-
-fn tls_windowfocusfun(_v: @WindowFocusFun) {}
-
-extern fn window_focus_callback(window: api::GLFWwindow, activated: c_int) {
-    unsafe {
-        match local_data_get(tls_windowfocusfun) {
-            Some(f) => { (*f)(Window { ptr: window }, activated as bool); }
-            None => {}
-        }
-    }
-}
-
-fn tls_windowiconifyfun(_v: @WindowIconifyFun) {}
-
-extern fn window_iconify_callback(window: api::GLFWwindow, iconified: c_int) {
-    unsafe {
-        match local_data_get(tls_windowiconifyfun) {
-            Some(f) => { (*f)(Window { ptr: window }, iconified as bool); }
-            None => {}
-        }
-    }
-}
-
-/* Event handling */
-
-pub fn poll_events() {    
-    api::glfwPollEvents();
-}
- 
-pub fn wait_events() {    
-    api::glfwWaitEvents();
-}
-
-/* Input handling */
-
-pub impl Window {
+    
+    
+    /* Input handling */
+    
     fn get_input_mode(mode: c_int) -> int {
         api::glfwGetInputMode(self.ptr, mode) as int
     }
@@ -902,6 +835,74 @@ pub impl Window {
         api::glfwSetScrollCallback(self.ptr, scroll_callback);
     }
 }
+
+fn tls_windowsizefun(_v: @WindowSizeFun) {}
+
+extern fn window_size_callback(window: api::GLFWwindow, width: c_int, height: c_int) {
+    unsafe {
+        match local_data_get(tls_windowsizefun) {
+            Some(f) => { (*f)(Window { ptr: window }, width as int, height as int); }
+            None => {}
+        }
+    }
+}
+
+fn tls_windowclosefun(_v: @WindowCloseFun) {}
+
+extern fn window_close_callback(window: api::GLFWwindow) -> c_int {
+    unsafe {
+        match local_data_get(tls_windowclosefun) {
+            Some(f) => { (*f)(Window { ptr: window }) as c_int }
+            None => { false as c_int }
+        }
+    }
+}
+
+// FIXME: Doesn't seem to work at the moment. See ../examples/callbacks.rs
+fn tls_windowrefreshfun(_v: @WindowRefreshFun) {}
+
+extern fn window_refresh_callback(window: api::GLFWwindow) {
+    unsafe {
+        match local_data_get(tls_windowrefreshfun) {
+            Some(f) => { (*f)(Window { ptr: window }); }
+            None => {}
+        }
+    }
+}
+
+fn tls_windowfocusfun(_v: @WindowFocusFun) {}
+
+extern fn window_focus_callback(window: api::GLFWwindow, activated: c_int) {
+    unsafe {
+        match local_data_get(tls_windowfocusfun) {
+            Some(f) => { (*f)(Window { ptr: window }, activated as bool); }
+            None => {}
+        }
+    }
+}
+
+fn tls_windowiconifyfun(_v: @WindowIconifyFun) {}
+
+extern fn window_iconify_callback(window: api::GLFWwindow, iconified: c_int) {
+    unsafe {
+        match local_data_get(tls_windowiconifyfun) {
+            Some(f) => { (*f)(Window { ptr: window }, iconified as bool); }
+            None => {}
+        }
+    }
+}
+
+/* Event handling */
+
+pub fn poll_events() {    
+    api::glfwPollEvents();
+}
+ 
+pub fn wait_events() {    
+    api::glfwWaitEvents();
+}
+
+/* Input handling */
 
 fn tls_keyfun(_v: @KeyFun) {}
 
