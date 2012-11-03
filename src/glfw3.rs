@@ -37,7 +37,7 @@
  
 extern mod std;
 use libc::*;
-use ptr::{to_unsafe_ptr, addr_of};
+use ptr::to_unsafe_ptr;
 
 use task::local_data:: {
     local_data_get,
@@ -617,8 +617,8 @@ pub fn get_gamma_ramp() -> GammaRamp {
     return ramp;
 }
 
-pub fn set_gamma_ramp(ramp: ~GammaRamp) {
-    unsafe { api::glfwSetGammaRamp(addr_of(&*ramp)) } // I'm not sure if addr_of is the right function to use here...
+pub fn set_gamma_ramp(ramp: &GammaRamp) {
+    unsafe { api::glfwSetGammaRamp(to_unsafe_ptr(ramp)) }
 }
 
 /* Window handling */
