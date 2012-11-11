@@ -554,8 +554,8 @@ pub fn get_error() -> c_int {
     api::glfwGetError()
 }
 
-pub fn error_string(error: c_int) -> ~str {
-    unsafe { str::raw::from_c_str(api::glfwErrorString(error)) }
+pub fn error_string(err: c_int) -> ~str {
+    unsafe { str::raw::from_c_str(api::glfwErrorString(err)) }
 }
 
 fn tls_errorfun(_v: @ErrorFun) {}
@@ -565,10 +565,10 @@ pub fn set_error_callback(cbfun: @ErrorFun) {
     api::glfwSetErrorCallback(error_callback);
 }
 
-extern fn error_callback(error: c_int, format: *c_char) {
+extern fn error_callback(err: c_int, format: *c_char) {
     unsafe {
         match local_data_get(tls_errorfun) {
-            Some(f) => { (*f)(error, str::raw::from_c_str(format)); }
+            Some(f) => { (*f)(err, str::raw::from_c_str(format)); }
             None => {}
         }
     }
