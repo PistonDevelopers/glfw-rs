@@ -315,6 +315,8 @@ pub const OPENGL_PROFILE               : c_int = 0x00022005;
 pub const OPENGL_ROBUSTNESS            : c_int = 0x00022006;
 pub const RESIZABLE                    : c_int = 0x00022007;
 pub const VISIBLE                      : c_int = 0x00022008;
+pub const POSITION_X                   : c_int = 0x00022009;
+pub const POSITION_Y                   : c_int = 0x0002200A;
  
 /* GLFW_CLIENT_API tokens */
 pub const OPENGL_API                   : c_int = 0x00000001;
@@ -334,8 +336,7 @@ pub const OPENGL_COMPAT_PROFILE        : c_int = 0x00000002;
 pub const CURSOR_MODE                  : c_int = 0x00030001;
 pub const STICKY_KEYS                  : c_int = 0x00030002;
 pub const STICKY_MOUSE_BUTTONS         : c_int = 0x00030003;
-pub const SYSTEM_KEYS                  : c_int = 0x00030004;
-pub const KEY_REPEAT                   : c_int = 0x00030005;
+pub const KEY_REPEAT                   : c_int = 0x00030004;
 
 /* GLFW_CURSOR_MODE values */
 pub const CURSOR_NORMAL                : c_int = 0x00040001;
@@ -462,8 +463,6 @@ pub mod api {
         fn glfwSetWindowTitle(++window: GLFWwindow, ++title: *c_char);
         fn glfwGetWindowSize(++window: GLFWwindow, ++width: *c_int, ++height: *c_int);
         fn glfwSetWindowSize(++window: GLFWwindow, ++width: c_int, ++height: c_int);
-        fn glfwGetWindowPos(++window: GLFWwindow, ++xpos: *c_int, ++ypos: *c_int);
-        fn glfwSetWindowPos(++window: GLFWwindow, ++xpos: c_int, ++ypos: c_int);
         fn glfwIconifyWindow(++window: GLFWwindow);
         fn glfwRestoreWindow(++window: GLFWwindow);
         fn glfwShowWindow(++window: GLFWwindow);
@@ -681,24 +680,6 @@ pub impl Window {
     
     fn set_size(width: int, height: int) {
         api::glfwSetWindowSize(self.ptr, width as c_int, height as c_int);
-    }
-    
-    fn get_pos() -> (int, int) {
-        let xpos: c_int = 0;
-        let ypos: c_int = 0;
-        unsafe {
-            api::glfwGetWindowPos(
-                self.ptr,
-                to_unsafe_ptr(&xpos),
-                to_unsafe_ptr(&ypos)
-            );
-        }
-        
-        return (xpos as int, ypos as int);
-    }
-    
-    fn set_pos(xpos: int, ypos: int) {
-        api::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int);
     }
     
     fn iconify() {
