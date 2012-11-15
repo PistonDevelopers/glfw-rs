@@ -630,7 +630,7 @@ pub fn window_hint(target: c_int, hint: c_int) {
     api::glfwWindowHint(target, hint);
 }
 
-pub fn create_window(width: int, height: int, mode: c_int, title: &str) -> Window {
+pub fn create_window(width: uint, height: uint, mode: c_int, title: &str) -> Window {
     unsafe {
         Window {
             ptr: api::glfwCreateWindow(width as c_int,
@@ -642,7 +642,7 @@ pub fn create_window(width: int, height: int, mode: c_int, title: &str) -> Windo
     }
 }
 
-pub fn create_shared_window(width: int, height: int, mode: c_int, title: &str, share: &Window) -> Window {
+pub fn create_shared_window(width: uint, height: uint, mode: c_int, title: &str, share: &Window) -> Window {
     unsafe {
         Window {
             ptr: api::glfwCreateWindow(width as c_int,
@@ -664,7 +664,7 @@ pub impl Window {
         api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))
     }
     
-    fn get_size() -> (int, int) {
+    fn get_size() -> (uint, uint) {
         let width:  c_int = 0;
         let height: c_int = 0;
         unsafe {
@@ -675,10 +675,10 @@ pub impl Window {
             );
         }
         
-        return (width as int, height as int);
+        return (width as uint, height as uint);
     }
     
-    fn set_size(width: int, height: int) {
+    fn set_size(width: uint, height: uint) {
         api::glfwSetWindowSize(self.ptr, width as c_int, height as c_int);
     }
     
