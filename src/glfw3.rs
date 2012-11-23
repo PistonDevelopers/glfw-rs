@@ -281,7 +281,7 @@ pub const WINDOWED                     : c_int = 0x00010001;
 pub const FULLSCREEN                   : c_int = 0x00010002;
 
 /* glfwGetWindowParam tokens */
-pub const ACTIVE                       : c_int = 0x00020001;
+pub const FOCUSED                      : c_int = 0x00020001;
 pub const ICONIFIED                    : c_int = 0x00020002;
 pub const CLOSE_REQUESTED              : c_int = 0x00020003;
 pub const OPENGL_REVISION              : c_int = 0x00020004;
@@ -336,7 +336,6 @@ pub const OPENGL_COMPAT_PROFILE        : c_int = 0x00000002;
 pub const CURSOR_MODE                  : c_int = 0x00030001;
 pub const STICKY_KEYS                  : c_int = 0x00030002;
 pub const STICKY_MOUSE_BUTTONS         : c_int = 0x00030003;
-pub const KEY_REPEAT                   : c_int = 0x00030004;
 
 /* GLFW_CURSOR_MODE values */
 pub const CURSOR_NORMAL                : c_int = 0x00040001;
@@ -358,8 +357,7 @@ pub const OUT_OF_MEMORY                : c_int = 0x00070005;
 pub const OPENGL_UNAVAILABLE           : c_int = 0x00070006;
 pub const VERSION_UNAVAILABLE          : c_int = 0x00070007;
 pub const PLATFORM_ERROR               : c_int = 0x00070008;
-pub const WINDOW_NOT_ACTIVE            : c_int = 0x00070009;
-pub const FORMAT_UNAVAILABLE           : c_int = 0x0007000A;
+pub const FORMAT_UNAVAILABLE           : c_int = 0x00070009;
 
 /* Gamma ramps */
 pub const GAMMA_RAMP_SIZE              : c_int = 256;
