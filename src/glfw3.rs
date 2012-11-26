@@ -354,7 +354,7 @@ pub const NO_CURRENT_CONTEXT           : c_int = 0x00070002;
 pub const INVALID_ENUM                 : c_int = 0x00070003;
 pub const INVALID_VALUE                : c_int = 0x00070004;
 pub const OUT_OF_MEMORY                : c_int = 0x00070005;
-pub const OPENGL_UNAVAILABLE           : c_int = 0x00070006;
+pub const API_UNAVAILABLE              : c_int = 0x00070006;
 pub const VERSION_UNAVAILABLE          : c_int = 0x00070007;
 pub const PLATFORM_ERROR               : c_int = 0x00070008;
 pub const FORMAT_UNAVAILABLE           : c_int = 0x00070009;
@@ -513,7 +513,6 @@ pub mod api {
         fn glfwSwapInterval(++interval: c_int);
         fn glfwExtensionSupported(++extension: *c_char) -> c_int;
         fn glfwGetProcAddress(++procname: *c_char) -> GLProc;
-        fn glfwCopyContext(++src: GLFWwindow, ++dst: GLFWwindow, ++mask: c_ulong);
     }
 }
 
@@ -1038,8 +1037,4 @@ pub fn extension_supported(extension: &str) -> int {
 
 pub fn get_proc_address(procname: &str) -> GLProc {
     api::glfwGetProcAddress(str::as_c_str(procname, |a| a))
-}
-
-pub fn copy_context(src: &Window, dst: &mut Window, mask: u32) {
-    api::glfwCopyContext(src.ptr, dst.ptr, mask as c_ulong);
 }
