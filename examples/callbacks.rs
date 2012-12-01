@@ -30,6 +30,7 @@ fn main() {
         
         glfw3::set_error_callback(@error_callback);
         
+        window.set_pos_callback(@window_pos_callback);
         window.set_size_callback(@window_size_callback);
         window.set_close_callback(@window_close_callback);
         window.set_refresh_callback(@window_refresh_callback);  // FIXME
@@ -62,6 +63,10 @@ fn main() {
 
 fn error_callback(_error: libc::c_int, _name: ~str) {
     io::println(fmt!("GLFW Error: %s", _name));
+}
+
+fn window_pos_callback(_window: glfw3::Window, _x: int, _y: int) {
+    _window.set_title(fmt!("Window pos: %d x %d", _x, _y));
 }
 
 fn window_size_callback(_window: glfw3::Window, _width: int, _height: int) {

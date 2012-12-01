@@ -378,6 +378,7 @@ pub struct Window {
 
 /* Function pointer types */
 pub type ErrorFun           = @fn(_error: c_int, _format: ~str);
+pub type WindowPosFun       = @fn(_window: Window, _width: int, _height: int);
 pub type WindowSizeFun      = @fn(_window: Window, _width: int, _height: int);
 pub type WindowCloseFun     = @fn(_window: Window) -> bool;
 pub type WindowRefreshFun   = @fn(_window: Window);
@@ -418,6 +419,7 @@ pub mod api {
     /* Function pointer types */
     // Will have to be changed once we can do external C callbacks nicely
     pub type GLFWerrorfun           = *u8;  // typedef void (* GLFWerrorfun)(int,const char*);
+    pub type GLFWwindowposfun       = *u8;  // typedef void (* GLFWwindowposfun)(GLFWwindow,int,int);
     pub type GLFWwindowsizefun      = *u8;  // typedef void (* GLFWwindowsizefun)(GLFWwindow,int,int);
     pub type GLFWwindowclosefun     = *u8;  // typedef int  (* GLFWwindowclosefun)(GLFWwindow);
     pub type GLFWwindowrefreshfun   = *u8;  // typedef void (* GLFWwindowrefreshfun)(GLFWwindow);
@@ -469,6 +471,7 @@ pub mod api {
         pub fn glfwGetWindowParam(++window: GLFWwindow, ++param: c_int) -> c_int;
         pub fn glfwSetWindowUserPointer(++window: GLFWwindow, ++pointer: *c_void);
         pub fn glfwGetWindowUserPointer(++window: GLFWwindow) -> *c_void;
+        pub fn glfwSetWindowPosCallback(++window: GLFWwindow, ++cbfun: GLFWwindowposfun);
         pub fn glfwSetWindowSizeCallback(++window: GLFWwindow, ++cbfun: GLFWwindowsizefun);
         pub fn glfwSetWindowCloseCallback(++window: GLFWwindow, ++cbfun: GLFWwindowclosefun);
         pub fn glfwSetWindowRefreshCallback(++window: GLFWwindow, ++cbfun: GLFWwindowrefreshfun);
@@ -708,6 +711,11 @@ pub impl Window {
         api::glfwGetWindowUserPointer(self.ptr)
     }
     
+    fn set_pos_callback(cbfun: @WindowSizeFun) {
+        unsafe { local_data_set(tls_windowposfun, cbfun); }
+        api::glfwSetWindowPosCallback(self.ptr, window_pos_callback);
+    }
+    
     fn set_size_callback(cbfun: @WindowSizeFun) {
         unsafe { local_data_set(tls_windowsizefun, cbfun); }
         api::glfwSetWindowSizeCallback(self.ptr, window_size_callback);
@@ -812,6 +820,17 @@ pub impl Window {
     fn set_scroll_callback(cbfun: @ScrollFun) {
         unsafe { local_data_set(tls_scrollfun, cbfun); }
         api::glfwSetScrollCallback(self.ptr, scroll_callback);
+    }
+}
+
+fn tls_windowposfun(_v: @WindowPosFun) {}
+
+extern fn window_pos_callback(window: api::GLFWwindow, x: c_int, y: c_int) {
+    unsafe {
+        match local_data_get(tls_windowposfun) {
+            Some(f) => { (*f)(Window { ptr: window }, x as int, y as int); }
+            None => {}
+        }
     }
 }
 
