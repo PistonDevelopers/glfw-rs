@@ -441,8 +441,6 @@ pub mod api {
         pub fn glfwGetVersionString() -> *c_char;
 
         /* Error handling */
-        pub fn glfwGetError() -> c_int;
-        pub fn glfwErrorString(++error: c_int) -> *c_char;
         pub fn glfwSetErrorCallback(++cbfun: GLFWerrorfun);
         
         /* Video mode functions */
@@ -548,14 +546,6 @@ pub fn get_version_string() -> ~str {
 }
 
 /* Error handling */
-
-pub fn get_error() -> c_int {
-    api::glfwGetError()
-}
-
-pub fn error_string(err: c_int) -> ~str {
-    unsafe { str::raw::from_c_str(api::glfwErrorString(err)) }
-}
 
 fn tls_errorfun(_v: @ErrorFun) {}
 

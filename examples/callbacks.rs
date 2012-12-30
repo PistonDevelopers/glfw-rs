@@ -20,7 +20,6 @@ fn main() {
         
         if (ptr::is_null(window.ptr)) {
             glfw3::terminate();
-            io::println(~"Error: " + glfw3::error_string(glfw3::get_error()));
             fail(~"glfwOpenWindow() failed\n");
         }
         
