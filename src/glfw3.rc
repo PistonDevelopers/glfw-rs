@@ -828,6 +828,16 @@ pub impl Window {
     fn get_clipboard_string(&self) -> ~str {
         unsafe { str::raw::from_c_str(api::glfwGetClipboardString(self.ptr)) }
     }
+    
+    /* OpenGL support */
+    
+    fn make_context_current(&self) {
+        api::glfwMakeContextCurrent(self.ptr);
+    }
+    
+    fn swap_buffers(&self) {
+        api::glfwSwapBuffers(self.ptr);
+    }
 }
 
 fn tls_windowposfun(_v: @WindowPosFun) {}
@@ -1027,20 +1037,8 @@ pub fn set_time(time: f64) {
 
 /* OpenGL support */
 
-pub impl Window {
-    fn make_context_current(&self) {
-        api::glfwMakeContextCurrent(self.ptr);
-    }
-}
-
 pub fn get_current_context() -> Window {
     Window { ptr: api::glfwGetCurrentContext() }
-}
-
-impl Window {
-    pub fn swap_buffers(&self) {
-        api::glfwSwapBuffers(self.ptr);
-    }
 }
 
 pub fn swap_interval(interval: int) {
