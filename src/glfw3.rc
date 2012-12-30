@@ -819,6 +819,16 @@ pub impl Window {
         unsafe { local_data_set(tls_scrollfun, cbfun); }
         api::glfwSetScrollCallback(self.ptr, scroll_callback);
     }
+
+    /* Clipboard */
+    
+    fn set_clipboard_string(string: &str) {
+        api::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a));
+    }
+    
+    fn get_clipboard_string() -> ~str {
+        unsafe { str::raw::from_c_str(api::glfwGetClipboardString(self.ptr)) }
+    }
 }
 
 fn tls_windowposfun(_v: @WindowPosFun) {}
@@ -968,52 +978,41 @@ extern fn scroll_callback(window: api::GLFWwindow, x: c_double, y: c_double) {
 }
 
 /* Joystick input */
-
-pub fn get_joystick_param(joy: int, param: c_int) -> int {
-    api::glfwGetJoystickParam(joy as c_int, param) as int
-}
-
-/**
- * Somebody with a joystick will have to test this. I don't have one, unfortunately.
- *
- * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
- */
-pub fn get_joystick_axes(joy: int, numaxes: int) -> Option<~[float]> {
-    let axes_ptr: *c_float = ptr::null();
-    let n = api::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
-    
-    let axes: ~[float];
-    unsafe { axes = vec::from_buf(axes_ptr, n).map(|a| *a as float); }   // Could be inefficient
-    
-    if numaxes > 0 { Some(move axes) }
-    else           { None }
-}
-
-/**
- * Somebody with a joystick will have to test this. I don't have one, unfortunately.
- *
- * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
- */
-pub fn get_joystick_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
-    let buttons_ptr: *c_uchar = ptr::null();
-    let n = api::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
-    
-    let buttons: ~[char];
-    unsafe { buttons = vec::from_buf(buttons_ptr, n).map(|a| *a as char ); } // Could be inefficient
-    
-    if numbuttons > 0 { Some(move buttons) }
-    else              { None }
-}
-
-/* Clipboard */
-
-pub impl Window {
-    fn set_clipboard_string(string: &str) {
-        api::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a));
+pub mod joystick {
+    pub fn get_param(joy: int, param: c_int) -> int {
+        api::glfwGetJoystickParam(joy as c_int, param) as int
     }
-    
-    fn get_clipboard_string() -> ~str {
-        unsafe { str::raw::from_c_str(api::glfwGetClipboardString(self.ptr)) }
+
+    /**
+     * Somebody with a joystick will have to test this. I don't have one, unfortunately.
+     *
+     * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
+     */
+    pub fn get_axes(joy: int, numaxes: int) -> Option<~[float]> {
+        let axes_ptr: *c_float = ptr::null();
+        let n = api::glfwGetJoystickAxes(joy as c_int, axes_ptr, numaxes as c_int) as uint;
+        
+        let axes: ~[float];
+        unsafe { axes = vec::from_buf(axes_ptr, n).map(|a| *a as float); }   // Could be inefficient
+        
+        if numaxes > 0 { Some(move axes) }
+        else           { None }
+    }
+
+    /**
+     * Somebody with a joystick will have to test this. I don't have one, unfortunately.
+     *
+     * I'm also unsure about whether I've got my pointers right. Use at your own risk - sorry!
+     */
+    pub fn get_buttons(joy: int, numbuttons: int) -> Option<~[char]> {
+        let buttons_ptr: *c_uchar = ptr::null();
+        let n = api::glfwGetJoystickButtons(joy as c_int, buttons_ptr, numbuttons as c_int) as uint;
+        
+        let buttons: ~[char];
+        unsafe { buttons = vec::from_buf(buttons_ptr, n).map(|a| *a as char ); } // Could be inefficient
+        
+        if numbuttons > 0 { Some(move buttons) }
+        else              { None }
     }
 }
 
