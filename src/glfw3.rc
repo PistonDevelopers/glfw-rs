@@ -629,35 +629,34 @@ pub fn window_hint(target: c_int, hint: c_int) {
     api::glfwWindowHint(target, hint);
 }
 
-pub fn create_window(width: uint, height: uint, mode: c_int, title: &str) -> Window {
-    unsafe {
-        Window {
-            ptr: api::glfwCreateWindow(width as c_int,
-                                       height as c_int,
-                                       mode,
-                                       str::as_c_str(title, |a| a),
-                                       ptr::null())
-        }
-    }
-}
-
-pub fn create_shared_window(width: uint, height: uint, mode: c_int, title: &str, share: &Window) -> Window {
-    unsafe {
-        Window {
-            ptr: api::glfwCreateWindow(width as c_int,
-                                       height as c_int,
-                                       mode,
-                                       str::as_c_str(title, |a| a),
-                                       share.ptr)
-        }
-    }
-}
-
-pub fn destroy_window(window: &mut Window) {
-    api::glfwDestroyWindow(window.ptr);
-}
-
 pub impl Window {
+    static fn create(width: uint, height: uint, mode: c_int, title: &str) -> Window {
+        unsafe {
+            Window {
+                ptr: api::glfwCreateWindow(width as c_int,
+                                           height as c_int,
+                                           mode,
+                                           str::as_c_str(title, |a| a),
+                                           ptr::null())
+            }
+        }
+    }
+
+    static fn create_shared(width: uint, height: uint, mode: c_int, title: &str, share: &Window) -> Window {
+        unsafe {
+            Window {
+                ptr: api::glfwCreateWindow(width as c_int,
+                                           height as c_int,
+                                           mode,
+                                           str::as_c_str(title, |a| a),
+                                           share.ptr)
+            }
+        }
+    }
+    
+    fn destroy() {
+        api::glfwDestroyWindow(self.ptr);
+    }
     
     fn set_title(title: &str) {
         api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))

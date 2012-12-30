@@ -12,7 +12,7 @@ fn main() {
             fail(~"glfwInit() failed\n");
         }
         
-        let mut window = glfw3::create_window(300, 300, glfw3::WINDOWED, ~"Hello, I am a window.");
+        let mut window = glfw3::Window::create(300, 300, glfw3::WINDOWED, ~"Hello, I am a window.");
         
         io::println(fmt!("Window ptr: %d", window.ptr as int));
         
@@ -33,6 +33,7 @@ fn main() {
             }
         }
         
+        window.destroy();
         glfw3::terminate();
     }
 }

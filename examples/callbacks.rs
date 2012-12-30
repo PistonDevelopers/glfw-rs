@@ -16,7 +16,7 @@ fn main() {
         
         glfw3::window_hint(glfw3::RESIZABLE, 1);
         
-        let mut window = glfw3::create_window(800, 600, glfw3::WINDOWED, "Hello, I am a window.");
+        let mut window = glfw3::Window::create(800, 600, glfw3::WINDOWED, "Hello, I am a window.");
         
         if (ptr::is_null(window.ptr)) {
             glfw3::terminate();
@@ -55,6 +55,7 @@ fn main() {
             }
         } 
         
+        window.destroy();
         glfw3::terminate();
     }
 }
