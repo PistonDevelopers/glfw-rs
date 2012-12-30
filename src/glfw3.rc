@@ -654,15 +654,15 @@ pub impl Window {
         }
     }
     
-    fn destroy() {
+    fn destroy(&self) {
         api::glfwDestroyWindow(self.ptr);
     }
     
-    fn set_title(title: &str) {
+    fn set_title(&self, title: &str) {
         api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a))
     }
     
-    fn get_size() -> (uint, uint) {
+    fn get_size(&self) -> (uint, uint) {
         let width:  c_int = 0;
         let height: c_int = 0;
         unsafe {
@@ -676,64 +676,64 @@ pub impl Window {
         return (width as uint, height as uint);
     }
     
-    fn set_size(width: uint, height: uint) {
+    fn set_size(&self, width: uint, height: uint) {
         api::glfwSetWindowSize(self.ptr, width as c_int, height as c_int);
     }
     
-    fn iconify() {
+    fn iconify(&self) {
         api::glfwIconifyWindow(self.ptr);
     }
     
-    fn restore() {
+    fn restore(&self) {
         api::glfwRestoreWindow(self.ptr);
     }
     
-    fn show() {
+    fn show(&self) {
         api::glfwShowWindow(self.ptr);
     }
     
-    fn hide() {
+    fn hide(&self) {
         api::glfwHideWindow(self.ptr);
     }
 
-    fn get_param(param: c_int) -> int {
+    fn get_param(&self, param: c_int) -> int {
         api::glfwGetWindowParam(self.ptr, param as c_int) as int
     }
     
-    fn set_user_pointer(pointer: *c_void) {
+    fn set_user_pointer(&self, pointer: *c_void) {
         api::glfwSetWindowUserPointer(self.ptr, pointer);
     }
     
-    fn get_user_pointer() -> *c_void {
+    fn get_user_pointer(&self) -> *c_void {
         api::glfwGetWindowUserPointer(self.ptr)
     }
     
-    fn set_pos_callback(cbfun: @WindowSizeFun) {
+    fn set_pos_callback(&self, cbfun: @WindowSizeFun) {
         unsafe { local_data_set(tls_windowposfun, cbfun); }
         api::glfwSetWindowPosCallback(self.ptr, window_pos_callback);
     }
     
-    fn set_size_callback(cbfun: @WindowSizeFun) {
+    fn set_size_callback(&self, cbfun: @WindowSizeFun) {
         unsafe { local_data_set(tls_windowsizefun, cbfun); }
         api::glfwSetWindowSizeCallback(self.ptr, window_size_callback);
     }
 
-    fn set_close_callback(cbfun: @WindowCloseFun) {
+    fn set_close_callback(&self, cbfun: @WindowCloseFun) {
         unsafe { local_data_set(tls_windowclosefun, cbfun); }
         api::glfwSetWindowCloseCallback(self.ptr, window_close_callback);
     }
 
-    fn set_refresh_callback(cbfun: @WindowRefreshFun) {
+    fn set_refresh_callback(&self, cbfun: @WindowRefreshFun) {
         unsafe { local_data_set(tls_windowrefreshfun, cbfun); }
         api::glfwSetWindowRefreshCallback(self.ptr, window_refresh_callback);
     }
 
-    fn set_focus_callback(cbfun: @WindowFocusFun) {
+    fn set_focus_callback(&self, cbfun: @WindowFocusFun) {
         unsafe { local_data_set(tls_windowfocusfun, cbfun); }
         api::glfwSetWindowFocusCallback(self.ptr, window_focus_callback);
     }
 
-    fn set_iconify_callback(cbfun: @WindowIconifyFun) {
+    fn set_iconify_callback(&self, cbfun: @WindowIconifyFun) {
         unsafe { local_data_set(tls_windowiconifyfun, cbfun); }
         api::glfwSetWindowIconifyCallback(self.ptr, window_iconify_callback);
     }
@@ -741,23 +741,23 @@ pub impl Window {
     
     /* Input handling */
     
-    fn get_input_mode(mode: c_int) -> int {
+    fn get_input_mode(&self, mode: c_int) -> int {
         api::glfwGetInputMode(self.ptr, mode) as int
     }
     
-    fn set_input_mode(mode: c_int, value: int) {
+    fn set_input_mode(&self, mode: c_int, value: int) {
         api::glfwSetInputMode(self.ptr, mode, value as c_int);
     }
     
-    fn get_key(key: c_int) -> c_int {
+    fn get_key(&self, key: c_int) -> c_int {
         api::glfwGetKey(self.ptr, key)
     }
     
-    fn get_mouse_button(button: c_int) -> c_int {
+    fn get_mouse_button(&self, button: c_int) -> c_int {
         api::glfwGetMouseButton(self.ptr, button)
     }
     
-    fn get_cursor_pos() -> (int, int) {
+    fn get_cursor_pos(&self) -> (int, int) {
         let xpos: c_int = 0;
         let ypos: c_int = 0;
         unsafe {
@@ -771,11 +771,11 @@ pub impl Window {
         return (xpos as int, ypos as int);
     }
     
-    fn set_cursor_pos(xpos: int, ypos: int) {
+    fn set_cursor_pos(&self, xpos: int, ypos: int) {
         api::glfwSetCursorPos(self.ptr, xpos as c_int, ypos as c_int);
     }
     
-    fn get_scroll_offset() -> (f64, f64) {
+    fn get_scroll_offset(&self) -> (f64, f64) {
         let xpos: f64 = 0f64;
         let ypos: f64 = 0f64;
         unsafe {
@@ -789,43 +789,43 @@ pub impl Window {
         return (xpos as f64, ypos as f64);
     }
     
-    fn set_key_callback(cbfun: @KeyFun) {
+    fn set_key_callback(&self, cbfun: @KeyFun) {
         unsafe { local_data_set(tls_keyfun, cbfun); }
         api::glfwSetKeyCallback(self.ptr, key_callback);
     }
     
-    fn set_char_callback(cbfun: @CharFun) {
+    fn set_char_callback(&self, cbfun: @CharFun) {
         unsafe { local_data_set(tls_charfun, cbfun); }
         api::glfwSetCharCallback(self.ptr, char_callback);
     }
     
-    fn set_mouse_button_callback(cbfun: @MouseButtonFun) {
+    fn set_mouse_button_callback(&self, cbfun: @MouseButtonFun) {
         unsafe { local_data_set(tls_mousebuttonfun, cbfun); }
         api::glfwSetMouseButtonCallback(self.ptr, mouse_button_callback);
     }
     
-    fn set_cursor_pos_callback(cbfun: @CursorPosFun) {
+    fn set_cursor_pos_callback(&self, cbfun: @CursorPosFun) {
         unsafe { local_data_set(tls_cursorposfun, cbfun); }
         api::glfwSetCursorPosCallback(self.ptr, cursor_pos_callback);
     }
     
-    fn set_cursor_enter_callback(cbfun: @CursorEnterFun) {
+    fn set_cursor_enter_callback(&self, cbfun: @CursorEnterFun) {
         unsafe { local_data_set(tls_cursorenterfun, cbfun); }
         api::glfwSetCursorEnterCallback(self.ptr, cursor_enter_callback);
     }
     
-    fn set_scroll_callback(cbfun: @ScrollFun) {
+    fn set_scroll_callback(&self, cbfun: @ScrollFun) {
         unsafe { local_data_set(tls_scrollfun, cbfun); }
         api::glfwSetScrollCallback(self.ptr, scroll_callback);
     }
 
     /* Clipboard */
     
-    fn set_clipboard_string(string: &str) {
+    fn set_clipboard_string(&self, string: &str) {
         api::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a));
     }
     
-    fn get_clipboard_string() -> ~str {
+    fn get_clipboard_string(&self) -> ~str {
         unsafe { str::raw::from_c_str(api::glfwGetClipboardString(self.ptr)) }
     }
 }
@@ -1028,7 +1028,7 @@ pub fn set_time(time: f64) {
 /* OpenGL support */
 
 pub impl Window {
-    fn make_context_current() {
+    fn make_context_current(&self) {
         api::glfwMakeContextCurrent(self.ptr);
     }
 }
@@ -1038,7 +1038,7 @@ pub fn get_current_context() -> Window {
 }
 
 impl Window {
-    pub fn swap_buffers() {
+    pub fn swap_buffers(&self) {
         api::glfwSwapBuffers(self.ptr);
     }
 }
