@@ -285,7 +285,7 @@ pub const FULLSCREEN                   : c_int = 0x00010002;
 pub const FOCUSED                      : c_int = 0x00020001;
 pub const ICONIFIED                    : c_int = 0x00020002;
 pub const CLOSE_REQUESTED              : c_int = 0x00020003;
-pub const OPENGL_REVISION              : c_int = 0x00020004;
+pub const CONTEXT_REVISION             : c_int = 0x00020004;
 
 /* glfwWindowHint tokens */
 pub const RED_BITS                     : c_int = 0x00021000;
@@ -301,19 +301,19 @@ pub const ACCUM_BLUE_BITS              : c_int = 0x00021009;
 pub const ACCUM_ALPHA_BITS             : c_int = 0x0002100A;
 pub const AUX_BUFFERS                  : c_int = 0x0002100B;
 pub const STEREO                       : c_int = 0x0002100C;
-pub const WINDOW_RESIZABLE             : c_int = 0x0002100D;
 pub const FSAA_SAMPLES                 : c_int = 0x0002100E;
+pub const SRGB_CAPABLE                 : c_int = 0x0002100F;
 
 /* The following constants are used with both glfwGetWindowParam
  * and glfwWindowHint
  */
 pub const CLIENT_API                   : c_int = 0x00022000;
-pub const OPENGL_VERSION_MAJOR         : c_int = 0x00022001;
-pub const OPENGL_VERSION_MINOR         : c_int = 0x00022002;
-pub const OPENGL_FORWARD_COMPAT        : c_int = 0x00022003;
-pub const OPENGL_DEBUG_CONTEXT         : c_int = 0x00022004;
-pub const OPENGL_PROFILE               : c_int = 0x00022005;
-pub const OPENGL_ROBUSTNESS            : c_int = 0x00022006;
+pub const CONTEXT_VERSION_MAJOR        : c_int = 0x00022001;
+pub const CONTEXT_VERSION_MINOR        : c_int = 0x00022002;
+pub const CONTEXT_ROBUSTNESS           : c_int = 0x00022003;
+pub const OPENGL_FORWARD_COMPAT        : c_int = 0x00022004;
+pub const OPENGL_DEBUG_CONTEXT         : c_int = 0x00022005;
+pub const OPENGL_PROFILE               : c_int = 0x00022006;
 pub const RESIZABLE                    : c_int = 0x00022007;
 pub const VISIBLE                      : c_int = 0x00022008;
 pub const POSITION_X                   : c_int = 0x00022009;
@@ -323,10 +323,10 @@ pub const POSITION_Y                   : c_int = 0x0002200A;
 pub const OPENGL_API                   : c_int = 0x00000001;
 pub const OPENGL_ES_API                : c_int = 0x00000002;
 
-/* GLFW_OPENGL_ROBUSTNESS mode tokens */
-pub const OPENGL_NO_ROBUSTNESS         : c_int = 0x00000000;
-pub const OPENGL_NO_RESET_NOTIFICATION : c_int = 0x00000001;
-pub const OPENGL_LOSE_CONTEXT_ON_RESET : c_int = 0x00000002;
+/* GLFW_CONTEXT_ROBUSTNESS mode tokens */
+pub const NO_ROBUSTNESS                : c_int = 0x00000000;
+pub const NO_RESET_NOTIFICATION        : c_int = 0x00000001;
+pub const LOSE_CONTEXT_ON_RESET        : c_int = 0x00000002;
 
 /* GLFW_OPENGL_PROFILE bit tokens */
 pub const OPENGL_NO_PROFILE            : c_int = 0x00000000;
