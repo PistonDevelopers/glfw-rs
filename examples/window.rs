@@ -12,7 +12,7 @@ fn main() {
             fail(~"glfwInit() failed\n");
         }
         
-        let mut window = glfw3::Window::create(300, 300, glfw3::WINDOWED, ~"Hello, I am a window.");
+        let mut window = glfw3::Window::create(300, 300, ~"Hello, I am a window.", glfw3::Windowed);
         
         io::println(fmt!("Window ptr: %d", window.ptr as int));
         
@@ -27,7 +27,7 @@ fn main() {
         
         while !done {
             glfw3::poll_events();
-            if (window.get_key(glfw3::KEY_ESC) == glfw3::PRESS || window.get_param(glfw3::CLOSE_REQUESTED) != 0) {
+            if (window.get_key(glfw3::KEY_ESC) == glfw3::PRESS || window.get_param(glfw3::SHOULD_CLOSE) != 0) {
                 done = true;
             }
         }

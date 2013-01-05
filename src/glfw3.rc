@@ -275,14 +275,10 @@ pub const JOYSTICK_LAST        : c_int = JOYSTICK_16;
  * Other definitions
  *************************************************************************/
 
-/* glfwCreateWindow modes */
-pub const WINDOWED                     : c_int = 0x00010001;
-pub const FULLSCREEN                   : c_int = 0x00010002;
-
 /* glfwGetWindowParam tokens */
 pub const FOCUSED                      : c_int = 0x00020001;
 pub const ICONIFIED                    : c_int = 0x00020002;
-pub const CLOSE_REQUESTED              : c_int = 0x00020003;
+pub const SHOULD_CLOSE                 : c_int = 0x00020003;
 pub const CONTEXT_REVISION             : c_int = 0x00020004;
 
 /* glfwWindowHint tokens */
@@ -292,15 +288,14 @@ pub const BLUE_BITS                    : c_int = 0x00021002;
 pub const ALPHA_BITS                   : c_int = 0x00021003;
 pub const DEPTH_BITS                   : c_int = 0x00021004;
 pub const STENCIL_BITS                 : c_int = 0x00021005;
-pub const REFRESH_RATE                 : c_int = 0x00021006;
-pub const ACCUM_RED_BITS               : c_int = 0x00021007;
-pub const ACCUM_GREEN_BITS             : c_int = 0x00021008;
-pub const ACCUM_BLUE_BITS              : c_int = 0x00021009;
-pub const ACCUM_ALPHA_BITS             : c_int = 0x0002100A;
-pub const AUX_BUFFERS                  : c_int = 0x0002100B;
-pub const STEREO                       : c_int = 0x0002100C;
-pub const FSAA_SAMPLES                 : c_int = 0x0002100E;
-pub const SRGB_CAPABLE                 : c_int = 0x0002100F;
+pub const ACCUM_RED_BITS               : c_int = 0x00021006;
+pub const ACCUM_GREEN_BITS             : c_int = 0x00021007;
+pub const ACCUM_BLUE_BITS              : c_int = 0x00021008;
+pub const ACCUM_ALPHA_BITS             : c_int = 0x00021009;
+pub const AUX_BUFFERS                  : c_int = 0x0002100A;
+pub const STEREO                       : c_int = 0x0002100B;
+pub const SAMPLES                      : c_int = 0x0002100C;
+pub const SRGB_CAPABLE                 : c_int = 0x0002100D;
 
 /* The following constants are used with both glfwGetWindowParam
  * and glfwWindowHint
@@ -361,6 +356,14 @@ pub const FORMAT_UNAVAILABLE           : c_int = 0x00070009;
 /* Gamma ramps */
 pub const GAMMA_RAMP_SIZE              : c_int = 256;
 
+/* Monitor parameters */
+pub const MONITOR_WIDTH_MM             : c_int = 0x00060001;
+pub const MONITOR_HEIGHT_MM            : c_int = 0x00060002;
+pub const MONITOR_POS_X                : c_int = 0x00060003;
+pub const MONITOR_POS_Y                : c_int = 0x00060004;
+pub const CONNECTED                    : c_int = 0x00061000;
+pub const DISCONNECTED                 : c_int = 0x00061001;
+
 /*************************************************************************
  * Typedefs
  *************************************************************************/
@@ -368,6 +371,11 @@ pub const GAMMA_RAMP_SIZE              : c_int = 256;
 // /* OpenGL function pointer type */
 // Will have to be changed once we can do external C callbacks nicely
 pub type GLProc = *u8;              // typedef void (*GLFWglproc)(void);
+
+// Wraps * pointer in a struct for safety 
+pub struct Monitor {
+    mut ptr: api::GLFWmonitor
+}
 
 // Wraps * pointer in a struct for safety 
 pub struct Window {
@@ -388,6 +396,7 @@ pub type CursorEnterFun     = @fn(_window: Window, _entered: bool);
 pub type ScrollFun          = @fn(_window: Window, _x: f64, _y: f64);
 pub type KeyFun             = @fn(_window: Window, _key: c_int, _action: c_int);
 pub type CharFun            = @fn(_window: Window, _character: char);
+pub type MonitorFun         = @fn(_monitor: Monitor, _event: c_int);
 
 /* The video mode structure used by glfwGetVideoModes */
 pub struct VidMode {
@@ -429,9 +438,13 @@ pub mod api {
     pub type GLFWscrollfun          = *u8;  // typedef void (* GLFWscrollfun)(GLFWwindow,double,double);
     pub type GLFWkeyfun             = *u8;  // typedef void (* GLFWkeyfun)(GLFWwindow,int,int);
     pub type GLFWcharfun            = *u8;  // typedef void (* GLFWcharfun)(GLFWwindow,int);
+    pub type GLFWmonitorfun         = *u8;  // typedef void (* GLFWmonitorfun)(GLFWmonitor,int);
+    
+    /* Monitor handle type */
+    pub type GLFWmonitor    = *c_void;  // typedef void* GLFWmonitor;
     
     /* Window handle type */
-    pub type GLFWwindow = *c_void;      // typedef void* GLFWwindow;
+    pub type GLFWwindow     = *c_void;  // typedef void* GLFWwindow;
     
     pub extern "C" {
         /* GLFW initialization, termination and version querying */
@@ -443,19 +456,24 @@ pub mod api {
         /* Error handling */
         pub fn glfwSetErrorCallback(++cbfun: GLFWerrorfun);
         
-        /* Video mode functions */
-        pub fn glfwGetVideoModes(++count: *c_int) -> *VidMode;
-        pub fn glfwGetDesktopMode(++mode: *VidMode);
+        /* Monitor functions */
+        pub fn glfwGetMonitors(++count: *c_int) -> *GLFWmonitor;
+        pub fn glfwGetPrimaryMonitor() -> GLFWmonitor;
+        pub fn glfwGetMonitorParam(++monitor: GLFWmonitor, ++param: c_int) -> c_int;
+        pub fn glfwGetMonitorName(++monitor: GLFWmonitor) -> *c_char;
+        pub fn glfwSetMonitorCallback(++cbfun: GLFWmonitorfun);
+        pub fn glfwGetVideoModes(++monitor: GLFWmonitor, ++count: *c_int) -> *VidMode; // GLFWvidmode* ???
+        pub fn glfwGetVideoMode(++monitor: GLFWmonitor, ++mode: *VidMode); // GLFWvidmode* ???
         
         /* Gamma ramp functions */
         pub fn glfwSetGamma(++gamma: c_float);
-        pub fn glfwGetGammaRamp(++ramp: *GammaRamp);
-        pub fn glfwSetGammaRamp(++ramp: *GammaRamp);
+        pub fn glfwGetGammaRamp(++ramp: *GammaRamp); // GLFWgammaramp* ???
+        pub fn glfwSetGammaRamp(++ramp: *GammaRamp); // GLFWgammaramp* ???
         
         /* Window handling */
         pub fn glfwDefaultWindowHints();
         pub fn glfwWindowHint(++target: c_int, ++hint: c_int);
-        pub fn glfwCreateWindow(++width: c_int, ++height: c_int, ++mode: c_int, ++title: *c_char, ++share: GLFWwindow) -> GLFWwindow;
+        pub fn glfwCreateWindow(++width: c_int, ++height: c_int, ++title: *c_char, ++monitor: GLFWmonitor, ++share: GLFWwindow) -> GLFWwindow;
         pub fn glfwDestroyWindow(++window: GLFWwindow);
         pub fn glfwSetWindowTitle(++window: GLFWwindow, ++title: *c_char);
         pub fn glfwGetWindowSize(++window: GLFWwindow, ++width: *c_int, ++height: *c_int);
@@ -464,6 +482,7 @@ pub mod api {
         pub fn glfwRestoreWindow(++window: GLFWwindow);
         pub fn glfwShowWindow(++window: GLFWwindow);
         pub fn glfwHideWindow(++window: GLFWwindow);
+        pub fn glfwGetWindowMonitor(++window: GLFWwindow) -> GLFWmonitor;
         pub fn glfwGetWindowParam(++window: GLFWwindow, ++param: c_int) -> c_int;
         pub fn glfwSetWindowUserPointer(++window: GLFWwindow, ++pointer: *c_void);
         pub fn glfwGetWindowUserPointer(++window: GLFWwindow) -> *c_void;
@@ -563,29 +582,85 @@ extern fn error_callback(err: c_int, format: *c_char) {
     }
 }
 
-/* Video mode functions */
 
-pub fn get_video_modes() -> ~[VidMode] {
+/* Monitor functions */
+
+pub fn get_monitors() -> ~[Monitor] {
     let count: c_int = 0;
-    let modes: ~[VidMode];
+    let ptr = api::glfwGetMonitors(to_unsafe_ptr(&count));
     
-    let ptr = api::glfwGetVideoModes(to_unsafe_ptr(&count));
-    unsafe { modes = vec::from_buf(ptr, count as uint); }
-    
-    return move modes;
+    unsafe {
+        do vec::from_buf(ptr, count as uint).map |&p| {
+            Monitor::from_ptr(p)
+        }
+    }
 }
 
-pub fn get_desktop_mode() -> VidMode {
-    let mode = VidMode {
-        width:     0,
-        height :   0,
-        redBits:   0,
-        blueBits:  0,
-        greenBits: 0,
-    };
-    unsafe { api::glfwGetDesktopMode(to_unsafe_ptr(&mode)); }
+pub fn get_primary_monitor() -> Monitor {
+    Monitor::from_ptr(api::glfwGetPrimaryMonitor())
+}
+
+pub impl Monitor {
+    static fn from_ptr(ptr: api::GLFWmonitor) -> Monitor {
+        Monitor { ptr: ptr }
+    }
     
-    return mode;
+    fn is_null(&self) -> bool {
+        if self.ptr == ptr::null() { true } else { false }
+    }
+    
+    fn get_param(&self, param: int) -> int {
+        api::glfwGetWindowParam(self.ptr, param as c_int) as int
+    }
+    
+    fn get_name(&self) -> ~str {
+        unsafe { str::raw::from_c_str(api::glfwGetMonitorName(self.ptr)) }
+    }
+    
+    fn get_video_modes(&self) -> ~[VidMode] {
+        let count: c_int = 0;
+        let ptr = api::glfwGetVideoModes(self.ptr, to_unsafe_ptr(&count));
+        
+        unsafe { vec::from_buf(ptr, count as uint) }
+    }
+    
+    fn get_video_mode(&self) -> VidMode {
+        let mode = VidMode {
+            width:     0,
+            height :   0,
+            redBits:   0,
+            blueBits:  0,
+            greenBits: 0,
+        };
+        unsafe { api::glfwGetVideoMode(self.ptr, to_unsafe_ptr(&mode)); }
+        
+        return mode;
+    }
+}
+
+fn tls_monitorfun(_v: @MonitorFun) {}
+
+fn set_monitor_callback(cbfun: @MonitorFun) {
+    unsafe { local_data_set(tls_monitorfun, cbfun); }
+    api::glfwSetMonitorCallback(monitor_callback);
+}
+
+extern fn monitor_callback(monitor: api::GLFWmonitor, event: c_int) {
+    unsafe {
+        match local_data_get(tls_monitorfun) {
+            Some(f) => { (*f)(Monitor::from_ptr(monitor), event); }
+            None => {}
+        }
+    }
+}
+
+pub impl VidMode: ToStr {
+    pure fn to_str() -> ~str {
+        fmt!("%? x %? %? (%? %? %?)",
+             self.width, self.height,
+             (self.redBits + self.blueBits + self.greenBits),
+             self.redBits, self.blueBits, self.greenBits)
+    }
 }
 
 /* Gamma ramp functions */
@@ -619,29 +694,37 @@ pub fn window_hint(target: c_int, hint: c_int) {
     api::glfwWindowHint(target, hint);
 }
 
+pub enum WindowMode {
+    FullScreen(Monitor),
+    Windowed,
+}
+
 pub impl Window {
-    static fn create(width: uint, height: uint, mode: c_int, title: &str) -> Window {
-        unsafe {
-            Window {
-                ptr: api::glfwCreateWindow(width as c_int,
-                                           height as c_int,
-                                           mode,
-                                           str::as_c_str(title, |a| a),
-                                           ptr::null())
-            }
-        }
+    static fn from_ptr(ptr: api::GLFWwindow) -> Window {
+        Window { ptr: ptr }
+    }
+    
+    static fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Window {
+        Window::create_shared(width, height, title, mode, Window::from_ptr(ptr::null()))
     }
 
-    static fn create_shared(width: uint, height: uint, mode: c_int, title: &str, share: &Window) -> Window {
-        unsafe {
-            Window {
-                ptr: api::glfwCreateWindow(width as c_int,
-                                           height as c_int,
-                                           mode,
-                                           str::as_c_str(title, |a| a),
-                                           share.ptr)
-            }
-        }
+    static fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: Window) -> Window {
+        Window::from_ptr(
+            api::glfwCreateWindow(
+                width as c_int,
+                height as c_int,
+                unsafe { str::as_c_str(title, |a| a) },
+                match mode {
+                    FullScreen(m) => m.ptr,
+                    Windowed => ptr::null()
+                },
+                share.ptr
+            )
+        )
+    }
+    
+    fn is_null(&self) -> bool {
+        if self.ptr == ptr::null() { true } else { false }
     }
     
     fn destroy(&self) {
@@ -684,6 +767,13 @@ pub impl Window {
     
     fn hide(&self) {
         api::glfwHideWindow(self.ptr);
+    }
+    
+    fn get_monitor(&self) -> WindowMode {
+        let m = Monitor::from_ptr(api::glfwGetWindowMonitor(self.ptr));
+        
+        if m.is_null() { Windowed }
+        else { FullScreen(m) }
     }
 
     fn get_param(&self, param: c_int) -> int {
