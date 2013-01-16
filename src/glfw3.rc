@@ -544,18 +544,26 @@ pub fn terminate() {
     api::glfwTerminate(); 
 }
 
-pub fn get_version() -> (int, int, int) {
-    let major: c_int = 0;
-    let minor: c_int = 0;
-    let rev:   c_int = 0;
-    unsafe {
-        api::glfwGetVersion(
-            to_unsafe_ptr(&major),
-            to_unsafe_ptr(&minor),
-            to_unsafe_ptr(&rev)
-        );
+pub struct Version {
+    major: int,
+    minor: int,
+    rev:   int,
+}
+
+pub fn get_version() -> Version {
+    let major = 0, minor = 0, rev = 0;
+    
+    api::glfwGetVersion(
+        to_unsafe_ptr(&major),
+        to_unsafe_ptr(&minor),
+        to_unsafe_ptr(&rev)
+    );
+    
+    Version {
+        major: major as int,
+        minor: minor as int,
+        rev:   rev   as int,
     }
-    return (major as int, minor as int, rev as int);
 }
 
 pub fn get_version_string() -> ~str {
