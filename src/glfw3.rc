@@ -383,20 +383,20 @@ pub struct Window {
 }
 
 /* Function pointer types */
-pub type ErrorFun           = @fn(_error: c_int, _format: ~str);
-pub type WindowPosFun       = @fn(_window: Window, _width: int, _height: int);
-pub type WindowSizeFun      = @fn(_window: Window, _width: int, _height: int);
-pub type WindowCloseFun     = @fn(_window: Window) -> bool;
-pub type WindowRefreshFun   = @fn(_window: Window);
-pub type WindowFocusFun     = @fn(_window: Window, _activated: bool);
-pub type WindowIconifyFun   = @fn(_window: Window, _iconified: bool);
-pub type MouseButtonFun     = @fn(_window: Window, _button: c_int, _action: c_int);
-pub type CursorPosFun       = @fn(_window: Window, _x: int, _y: int);
-pub type CursorEnterFun     = @fn(_window: Window, _entered: bool);
-pub type ScrollFun          = @fn(_window: Window, _x: f64, _y: f64);
-pub type KeyFun             = @fn(_window: Window, _key: c_int, _action: c_int);
-pub type CharFun            = @fn(_window: Window, _character: char);
-pub type MonitorFun         = @fn(_monitor: Monitor, _event: c_int);
+pub type ErrorFun           = @fn(error: c_int, format: ~str);
+pub type WindowPosFun       = @fn(window: Window, width: int, height: int);
+pub type WindowSizeFun      = @fn(window: Window, width: int, height: int);
+pub type WindowCloseFun     = @fn(window: Window) -> bool;
+pub type WindowRefreshFun   = @fn(window: Window);
+pub type WindowFocusFun     = @fn(window: Window, activated: bool);
+pub type WindowIconifyFun   = @fn(window: Window, iconified: bool);
+pub type MouseButtonFun     = @fn(window: Window, button: c_int, action: c_int);
+pub type CursorPosFun       = @fn(window: Window, x: int, y: int);
+pub type CursorEnterFun     = @fn(window: Window, entered: bool);
+pub type ScrollFun          = @fn(window: Window, x: f64, y: f64);
+pub type KeyFun             = @fn(window: Window, key: c_int, action: c_int);
+pub type CharFun            = @fn(window: Window, character: char);
+pub type MonitorFun         = @fn(monitor: Monitor, event: c_int);
 
 /* The video mode structure used by glfwGetVideoModes */
 pub struct VidMode {
