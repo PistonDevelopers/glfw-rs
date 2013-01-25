@@ -1069,6 +1069,27 @@ extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
     }
 }
 
+pub fn get_joysticks() -> ~[Joystick] {
+    let mut joysticks = ~[];
+    if JOYSTICK_1.is_present()  { joysticks.push(JOYSTICK_1)  }
+    if JOYSTICK_2.is_present()  { joysticks.push(JOYSTICK_2)  }
+    if JOYSTICK_3.is_present()  { joysticks.push(JOYSTICK_3)  }
+    if JOYSTICK_4.is_present()  { joysticks.push(JOYSTICK_4)  }
+    if JOYSTICK_5.is_present()  { joysticks.push(JOYSTICK_5)  }
+    if JOYSTICK_6.is_present()  { joysticks.push(JOYSTICK_6)  }
+    if JOYSTICK_7.is_present()  { joysticks.push(JOYSTICK_7)  }
+    if JOYSTICK_8.is_present()  { joysticks.push(JOYSTICK_8)  }
+    if JOYSTICK_9.is_present()  { joysticks.push(JOYSTICK_9)  }
+    if JOYSTICK_10.is_present() { joysticks.push(JOYSTICK_10) }
+    if JOYSTICK_11.is_present() { joysticks.push(JOYSTICK_11) }
+    if JOYSTICK_12.is_present() { joysticks.push(JOYSTICK_12) }
+    if JOYSTICK_13.is_present() { joysticks.push(JOYSTICK_13) }
+    if JOYSTICK_14.is_present() { joysticks.push(JOYSTICK_14) }
+    if JOYSTICK_15.is_present() { joysticks.push(JOYSTICK_15) }
+    if JOYSTICK_16.is_present() { joysticks.push(JOYSTICK_16) }
+    return joysticks;
+}
+
 /* Joystick input */
 pub impl Joystick {
     fn get_param(&self, param: c_int) -> int {
