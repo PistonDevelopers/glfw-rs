@@ -37,9 +37,9 @@
  *************************************************************************/
  
 extern mod std;
-use libc::*;
-use ptr::to_unsafe_ptr;
-use cast::transmute;
+use core::libc::*;
+use core::ptr::to_unsafe_ptr;
+use core::cast::transmute;
 
 use task::local_data:: {
     local_data_get,
@@ -421,6 +421,8 @@ pub struct GammaRamp {
 
 #[nolink]
 pub mod api {
+    use core::libc::*;
+    
     /* Function pointer types */
     // Will have to be changed once we can do external C callbacks nicely
     pub type GLFWerrorfun           = *u8;  // typedef void (* GLFWerrorfun)(int,const char*);
@@ -444,9 +446,9 @@ pub mod api {
     /* Window handle type */
     pub struct GLFWwindow {}
     
-    pub type GLFWgammaramp = GammaRamp;
-    
-    pub type GLFWvidmode = VidMode;
+    pub type GLFWgammaramp = ::GammaRamp;
+    pub type GLFWvidmode = ::VidMode;
+    pub type GLFWglproc = ::GLProc;
     
     pub extern "C" {
         /* GLFW initialization, termination and version querying */
@@ -533,7 +535,7 @@ pub mod api {
         pub fn glfwSwapBuffers(++window: *GLFWwindow);
         pub fn glfwSwapInterval(++interval: c_int);
         pub fn glfwExtensionSupported(++extension: *c_char) -> c_int;
-        pub fn glfwGetProcAddress(++procname: *c_char) -> GLProc;
+        pub fn glfwGetProcAddress(++procname: *c_char) -> GLFWglproc;
     }
 }
 
@@ -1069,7 +1071,11 @@ extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
 
 /* Joystick input */
 pub mod joystick {
-    pub fn get_param(joy: JoystickId, param: c_int) -> int {
+    use core::cast::transmute;
+    use core::libc::*;
+    use api;
+    
+    pub fn get_param(joy: ::JoystickId, param: c_int) -> int {
         api::glfwGetJoystickParam(joy.id, param) as int
     }
 
@@ -1078,7 +1084,7 @@ pub mod joystick {
             let joy_axes = @mut [ 0.0f32, .. 2 ];
             let joy_axes = glfw3::joystick::get_axes( glfw3::JOYSTICK_1, joy_axes );
     */
-    pub fn get_axes(joy: JoystickId, axes: &a/mut[f32]) -> &a/[const f32] {
+    pub fn get_axes(joy: ::JoystickId, axes: &a/mut[f32]) -> &a/[const f32] {
         vec::const_view(axes, 0u, api::glfwGetJoystickAxes(
         	joy.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(axes) ) },
@@ -1087,7 +1093,7 @@ pub mod joystick {
     }
 
     /* See get_axes for usage instructions */
-    pub fn get_buttons(joy: JoystickId, buttons: &a/mut[i8]) -> &a/[const i8] {
+    pub fn get_buttons(joy: ::JoystickId, buttons: &a/mut[i8]) -> &a/[const i8] {
         vec::const_view(buttons, 0u, api::glfwGetJoystickButtons(
         	joy.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(buttons) ) },
