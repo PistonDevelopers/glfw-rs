@@ -1074,7 +1074,21 @@ pub impl Joystick {
     fn get_param(&self, param: c_int) -> int {
         api::glfwGetJoystickParam(self.id, param) as int
     }
-
+    
+    fn is_present(&self) -> bool {
+        self.get_param(PRESENT) as bool
+    }
+    
+    fn num_axes(&self) -> Option<uint> {
+        let axes = self.get_param(AXES);
+        if axes > 0 { Some(axes as uint) } else { None }
+    }
+    
+    fn num_buttons(&self) -> Option<uint> {
+        let buttons = self.get_param(BUTTONS);
+        if buttons > 0 { Some(buttons as uint) } else { None }
+    }
+    
     /*
     	Example usage:
             let joy_axes = @mut [ 0.0f32, .. 2 ];
