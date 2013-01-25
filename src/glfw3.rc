@@ -255,25 +255,25 @@ pub const MOUSE_BUTTON_MIDDLE  : c_int = MOUSE_BUTTON_3;
 pub const MOUSE_BUTTON_LAST    : c_int = MOUSE_BUTTON_8;
 
 /* Joysticks */
-pub struct JoystickId { id : c_int }
+pub struct Joystick { id : c_int }
 
-pub const JOYSTICK_1           : JoystickId = JoystickId{ id : 0 };
-pub const JOYSTICK_2           : JoystickId = JoystickId{ id:  1 };
-pub const JOYSTICK_3           : JoystickId = JoystickId{ id:  2 };
-pub const JOYSTICK_4           : JoystickId = JoystickId{ id:  3 };
-pub const JOYSTICK_5           : JoystickId = JoystickId{ id:  4 };
-pub const JOYSTICK_6           : JoystickId = JoystickId{ id:  5 };
-pub const JOYSTICK_7           : JoystickId = JoystickId{ id:  6 };
-pub const JOYSTICK_8           : JoystickId = JoystickId{ id:  7 };
-pub const JOYSTICK_9           : JoystickId = JoystickId{ id:  8 };
-pub const JOYSTICK_10          : JoystickId = JoystickId{ id:  9 };
-pub const JOYSTICK_11          : JoystickId = JoystickId{ id:  10 };
-pub const JOYSTICK_12          : JoystickId = JoystickId{ id:  11 };
-pub const JOYSTICK_13          : JoystickId = JoystickId{ id:  12 };
-pub const JOYSTICK_14          : JoystickId = JoystickId{ id:  13 };
-pub const JOYSTICK_15          : JoystickId = JoystickId{ id:  14 };
-pub const JOYSTICK_16          : JoystickId = JoystickId{ id:  15 };
-pub const JOYSTICK_LAST        : JoystickId = JOYSTICK_16;
+pub const JOYSTICK_1           : Joystick = Joystick{ id : 0 };
+pub const JOYSTICK_2           : Joystick = Joystick{ id:  1 };
+pub const JOYSTICK_3           : Joystick = Joystick{ id:  2 };
+pub const JOYSTICK_4           : Joystick = Joystick{ id:  3 };
+pub const JOYSTICK_5           : Joystick = Joystick{ id:  4 };
+pub const JOYSTICK_6           : Joystick = Joystick{ id:  5 };
+pub const JOYSTICK_7           : Joystick = Joystick{ id:  6 };
+pub const JOYSTICK_8           : Joystick = Joystick{ id:  7 };
+pub const JOYSTICK_9           : Joystick = Joystick{ id:  8 };
+pub const JOYSTICK_10          : Joystick = Joystick{ id:  9 };
+pub const JOYSTICK_11          : Joystick = Joystick{ id:  10 };
+pub const JOYSTICK_12          : Joystick = Joystick{ id:  11 };
+pub const JOYSTICK_13          : Joystick = Joystick{ id:  12 };
+pub const JOYSTICK_14          : Joystick = Joystick{ id:  13 };
+pub const JOYSTICK_15          : Joystick = Joystick{ id:  14 };
+pub const JOYSTICK_16          : Joystick = Joystick{ id:  15 };
+pub const JOYSTICK_LAST        : Joystick = JOYSTICK_16;
 
 /*************************************************************************
  * Other definitions
@@ -1070,32 +1070,28 @@ extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
 }
 
 /* Joystick input */
-pub mod joystick {
-    use core::cast::transmute;
-    use core::libc::*;
-    use api;
-    
-    pub fn get_param(joy: ::JoystickId, param: c_int) -> int {
-        api::glfwGetJoystickParam(joy.id, param) as int
+pub impl Joystick {
+    fn get_param(&self, param: c_int) -> int {
+        api::glfwGetJoystickParam(self.id, param) as int
     }
 
     /*
     	Example usage:
             let joy_axes = @mut [ 0.0f32, .. 2 ];
-            let joy_axes = glfw3::joystick::get_axes( glfw3::JOYSTICK_1, joy_axes );
+            let joy_axes = glfw3::JOYSTICK_1.get_axes(joy_axes);
     */
-    pub fn get_axes(joy: ::JoystickId, axes: &a/mut[f32]) -> &a/[const f32] {
+    fn get_axes(&self, axes: &a/mut[f32]) -> &a/[const f32] {
         vec::const_view(axes, 0u, api::glfwGetJoystickAxes(
-        	joy.id,
+        	self.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(axes) ) },
         	axes.len() as c_int
         ) as uint )
     }
 
     /* See get_axes for usage instructions */
-    pub fn get_buttons(joy: ::JoystickId, buttons: &a/mut[i8]) -> &a/[const i8] {
+    fn get_buttons(&self, buttons: &a/mut[i8]) -> &a/[const i8] {
         vec::const_view(buttons, 0u, api::glfwGetJoystickButtons(
-        	joy.id,
+        	self.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(buttons) ) },
         	buttons.len() as c_int
         ) as uint )
