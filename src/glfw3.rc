@@ -255,25 +255,44 @@ pub const MOUSE_BUTTON_MIDDLE  : c_int = MOUSE_BUTTON_3;
 pub const MOUSE_BUTTON_LAST    : c_int = MOUSE_BUTTON_8;
 
 /* Joysticks */
+pub const JOYSTICK_1           : c_int = 0;
+pub const JOYSTICK_2           : c_int = 1;
+pub const JOYSTICK_3           : c_int = 2;
+pub const JOYSTICK_4           : c_int = 3;
+pub const JOYSTICK_5           : c_int = 4;
+pub const JOYSTICK_6           : c_int = 5;
+pub const JOYSTICK_7           : c_int = 6;
+pub const JOYSTICK_8           : c_int = 7;
+pub const JOYSTICK_9           : c_int = 8;
+pub const JOYSTICK_10          : c_int = 9;
+pub const JOYSTICK_11          : c_int = 10;
+pub const JOYSTICK_12          : c_int = 11;
+pub const JOYSTICK_13          : c_int = 12;
+pub const JOYSTICK_14          : c_int = 13;
+pub const JOYSTICK_15          : c_int = 14;
+pub const JOYSTICK_16          : c_int = 15;
+pub const JOYSTICK_LAST        : c_int = JOYSTICK_16;
+
 pub struct Joystick { id : c_int }
 
-pub const JOYSTICK_1           : Joystick = Joystick{ id : 0 };
-pub const JOYSTICK_2           : Joystick = Joystick{ id:  1 };
-pub const JOYSTICK_3           : Joystick = Joystick{ id:  2 };
-pub const JOYSTICK_4           : Joystick = Joystick{ id:  3 };
-pub const JOYSTICK_5           : Joystick = Joystick{ id:  4 };
-pub const JOYSTICK_6           : Joystick = Joystick{ id:  5 };
-pub const JOYSTICK_7           : Joystick = Joystick{ id:  6 };
-pub const JOYSTICK_8           : Joystick = Joystick{ id:  7 };
-pub const JOYSTICK_9           : Joystick = Joystick{ id:  8 };
-pub const JOYSTICK_10          : Joystick = Joystick{ id:  9 };
-pub const JOYSTICK_11          : Joystick = Joystick{ id:  10 };
-pub const JOYSTICK_12          : Joystick = Joystick{ id:  11 };
-pub const JOYSTICK_13          : Joystick = Joystick{ id:  12 };
-pub const JOYSTICK_14          : Joystick = Joystick{ id:  13 };
-pub const JOYSTICK_15          : Joystick = Joystick{ id:  14 };
-pub const JOYSTICK_16          : Joystick = Joystick{ id:  15 };
-pub const JOYSTICK_LAST        : Joystick = JOYSTICK_16;
+pub const Joysticks : [Joystick * 16] = [
+    Joystick { id: JOYSTICK_1  },
+    Joystick { id: JOYSTICK_2  },
+    Joystick { id: JOYSTICK_3  },
+    Joystick { id: JOYSTICK_4  },
+    Joystick { id: JOYSTICK_5  },
+    Joystick { id: JOYSTICK_6  },
+    Joystick { id: JOYSTICK_7  },
+    Joystick { id: JOYSTICK_8  },
+    Joystick { id: JOYSTICK_9  },
+    Joystick { id: JOYSTICK_10 },
+    Joystick { id: JOYSTICK_11 },
+    Joystick { id: JOYSTICK_12 },
+    Joystick { id: JOYSTICK_13 },
+    Joystick { id: JOYSTICK_14 },
+    Joystick { id: JOYSTICK_15 },
+    Joystick { id: JOYSTICK_16 },
+];
 
 /*************************************************************************
  * Other definitions
@@ -1070,24 +1089,9 @@ extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
 }
 
 pub fn get_joysticks() -> ~[Joystick] {
-    let mut joysticks = ~[];
-    if JOYSTICK_1.is_present()  { joysticks.push(JOYSTICK_1)  }
-    if JOYSTICK_2.is_present()  { joysticks.push(JOYSTICK_2)  }
-    if JOYSTICK_3.is_present()  { joysticks.push(JOYSTICK_3)  }
-    if JOYSTICK_4.is_present()  { joysticks.push(JOYSTICK_4)  }
-    if JOYSTICK_5.is_present()  { joysticks.push(JOYSTICK_5)  }
-    if JOYSTICK_6.is_present()  { joysticks.push(JOYSTICK_6)  }
-    if JOYSTICK_7.is_present()  { joysticks.push(JOYSTICK_7)  }
-    if JOYSTICK_8.is_present()  { joysticks.push(JOYSTICK_8)  }
-    if JOYSTICK_9.is_present()  { joysticks.push(JOYSTICK_9)  }
-    if JOYSTICK_10.is_present() { joysticks.push(JOYSTICK_10) }
-    if JOYSTICK_11.is_present() { joysticks.push(JOYSTICK_11) }
-    if JOYSTICK_12.is_present() { joysticks.push(JOYSTICK_12) }
-    if JOYSTICK_13.is_present() { joysticks.push(JOYSTICK_13) }
-    if JOYSTICK_14.is_present() { joysticks.push(JOYSTICK_14) }
-    if JOYSTICK_15.is_present() { joysticks.push(JOYSTICK_15) }
-    if JOYSTICK_16.is_present() { joysticks.push(JOYSTICK_16) }
-    return joysticks;
+    do Joysticks.filter_map |&joy| {
+        if joy.is_present() { Some(joy) } else { None }
+    }
 }
 
 /* Joystick input */
