@@ -598,16 +598,16 @@ pub fn get_version_string() -> ~str {
 
 /* Error handling */
 
-fn tls_errorfun(_v: @ErrorFun) {}
+fn errorfun_key(_f: @ErrorFun) {}
 
-pub fn set_error_callback(cbfun: @ErrorFun) {
-    unsafe { local_data_set(tls_errorfun, cbfun); }
+pub fn set_error_callback(cbfun: ErrorFun) {
+    unsafe { local_data_set(errorfun_key, @cbfun); }
     api::glfwSetErrorCallback(error_callback);
 }
 
 extern fn error_callback(err: c_int, format: *c_char) {
     unsafe {
-        match local_data_get(tls_errorfun) {
+        match local_data_get(errorfun_key) {
             Some(f) => { (*f)(err, str::raw::from_c_str(format)); }
             None => {}
         }
@@ -661,16 +661,16 @@ pub impl Monitor {
     }
 }
 
-fn tls_monitorfun(_v: @MonitorFun) {}
+fn monitorfun_key(_f: @MonitorFun) {}
 
-fn set_monitor_callback(cbfun: @MonitorFun) {
-    unsafe { local_data_set(tls_monitorfun, cbfun); }
+fn set_monitor_callback(cbfun: MonitorFun) {
+    unsafe { local_data_set(monitorfun_key, @cbfun); }
     api::glfwSetMonitorCallback(monitor_callback);
 }
 
 extern fn monitor_callback(monitor: *api::GLFWmonitor, event: c_int) {
     unsafe {
-        match local_data_get(tls_monitorfun) {
+        match local_data_get(monitorfun_key) {
             Some(f) => { (*f)(Monitor::from_ptr(monitor), event); }
             None => {}
         }
@@ -811,33 +811,33 @@ pub impl Window {
         api::glfwGetWindowUserPointer(self.ptr)
     }
     
-    fn set_pos_callback(&self, cbfun: @WindowSizeFun) {
-        unsafe { local_data_set(tls_windowposfun, cbfun); }
+    fn set_pos_callback(&self, cbfun: WindowSizeFun) {
+        unsafe { local_data_set(windowposfun_key, @cbfun); }
         api::glfwSetWindowPosCallback(self.ptr, window_pos_callback);
     }
     
-    fn set_size_callback(&self, cbfun: @WindowSizeFun) {
-        unsafe { local_data_set(tls_windowsizefun, cbfun); }
+    fn set_size_callback(&self, cbfun: WindowSizeFun) {
+        unsafe { local_data_set(windowsizefun_key, @cbfun); }
         api::glfwSetWindowSizeCallback(self.ptr, window_size_callback);
     }
 
-    fn set_close_callback(&self, cbfun: @WindowCloseFun) {
-        unsafe { local_data_set(tls_windowclosefun, cbfun); }
+    fn set_close_callback(&self, cbfun: WindowCloseFun) {
+        unsafe { local_data_set(windowclosefun_key, @cbfun); }
         api::glfwSetWindowCloseCallback(self.ptr, window_close_callback);
     }
 
-    fn set_refresh_callback(&self, cbfun: @WindowRefreshFun) {
-        unsafe { local_data_set(tls_windowrefreshfun, cbfun); }
+    fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
+        unsafe { local_data_set(windowrefreshfun_key, @cbfun); }
         api::glfwSetWindowRefreshCallback(self.ptr, window_refresh_callback);
     }
 
-    fn set_focus_callback(&self, cbfun: @WindowFocusFun) {
-        unsafe { local_data_set(tls_windowfocusfun, cbfun); }
+    fn set_focus_callback(&self, cbfun: WindowFocusFun) {
+        unsafe { local_data_set(windowfocusfun_key, @cbfun); }
         api::glfwSetWindowFocusCallback(self.ptr, window_focus_callback);
     }
 
-    fn set_iconify_callback(&self, cbfun: @WindowIconifyFun) {
-        unsafe { local_data_set(tls_windowiconifyfun, cbfun); }
+    fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
+        unsafe { local_data_set(windowiconifyfun_key, @cbfun); }
         api::glfwSetWindowIconifyCallback(self.ptr, window_iconify_callback);
     }
     
@@ -892,33 +892,33 @@ pub impl Window {
         return (xpos as f64, ypos as f64);
     }
     
-    fn set_key_callback(&self, cbfun: @KeyFun) {
-        unsafe { local_data_set(tls_keyfun, cbfun); }
+    fn set_key_callback(&self, cbfun: KeyFun) {
+        unsafe { local_data_set(keyfun_key, @cbfun); }
         api::glfwSetKeyCallback(self.ptr, key_callback);
     }
     
-    fn set_char_callback(&self, cbfun: @CharFun) {
-        unsafe { local_data_set(tls_charfun, cbfun); }
+    fn set_char_callback(&self, cbfun: CharFun) {
+        unsafe { local_data_set(charfun_key, @cbfun); }
         api::glfwSetCharCallback(self.ptr, char_callback);
     }
     
-    fn set_mouse_button_callback(&self, cbfun: @MouseButtonFun) {
-        unsafe { local_data_set(tls_mousebuttonfun, cbfun); }
+    fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
+        unsafe { local_data_set(mousebuttonfun_key, @cbfun); }
         api::glfwSetMouseButtonCallback(self.ptr, mouse_button_callback);
     }
     
-    fn set_cursor_pos_callback(&self, cbfun: @CursorPosFun) {
-        unsafe { local_data_set(tls_cursorposfun, cbfun); }
+    fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
+        unsafe { local_data_set(cursorposfun_key, @cbfun); }
         api::glfwSetCursorPosCallback(self.ptr, cursor_pos_callback);
     }
     
-    fn set_cursor_enter_callback(&self, cbfun: @CursorEnterFun) {
-        unsafe { local_data_set(tls_cursorenterfun, cbfun); }
+    fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
+        unsafe { local_data_set(cursorenterfun_key, @cbfun); }
         api::glfwSetCursorEnterCallback(self.ptr, cursor_enter_callback);
     }
     
-    fn set_scroll_callback(&self, cbfun: @ScrollFun) {
-        unsafe { local_data_set(tls_scrollfun, cbfun); }
+    fn set_scroll_callback(&self, cbfun: ScrollFun) {
+        unsafe { local_data_set(scrollfun_key, @cbfun); }
         api::glfwSetScrollCallback(self.ptr, scroll_callback);
     }
 
@@ -943,33 +943,33 @@ pub impl Window {
     }
 }
 
-fn tls_windowposfun(_v: @WindowPosFun) {}
+fn windowposfun_key(_f: @WindowPosFun) {}
 
 extern fn window_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
     unsafe {
-        match local_data_get(tls_windowposfun) {
+        match local_data_get(windowposfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), x as int, y as int); }
             None => {}
         }
     }
 }
 
-fn tls_windowsizefun(_v: @WindowSizeFun) {}
+fn windowsizefun_key(_f: @WindowSizeFun) {}
 
 extern fn window_size_callback(window: *api::GLFWwindow, width: c_int, height: c_int) {
     unsafe {
-        match local_data_get(tls_windowsizefun) {
+        match local_data_get(windowsizefun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), width as int, height as int); }
             None => {}
         }
     }
 }
 
-fn tls_windowclosefun(_v: @WindowCloseFun) {}
+fn windowclosefun_key(_f: @WindowCloseFun) {}
 
 extern fn window_close_callback(window: *api::GLFWwindow) -> c_int {
     unsafe {
-        match local_data_get(tls_windowclosefun) {
+        match local_data_get(windowclosefun_key) {
             Some(f) => { (*f)(Window::from_ptr(window)) as c_int }
             None => { false as c_int }
         }
@@ -977,33 +977,33 @@ extern fn window_close_callback(window: *api::GLFWwindow) -> c_int {
 }
 
 // FIXME: Doesn't seem to work at the moment. See ../examples/callbacks.rs
-fn tls_windowrefreshfun(_v: @WindowRefreshFun) {}
+fn windowrefreshfun_key(_f: @WindowRefreshFun) {}
 
 extern fn window_refresh_callback(window: *api::GLFWwindow) {
     unsafe {
-        match local_data_get(tls_windowrefreshfun) {
+        match local_data_get(windowrefreshfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window)); }
             None => {}
         }
     }
 }
 
-fn tls_windowfocusfun(_v: @WindowFocusFun) {}
+fn windowfocusfun_key(_f: @WindowFocusFun) {}
 
 extern fn window_focus_callback(window: *api::GLFWwindow, activated: c_int) {
     unsafe {
-        match local_data_get(tls_windowfocusfun) {
+        match local_data_get(windowfocusfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), activated as bool); }
             None => {}
         }
     }
 }
 
-fn tls_windowiconifyfun(_v: @WindowIconifyFun) {}
+fn windowiconifyfun_key(_f: @WindowIconifyFun) {}
 
 extern fn window_iconify_callback(window: *api::GLFWwindow, iconified: c_int) {
     unsafe {
-        match local_data_get(tls_windowiconifyfun) {
+        match local_data_get(windowiconifyfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), iconified as bool); }
             None => {}
         }
@@ -1022,55 +1022,55 @@ pub fn wait_events() {
 
 /* Input handling */
 
-fn tls_keyfun(_v: @KeyFun) {}
+fn keyfun_key(_f: @KeyFun) {}
 
 extern fn key_callback(window: *api::GLFWwindow, key: c_int, action: c_int) {
     unsafe {
-        match local_data_get(tls_keyfun) {
+        match local_data_get(keyfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), key, action); }
             None => {}
         }
     }
 }
 
-fn tls_charfun(_v: @CharFun) {}
+fn charfun_key(_f: @CharFun) {}
 
 extern fn char_callback(window: *api::GLFWwindow, character: c_int) {
     unsafe {
-        match local_data_get(tls_charfun) {
+        match local_data_get(charfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), character as char); }
             None => {}
         }
     }
 }
 
-fn tls_mousebuttonfun(_v: @MouseButtonFun) {}
+fn mousebuttonfun_key(_f: @MouseButtonFun) {}
 
 extern fn mouse_button_callback(window: *api::GLFWwindow, button: c_int, action: c_int) {
     unsafe {
-        match local_data_get(tls_mousebuttonfun) {
+        match local_data_get(mousebuttonfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), button, action); }
             None => {}
         }
     }
 }
 
-fn tls_cursorposfun(_v: @CursorPosFun) {}
+fn cursorposfun_key(_f: @CursorPosFun) {}
 
 extern fn cursor_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
     unsafe {
-        match local_data_get(tls_cursorposfun) {
+        match local_data_get(cursorposfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), x as int, y as int); }
             None => {}
         }
     }
 }
 
-fn tls_cursorenterfun(_v: @CursorEnterFun) {}
+fn cursorenterfun_key(_f: @CursorEnterFun) {}
 
 extern fn cursor_enter_callback(window: *api::GLFWwindow, entered: c_int) {
     unsafe {
-        match local_data_get(tls_cursorenterfun) {
+        match local_data_get(cursorenterfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), entered as bool); }
             None => {}
         }
@@ -1078,11 +1078,11 @@ extern fn cursor_enter_callback(window: *api::GLFWwindow, entered: c_int) {
 }
 
 // FIXME: Doesn't seem to work at the moment. See ../examples/callbacks.rs
-fn tls_scrollfun(_v: @ScrollFun) {}
+fn scrollfun_key(_f: @ScrollFun) {}
 
 extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
     unsafe {
-        match local_data_get(tls_scrollfun) {
+        match local_data_get(scrollfun_key) {
             Some(f) => { (*f)(Window::from_ptr(window), x as f64, y as f64); }
             None => {}
         }
@@ -1158,7 +1158,7 @@ pub fn get_current_context() -> Window {
     Window { ptr: api::glfwGetCurrentContext() }
 }
 
-pub fn swap_interval(interval: int) {
+pub fn set_swap_interval(interval: int) {
     api::glfwSwapInterval(interval as c_int);
 }
 

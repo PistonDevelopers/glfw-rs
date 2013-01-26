@@ -27,21 +27,21 @@ fn main() {
         
         // Register event callbacks
         
-        glfw3::set_error_callback(@error_callback);
+        glfw3::set_error_callback(error_callback);
         
-        window.set_pos_callback(@window_pos_callback);
-        window.set_size_callback(@window_size_callback);
-        window.set_close_callback(@window_close_callback);
-        window.set_refresh_callback(@window_refresh_callback);  // FIXME
-        window.set_focus_callback(@window_focus_callback);
-        window.set_iconify_callback(@window_iconify_callback);
+        window.set_pos_callback(window_pos_callback);
+        window.set_size_callback(window_size_callback);
+        window.set_close_callback(window_close_callback);
+        window.set_refresh_callback(window_refresh_callback);  // FIXME
+        window.set_focus_callback(window_focus_callback);
+        window.set_iconify_callback(window_iconify_callback);
         
-        window.set_key_callback(@key_callback);
-        window.set_char_callback(@char_callback);
-        window.set_mouse_button_callback(@mouse_button_callback);
-        window.set_cursor_pos_callback(@cursor_pos_callback);
-        window.set_cursor_enter_callback(@cursor_enter_callback);
-        window.set_scroll_callback(@scroll_callback);  // FIXME
+        window.set_key_callback(key_callback);
+        window.set_char_callback(char_callback);
+        window.set_mouse_button_callback(mouse_button_callback);
+        window.set_cursor_pos_callback(cursor_pos_callback);
+        window.set_cursor_enter_callback(cursor_enter_callback);
+        window.set_scroll_callback(scroll_callback);  // FIXME
         
         window.make_context_current();
         
@@ -52,7 +52,7 @@ fn main() {
             if (window.get_key(glfw3::KEY_ESC) == glfw3::PRESS || window.get_param(glfw3::SHOULD_CLOSE) != 0) {
                 done = true;
             }
-        } 
+        }
         
         window.destroy();
         glfw3::terminate();
