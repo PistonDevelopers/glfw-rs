@@ -539,6 +539,7 @@ pub mod api {
         pub fn glfwGetJoystickParam(++joy: c_int, ++param: c_int) -> c_int;
         pub fn glfwGetJoystickAxes(++joy: c_int, ++axes: *c_float, ++numaxes: c_int) -> c_int;
         pub fn glfwGetJoystickButtons(++joy: c_int, ++buttons: *c_uchar, ++numbuttons: c_int) -> c_int;
+        pub fn glfwGetJoystickName(++joy: c_int) -> *c_char;
         
         /* Clipboard */
         pub fn glfwSetClipboardString(++window: *GLFWwindow, string: *c_char);
@@ -1112,6 +1113,10 @@ pub impl Joystick {
     fn num_buttons(&self) -> Option<uint> {
         let buttons = self.get_param(BUTTONS);
         if buttons > 0 { Some(buttons as uint) } else { None }
+    }
+    
+    fn get_name(&self) -> ~str {
+        unsafe { str::raw::from_c_str(api::glfwGetJoystickName(self.id)) }
     }
     
     /*
