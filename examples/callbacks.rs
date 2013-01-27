@@ -125,141 +125,147 @@ fn scroll_callback(window: &glfw3::Window, x: f64, y: f64) {
 }
 
 fn to_action_str(state: libc::c_int) -> ~str {
-    if      state == glfw3::RELEASE { ~"Released" }
-    else if state == glfw3::PRESS   { ~"Pressed"  }
-    else                            { ~"Unknown"  }
+    match state {
+        s if s == glfw3::RELEASE => { ~"Released" }
+        s if s == glfw3::PRESS   => { ~"Pressed"  }
+        _                        => { ~"Unknown"  }
+    }
 }
 
 fn to_key_str(key: libc::c_int) -> ~str {
-    /* Printable keys */
-    if      key == glfw3::KEY_SPACE             { ~"Space"         }
-    else if key == glfw3::KEY_APOSTROPHE        { ~"Apostrophe"    }
-    else if key == glfw3::KEY_COMMA             { ~"Comma"         }
-    else if key == glfw3::KEY_MINUS             { ~"Minus"         }
-    else if key == glfw3::KEY_PERIOD            { ~"Period"        }
-    else if key == glfw3::KEY_SLASH             { ~"Slash"         }
-    else if key == glfw3::KEY_0                 { ~"0"             }
-    else if key == glfw3::KEY_1                 { ~"1"             }
-    else if key == glfw3::KEY_2                 { ~"2"             }
-    else if key == glfw3::KEY_3                 { ~"3"             }
-    else if key == glfw3::KEY_4                 { ~"4"             }
-    else if key == glfw3::KEY_5                 { ~"5"             }
-    else if key == glfw3::KEY_6                 { ~"6"             }
-    else if key == glfw3::KEY_7                 { ~"7"             }
-    else if key == glfw3::KEY_8                 { ~"8"             }
-    else if key == glfw3::KEY_9                 { ~"9"             }
-    else if key == glfw3::KEY_SEMICOLON         { ~"Semicolon"     }
-    else if key == glfw3::KEY_EQUAL             { ~"Equal"         }
-    else if key == glfw3::KEY_A                 { ~"A"             }
-    else if key == glfw3::KEY_B                 { ~"B"             }
-    else if key == glfw3::KEY_C                 { ~"C"             }
-    else if key == glfw3::KEY_D                 { ~"D"             }
-    else if key == glfw3::KEY_E                 { ~"E"             }
-    else if key == glfw3::KEY_F                 { ~"F"             }
-    else if key == glfw3::KEY_G                 { ~"G"             }
-    else if key == glfw3::KEY_H                 { ~"H"             }
-    else if key == glfw3::KEY_I                 { ~"I"             }
-    else if key == glfw3::KEY_J                 { ~"J"             }
-    else if key == glfw3::KEY_K                 { ~"K"             }
-    else if key == glfw3::KEY_L                 { ~"L"             }
-    else if key == glfw3::KEY_M                 { ~"M"             }
-    else if key == glfw3::KEY_N                 { ~"N"             }
-    else if key == glfw3::KEY_O                 { ~"O"             }
-    else if key == glfw3::KEY_P                 { ~"P"             }
-    else if key == glfw3::KEY_Q                 { ~"Q"             }
-    else if key == glfw3::KEY_R                 { ~"R"             }
-    else if key == glfw3::KEY_S                 { ~"S"             }
-    else if key == glfw3::KEY_T                 { ~"T"             }
-    else if key == glfw3::KEY_U                 { ~"U"             }
-    else if key == glfw3::KEY_V                 { ~"V"             }
-    else if key == glfw3::KEY_W                 { ~"W"             }
-    else if key == glfw3::KEY_X                 { ~"X"             }
-    else if key == glfw3::KEY_Y                 { ~"Y"             }
-    else if key == glfw3::KEY_Z                 { ~"Z"             }
-    else if key == glfw3::KEY_LEFT_BRACKET      { ~"Left Bracket"  }
-    else if key == glfw3::KEY_BACKSLASH         { ~"Backslash"     }
-    else if key == glfw3::KEY_RIGHT_BRACKET     { ~"Right Bracket" }
-    else if key == glfw3::KEY_GRAVE_ACCENT      { ~"Grave Accent"  }
-    else if key == glfw3::KEY_WORLD_1           { ~"World 1"       }
-    else if key == glfw3::KEY_WORLD_2           { ~"World 2"       }
+    match key {
+        /* Printable keys */
+        k if k == glfw3::KEY_SPACE             => { ~"Space"         }
+        k if k == glfw3::KEY_APOSTROPHE        => { ~"Apostrophe"    }
+        k if k == glfw3::KEY_COMMA             => { ~"Comma"         }
+        k if k == glfw3::KEY_MINUS             => { ~"Minus"         }
+        k if k == glfw3::KEY_PERIOD            => { ~"Period"        }
+        k if k == glfw3::KEY_SLASH             => { ~"Slash"         }
+        k if k == glfw3::KEY_0                 => { ~"0"             }
+        k if k == glfw3::KEY_1                 => { ~"1"             }
+        k if k == glfw3::KEY_2                 => { ~"2"             }
+        k if k == glfw3::KEY_3                 => { ~"3"             }
+        k if k == glfw3::KEY_4                 => { ~"4"             }
+        k if k == glfw3::KEY_5                 => { ~"5"             }
+        k if k == glfw3::KEY_6                 => { ~"6"             }
+        k if k == glfw3::KEY_7                 => { ~"7"             }
+        k if k == glfw3::KEY_8                 => { ~"8"             }
+        k if k == glfw3::KEY_9                 => { ~"9"             }
+        k if k == glfw3::KEY_SEMICOLON         => { ~"Semicolon"     }
+        k if k == glfw3::KEY_EQUAL             => { ~"Equal"         }
+        k if k == glfw3::KEY_A                 => { ~"A"             }
+        k if k == glfw3::KEY_B                 => { ~"B"             }
+        k if k == glfw3::KEY_C                 => { ~"C"             }
+        k if k == glfw3::KEY_D                 => { ~"D"             }
+        k if k == glfw3::KEY_E                 => { ~"E"             }
+        k if k == glfw3::KEY_F                 => { ~"F"             }
+        k if k == glfw3::KEY_G                 => { ~"G"             }
+        k if k == glfw3::KEY_H                 => { ~"H"             }
+        k if k == glfw3::KEY_I                 => { ~"I"             }
+        k if k == glfw3::KEY_J                 => { ~"J"             }
+        k if k == glfw3::KEY_K                 => { ~"K"             }
+        k if k == glfw3::KEY_L                 => { ~"L"             }
+        k if k == glfw3::KEY_M                 => { ~"M"             }
+        k if k == glfw3::KEY_N                 => { ~"N"             }
+        k if k == glfw3::KEY_O                 => { ~"O"             }
+        k if k == glfw3::KEY_P                 => { ~"P"             }
+        k if k == glfw3::KEY_Q                 => { ~"Q"             }
+        k if k == glfw3::KEY_R                 => { ~"R"             }
+        k if k == glfw3::KEY_S                 => { ~"S"             }
+        k if k == glfw3::KEY_T                 => { ~"T"             }
+        k if k == glfw3::KEY_U                 => { ~"U"             }
+        k if k == glfw3::KEY_V                 => { ~"V"             }
+        k if k == glfw3::KEY_W                 => { ~"W"             }
+        k if k == glfw3::KEY_X                 => { ~"X"             }
+        k if k == glfw3::KEY_Y                 => { ~"Y"             }
+        k if k == glfw3::KEY_Z                 => { ~"Z"             }
+        k if k == glfw3::KEY_LEFT_BRACKET      => { ~"Left Bracket"  }
+        k if k == glfw3::KEY_BACKSLASH         => { ~"Backslash"     }
+        k if k == glfw3::KEY_RIGHT_BRACKET     => { ~"Right Bracket" }
+        k if k == glfw3::KEY_GRAVE_ACCENT      => { ~"Grave Accent"  }
+        k if k == glfw3::KEY_WORLD_1           => { ~"World 1"       }
+        k if k == glfw3::KEY_WORLD_2           => { ~"World 2"       }
 
-    /* Function keys */
-    else if key == glfw3::KEY_ESCAPE            { ~"Escape"        }
-    else if key == glfw3::KEY_ENTER             { ~"Enter"         }
-    else if key == glfw3::KEY_TAB               { ~"Tab"           }
-    else if key == glfw3::KEY_BACKSPACE         { ~"Backspace"     }
-    else if key == glfw3::KEY_INSERT            { ~"Insert"        }
-    else if key == glfw3::KEY_DELETE            { ~"Delete"        }
-    else if key == glfw3::KEY_RIGHT             { ~"Right"         }
-    else if key == glfw3::KEY_LEFT              { ~"Left"          }
-    else if key == glfw3::KEY_DOWN              { ~"Down"          }
-    else if key == glfw3::KEY_UP                { ~"Up"            }
-    else if key == glfw3::KEY_PAGE_UP           { ~"Page Up"       }
-    else if key == glfw3::KEY_PAGE_DOWN         { ~"Page Down"     }
-    else if key == glfw3::KEY_HOME              { ~"Home"          }
-    else if key == glfw3::KEY_END               { ~"End"           }
-    else if key == glfw3::KEY_CAPS_LOCK         { ~"Caps Lock"     }
-    else if key == glfw3::KEY_SCROLL_LOCK       { ~"Scroll Lock"   }
-    else if key == glfw3::KEY_NUM_LOCK          { ~"Num Lock"      }
-    else if key == glfw3::KEY_PRINT_SCREEN      { ~"Print Screen"  }
-    else if key == glfw3::KEY_PAUSE             { ~"Pause"         }
-    else if key == glfw3::KEY_F1                { ~"F1"            }
-    else if key == glfw3::KEY_F2                { ~"F2"            }
-    else if key == glfw3::KEY_F3                { ~"F3"            }
-    else if key == glfw3::KEY_F4                { ~"F4"            }
-    else if key == glfw3::KEY_F5                { ~"F5"            }
-    else if key == glfw3::KEY_F6                { ~"F6"            }
-    else if key == glfw3::KEY_F7                { ~"F7"            }
-    else if key == glfw3::KEY_F8                { ~"F8"            }
-    else if key == glfw3::KEY_F9                { ~"F9"            }
-    else if key == glfw3::KEY_F10               { ~"F10"           }
-    else if key == glfw3::KEY_F11               { ~"F11"           }
-    else if key == glfw3::KEY_F12               { ~"F12"           }
-    else if key == glfw3::KEY_F13               { ~"F13"           }
-    else if key == glfw3::KEY_F14               { ~"F14"           }
-    else if key == glfw3::KEY_F15               { ~"F15"           }
-    else if key == glfw3::KEY_F16               { ~"F16"           }
-    else if key == glfw3::KEY_F17               { ~"F17"           }
-    else if key == glfw3::KEY_F18               { ~"F18"           }
-    else if key == glfw3::KEY_F19               { ~"F19"           }
-    else if key == glfw3::KEY_F20               { ~"F20"           }
-    else if key == glfw3::KEY_F21               { ~"F21"           }
-    else if key == glfw3::KEY_F22               { ~"F22"           }
-    else if key == glfw3::KEY_F23               { ~"F23"           }
-    else if key == glfw3::KEY_F24               { ~"F24"           }
-    else if key == glfw3::KEY_F25               { ~"F25"           }
-    else if key == glfw3::KEY_KP_0              { ~"Kp 0"          }
-    else if key == glfw3::KEY_KP_1              { ~"Kp 1"          }
-    else if key == glfw3::KEY_KP_2              { ~"Kp 2"          }
-    else if key == glfw3::KEY_KP_3              { ~"Kp 3"          }
-    else if key == glfw3::KEY_KP_4              { ~"Kp 4"          }
-    else if key == glfw3::KEY_KP_5              { ~"Kp 5"          }
-    else if key == glfw3::KEY_KP_6              { ~"Kp 6"          }
-    else if key == glfw3::KEY_KP_7              { ~"Kp 7"          }
-    else if key == glfw3::KEY_KP_8              { ~"Kp 8"          }
-    else if key == glfw3::KEY_KP_9              { ~"Kp 9"          }
-    else if key == glfw3::KEY_KP_DECIMAL        { ~"Kp Decimal"    }
-    else if key == glfw3::KEY_KP_DIVIDE         { ~"Kp Divide"     }
-    else if key == glfw3::KEY_KP_MULTIPLY       { ~"Kp Multiply"   }
-    else if key == glfw3::KEY_KP_SUBTRACT       { ~"Kp Subtract"   }
-    else if key == glfw3::KEY_KP_ADD            { ~"Kp Add"        }
-    else if key == glfw3::KEY_KP_ENTER          { ~"Kp Enter"      }
-    else if key == glfw3::KEY_KP_EQUAL          { ~"Kp Equal"      }
-    else if key == glfw3::KEY_LEFT_SHIFT        { ~"Left Shift"    }
-    else if key == glfw3::KEY_LEFT_CONTROL      { ~"Left Control"  }
-    else if key == glfw3::KEY_LEFT_ALT          { ~"Left Alt"      }
-    else if key == glfw3::KEY_LEFT_SUPER        { ~"Left Super"    }
-    else if key == glfw3::KEY_RIGHT_SHIFT       { ~"Right Shift"   }
-    else if key == glfw3::KEY_RIGHT_CONTROL     { ~"Right Control" }
-    else if key == glfw3::KEY_RIGHT_ALT         { ~"Right Alt"     }
-    else if key == glfw3::KEY_RIGHT_SUPER       { ~"Right Super"   }
-    else if key == glfw3::KEY_MENU              { ~"Menu"          }
-    else                                        { ~"Unknown"       }
+        /* Function keys */
+        k if k == glfw3::KEY_ESCAPE            => { ~"Escape"        }
+        k if k == glfw3::KEY_ENTER             => { ~"Enter"         }
+        k if k == glfw3::KEY_TAB               => { ~"Tab"           }
+        k if k == glfw3::KEY_BACKSPACE         => { ~"Backspace"     }
+        k if k == glfw3::KEY_INSERT            => { ~"Insert"        }
+        k if k == glfw3::KEY_DELETE            => { ~"Delete"        }
+        k if k == glfw3::KEY_RIGHT             => { ~"Right"         }
+        k if k == glfw3::KEY_LEFT              => { ~"Left"          }
+        k if k == glfw3::KEY_DOWN              => { ~"Down"          }
+        k if k == glfw3::KEY_UP                => { ~"Up"            }
+        k if k == glfw3::KEY_PAGE_UP           => { ~"Page Up"       }
+        k if k == glfw3::KEY_PAGE_DOWN         => { ~"Page Down"     }
+        k if k == glfw3::KEY_HOME              => { ~"Home"          }
+        k if k == glfw3::KEY_END               => { ~"End"           }
+        k if k == glfw3::KEY_CAPS_LOCK         => { ~"Caps Lock"     }
+        k if k == glfw3::KEY_SCROLL_LOCK       => { ~"Scroll Lock"   }
+        k if k == glfw3::KEY_NUM_LOCK          => { ~"Num Lock"      }
+        k if k == glfw3::KEY_PRINT_SCREEN      => { ~"Print Screen"  }
+        k if k == glfw3::KEY_PAUSE             => { ~"Pause"         }
+        k if k == glfw3::KEY_F1                => { ~"F1"            }
+        k if k == glfw3::KEY_F2                => { ~"F2"            }
+        k if k == glfw3::KEY_F3                => { ~"F3"            }
+        k if k == glfw3::KEY_F4                => { ~"F4"            }
+        k if k == glfw3::KEY_F5                => { ~"F5"            }
+        k if k == glfw3::KEY_F6                => { ~"F6"            }
+        k if k == glfw3::KEY_F7                => { ~"F7"            }
+        k if k == glfw3::KEY_F8                => { ~"F8"            }
+        k if k == glfw3::KEY_F9                => { ~"F9"            }
+        k if k == glfw3::KEY_F10               => { ~"F10"           }
+        k if k == glfw3::KEY_F11               => { ~"F11"           }
+        k if k == glfw3::KEY_F12               => { ~"F12"           }
+        k if k == glfw3::KEY_F13               => { ~"F13"           }
+        k if k == glfw3::KEY_F14               => { ~"F14"           }
+        k if k == glfw3::KEY_F15               => { ~"F15"           }
+        k if k == glfw3::KEY_F16               => { ~"F16"           }
+        k if k == glfw3::KEY_F17               => { ~"F17"           }
+        k if k == glfw3::KEY_F18               => { ~"F18"           }
+        k if k == glfw3::KEY_F19               => { ~"F19"           }
+        k if k == glfw3::KEY_F20               => { ~"F20"           }
+        k if k == glfw3::KEY_F21               => { ~"F21"           }
+        k if k == glfw3::KEY_F22               => { ~"F22"           }
+        k if k == glfw3::KEY_F23               => { ~"F23"           }
+        k if k == glfw3::KEY_F24               => { ~"F24"           }
+        k if k == glfw3::KEY_F25               => { ~"F25"           }
+        k if k == glfw3::KEY_KP_0              => { ~"Kp 0"          }
+        k if k == glfw3::KEY_KP_1              => { ~"Kp 1"          }
+        k if k == glfw3::KEY_KP_2              => { ~"Kp 2"          }
+        k if k == glfw3::KEY_KP_3              => { ~"Kp 3"          }
+        k if k == glfw3::KEY_KP_4              => { ~"Kp 4"          }
+        k if k == glfw3::KEY_KP_5              => { ~"Kp 5"          }
+        k if k == glfw3::KEY_KP_6              => { ~"Kp 6"          }
+        k if k == glfw3::KEY_KP_7              => { ~"Kp 7"          }
+        k if k == glfw3::KEY_KP_8              => { ~"Kp 8"          }
+        k if k == glfw3::KEY_KP_9              => { ~"Kp 9"          }
+        k if k == glfw3::KEY_KP_DECIMAL        => { ~"Kp Decimal"    }
+        k if k == glfw3::KEY_KP_DIVIDE         => { ~"Kp Divide"     }
+        k if k == glfw3::KEY_KP_MULTIPLY       => { ~"Kp Multiply"   }
+        k if k == glfw3::KEY_KP_SUBTRACT       => { ~"Kp Subtract"   }
+        k if k == glfw3::KEY_KP_ADD            => { ~"Kp Add"        }
+        k if k == glfw3::KEY_KP_ENTER          => { ~"Kp Enter"      }
+        k if k == glfw3::KEY_KP_EQUAL          => { ~"Kp Equal"      }
+        k if k == glfw3::KEY_LEFT_SHIFT        => { ~"Left Shift"    }
+        k if k == glfw3::KEY_LEFT_CONTROL      => { ~"Left Control"  }
+        k if k == glfw3::KEY_LEFT_ALT          => { ~"Left Alt"      }
+        k if k == glfw3::KEY_LEFT_SUPER        => { ~"Left Super"    }
+        k if k == glfw3::KEY_RIGHT_SHIFT       => { ~"Right Shift"   }
+        k if k == glfw3::KEY_RIGHT_CONTROL     => { ~"Right Control" }
+        k if k == glfw3::KEY_RIGHT_ALT         => { ~"Right Alt"     }
+        k if k == glfw3::KEY_RIGHT_SUPER       => { ~"Right Super"   }
+        k if k == glfw3::KEY_MENU              => { ~"Menu"          }
+        _                                      => { ~"Unknown"       }
+    }
 }
 
 fn to_mouse_button_str(btn: libc::c_int) -> ~str {
-    if      btn == glfw3::MOUSE_BUTTON_LEFT     { ~"Left"    }
-    else if btn == glfw3::MOUSE_BUTTON_RIGHT    { ~"Right"   }
-    else if btn == glfw3::MOUSE_BUTTON_MIDDLE   { ~"Middle"  }
-    else                                        { ~"Unknown" }
+    match btn {
+        b if b == glfw3::MOUSE_BUTTON_LEFT     => { ~"Left"     }
+        b if b == glfw3::MOUSE_BUTTON_RIGHT    => { ~"Right"    }
+        b if b == glfw3::MOUSE_BUTTON_MIDDLE   => { ~"Middle"   }
+        _                                      => { ~"Unknown"  }
+    }
 }
