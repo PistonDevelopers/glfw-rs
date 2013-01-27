@@ -7,18 +7,19 @@ fn main() {
     // automatically starts a new thread, so this line is _essential_ to ensure
     // that the OS is able to update the window and recieve events from the user.
     do task::task().sched_mode(task::PlatformThread).spawn {
-        if (glfw3::init() == false) {
+        
+        if !glfw3::init() {
             glfw3::terminate();
-            fail(~"glfwInit() failed\n");
+            fail(~"Failed to initialize GLFW\n");
         }
         
         let mut window = glfw3::Window::create(300, 300, ~"Hello, I am a window.", glfw3::Windowed);
         
         io::println(fmt!("Window ptr: %d", window.ptr as int));
         
-        if (ptr::is_null(window.ptr)) {
+        if window.ptr.is_null() {
             glfw3::terminate();
-            fail(~"glfwOpenWindow() failed\n");
+            fail(~"Failed to open GLFW window");
         }
         
         window.make_context_current();

@@ -3,8 +3,9 @@ extern mod glfw3;
 
 fn main() {
     
-    if (glfw3::init() == false) {
-        fail(~"glfwInit() failed\n");
+    if !glfw3::init() {
+        glfw3::terminate();
+        fail(~"Failed to initialize GLFW");
     }
     
     let mut time = 0f64;
