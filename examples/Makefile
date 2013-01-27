@@ -3,7 +3,7 @@ RS_FLAGS	:= -L ../lib
 BUILD_DIR	:= bin
 
 
-all: callbacks clipboard modes title version window
+all: callbacks clipboard defaults modes title version window
 	
 builddir:
 	@mkdir -p $(BUILD_DIR)
@@ -13,6 +13,9 @@ callbacks: builddir
 	
 clipboard: builddir
 	rustc clipboard.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
+	
+defaults: builddir
+	rustc defaults.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
 	
 modes: builddir
 	rustc modes.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
