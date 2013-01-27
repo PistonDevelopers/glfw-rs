@@ -1,6 +1,6 @@
 RS_FLAGS	:= -L ../lib
 # RS_FLAGS	:= -g -L ../lib 		# causes "error: internal compiler error: create_function: unexpected sort of node"
-BUILD_DIR	:= build
+BUILD_DIR	:= bin
 
 
 all: callbacks modes time version window

@@ -2,5 +2,5 @@
 *.o
 *.dylib*
 *.dSYM
-build
+bin
 lib
