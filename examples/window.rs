@@ -7,7 +7,7 @@ fn main() {
     // automatically starts a new thread, so this line is _essential_ to ensure
     // that the OS is able to update the window and recieve events from the user.
     do task::task().sched_mode(task::PlatformThread).spawn {
-        if (glfw3::init() == 0) {
+        if (glfw3::init() == false) {
             glfw3::terminate();
             fail(~"glfwInit() failed\n");
         }

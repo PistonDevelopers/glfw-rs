@@ -1,7 +1,7 @@
 extern mod glfw3;
 
 fn main() {
-    if (glfw3::init() == 0) {
+    if (glfw3::init() == false) {
         fail(~"glfwInit() failed\n");
     }
     
