@@ -63,36 +63,36 @@ fn error_callback(_error: libc::c_int, name: ~str) {
     io::println(fmt!("GLFW Error: %s", name));
 }
 
-fn window_pos_callback(window: glfw3::Window, x: int, y: int) {
+fn window_pos_callback(window: &glfw3::Window, x: int, y: int) {
     window.set_title(fmt!("Window pos: [%d, %d]", x, y));
 }
 
-fn window_size_callback(window: glfw3::Window, width: int, height: int) {
+fn window_size_callback(window: &glfw3::Window, width: int, height: int) {
     window.set_title(fmt!("Window size: %d x %d", width, height));
 }
 
 // `_window` is preceded with an undescore to silence the unused variable warning
-fn window_close_callback(_window: glfw3::Window) -> bool {
+fn window_close_callback(_window: &glfw3::Window) -> bool {
     io::println(~"Window close requested.");
     return true;
 }
 
 // FIXME
-fn window_refresh_callback(_window: glfw3::Window) {
+fn window_refresh_callback(_window: &glfw3::Window) {
     io::println(~"Window refresh callback triggered.");
 }
 
-fn window_focus_callback(_window: glfw3::Window, activated: bool) {
+fn window_focus_callback(_window: &glfw3::Window, activated: bool) {
     if activated { io::println(~"Window focus gained."); }
     else         { io::println(~"Window focus lost.");   }
 }
 
-fn window_iconify_callback(_window: glfw3::Window, iconified: bool) {
+fn window_iconify_callback(_window: &glfw3::Window, iconified: bool) {
     if iconified { io::println(~"Window was minimised");  }
     else         { io::println(~"Window was maximised."); }
 }
 
-fn key_callback(window: glfw3::Window, key: libc::c_int, action: libc::c_int) {
+fn key_callback(window: &glfw3::Window, key: libc::c_int, action: libc::c_int) {
     io::println(fmt!("Key %s: %s", to_key_str(key), to_action_str(action)));
     
     // FIXME: this should trigger the window refresh callback.
@@ -101,25 +101,25 @@ fn key_callback(window: glfw3::Window, key: libc::c_int, action: libc::c_int) {
     }
 }
 
-fn char_callback(_window: glfw3::Window, character: char) {
+fn char_callback(_window: &glfw3::Window, character: char) {
     io::println(fmt!("Character: '%?'", character));
 }
 
-fn mouse_button_callback(_window: glfw3::Window, button: libc::c_int, action: libc::c_int) {
+fn mouse_button_callback(_window: &glfw3::Window, button: libc::c_int, action: libc::c_int) {
     io::println(fmt!("Mouse Button %s: %s", to_mouse_button_str(button), to_action_str(action)));
 }
 
-fn cursor_pos_callback(window: glfw3::Window, x: int, y: int) {
+fn cursor_pos_callback(window: &glfw3::Window, x: int, y: int) {
     window.set_title(fmt!("Cursor position: [ %d, %d ]", x, y));
 }
 
-fn cursor_enter_callback(_window: glfw3::Window, entered: bool) {
+fn cursor_enter_callback(_window: &glfw3::Window, entered: bool) {
     if entered { io::println(~"Cursor entered window."); }
     else       { io::println(~"Cursor left window.");    }
 }
 
 // FIXME
-fn scroll_callback(window: glfw3::Window, x: f64, y: f64) {
+fn scroll_callback(window: &glfw3::Window, x: f64, y: f64) {
     window.set_title(fmt!("Scroll position: [%?, %?]", x, y));
 }
 

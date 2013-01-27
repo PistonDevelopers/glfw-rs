@@ -407,19 +407,19 @@ pub struct Window {
 
 /* Function pointer types */
 pub type ErrorFun           = @fn(error: c_int, format: ~str);
-pub type WindowPosFun       = @fn(window: Window, width: int, height: int);
-pub type WindowSizeFun      = @fn(window: Window, width: int, height: int);
-pub type WindowCloseFun     = @fn(window: Window) -> bool;
-pub type WindowRefreshFun   = @fn(window: Window);
-pub type WindowFocusFun     = @fn(window: Window, activated: bool);
-pub type WindowIconifyFun   = @fn(window: Window, iconified: bool);
-pub type MouseButtonFun     = @fn(window: Window, button: c_int, action: c_int);
-pub type CursorPosFun       = @fn(window: Window, x: int, y: int);
-pub type CursorEnterFun     = @fn(window: Window, entered: bool);
-pub type ScrollFun          = @fn(window: Window, x: f64, y: f64);
-pub type KeyFun             = @fn(window: Window, key: c_int, action: c_int);
-pub type CharFun            = @fn(window: Window, character: char);
-pub type MonitorFun         = @fn(monitor: Monitor, event: c_int);
+pub type WindowPosFun       = @fn(window: &Window, width: int, height: int);
+pub type WindowSizeFun      = @fn(window: &Window, width: int, height: int);
+pub type WindowCloseFun     = @fn(window: &Window) -> bool;
+pub type WindowRefreshFun   = @fn(window: &Window);
+pub type WindowFocusFun     = @fn(window: &Window, activated: bool);
+pub type WindowIconifyFun   = @fn(window: &Window, iconified: bool);
+pub type MouseButtonFun     = @fn(window: &Window, button: c_int, action: c_int);
+pub type CursorPosFun       = @fn(window: &Window, x: int, y: int);
+pub type CursorEnterFun     = @fn(window: &Window, entered: bool);
+pub type ScrollFun          = @fn(window: &Window, x: f64, y: f64);
+pub type KeyFun             = @fn(window: &Window, key: c_int, action: c_int);
+pub type CharFun            = @fn(window: &Window, character: char);
+pub type MonitorFun         = @fn(monitor: &Monitor, event: c_int);
 
 /* The video mode structure used by glfwGetVideoModes */
 pub struct VidMode {
@@ -679,7 +679,7 @@ fn set_monitor_callback(cbfun: MonitorFun) {
 extern fn monitor_callback(monitor: *api::GLFWmonitor, event: c_int) {
     unsafe {
         match local_data_get(monitorfun_key) {
-            Some(f) => { (*f)(Monitor::from_ptr(monitor), event); }
+            Some(f) => { (*f)(&Monitor::from_ptr(monitor), event); }
             None => {}
         }
     }
@@ -981,7 +981,7 @@ fn windowposfun_key(_f: @WindowPosFun) {}
 extern fn window_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
     unsafe {
         match local_data_get(windowposfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), x as int, y as int); }
+            Some(f) => { (*f)(&Window::from_ptr(window), x as int, y as int); }
             None => {}
         }
     }
@@ -992,7 +992,7 @@ fn windowsizefun_key(_f: @WindowSizeFun) {}
 extern fn window_size_callback(window: *api::GLFWwindow, width: c_int, height: c_int) {
     unsafe {
         match local_data_get(windowsizefun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), width as int, height as int); }
+            Some(f) => { (*f)(&Window::from_ptr(window), width as int, height as int); }
             None => {}
         }
     }
@@ -1003,7 +1003,7 @@ fn windowclosefun_key(_f: @WindowCloseFun) {}
 extern fn window_close_callback(window: *api::GLFWwindow) -> c_int {
     unsafe {
         match local_data_get(windowclosefun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window)) as c_int }
+            Some(f) => { (*f)(&Window::from_ptr(window)) as c_int }
             None => { false as c_int }
         }
     }
@@ -1015,7 +1015,7 @@ fn windowrefreshfun_key(_f: @WindowRefreshFun) {}
 extern fn window_refresh_callback(window: *api::GLFWwindow) {
     unsafe {
         match local_data_get(windowrefreshfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window)); }
+            Some(f) => { (*f)(&Window::from_ptr(window)); }
             None => {}
         }
     }
@@ -1026,7 +1026,7 @@ fn windowfocusfun_key(_f: @WindowFocusFun) {}
 extern fn window_focus_callback(window: *api::GLFWwindow, activated: c_int) {
     unsafe {
         match local_data_get(windowfocusfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), activated as bool); }
+            Some(f) => { (*f)(&Window::from_ptr(window), activated as bool); }
             None => {}
         }
     }
@@ -1037,7 +1037,7 @@ fn windowiconifyfun_key(_f: @WindowIconifyFun) {}
 extern fn window_iconify_callback(window: *api::GLFWwindow, iconified: c_int) {
     unsafe {
         match local_data_get(windowiconifyfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), iconified as bool); }
+            Some(f) => { (*f)(&Window::from_ptr(window), iconified as bool); }
             None => {}
         }
     }
@@ -1060,7 +1060,7 @@ fn keyfun_key(_f: @KeyFun) {}
 extern fn key_callback(window: *api::GLFWwindow, key: c_int, action: c_int) {
     unsafe {
         match local_data_get(keyfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), key, action); }
+            Some(f) => { (*f)(&Window::from_ptr(window), key, action); }
             None => {}
         }
     }
@@ -1071,7 +1071,7 @@ fn charfun_key(_f: @CharFun) {}
 extern fn char_callback(window: *api::GLFWwindow, character: c_int) {
     unsafe {
         match local_data_get(charfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), character as char); }
+            Some(f) => { (*f)(&Window::from_ptr(window), character as char); }
             None => {}
         }
     }
@@ -1082,7 +1082,7 @@ fn mousebuttonfun_key(_f: @MouseButtonFun) {}
 extern fn mouse_button_callback(window: *api::GLFWwindow, button: c_int, action: c_int) {
     unsafe {
         match local_data_get(mousebuttonfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), button, action); }
+            Some(f) => { (*f)(&Window::from_ptr(window), button, action); }
             None => {}
         }
     }
@@ -1093,7 +1093,7 @@ fn cursorposfun_key(_f: @CursorPosFun) {}
 extern fn cursor_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
     unsafe {
         match local_data_get(cursorposfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), x as int, y as int); }
+            Some(f) => { (*f)(&Window::from_ptr(window), x as int, y as int); }
             None => {}
         }
     }
@@ -1104,7 +1104,7 @@ fn cursorenterfun_key(_f: @CursorEnterFun) {}
 extern fn cursor_enter_callback(window: *api::GLFWwindow, entered: c_int) {
     unsafe {
         match local_data_get(cursorenterfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), entered as bool); }
+            Some(f) => { (*f)(&Window::from_ptr(window), entered as bool); }
             None => {}
         }
     }
@@ -1116,7 +1116,7 @@ fn scrollfun_key(_f: @ScrollFun) {}
 extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
     unsafe {
         match local_data_get(scrollfun_key) {
-            Some(f) => { (*f)(Window::from_ptr(window), x as f64, y as f64); }
+            Some(f) => { (*f)(&Window::from_ptr(window), x as f64, y as f64); }
             None => {}
         }
     }
