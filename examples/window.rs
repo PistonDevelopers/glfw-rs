@@ -1,4 +1,3 @@
-extern mod std;
 extern mod glfw3;
 
 fn main() {
@@ -13,7 +12,7 @@ fn main() {
             fail(~"Failed to initialize GLFW\n");
         }
         
-        let mut window = glfw3::Window::create(300, 300, ~"Hello, I am a window.", glfw3::Windowed);
+        let mut window = glfw3::Window::create(300, 300, "Hello, I am a window.", glfw3::Windowed);
         
         io::println(fmt!("Window ptr: %d", window.ptr as int));
         

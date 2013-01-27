@@ -1,4 +1,3 @@
-extern mod std;
 extern mod glfw3;
 
 fn main() {

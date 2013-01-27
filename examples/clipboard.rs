@@ -52,7 +52,7 @@ fn main() {
             fail(~"Failed to initialize GLFW");
         }
         
-        let window = glfw3::Window::create(300, 300, ~"Clipboard Test", glfw3::Windowed);
+        let window = glfw3::Window::create(300, 300, "Clipboard Test", glfw3::Windowed);
             
         if window.ptr.is_null() {
             glfw3::terminate();
