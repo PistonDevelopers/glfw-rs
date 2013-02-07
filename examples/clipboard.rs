@@ -12,7 +12,7 @@ fn control_is_down(window: &glfw3::Window) -> bool {
     || window.get_key(glfw3::KEY_RIGHT_CONTROL) as bool
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(target_os = "win32")]
 fn control_is_down(window: &glfw3::Window) -> bool {
     window.get_key(glfw3::KEY_LEFT_CONTROL) as bool
     || window.get_key(glfw3::KEY_RIGHT_CONTROL) as bool
