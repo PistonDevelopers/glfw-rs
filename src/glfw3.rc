@@ -686,7 +686,7 @@ extern fn monitor_callback(monitor: *api::GLFWmonitor, event: c_int) {
 }
 
 pub impl VidMode: ToStr {
-    pure fn to_str() -> ~str {
+    pure fn to_str(&self) -> ~str {
         fmt!("%? x %? %? (%? %? %?)",
              self.width, self.height,
              (self.redBits + self.blueBits + self.greenBits),
