@@ -1138,12 +1138,13 @@ extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
         }
     }
 }
-
+/*
+// FIXME: https://github.com/bjz/glfw3-rs/issues/4
 pub fn get_joysticks() -> ~[Joystick] {
     do Joysticks.filter_map |&joy| {
         if joy.is_present() { Some(joy) } else { None }
     }
-}
+}*/
 
 /* Joystick input */
 pub impl Joystick {
