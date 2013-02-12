@@ -332,8 +332,6 @@ pub const OPENGL_DEBUG_CONTEXT         : c_int = 0x00022005;
 pub const OPENGL_PROFILE               : c_int = 0x00022006;
 pub const RESIZABLE                    : c_int = 0x00022007;
 pub const VISIBLE                      : c_int = 0x00022008;
-pub const POSITION_X                   : c_int = 0x00022009;
-pub const POSITION_Y                   : c_int = 0x0002200A;
  
 /* GLFW_CLIENT_API tokens */
 pub const OPENGL_API                   : c_int = 0x00000001;
@@ -379,11 +377,7 @@ pub const FORMAT_UNAVAILABLE           : c_int = 0x00070009;
 /* Gamma ramps */
 pub const GAMMA_RAMP_SIZE              : c_int = 256;
 
-/* Monitor parameters */
-pub const MONITOR_WIDTH_MM             : c_int = 0x00060001;
-pub const MONITOR_HEIGHT_MM            : c_int = 0x00060002;
-pub const MONITOR_POS_X                : c_int = 0x00060003;
-pub const MONITOR_POS_Y                : c_int = 0x00060004;
+/* Monitor event tokens */
 pub const CONNECTED                    : c_int = 0x00061000;
 pub const DISCONNECTED                 : c_int = 0x00061001;
 
@@ -482,7 +476,8 @@ pub mod api {
         /* Monitor functions */
         pub fn glfwGetMonitors(++count: *c_int) -> **GLFWmonitor;
         pub fn glfwGetPrimaryMonitor() -> *GLFWmonitor;
-        pub fn glfwGetMonitorParam(++monitor: *GLFWmonitor, ++param: c_int) -> c_int;
+        pub fn glfwGetMonitorPos(++monitor: *GLFWmonitor, ++xpos: *c_int, ++ypos: *c_int);
+        pub fn glfwGetMonitorPhysicalSize(++monitor: *GLFWmonitor, ++width: *c_int, ++height: *c_int);
         pub fn glfwGetMonitorName(++monitor: *GLFWmonitor) -> *c_char;
         pub fn glfwSetMonitorCallback(++cbfun: GLFWmonitorfun);
         pub fn glfwGetVideoModes(++monitor: *GLFWmonitor, ++count: *c_int) -> *GLFWvidmode;
@@ -499,6 +494,8 @@ pub mod api {
         pub fn glfwCreateWindow(++width: c_int, ++height: c_int, ++title: *c_char, ++monitor: *GLFWmonitor, ++share: *GLFWwindow) -> *GLFWwindow;
         pub fn glfwDestroyWindow(++window: *GLFWwindow);
         pub fn glfwSetWindowTitle(++window: *GLFWwindow, ++title: *c_char);
+        pub fn glfwGetWindowPos(++window: *GLFWwindow, xpos: *c_int, ypos: *c_int);
+        pub fn glfwSetWindowPos(++window: *GLFWwindow, x: c_int, y: c_int);
         pub fn glfwGetWindowSize(++window: *GLFWwindow, ++width: *c_int, ++height: *c_int);
         pub fn glfwSetWindowSize(++window: *GLFWwindow, ++width: c_int, ++height: c_int);
         pub fn glfwIconifyWindow(++window: *GLFWwindow);
@@ -527,7 +524,6 @@ pub mod api {
         pub fn glfwGetMouseButton(++window: *GLFWwindow, ++button: c_int) -> c_int;
         pub fn glfwGetCursorPos(++window: *GLFWwindow, ++xpos: *c_int, ++ypos: *c_int);
         pub fn glfwSetCursorPos(++window: *GLFWwindow, ++xpos: c_int, ++ypos: c_int);
-        pub fn glfwGetScrollOffset(++window: *GLFWwindow, ++xoffset: *c_double, ++yoffset: *c_double);
         pub fn glfwSetKeyCallback(++window: *GLFWwindow, ++cbfun: GLFWkeyfun);
         pub fn glfwSetCharCallback(++window: *GLFWwindow, ++cbfun: GLFWcharfun);
         pub fn glfwSetMouseButtonCallback(++window: *GLFWwindow, ++cbfun: GLFWmousebuttonfun);
@@ -645,8 +641,28 @@ pub impl Monitor {
         if self.ptr == ptr::null() { true } else { false }
     }
     
-    fn get_param(&self, param: int) -> int {
-        unsafe { api::glfwGetMonitorParam(self.ptr, param as c_int) as int }
+    fn get_pos(&self) -> (int, int) {
+        let mut xpos = 0, ypos = 0;
+        unsafe {
+            api::glfwGetMonitorPos(
+                self.ptr,
+                to_unsafe_ptr(&xpos),
+                to_unsafe_ptr(&ypos)
+            );
+        }
+        (xpos as int, ypos as int)
+    }
+    
+    fn get_physical_size(&self) -> (int, int) {
+        let mut width = 0, height = 0;
+        unsafe {
+            api::glfwGetMonitorPhysicalSize(
+                self.ptr,
+                to_unsafe_ptr(&width),
+                to_unsafe_ptr(&height)
+            );
+        }
+        (width as int, height as int)
     }
     
     fn get_name(&self) -> ~str {
@@ -685,7 +701,7 @@ extern fn monitor_callback(monitor: *api::GLFWmonitor, event: c_int) {
     }
 }
 
-pub impl VidMode: ToStr {
+pub impl ToStr for VidMode {
     pure fn to_str(&self) -> ~str {
         fmt!("%? x %? %? (%? %? %?)",
              self.width, self.height,
@@ -769,7 +785,23 @@ pub impl Window {
         unsafe { api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a)) }
     }
     
-    fn get_size(&self) -> (uint, uint) {
+    fn get_pos(&self) -> (int, int) {
+        let mut xpos = 0, ypos = 0;
+        unsafe {
+            api::glfwGetWindowPos(
+                self.ptr,
+                to_unsafe_ptr(&xpos),
+                to_unsafe_ptr(&ypos)
+            );
+        }
+        (xpos as int, ypos as int)
+    }
+    
+    fn set_pos(&self, xpos: int, ypos: int) {
+        unsafe { api::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
+    }
+    
+    fn get_size(&self) -> (int, int) {
         let mut width = 0, height = 0;
         unsafe {
             api::glfwGetWindowSize(
@@ -778,11 +810,10 @@ pub impl Window {
                 to_unsafe_ptr(&height)
             );
         }
-        
-        return (width as uint, height as uint);
+        (width as int, height as int)
     }
     
-    fn set_size(&self, width: uint, height: uint) {
+    fn set_size(&self, width: int, height: int) {
         unsafe { api::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
     }
     
@@ -897,20 +928,6 @@ pub impl Window {
     
     fn set_cursor_pos(&self, xpos: int, ypos: int) {
         unsafe { api::glfwSetCursorPos(self.ptr, xpos as c_int, ypos as c_int); }
-    }
-    
-    fn get_scroll_offset(&self) -> (f64, f64) {
-        let mut xpos: f64 = 0f64;
-        let mut ypos: f64 = 0f64;
-        unsafe {
-            api::glfwGetScrollOffset(
-                self.ptr,
-                to_unsafe_ptr(&xpos),
-                to_unsafe_ptr(&ypos)
-            );
-        }
-        
-        return (xpos as f64, ypos as f64);
     }
     
     fn set_key_callback(&self, cbfun: KeyFun) {
