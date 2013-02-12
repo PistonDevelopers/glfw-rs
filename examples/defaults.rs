@@ -11,7 +11,7 @@ fn main() {
         
         if !glfw3::init() {
             glfw3::terminate();
-            fail(~"Failed to initialize GLFW\n");
+            die!(~"Failed to initialize GLFW\n");
         }
         
         glfw3::window_hint(glfw3::VISIBLE, 0);
@@ -20,7 +20,7 @@ fn main() {
         
         if window.ptr.is_null() {
             glfw3::terminate();
-            fail(~"Failed to open GLFW window");
+            die!(~"Failed to open GLFW window");
         }
         
         window.make_context_current();

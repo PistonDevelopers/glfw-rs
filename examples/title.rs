@@ -11,14 +11,14 @@ fn main() {
         
         if !glfw3::init() {
             glfw3::terminate();
-            fail(~"Failed to initialize GLFW\n");
+            die!(~"Failed to initialize GLFW\n");
         }
         
         let window = glfw3::Window::create(400, 400, "English 日本語 русский язык 官話", glfw3::Windowed);
         
         if window.ptr.is_null() {
             glfw3::terminate();
-            fail(~"Failed to open GLFW window");
+            die!(~"Failed to open GLFW window");
         }
         
         window.make_context_current();

@@ -4,7 +4,7 @@ fn main() {
         
     if !glfw3::init() {
         glfw3::terminate();
-        fail(~"Failed to initialize GLFW");
+        die!(~"Failed to initialize GLFW");
     }
     
     io::println(fmt!("Primary monitor: %s\n", glfw3::get_primary_monitor().get_name()));

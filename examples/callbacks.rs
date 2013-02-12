@@ -11,7 +11,7 @@ fn main() {
         
         if !glfw3::init() {
             glfw3::terminate();
-            fail(~"Failed to initialize GLFW");
+            die!(~"Failed to initialize GLFW");
         }
         
         glfw3::window_hint(glfw3::RESIZABLE, 1);
@@ -20,7 +20,7 @@ fn main() {
             
         if window.ptr.is_null() {
             glfw3::terminate();
-            fail(~"Failed to open GLFW window");
+            die!(~"Failed to open GLFW window");
         }
         
         window.set_input_mode(glfw3::STICKY_KEYS, 1);
