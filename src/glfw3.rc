@@ -482,11 +482,9 @@ pub mod api {
         pub fn glfwSetMonitorCallback(++cbfun: GLFWmonitorfun);
         pub fn glfwGetVideoModes(++monitor: *GLFWmonitor, ++count: *c_int) -> *GLFWvidmode;
         pub fn glfwGetVideoMode(++monitor: *GLFWmonitor) -> GLFWvidmode;
-        
-        /* Gamma ramp functions */
-        pub fn glfwSetGamma(++gamma: c_float);
-        pub fn glfwGetGammaRamp(++ramp: *GLFWgammaramp);
-        pub fn glfwSetGammaRamp(++ramp: *GLFWgammaramp);
+        pub fn glfwSetGamma(++monitor: *GLFWmonitor, ++gamma: c_float);
+        pub fn glfwGetGammaRamp(++monitor: *GLFWmonitor, ++ramp: *GLFWgammaramp);
+        pub fn glfwSetGammaRamp(++monitor: *GLFWmonitor, ++ramp: *GLFWgammaramp);
         
         /* Window handling */
         pub fn glfwDefaultWindowHints();
@@ -495,7 +493,7 @@ pub mod api {
         pub fn glfwDestroyWindow(++window: *GLFWwindow);
         pub fn glfwSetWindowTitle(++window: *GLFWwindow, ++title: *c_char);
         pub fn glfwGetWindowPos(++window: *GLFWwindow, xpos: *c_int, ypos: *c_int);
-        pub fn glfwSetWindowPos(++window: *GLFWwindow, x: c_int, y: c_int);
+        pub fn glfwSetWindowPos(++window: *GLFWwindow, xpos: c_int, ypos: c_int);
         pub fn glfwGetWindowSize(++window: *GLFWwindow, ++width: *c_int, ++height: *c_int);
         pub fn glfwSetWindowSize(++window: *GLFWwindow, ++width: c_int, ++height: c_int);
         pub fn glfwIconifyWindow(++window: *GLFWwindow);
@@ -681,6 +679,28 @@ pub impl Monitor {
     fn get_video_mode(&self) -> VidMode {
         unsafe { api::glfwGetVideoMode(self.ptr) }
     }
+    
+    /* Gamma ramp functions */
+
+    pub fn set_gamma(&self, gamma: float) {
+        unsafe { api::glfwSetGamma(self.ptr, gamma as c_float); }
+    }
+    
+    pub fn get_gamma_ramp(&self) -> GammaRamp {
+        let mut ramp = GammaRamp {
+            red:   [0, ..256],
+            green: [0, ..256],
+            blue:  [0, ..256],
+        };
+        
+        unsafe { api::glfwGetGammaRamp(self.ptr, to_unsafe_ptr(&ramp)); }
+        
+        return ramp;
+    }
+    
+    pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
+        unsafe { api::glfwSetGammaRamp(self.ptr, to_unsafe_ptr(ramp)) }
+    }
 }
 
 fn monitorfun_key(_f: @MonitorFun) {}
@@ -708,28 +728,6 @@ pub impl ToStr for VidMode {
              (self.redBits + self.blueBits + self.greenBits),
              self.redBits, self.blueBits, self.greenBits)
     }
-}
-
-/* Gamma ramp functions */
-
-pub fn set_gamma(gamma: float) {
-    unsafe { api::glfwSetGamma(gamma as c_float); }
-}
-
-pub fn get_gamma_ramp() -> GammaRamp {
-    let mut ramp = GammaRamp {
-        red:   [0, ..256],
-        green: [0, ..256],
-        blue:  [0, ..256],
-    };
-    
-    unsafe { api::glfwGetGammaRamp(to_unsafe_ptr(&ramp)); }
-    
-    return ramp;
-}
-
-pub fn set_gamma_ramp(ramp: &GammaRamp) {
-    unsafe { api::glfwSetGammaRamp(to_unsafe_ptr(ramp)) }
 }
 
 /* Window handling */
