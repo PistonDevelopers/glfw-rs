@@ -16,12 +16,14 @@ fn main() {
         
         glfw3::window_hint(glfw3::VISIBLE, 0);
         
-        let window = glfw3::Window::create(640, 480, "Defaults", glfw3::Windowed);
-        
-        if window.ptr.is_null() {
-            glfw3::terminate();
-            die!(~"Failed to open GLFW window");
-        }
+        let window =
+            match glfw3::Window::create(640, 480, "Defaults", glfw3::Windowed) {
+                Some(w) => { w }
+                None => {
+                    glfw3::terminate();
+                    die!(~"Failed to open GLFW window");
+                }
+            };
         
         window.make_context_current();
         

@@ -750,24 +750,28 @@ pub impl Window {
         Window { ptr: ptr }
     }
     
-    static fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Window {
+    static fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
         Window::create_shared(width, height, title, mode, Window::from_ptr(ptr::null()))
     }
 
-    static fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: Window) -> Window {
-        unsafe {
-            Window::from_ptr(
-                api::glfwCreateWindow(
-                    width as c_int,
-                    height as c_int,
-                    unsafe { str::as_c_str(title, |a| a) },
-                    match mode {
-                        FullScreen(m) => m.ptr,
-                        Windowed => ptr::null()
-                    },
-                    share.ptr
-                )
+    static fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: Window) -> Option<Window> {
+        let ptr = unsafe {
+            api::glfwCreateWindow(
+                width as c_int,
+                height as c_int,
+                unsafe { str::as_c_str(title, |a| a) },
+                match mode {
+                    FullScreen(m) => m.ptr,
+                    Windowed => ptr::null()
+                },
+                share.ptr
             )
+        };
+        
+        if !ptr.is_null() {
+            Some(Window::from_ptr(ptr))
+        } else {
+            None
         }
     }
     

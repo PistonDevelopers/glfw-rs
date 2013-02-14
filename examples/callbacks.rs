@@ -16,12 +16,14 @@ fn main() {
         
         glfw3::window_hint(glfw3::RESIZABLE, 1);
         
-        let mut window = glfw3::Window::create(800, 600, "Hello, I am a window.", glfw3::Windowed);
-            
-        if window.ptr.is_null() {
-            glfw3::terminate();
-            die!(~"Failed to open GLFW window");
-        }
+        let window =
+            match glfw3::Window::create(800, 600, "Hello, I am a window.", glfw3::Windowed) {
+                Some(w) => { w }
+                None => {
+                    glfw3::terminate();
+                    die!(~"Failed to open GLFW window");
+                }
+            };
         
         window.set_input_mode(glfw3::STICKY_KEYS, 1);
         

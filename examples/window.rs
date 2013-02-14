@@ -12,14 +12,14 @@ fn main() {
             die!(~"Failed to initialize GLFW\n");
         }
         
-        let mut window = glfw3::Window::create(300, 300, "Hello, I am a window.", glfw3::Windowed);
-        
-        io::println(fmt!("Window ptr: %d", window.ptr as int));
-        
-        if window.ptr.is_null() {
-            glfw3::terminate();
-            die!(~"Failed to open GLFW window");
-        }
+        let window =
+            match glfw3::Window::create(300, 300, "Hello this is window", glfw3::Windowed) {
+                Some(w) => { w }
+                None => {
+                    glfw3::terminate();
+                    die!(~"Failed to open GLFW window");
+                }
+            };
         
         window.make_context_current();
         
