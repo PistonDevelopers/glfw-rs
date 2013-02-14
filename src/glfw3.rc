@@ -564,6 +564,19 @@ pub fn terminate() {
     unsafe { api::glfwTerminate(); }
 }
 
+pub fn spawn(f: ~fn()) {
+    do task::task().sched_mode(task::PlatformThread).spawn {
+        if !init() {
+            terminate();
+            die!(~"Failed to initialize GLFW");
+        }
+        
+        f();
+        
+        terminate();
+    }
+}
+
 pub struct Version {
     major: int,
     minor: int,

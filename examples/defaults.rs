@@ -1,18 +1,9 @@
 extern mod glfw3;
 
-fn error_callback(_error: libc::c_int, description: ~str) {
-    io::println(fmt!("GLFW Error: %s", description));
-}
-
 fn main() {
-    do task::task().sched_mode(task::PlatformThread).spawn {
-        
-        glfw3::set_error_callback(error_callback);
-        
-        if !glfw3::init() {
-            glfw3::terminate();
-            die!(~"Failed to initialize GLFW\n");
-        }
+    glfw3::set_error_callback(error_callback);
+    
+    do glfw3::spawn {
         
         glfw3::window_hint(glfw3::VISIBLE, 0);
         
@@ -47,6 +38,9 @@ fn main() {
         //   - GL_SAMPLES_ARB
         
         window.destroy();
-        glfw3::terminate();
     }
+}
+
+fn error_callback(_error: libc::c_int, description: ~str) {
+    io::println(fmt!("GLFW Error: %s", description));
 }

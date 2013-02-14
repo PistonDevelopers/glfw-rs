@@ -1,18 +1,9 @@
 extern mod glfw3;
 
-// let mut done = false;
-
 fn main() {
+    glfw3::set_error_callback(error_callback);
     
-    // Run this task on the main thread. Unlike C or C++, a Rust program
-    // automatically starts a new thread, so this line is _essential_ to ensure
-    // that the OS is able to update the window and recieve events from the user.
-    do task::task().sched_mode(task::PlatformThread).spawn {
-        
-        if !glfw3::init() {
-            glfw3::terminate();
-            die!(~"Failed to initialize GLFW");
-        }
+    do glfw3::spawn {
         
         glfw3::window_hint(glfw3::RESIZABLE, 1);
         
@@ -28,8 +19,6 @@ fn main() {
         window.set_input_mode(glfw3::STICKY_KEYS, 1);
         
         // Register event callbacks
-        
-        glfw3::set_error_callback(error_callback);
         
         window.set_pos_callback(window_pos_callback);
         window.set_size_callback(window_size_callback);
@@ -57,7 +46,6 @@ fn main() {
         }
         
         window.destroy();
-        glfw3::terminate();
     }
 }
 
