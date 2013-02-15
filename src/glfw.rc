@@ -7,35 +7,6 @@
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
  
- /*************************************************************************
- * GLFW - An OpenGL library
- * API version: 3.0
- * WWW:         http://www.glfw.org/
- *------------------------------------------------------------------------
- * Copyright (c) 2002-2006 Marcus Geelnard
- * Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would
- *    be appreciated but is not required.
- *
- * 2. Altered source versions must be plainly marked as such, and must not
- *    be misrepresented as being the original software.
- *
- * 3. This notice may not be removed or altered from any source
- *    distribution.
- *
- *************************************************************************/
- 
 extern mod std;
 use core::libc::*;
 use core::ptr::to_unsafe_ptr;
@@ -83,22 +54,6 @@ pub const VERSION_REVISION     : c_int = 0;
 /* Key and button state/action definitions */
 pub const RELEASE              : c_int = 0;
 pub const PRESS                : c_int = 1;
-
-/* Keyboard raw key codes.
- * These key codes are inspired by the USB HID Usage Tables v1.12 (p. 53-60),
- * but re-arranged to map to 7-bit ASCII for printable keys (function keys are
- * put in the 256+ range).
- * The naming of the key codes follow these rules:
- *  - The US keyboard layout is used.
- *  - Names of printable alpha-numeric characters are used (e.g. "A", "R",
- *    "3", etc).
- *  - For non-alphanumeric characters, Unicode:ish names are used (e.g.
- *    "COMMA", "LEFT_SQUARE_BRACKET", etc). Note that some names do not
- *    correspond to the Unicode standard (usually for brevity).
- *  - Keys that lack a clear US mapping are named "WORLD_x".
- *  - For non-printable keys, custom names are used (e.g. "F4",
- *    "BACKSPACE", etc).
- */
 pub const REPEAT               : c_int = 2;
  
 /* Printable keys */
