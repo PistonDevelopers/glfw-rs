@@ -1,17 +1,17 @@
-extern mod glfw3;
+extern mod glfw;
 
 fn main() {
-    glfw3::set_error_callback(error_callback);
+    glfw::set_error_callback(error_callback);
     
-    do glfw3::spawn {
+    do glfw::spawn {
         
-        glfw3::window_hint(glfw3::VISIBLE, glfw3::TRUE);
+        glfw::window_hint(glfw::VISIBLE, glfw::TRUE);
         
         let window =
-            match glfw3::Window::create(640, 480, "Defaults", glfw3::Windowed) {
+            match glfw::Window::create(640, 480, "Defaults", glfw::Windowed) {
                 Some(w) => { w }
                 None => {
-                    glfw3::terminate();
+                    glfw::terminate();
                     die!(~"Failed to open GLFW window");
                 }
             };
@@ -21,11 +21,11 @@ fn main() {
         let (width, height) = window.get_size();
         io::println(fmt!("window size: %? x %?", width, height));
         
-        io::println(fmt!("Context version major: %?",     window.get_param(glfw3::CONTEXT_VERSION_MAJOR)));
-        io::println(fmt!("Context version minor: %?",     window.get_param(glfw3::CONTEXT_VERSION_MINOR)));
-        io::println(fmt!("OpenGL forward compatible: %?", window.get_param(glfw3::OPENGL_FORWARD_COMPAT)));
-        io::println(fmt!("OpenGL debug context: %?",      window.get_param(glfw3::OPENGL_DEBUG_CONTEXT)));
-        io::println(fmt!("OpenGL profile: %?",            window.get_param(glfw3::OPENGL_PROFILE)));
+        io::println(fmt!("Context version major: %?",     window.get_param(glfw::CONTEXT_VERSION_MAJOR)));
+        io::println(fmt!("Context version minor: %?",     window.get_param(glfw::CONTEXT_VERSION_MINOR)));
+        io::println(fmt!("OpenGL forward compatible: %?", window.get_param(glfw::OPENGL_FORWARD_COMPAT)));
+        io::println(fmt!("OpenGL debug context: %?",      window.get_param(glfw::OPENGL_DEBUG_CONTEXT)));
+        io::println(fmt!("OpenGL profile: %?",            window.get_param(glfw::OPENGL_PROFILE)));
         
         // TODO: Test OpenGL defaults: 
         //   - GL_RED_BITS

@@ -1,4 +1,4 @@
-TARGET = glfw3
+TARGET = glfw
 
 ROOT_DIR = .
 

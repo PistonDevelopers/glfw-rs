@@ -1,4 +1,4 @@
-#[link(name = "glfw3", 
+#[link(name = "glfw", 
 	   vers = "0.1",
        uuid = "6199FAD3-6D03-4E29-87E7-7DC1B1B65C2C",
 	   author = "Brendan Zabarauskas",
@@ -1192,7 +1192,7 @@ pub impl Joystick {
     /*
     	Example usage:
             let joy_axes = @mut [ 0.0f32, .. 2 ];
-            let joy_axes = glfw3::JOYSTICK_1.get_axes(joy_axes);
+            let joy_axes = glfw::JOYSTICK_1.get_axes(joy_axes);
     */
     fn get_axes(&self, axes: &a/mut[f32]) -> &a/[const f32] {
         vec::const_view(axes, 0u, unsafe { api::glfwGetJoystickAxes }(

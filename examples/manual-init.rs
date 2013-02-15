@@ -1,4 +1,4 @@
-extern mod glfw3;
+extern mod glfw;
 
 fn main() {
     // Run this task on the main thread. Unlike C or C++, a Rust program
@@ -6,18 +6,18 @@ fn main() {
     // that the OS is able to update the window and recieve events from the user.
     do task::task().sched_mode(task::PlatformThread).spawn {
         
-        glfw3::set_error_callback(error_callback);
+        glfw::set_error_callback(error_callback);
         
-        if !glfw3::init() {
-            glfw3::terminate();
+        if !glfw::init() {
+            glfw::terminate();
             die!(~"Failed to initialize GLFW\n");
         }
         
         let window =
-            match glfw3::Window::create(300, 300, "Hello this is window", glfw3::Windowed) {
+            match glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed) {
                 Some(w) => { w }
                 None => {
-                    glfw3::terminate();
+                    glfw::terminate();
                     die!(~"Failed to open GLFW window");
                 }
             };
@@ -27,14 +27,14 @@ fn main() {
         let mut done = false;
         
         while !done {
-            glfw3::poll_events();
-            if (window.get_key(glfw3::KEY_ESC) == glfw3::PRESS || window.get_param(glfw3::SHOULD_CLOSE) != 0) {
+            glfw::poll_events();
+            if (window.get_key(glfw::KEY_ESC) == glfw::PRESS || window.get_param(glfw::SHOULD_CLOSE) != 0) {
                 done = true;
             }
         }
         
         window.destroy();
-        glfw3::terminate();
+        glfw::terminate();
     }
 }
 

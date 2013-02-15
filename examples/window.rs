@@ -1,14 +1,14 @@
-extern mod glfw3;
+extern mod glfw;
 
 fn main() {
-    glfw3::set_error_callback(error_callback);
+    glfw::set_error_callback(error_callback);
     
-    do glfw3::spawn {
+    do glfw::spawn {
         let window =
-            match glfw3::Window::create(300, 300, "Hello this is window", glfw3::Windowed) {
+            match glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed) {
                 Some(w) => { w }
                 None => {
-                    glfw3::terminate();
+                    glfw::terminate();
                     die!(~"Failed to open GLFW window");
                 }
             };
@@ -18,8 +18,8 @@ fn main() {
         let mut done = false;
         
         while !done {
-            glfw3::poll_events();
-            if (window.get_key(glfw3::KEY_ESC) == glfw3::PRESS || window.get_param(glfw3::SHOULD_CLOSE) != 0) {
+            glfw::poll_events();
+            if (window.get_key(glfw::KEY_ESC) == glfw::PRESS || window.get_param(glfw::SHOULD_CLOSE) != 0) {
                 done = true;
             }
         }
