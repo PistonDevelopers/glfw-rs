@@ -99,6 +99,7 @@ pub const PRESS                : c_int = 1;
  *  - For non-printable keys, custom names are used (e.g. "F4",
  *    "BACKSPACE", etc).
  */
+pub const REPEAT               : c_int = 2;
  
 /* Printable keys */
 pub const KEY_SPACE            : c_int = 32;

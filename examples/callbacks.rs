@@ -92,7 +92,7 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
 }
 
 fn char_callback(_window: &glfw::Window, character: char) {
-    io::println(fmt!("Character: '%?'", character));
+    io::println(fmt!("Character: %?", character));
 }
 
 fn mouse_button_callback(_window: &glfw::Window, button: libc::c_int, action: libc::c_int) {
@@ -117,7 +117,8 @@ fn to_action_str(state: libc::c_int) -> ~str {
     match state {
         s if s == glfw::RELEASE => { ~"Released" }
         s if s == glfw::PRESS   => { ~"Pressed"  }
-        _                        => { ~"Unknown"  }
+        s if s == glfw::REPEAT  => { ~"Repeated" }
+        _                       => { ~"Unknown"  }
     }
 }
 
