@@ -298,6 +298,10 @@ pub const Joysticks : [Joystick * 16] = [
  * Other definitions
  *************************************************************************/
 
+/* Not actually defined in GLFW, but very useful */
+pub const FALSE                        : c_int = 0;
+pub const TRUE                         : c_int = 1;
+
 /* glfwGetWindowParam tokens */
 pub const FOCUSED                      : c_int = 0x00020001;
 pub const ICONIFIED                    : c_int = 0x00020002;

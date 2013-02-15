@@ -5,7 +5,7 @@ fn main() {
     
     do glfw3::spawn {
         
-        glfw3::window_hint(glfw3::VISIBLE, 0);
+        glfw3::window_hint(glfw3::VISIBLE, glfw3::TRUE);
         
         let window =
             match glfw3::Window::create(640, 480, "Defaults", glfw3::Windowed) {

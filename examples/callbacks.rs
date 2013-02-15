@@ -5,7 +5,7 @@ fn main() {
     
     do glfw3::spawn {
         
-        glfw3::window_hint(glfw3::RESIZABLE, 1);
+        glfw3::window_hint(glfw3::RESIZABLE, glfw3::TRUE);
         
         let window =
             match glfw3::Window::create(800, 600, "Hello, I am a window.", glfw3::Windowed) {
