@@ -11,7 +11,7 @@ fn main() {
         
         window.set_key_callback(key_callback);
         
-        while window.get_param(glfw::SHOULD_CLOSE) == 0 {
+        while window.get_param(glfw::SHOULD_CLOSE) == glfw::FALSE {
             glfw::wait_events();
         }
         

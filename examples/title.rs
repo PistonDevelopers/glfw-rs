@@ -9,7 +9,7 @@ fn main() {
         window.make_context_current();
         glfw::set_swap_interval(1);
         
-        while window.get_param(glfw::SHOULD_CLOSE) == 0 {
+        while window.get_param(glfw::SHOULD_CLOSE) == glfw::FALSE {
             glfw::wait_events();
         }
         

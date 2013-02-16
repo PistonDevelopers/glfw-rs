@@ -33,9 +33,10 @@ fn main() {
         
         while (!done) {
             glfw::poll_events();
-            if (window.get_key(glfw::KEY_ESC) == glfw::PRESS || window.get_param(glfw::SHOULD_CLOSE) != 0) {
-                done = true;
-            }
+            
+            // Check if the window should close
+            done = window.get_param(glfw::SHOULD_CLOSE) == glfw::TRUE
+                || window.get_key(glfw::KEY_ESC)        == glfw::PRESS;
         }
         
         window.destroy();
