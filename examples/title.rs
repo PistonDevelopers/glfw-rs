@@ -4,14 +4,7 @@ fn main() {
     glfw::set_error_callback(error_callback);
     
     do glfw::spawn {
-        let window =
-            match glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed) {
-                Some(w) => { w }
-                None => {
-                    glfw::terminate();
-                    die!(~"Failed to open GLFW window");
-                }
-            };
+        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).unwrap();
         
         window.make_context_current();
         glfw::set_swap_interval(1);

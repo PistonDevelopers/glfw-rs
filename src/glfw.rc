@@ -524,16 +524,23 @@ pub fn terminate() {
     unsafe { api::glfwTerminate(); }
 }
 
+/**
+ * Initialises a glfw on the main platform thread. `glfw::terminate` is
+ * automatically called on the success or failure of `f`
+ */
 pub fn spawn(f: ~fn()) {
     do task::task().sched_mode(task::PlatformThread).spawn {
-        if !init() {
-            terminate();
-            die!(~"Failed to initialize GLFW");
+        use core::private::finally::Finally;
+        
+        do (|| {
+            if init() {
+                f();        // do user-defined work
+            } else {
+                die!(~"Failed to initialize GLFW");
+            }
+        }).finally {
+            terminate();    // terminate glfw on completion or failure
         }
-        
-        f();
-        
-        terminate();
     }
 }
 

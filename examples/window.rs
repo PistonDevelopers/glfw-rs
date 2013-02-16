@@ -6,11 +6,8 @@ fn main() {
     do glfw::spawn {
         let window =
             match glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed) {
-                Some(w) => { w }
-                None => {
-                    glfw::terminate();
-                    die!(~"Failed to open GLFW window");
-                }
+                Some(w) => w,
+                None => die!(~"Failed to open GLFW window")
             };
         
         window.make_context_current();

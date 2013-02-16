@@ -7,14 +7,7 @@ fn main() {
         
         glfw::window_hint(glfw::RESIZABLE, glfw::TRUE);
         
-        let window =
-            match glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed) {
-                Some(w) => { w }
-                None => {
-                    glfw::terminate();
-                    die!(~"Failed to open GLFW window");
-                }
-            };
+        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
         
         window.set_input_mode(glfw::STICKY_KEYS, 1);
         

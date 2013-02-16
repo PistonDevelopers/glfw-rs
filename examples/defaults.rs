@@ -7,14 +7,7 @@ fn main() {
         
         glfw::window_hint(glfw::VISIBLE, glfw::TRUE);
         
-        let window =
-            match glfw::Window::create(640, 480, "Defaults", glfw::Windowed) {
-                Some(w) => { w }
-                None => {
-                    glfw::terminate();
-                    die!(~"Failed to open GLFW window");
-                }
-            };
+        let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
         
         window.make_context_current();
         
