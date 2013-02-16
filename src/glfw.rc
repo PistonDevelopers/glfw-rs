@@ -822,8 +822,8 @@ pub impl Window {
         else { FullScreen(m) }
     }
 
-    fn get_param(&self, param: c_int) -> int {
-        unsafe { api::glfwGetWindowParam(self.ptr, param as c_int) as int }
+    fn get_param(&self, param: c_int) -> c_int {
+        unsafe { api::glfwGetWindowParam(self.ptr, param) }
     }
     
     fn set_user_pointer(&self, pointer: *c_void) {
@@ -1130,8 +1130,8 @@ pub fn get_joysticks() -> ~[Joystick] {
 
 /* Joystick input */
 pub impl Joystick {
-    fn get_param(&self, param: c_int) -> int {
-        unsafe { api::glfwGetJoystickParam(self.id, param) as int }
+    fn get_param(&self, param: c_int) -> c_int {
+        unsafe { api::glfwGetJoystickParam(self.id, param) }
     }
     
     fn is_present(&self) -> bool {
