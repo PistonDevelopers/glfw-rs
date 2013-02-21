@@ -536,7 +536,7 @@ pub fn spawn(f: ~fn()) {
             if init() {
                 f();        // do user-defined work
             } else {
-                die!(~"Failed to initialize GLFW");
+                fail!(~"Failed to initialize GLFW");
             }
         }).finally {
             terminate();    // terminate glfw on completion or failure
@@ -1158,7 +1158,7 @@ pub impl Joystick {
             let joy_axes = glfw::JOYSTICK_1.get_axes(joy_axes);
     */
     fn get_axes(&self, axes: &a/mut[f32]) -> &a/[const f32] {
-        vec::const_view(axes, 0u, unsafe { api::glfwGetJoystickAxes }(
+        vec::const_slice(axes, 0u, unsafe { api::glfwGetJoystickAxes }(
         	self.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(axes) ) },
         	axes.len() as c_int
@@ -1167,7 +1167,7 @@ pub impl Joystick {
 
     /* See get_axes for usage instructions */
     fn get_buttons(&self, buttons: &a/mut[i8]) -> &a/[const i8] {
-        vec::const_view(buttons, 0u, unsafe { api::glfwGetJoystickButtons }(
+        vec::const_slice(buttons, 0u, unsafe { api::glfwGetJoystickButtons }(
         	self.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(buttons) ) },
         	buttons.len() as c_int
