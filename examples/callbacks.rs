@@ -29,14 +29,8 @@ fn main() {
         
         window.make_context_current();
         
-        let mut done = false;
-        
-        while (!done) {
+        while !window.should_close() {
             glfw::poll_events();
-            
-            // Check if the window should close
-            done = window.get_param(glfw::SHOULD_CLOSE) == glfw::TRUE
-                || window.get_key(glfw::KEY_ESC)        == glfw::PRESS;
         }
         
         window.destroy();
@@ -79,9 +73,15 @@ fn window_iconify_callback(_window: &glfw::Window, iconified: bool) {
 fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
     io::println(fmt!("Key %s: %s", to_key_str(key), to_action_str(action)));
     
-    // FIXME: this should trigger the window refresh callback.
-    if key == glfw::KEY_R {
-        window.swap_buffers();
+    if action == glfw::PRESS {
+        if key == glfw::KEY_ESCAPE {
+            window.set_should_close(true);
+        }
+        
+        // FIXME: this should trigger the window refresh callback.
+        if key == glfw::KEY_R {
+            window.swap_buffers();
+        }
     }
 }
 

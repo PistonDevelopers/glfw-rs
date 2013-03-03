@@ -18,16 +18,11 @@ fn main() {
                     None    => fail!(~"Failed to open GLFW window")
                 };
             
+            window.set_key_callback(key_callback);
             window.make_context_current();
             
-            let mut done = false;
-            
-            while !done {
+            while !window.should_close() {
                 glfw::poll_events();
-                
-                // Check if the window should close
-                done = window.get_param(glfw::SHOULD_CLOSE) == glfw::TRUE
-                    || window.get_key(glfw::KEY_ESC)        == glfw::PRESS;
             }
             
             window.destroy();
@@ -35,6 +30,12 @@ fn main() {
         }).finally {
             glfw::terminate();    // terminate glfw on completion
         }
+    }
+}
+
+fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
+    if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
+        window.set_should_close(true);
     }
 }
 

@@ -7,11 +7,10 @@ fn main() {
         let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).unwrap();
         
         window.make_context_current();
+        window.set_key_callback(key_callback);
         glfw::set_swap_interval(1);
         
-        window.set_key_callback(key_callback);
-        
-        while window.get_param(glfw::SHOULD_CLOSE) == glfw::FALSE {
+        while !window.should_close() {
             glfw::wait_events();
         }
         
@@ -44,7 +43,9 @@ fn error_callback(_error: libc::c_int, description: ~str) {
 fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
     if action == glfw::PRESS {
         match key {
-            // k if k == glfw::KEY_ESCAPE => {}
+            k if k == glfw::KEY_ESCAPE => {
+                window.set_should_close(true);
+            }
             k if k == glfw::KEY_V && control_is_down(window) => {
                 match window.get_clipboard_string() {
                     ref s if !s.is_empty() => io::println(fmt!("Clipboard contains %?", s)),
