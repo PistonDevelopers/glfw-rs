@@ -261,7 +261,6 @@ pub const TRUE                         : c_int = 1;
 /* glfwGetWindowParam tokens */
 pub const FOCUSED                      : c_int = 0x00020001;
 pub const ICONIFIED                    : c_int = 0x00020002;
-pub const SHOULD_CLOSE                 : c_int = 0x00020003;
 pub const CONTEXT_REVISION             : c_int = 0x00020004;
 
 /* glfwWindowHint tokens */
@@ -410,7 +409,7 @@ pub mod api {
     pub type GLFWcursorenterfun     = *u8;  // typedef void (* GLFWcursorenterfun)(*GLFWwindow,int);
     pub type GLFWscrollfun          = *u8;  // typedef void (* GLFWscrollfun)(*GLFWwindow,double,double);
     pub type GLFWkeyfun             = *u8;  // typedef void (* GLFWkeyfun)(*GLFWwindow,int,int);
-    pub type GLFWcharfun            = *u8;  // typedef void (* GLFWcharfun)(*GLFWwindow,int);
+    pub type GLFWcharfun            = *u8;  // typedef void (* GLFWcharfun)(*GLFWwindow,unsigned int);
     pub type GLFWmonitorfun         = *u8;  // typedef void (* GLFWmonitorfun)(*GLFWmonitor,int);
 
     /* Monitor handle type */
@@ -451,6 +450,8 @@ pub mod api {
         pub fn glfwWindowHint(target: c_int, hint: c_int);
         pub fn glfwCreateWindow(width: c_int, height: c_int, title: *c_char, monitor: *GLFWmonitor, share: *GLFWwindow) -> *GLFWwindow;
         pub fn glfwDestroyWindow(window: *GLFWwindow);
+        pub fn glfwWindowShouldClose(window: *GLFWwindow) -> c_int;
+        pub fn glfwSetWindowShouldClose(window: *GLFWwindow, value: c_int);
         pub fn glfwSetWindowTitle(window: *GLFWwindow, title: *c_char);
         pub fn glfwGetWindowPos(window: *GLFWwindow, xpos: *c_int, ypos: *c_int);
         pub fn glfwSetWindowPos(window: *GLFWwindow, xpos: c_int, ypos: c_int);
@@ -762,6 +763,14 @@ pub impl Window {
     fn destroy(&self) {
         unsafe { api::glfwDestroyWindow(self.ptr); }
     }
+    
+    fn should_close(&self) -> bool {
+        unsafe { api::glfwWindowShouldClose(self.ptr) as bool }
+    }
+    
+    fn set_should_close(&self, value: bool) {
+        unsafe { api::glfwSetWindowShouldClose(self.ptr, value as c_int) }
+    }
 
     fn set_title(&self, title: &str) {
         unsafe { api::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a)) }
@@ -1067,7 +1076,7 @@ extern fn key_callback(window: *api::GLFWwindow, key: c_int, action: c_int) {
 
 fn charfun_key(_f: @CharFun) {}
 
-extern fn char_callback(window: *api::GLFWwindow, character: c_int) {
+extern fn char_callback(window: *api::GLFWwindow, character: c_uint) {
     unsafe {
         match local_data_get(charfun_key) {
             Some(f) => { (*f)(&Window::from_ptr(window), character as char); }
