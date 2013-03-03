@@ -580,9 +580,8 @@ pub fn set_error_callback(cbfun: ErrorFun) {
 
 extern fn error_callback(err: c_int, format: *c_char) {
     unsafe {
-        match local_data_get(errorfun_key) {
-            Some(f) => { (*f)(err, str::raw::from_c_str(format)); }
-            None => {}
+        do local_data_get(errorfun_key).iter |&f| {
+            (*f)(err, str::raw::from_c_str(format));
         }
     }
 }
@@ -685,9 +684,8 @@ fn set_monitor_callback(cbfun: MonitorFun) {
 
 extern fn monitor_callback(monitor: *api::GLFWmonitor, event: c_int) {
     unsafe {
-        match local_data_get(monitorfun_key) {
-            Some(f) => { (*f)(&Monitor(monitor), event); }
-            None => {}
+        do local_data_get(monitorfun_key).iter |&f| {
+            (*f)(&Monitor(monitor), event);
         }
     }
 }
@@ -724,10 +722,10 @@ pub impl Window {
     static fn null() -> Window { Window(ptr::null()) }
 
     static fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
-        Window::create_shared(width, height, title, mode, Window::null())
+        Window::create_shared(width, height, title, mode, &Window::null())
     }
 
-    static fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: Window) -> Option<Window> {
+    static fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Option<Window> {
         let window = Window(
             unsafe {
                 api::glfwCreateWindow(
@@ -974,9 +972,8 @@ fn windowposfun_key(_f: @WindowPosFun) {}
 
 extern fn window_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
     unsafe {
-        match local_data_get(windowposfun_key) {
-            Some(f) => { (*f)(&Window(window), x as int, y as int); }
-            None => {}
+        do local_data_get(windowposfun_key).iter |&f| {
+            (*f)(&Window(window), x as int, y as int);
         }
     }
 }
@@ -985,9 +982,8 @@ fn windowsizefun_key(_f: @WindowSizeFun) {}
 
 extern fn window_size_callback(window: *api::GLFWwindow, width: c_int, height: c_int) {
     unsafe {
-        match local_data_get(windowsizefun_key) {
-            Some(f) => { (*f)(&Window(window), width as int, height as int); }
-            None => {}
+        do local_data_get(windowsizefun_key).iter |&f| {
+            (*f)(&Window(window), width as int, height as int);
         }
     }
 }
@@ -996,9 +992,8 @@ fn windowclosefun_key(_f: @WindowCloseFun) {}
 
 extern fn window_close_callback(window: *api::GLFWwindow) -> c_int {
     unsafe {
-        match local_data_get(windowclosefun_key) {
-            Some(f) => { (*f)(&Window(window)) as c_int }
-            None => { false as c_int }
+        do local_data_get(windowclosefun_key).map_default(FALSE) |&f| { 
+            (*f)(&Window(window)) as c_int
         }
     }
 }
@@ -1008,9 +1003,8 @@ fn windowrefreshfun_key(_f: @WindowRefreshFun) {}
 
 extern fn window_refresh_callback(window: *api::GLFWwindow) {
     unsafe {
-        match local_data_get(windowrefreshfun_key) {
-            Some(f) => { (*f)(&Window(window)); }
-            None => {}
+        do local_data_get(windowrefreshfun_key).iter |&f| {
+            (*f)(&Window(window));
         }
     }
 }
@@ -1019,9 +1013,8 @@ fn windowfocusfun_key(_f: @WindowFocusFun) {}
 
 extern fn window_focus_callback(window: *api::GLFWwindow, activated: c_int) {
     unsafe {
-        match local_data_get(windowfocusfun_key) {
-            Some(f) => { (*f)(&Window(window), activated as bool); }
-            None => {}
+        do local_data_get(windowfocusfun_key).iter |&f| {
+            (*f)(&Window(window), activated as bool);
         }
     }
 }
@@ -1030,9 +1023,8 @@ fn windowiconifyfun_key(_f: @WindowIconifyFun) {}
 
 extern fn window_iconify_callback(window: *api::GLFWwindow, iconified: c_int) {
     unsafe {
-        match local_data_get(windowiconifyfun_key) {
-            Some(f) => { (*f)(&Window(window), iconified as bool); }
-            None => {}
+        do local_data_get(windowiconifyfun_key).iter |&f| {
+            (*f)(&Window(window), iconified as bool);
         }
     }
 }
@@ -1053,9 +1045,8 @@ fn keyfun_key(_f: @KeyFun) {}
 
 extern fn key_callback(window: *api::GLFWwindow, key: c_int, action: c_int) {
     unsafe {
-        match local_data_get(keyfun_key) {
-            Some(f) => { (*f)(&Window(window), key, action); }
-            None => {}
+        do local_data_get(keyfun_key).iter |&f| {
+            (*f)(&Window(window), key, action);
         }
     }
 }
@@ -1064,9 +1055,8 @@ fn charfun_key(_f: @CharFun) {}
 
 extern fn char_callback(window: *api::GLFWwindow, character: c_uint) {
     unsafe {
-        match local_data_get(charfun_key) {
-            Some(f) => { (*f)(&Window(window), character as char); }
-            None => {}
+        do local_data_get(charfun_key).iter |&f| {
+            (*f)(&Window(window), character as char);
         }
     }
 }
@@ -1075,9 +1065,8 @@ fn mousebuttonfun_key(_f: @MouseButtonFun) {}
 
 extern fn mouse_button_callback(window: *api::GLFWwindow, button: c_int, action: c_int) {
     unsafe {
-        match local_data_get(mousebuttonfun_key) {
-            Some(f) => { (*f)(&Window(window), button, action); }
-            None => {}
+        do local_data_get(mousebuttonfun_key).iter |&f| {
+            (*f)(&Window(window), button, action);
         }
     }
 }
@@ -1086,9 +1075,8 @@ fn cursorposfun_key(_f: @CursorPosFun) {}
 
 extern fn cursor_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
     unsafe {
-        match local_data_get(cursorposfun_key) {
-            Some(f) => { (*f)(&Window(window), x as int, y as int); }
-            None => {}
+        do local_data_get(cursorposfun_key).iter |&f| {
+            (*f)(&Window(window), x as int, y as int);
         }
     }
 }
@@ -1097,9 +1085,8 @@ fn cursorenterfun_key(_f: @CursorEnterFun) {}
 
 extern fn cursor_enter_callback(window: *api::GLFWwindow, entered: c_int) {
     unsafe {
-        match local_data_get(cursorenterfun_key) {
-            Some(f) => { (*f)(&Window(window), entered as bool); }
-            None => {}
+        do local_data_get(cursorenterfun_key).iter |&f| {
+            (*f)(&Window(window), entered as bool);
         }
     }
 }
@@ -1109,9 +1096,8 @@ fn scrollfun_key(_f: @ScrollFun) {}
 
 extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
     unsafe {
-        match local_data_get(scrollfun_key) {
-            Some(f) => { (*f)(&Window(window), x as f64, y as f64); }
-            None => {}
+        do local_data_get(scrollfun_key).iter |&f| {
+            (*f)(&Window(window), x as f64, y as f64);
         }
     }
 }
