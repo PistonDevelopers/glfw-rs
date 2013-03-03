@@ -32,8 +32,6 @@ fn main() {
         while !window.should_close() {
             glfw::poll_events();
         }
-        
-        window.destroy();
     }
 }
 

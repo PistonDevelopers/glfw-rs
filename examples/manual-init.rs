@@ -25,8 +25,6 @@ fn main() {
                 glfw::poll_events();
             }
             
-            window.destroy();
-            
         }).finally {
             glfw::terminate();    // terminate glfw on completion
         }

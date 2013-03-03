@@ -13,8 +13,6 @@ fn main() {
         while !window.should_close() {
             glfw::wait_events();
         }
-        
-        window.destroy();
     }
 }
 

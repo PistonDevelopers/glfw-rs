@@ -29,8 +29,6 @@ fn main() {
         //   - GL_STENCIL_BITS
         //   - GL_STEREO
         //   - GL_SAMPLES_ARB
-        
-        window.destroy();
     }
 }
 
