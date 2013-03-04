@@ -12,7 +12,7 @@ use core::libc::*;
 use core::ptr::to_unsafe_ptr;
 use core::cast::transmute;
 
-use task::local_data:: {
+use core::task::local_data:: {
     local_data_get,
     local_data_set
 };
@@ -530,7 +530,7 @@ pub fn terminate() {
  */
 pub fn spawn(f: ~fn()) {
     do task::task().sched_mode(task::PlatformThread).spawn {
-        use core::private::finally::Finally;
+        use core::unstable::finally::Finally;
 
         do (|| {
             if init() {
@@ -701,7 +701,7 @@ extern fn monitor_callback(monitor: *api::GLFWmonitor, event: c_int) {
     }
 }
 
-pub impl ToStr for VidMode {
+impl ToStr for VidMode {
     pure fn to_str(&self) -> ~str {
         fmt!("%? x %? %? (%? %? %?)",
              self.width, self.height,
