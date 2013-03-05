@@ -5,7 +5,7 @@ fn main() {
     // automatically starts a new thread, so this line is _essential_ to ensure
     // that the OS is able to update the window and recieve events from the user.
     do task::task().sched_mode(task::PlatformThread).spawn  {
-        use core::private::finally::Finally;
+        use core::unstable::finally::Finally;
         
         do (|| {
             glfw::set_error_callback(error_callback);
