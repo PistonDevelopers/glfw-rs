@@ -7,15 +7,12 @@
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
 
+mod callbacks;
+
 extern mod std;
 use core::libc::*;
 use core::ptr::to_unsafe_ptr;
 use core::cast::transmute;
-
-use core::task::local_data:: {
-    local_data_get,
-    local_data_set
-};
 
 
 // Include OS X Frameworks
@@ -569,20 +566,9 @@ pub fn get_version_string() -> ~str {
 
 /* Error handling */
 
-fn errorfun_key(_f: @ErrorFun) {}
-
 pub fn set_error_callback(cbfun: ErrorFun) {
-    unsafe {
-        local_data_set(errorfun_key, @cbfun);
-        api::glfwSetErrorCallback(error_callback);
-    }
-}
-
-extern fn error_callback(err: c_int, format: *c_char) {
-    unsafe {
-        do local_data_get(errorfun_key).iter |&f| {
-            (*f)(err, str::raw::from_c_str(format));
-        }
+    do callbacks::errorfun::set(cbfun) |ext| {
+        unsafe { api::glfwSetErrorCallback(ext); }
     }
 }
 
@@ -673,20 +659,9 @@ pub impl Monitor {
     }
 }
 
-fn monitorfun_key(_f: @MonitorFun) {}
-
 fn set_monitor_callback(cbfun: MonitorFun) {
-    unsafe {
-        local_data_set(monitorfun_key, @cbfun);
-        api::glfwSetMonitorCallback(monitor_callback);
-    }
-}
-
-extern fn monitor_callback(monitor: *api::GLFWmonitor, event: c_int) {
-    unsafe {
-        do local_data_get(monitorfun_key).iter |&f| {
-            (*f)(&Monitor(monitor), event);
-        }
+    do callbacks::monitorfun::set(cbfun) |ext| {
+        unsafe { api::glfwSetMonitorCallback(ext); }
     }
 }
 
@@ -828,44 +803,38 @@ pub impl Window {
     }
 
     fn set_pos_callback(&self, cbfun: WindowSizeFun) {
-        unsafe {
-            local_data_set(windowposfun_key, @cbfun);
-            api::glfwSetWindowPosCallback(self.ptr(), window_pos_callback);
+        do callbacks::windowposfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetWindowPosCallback(self.ptr(), ext); }
         }
     }
 
     fn set_size_callback(&self, cbfun: WindowSizeFun) {
-        unsafe {
-            local_data_set(windowsizefun_key, @cbfun);
-            api::glfwSetWindowSizeCallback(self.ptr(), window_size_callback);
+        do callbacks::windowsizefun::set(cbfun) |ext| {
+            unsafe { api::glfwSetWindowSizeCallback(self.ptr(), ext); }
         }
     }
 
     fn set_close_callback(&self, cbfun: WindowCloseFun) {
-        unsafe {
-            local_data_set(windowclosefun_key, @cbfun);
-            api::glfwSetWindowCloseCallback(self.ptr(), window_close_callback);
+        do callbacks::windowclosefun::set(cbfun) |ext| {
+            unsafe { api::glfwSetWindowCloseCallback(self.ptr(), ext); }
         }
     }
 
     fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
-        unsafe {
-            local_data_set(windowrefreshfun_key, @cbfun);
-            api::glfwSetWindowRefreshCallback(self.ptr(), window_refresh_callback);
+        do callbacks::windowrefreshfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetWindowRefreshCallback(self.ptr(), ext); }
         }
     }
 
     fn set_focus_callback(&self, cbfun: WindowFocusFun) {
-        unsafe {
-            local_data_set(windowfocusfun_key, @cbfun);
-            api::glfwSetWindowFocusCallback(self.ptr(), window_focus_callback);
+        do callbacks::windowfocusfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetWindowFocusCallback(self.ptr(), ext); }
         }
     }
 
     fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
-        unsafe {
-            local_data_set(windowiconifyfun_key, @cbfun);
-            api::glfwSetWindowIconifyCallback(self.ptr(), window_iconify_callback);
+        do callbacks::windowiconifyfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetWindowIconifyCallback(self.ptr(), ext); }
         }
     }
 
@@ -906,44 +875,38 @@ pub impl Window {
     }
 
     fn set_key_callback(&self, cbfun: KeyFun) {
-        unsafe {
-            local_data_set(keyfun_key, @cbfun);
-            api::glfwSetKeyCallback(self.ptr(), key_callback);
+        do callbacks::keyfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetKeyCallback(self.ptr(), ext); }
         }
     }
 
     fn set_char_callback(&self, cbfun: CharFun) {
-        unsafe {
-            local_data_set(charfun_key, @cbfun);
-            api::glfwSetCharCallback(self.ptr(), char_callback);
+        do callbacks::charfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetCharCallback(self.ptr(), ext); }
         }
     }
 
     fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
-        unsafe {
-            local_data_set(mousebuttonfun_key, @cbfun);
-            api::glfwSetMouseButtonCallback(self.ptr(), mouse_button_callback);
+        do callbacks::mousebuttonfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetMouseButtonCallback(self.ptr(), ext); }
         }
     }
 
     fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
-        unsafe {
-            local_data_set(cursorposfun_key, @cbfun);
-            api::glfwSetCursorPosCallback(self.ptr(), cursor_pos_callback);
+        do callbacks::cursorposfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetCursorPosCallback(self.ptr(), ext); }
         }
     }
 
     fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
-        unsafe {
-            local_data_set(cursorenterfun_key, @cbfun);
-            api::glfwSetCursorEnterCallback(self.ptr(), cursor_enter_callback);
+        do callbacks::cursorenterfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetCursorEnterCallback(self.ptr(), ext); }
         }
     }
 
     fn set_scroll_callback(&self, cbfun: ScrollFun) {
-        unsafe {
-            local_data_set(scrollfun_key, @cbfun);
-            api::glfwSetScrollCallback(self.ptr(), scroll_callback);
+        do callbacks::scrollfun::set(cbfun) |ext| {
+            unsafe { api::glfwSetScrollCallback(self.ptr(), ext); }
         }
     }
 
@@ -968,67 +931,6 @@ pub impl Window {
     }
 }
 
-fn windowposfun_key(_f: @WindowPosFun) {}
-
-extern fn window_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
-    unsafe {
-        do local_data_get(windowposfun_key).iter |&f| {
-            (*f)(&Window(window), x as int, y as int);
-        }
-    }
-}
-
-fn windowsizefun_key(_f: @WindowSizeFun) {}
-
-extern fn window_size_callback(window: *api::GLFWwindow, width: c_int, height: c_int) {
-    unsafe {
-        do local_data_get(windowsizefun_key).iter |&f| {
-            (*f)(&Window(window), width as int, height as int);
-        }
-    }
-}
-
-fn windowclosefun_key(_f: @WindowCloseFun) {}
-
-extern fn window_close_callback(window: *api::GLFWwindow) -> c_int {
-    unsafe {
-        do local_data_get(windowclosefun_key).map_default(FALSE) |&f| { 
-            (*f)(&Window(window)) as c_int
-        }
-    }
-}
-
-// FIXME: Doesn't seem to work at the moment. See ../examples/callbacks.rs
-fn windowrefreshfun_key(_f: @WindowRefreshFun) {}
-
-extern fn window_refresh_callback(window: *api::GLFWwindow) {
-    unsafe {
-        do local_data_get(windowrefreshfun_key).iter |&f| {
-            (*f)(&Window(window));
-        }
-    }
-}
-
-fn windowfocusfun_key(_f: @WindowFocusFun) {}
-
-extern fn window_focus_callback(window: *api::GLFWwindow, activated: c_int) {
-    unsafe {
-        do local_data_get(windowfocusfun_key).iter |&f| {
-            (*f)(&Window(window), activated as bool);
-        }
-    }
-}
-
-fn windowiconifyfun_key(_f: @WindowIconifyFun) {}
-
-extern fn window_iconify_callback(window: *api::GLFWwindow, iconified: c_int) {
-    unsafe {
-        do local_data_get(windowiconifyfun_key).iter |&f| {
-            (*f)(&Window(window), iconified as bool);
-        }
-    }
-}
-
 /* Event handling */
 
 pub fn poll_events() {
@@ -1039,68 +941,6 @@ pub fn wait_events() {
     unsafe { api::glfwWaitEvents(); }
 }
 
-/* Input handling */
-
-fn keyfun_key(_f: @KeyFun) {}
-
-extern fn key_callback(window: *api::GLFWwindow, key: c_int, action: c_int) {
-    unsafe {
-        do local_data_get(keyfun_key).iter |&f| {
-            (*f)(&Window(window), key, action);
-        }
-    }
-}
-
-fn charfun_key(_f: @CharFun) {}
-
-extern fn char_callback(window: *api::GLFWwindow, character: c_uint) {
-    unsafe {
-        do local_data_get(charfun_key).iter |&f| {
-            (*f)(&Window(window), character as char);
-        }
-    }
-}
-
-fn mousebuttonfun_key(_f: @MouseButtonFun) {}
-
-extern fn mouse_button_callback(window: *api::GLFWwindow, button: c_int, action: c_int) {
-    unsafe {
-        do local_data_get(mousebuttonfun_key).iter |&f| {
-            (*f)(&Window(window), button, action);
-        }
-    }
-}
-
-fn cursorposfun_key(_f: @CursorPosFun) {}
-
-extern fn cursor_pos_callback(window: *api::GLFWwindow, x: c_int, y: c_int) {
-    unsafe {
-        do local_data_get(cursorposfun_key).iter |&f| {
-            (*f)(&Window(window), x as int, y as int);
-        }
-    }
-}
-
-fn cursorenterfun_key(_f: @CursorEnterFun) {}
-
-extern fn cursor_enter_callback(window: *api::GLFWwindow, entered: c_int) {
-    unsafe {
-        do local_data_get(cursorenterfun_key).iter |&f| {
-            (*f)(&Window(window), entered as bool);
-        }
-    }
-}
-
-// FIXME: Doesn't seem to work at the moment. See ../examples/callbacks.rs
-fn scrollfun_key(_f: @ScrollFun) {}
-
-extern fn scroll_callback(window: *api::GLFWwindow, x: c_double, y: c_double) {
-    unsafe {
-        do local_data_get(scrollfun_key).iter |&f| {
-            (*f)(&Window(window), x as f64, y as f64);
-        }
-    }
-}
 /*
 // FIXME: https://github.com/bjz/glfw3-rs/issues/4
 pub fn get_joysticks() -> ~[Joystick] {
@@ -1110,6 +950,7 @@ pub fn get_joysticks() -> ~[Joystick] {
 }*/
 
 /* Joystick input */
+
 pub impl Joystick {
     fn get_param(&self, param: c_int) -> c_int {
         unsafe { api::glfwGetJoystickParam(self.id, param) }
