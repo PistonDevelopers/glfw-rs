@@ -1,57 +1,52 @@
 macro_rules! callback(
     (
         mod $mod_name:ident {
-            $extfun:ty ( $($extarg_id:ident : $extarg_ty:ty),+ )
-                => $cbfun:ty ( $($args:expr),+ )
+            $extfun_ty:ty ( $($extarg_id:ident : $extarg_ty:ty),+ )
+                => $cbfun_ty:ty ( $($args:expr),+ )
         }
     ) => (
         mod $mod_name {
-            /**
-             * A key for setting and retrieving the callback from
-             * task-local storage
-             */
-            fn tls_key(_: @ $cbfun) {}
-            _setter!(tls_key, $cbfun, $extfun)
-            _extern_wrapper!(
-                tls_key, ($($extarg_id : $extarg_ty),+) => $cbfun ($($args),+)
-            )
+            tls_key !(cbkey, $cbfun_ty)
+            setter  !(cbkey, $cbfun_ty, $extfun_ty)
+            extfun  !(cbkey, ($($extarg_id : $extarg_ty),+)
+                => $cbfun_ty ($($args),+))
         }
     );
     
-    // Invoked there is a return type and fallback value supplied
-    //
     // `$ext_ret_type`: The return type of the external callback wrapper
     // `$ret_val_if_none`: A fallback value to return if the external callback
     //                     wrapper function returned `None`
     (
         mod $mod_name:ident {
-            $extfun:ty ( $($extarg_id:ident : $extarg_ty:ty),+ )
-                => $cbfun:ty ( $($args:expr),+ )
+            $extfun_ty:ty ( $($extarg_id:ident : $extarg_ty:ty),+ )
+                => $cbfun_ty:ty ( $($args:expr),+ )
                     -> (Some: $ext_ret_type:ty | None: $ret_val_if_none:expr)
         }
     ) => (
         mod $mod_name {
-            /**
-             * A key for setting and retrieving the callback from
-             * task-local storage
-             */
-            fn tls_key(_: @ $cbfun) {}
-            _setter!(tls_key, $cbfun, $extfun)
-            _extern_wrapper!(
-                tls_key, ($($extarg_id : $extarg_ty),+) => $cbfun ($($args),+)
-                        -> (Some: $ext_ret_type | None: $ret_val_if_none)
-            )
+            tls_key !(cbkey, $cbfun_ty)
+            setter  !(cbkey, $cbfun_ty, $extfun_ty)
+            extfun  !(cbkey, ($($extarg_id : $extarg_ty),+)
+                => $cbfun_ty ($($args),+)
+                    -> (Some: $ext_ret_type | None: $ret_val_if_none))
         }
     )
 )
 
+// Generates a key for setting and retrieving a value from task-local storage
+macro_rules! tls_key(
+    ($key:ident, $key_type:ty) => (
+        fn $key(_: @$key_type) {}
+    )
+)
+
 // Generates a function that stores a callback in task local storage
-macro_rules! _setter(
-    ($tls_key:ident, $cbfun:ty, $extfun:ty) => (
-        pub fn set(cbfun: $cbfun, f: &fn($extfun) ) {
+macro_rules! setter(
+    ($cbkey:ident, $cbfun_ty:ty, $extfun_ty:ty) => (
+        pub fn set(cbfun: $cbfun_ty, f: &fn($extfun_ty) ) {
             /*!
-            Stores `cbfun` in task-local storage. `f` is called after storing 
-            `cbfun` has been stored. Eg.
+            Stores `cbfun` in task-local storage and then calls `f` with
+            with an external callback wrapper as an argument. Eg.
            
             ~~~
             do callbacks::errorfun::set(cbfun) |ext| {
@@ -60,8 +55,8 @@ macro_rules! _setter(
             ~~~
             */
             unsafe {
-                task::local_data::local_data_set($tls_key, @cbfun);
-                f(ext);
+                task::local_data::local_data_set($cbkey, @cbfun);
+                f(extfun);
             }
         }
     )
@@ -69,33 +64,31 @@ macro_rules! _setter(
 
 // Generates an external function that fetches and calls a function from
 // task local storage.
-macro_rules! _extern_wrapper(
+macro_rules! extfun(
     (
-        $tls_key:ident, ( $($extarg_id:ident : $extarg_ty:ty),+ )
-            => $cbfun:ty ( $($args:expr),+ )
+        $cbkey:ident, ( $($extarg_id:ident : $extarg_ty:ty),+ )
+            => $cbfun_ty:ty ( $($args:expr),+ )
     ) => (
-        extern fn ext( $( $extarg_id : $extarg_ty ),+ ) {
+        extern fn extfun( $( $extarg_id : $extarg_ty ),+ ) {
             unsafe {
-                do task::local_data::local_data_get($tls_key).map |&f| {
+                do task::local_data::local_data_get($cbkey).map |&f| {
                     (*f)( $($args),+ );
                 }
             };
         }
     );
     
-    // Invoked there is a return type and fallback value supplied
-    //
     // `$ext_ret_type`: The return type of the external callback wrapper
     // `$ret_val_if_none`: A fallback value to return if the external callback
     //                     wrapper function returned `None`
     (
-        $tls_key:ident, ( $($extarg_id:ident : $extarg_ty:ty),+ )
-            => $cbfun:ty ( $($args:expr),+ )
+        $cbkey:ident, ( $($extarg_id:ident : $extarg_ty:ty),+ )
+            => $cbfun_ty:ty ( $($args:expr),+ )
                 -> (Some: $ext_ret_type:ty | None: $ret_val_if_none:expr)
     ) => (
-        extern fn ext( $( $extarg_id : $extarg_ty ),+ ) -> $ext_ret_type {
+        extern fn extfun( $( $extarg_id : $extarg_ty ),+ ) -> $ext_ret_type {
             unsafe {
-                do task::local_data::local_data_get($tls_key)
+                do task::local_data::local_data_get($cbkey)
                     .map_default($ret_val_if_none) |&f| {
                     (*f)( $($args),+ ) as $ext_ret_type
                 }
