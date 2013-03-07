@@ -352,7 +352,7 @@ pub struct Window(*api::GLFWwindow);
 pub type ErrorFun           = @fn(error: c_int, format: ~str);
 pub type WindowPosFun       = @fn(window: &Window, width: int, height: int);
 pub type WindowSizeFun      = @fn(window: &Window, width: int, height: int);
-pub type WindowCloseFun     = @fn(window: &Window) -> bool;
+pub type WindowCloseFun     = @fn(window: &Window);
 pub type WindowRefreshFun   = @fn(window: &Window);
 pub type WindowFocusFun     = @fn(window: &Window, activated: bool);
 pub type WindowIconifyFun   = @fn(window: &Window, iconified: bool);
@@ -390,7 +390,7 @@ pub mod api {
     pub type GLFWerrorfun           = *u8;  // typedef void (* GLFWerrorfun)(int,const char*);
     pub type GLFWwindowposfun       = *u8;  // typedef void (* GLFWwindowposfun)(*GLFWwindow,int,int);
     pub type GLFWwindowsizefun      = *u8;  // typedef void (* GLFWwindowsizefun)(*GLFWwindow,int,int);
-    pub type GLFWwindowclosefun     = *u8;  // typedef int  (* GLFWwindowclosefun)(*GLFWwindow);
+    pub type GLFWwindowclosefun     = *u8;  // typedef void (* GLFWwindowclosefun)(*GLFWwindow);
     pub type GLFWwindowrefreshfun   = *u8;  // typedef void (* GLFWwindowrefreshfun)(*GLFWwindow);
     pub type GLFWwindowfocusfun     = *u8;  // typedef void (* GLFWwindowfocusfun)(*GLFWwindow,int);
     pub type GLFWwindowiconifyfun   = *u8;  // typedef void (* GLFWwindowiconifyfun)(*GLFWwindow,int);

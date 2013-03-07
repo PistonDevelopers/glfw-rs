@@ -48,9 +48,8 @@ fn window_size_callback(window: &glfw::Window, width: int, height: int) {
 }
 
 // `_window` is preceded with an undescore to silence the unused variable warning
-fn window_close_callback(_window: &glfw::Window) -> bool {
+fn window_close_callback(_window: &glfw::Window) {
     io::println(~"Window close requested.");
-    return true;
 }
 
 // FIXME

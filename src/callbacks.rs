@@ -6,96 +6,38 @@ macro_rules! callback(
         }
     ) => (
         mod $mod_name {
-            tls_key !(cbkey, $cbfun_ty)
-            setter  !(cbkey, $cbfun_ty, $extfun_ty)
-            extfun  !(cbkey, ($($extarg_id : $extarg_ty),+)
-                => $cbfun_ty ($($args),+))
-        }
-    );
-    
-    // `$ext_ret_type`: The return type of the external callback wrapper
-    // `$ret_val_if_none`: A fallback value to return if the external callback
-    //                     wrapper function returned `None`
-    (
-        mod $mod_name:ident {
-            $extfun_ty:ty ( $($extarg_id:ident : $extarg_ty:ty),+ )
-                => $cbfun_ty:ty ( $($args:expr),+ )
-                    -> (Some: $ext_ret_type:ty | None: $ret_val_if_none:expr)
-        }
-    ) => (
-        mod $mod_name {
-            tls_key !(cbkey, $cbfun_ty)
-            setter  !(cbkey, $cbfun_ty, $extfun_ty)
-            extfun  !(cbkey, ($($extarg_id : $extarg_ty),+)
-                => $cbfun_ty ($($args),+)
-                    -> (Some: $ext_ret_type | None: $ret_val_if_none))
-        }
-    )
-)
-
-// Generates a key for setting and retrieving a value from task-local storage
-macro_rules! tls_key(
-    ($key:ident, $key_type:ty) => (
-        fn $key(_: @$key_type) {}
-    )
-)
-
-// Generates a function that stores a callback in task local storage
-macro_rules! setter(
-    ($cbkey:ident, $cbfun_ty:ty, $extfun_ty:ty) => (
-        pub fn set(cbfun: $cbfun_ty, f: &fn($extfun_ty) ) {
-            /*!
-            Stores `cbfun` in task-local storage and then calls `f` with
-            with an external callback wrapper as an argument. Eg.
-           
-            ~~~
-            do callbacks::errorfun::set(cbfun) |ext| {
-                unsafe { api::glfwSetErrorCallback(ext); }
-            }
-            ~~~
-            */
-            unsafe {
-                task::local_data::local_data_set($cbkey, @cbfun);
-                f(extfun);
-            }
-        }
-    )
-)
-
-// Generates an external function that fetches and calls a function from
-// task local storage.
-macro_rules! extfun(
-    (
-        $cbkey:ident, ( $($extarg_id:ident : $extarg_ty:ty),+ )
-            => $cbfun_ty:ty ( $($args:expr),+ )
-    ) => (
-        extern fn extfun( $( $extarg_id : $extarg_ty ),+ ) {
-            unsafe {
-                do task::local_data::local_data_get($cbkey).map |&f| {
-                    (*f)( $($args),+ );
+            /**
+             * A key for setting and retrieving the callback from task-
+             * local storage
+             */
+            fn tls_key(_: @$cbfun_ty) {}
+            
+            /**
+             * Stores the callback in task-local storage and then calls
+             * `f` with  with `extfun` as the argument.
+             */
+            pub fn set(cbfun: $cbfun_ty, f: &fn($extfun_ty) ) {
+                unsafe {
+                    task::local_data::local_data_set(tls_key, @cbfun);
+                    f(extfun);
                 }
-            };
-        }
-    );
-    
-    // `$ext_ret_type`: The return type of the external callback wrapper
-    // `$ret_val_if_none`: A fallback value to return if the external callback
-    //                     wrapper function returned `None`
-    (
-        $cbkey:ident, ( $($extarg_id:ident : $extarg_ty:ty),+ )
-            => $cbfun_ty:ty ( $($args:expr),+ )
-                -> (Some: $ext_ret_type:ty | None: $ret_val_if_none:expr)
-    ) => (
-        extern fn extfun( $( $extarg_id : $extarg_ty ),+ ) -> $ext_ret_type {
-            unsafe {
-                do task::local_data::local_data_get($cbkey)
-                    .map_default($ret_val_if_none) |&f| {
-                    (*f)( $($args),+ ) as $ext_ret_type
+            }
+            
+            /**
+             * An external function that invokes the callback currently stored
+             * in task-local storage, if it exists.
+             */
+            pub extern fn extfun( $( $extarg_id : $extarg_ty ),+ ) {
+                unsafe {
+                    do task::local_data::local_data_get(tls_key).map |&f| {
+                        (*f)( $($args),+ );
+                    };
                 }
             }
         }
-    );
+    )
 )
+
 
 // Error Callback
 pub callback!(
@@ -141,8 +83,7 @@ pub callback!(
 pub callback!(
     mod windowclosefun {
         ::api::GLFWwindowclosefun(window: *::api::GLFWwindow)
-            => ::WindowCloseFun(&::Window(window)) 
-                -> (Some: libc::c_int | None: ::FALSE)
+            => ::WindowCloseFun(&::Window(window))
     }
 )
 
