@@ -16,7 +16,7 @@ macro_rules! callback(
              * Stores the callback in task-local storage and then calls
              * `f` with  with `extfun` as the argument.
              */
-            pub fn set(cbfun: $cbfun_ty, f: &fn($extfun_ty) ) {
+            pub fn set_callback(cbfun: $cbfun_ty, f: &fn($extfun_ty) ) {
                 unsafe {
                     task::local_data::local_data_set(tls_key, @cbfun);
                     f(extfun);
@@ -41,7 +41,7 @@ macro_rules! callback(
 
 // Error Callback
 pub callback!(
-    mod errorfun {
+    mod error {
         ::api::GLFWerrorfun(err: libc::c_int,
                             format: *libc::c_char)
             => ::ErrorFun(err, str::raw::from_c_str(format))
@@ -50,7 +50,7 @@ pub callback!(
 
 // Monitor Callback
 pub callback!(
-    mod monitorfun {
+    mod monitor {
         ::api::GLFWmonitorfun(monitor: *::api::GLFWmonitor,
                               event: libc::c_int)
             => ::MonitorFun(&::Monitor(monitor), event)
@@ -59,7 +59,7 @@ pub callback!(
 
 // Window Position Callback
 pub callback!(
-    mod windowposfun {
+    mod windowpos {
         ::api::GLFWwindowposfun(window: *::api::GLFWwindow,
                                 x: libc::c_int,
                                 y: libc::c_int)
@@ -70,7 +70,7 @@ pub callback!(
 
 // Window Size Callback
 pub callback!(
-    mod windowsizefun {
+    mod windowsize {
         ::api::GLFWwindowsizefun(window: *::api::GLFWwindow,
                                  width: libc::c_int,
                                  height: libc::c_int)
@@ -81,7 +81,7 @@ pub callback!(
 
 // Window Close Callback
 pub callback!(
-    mod windowclosefun {
+    mod windowclose {
         ::api::GLFWwindowclosefun(window: *::api::GLFWwindow)
             => ::WindowCloseFun(&::Window(window))
     }
@@ -89,7 +89,7 @@ pub callback!(
 
 // Window Refresh Callback
 pub callback!(
-    mod windowrefreshfun {
+    mod windowrefresh {
         ::api::GLFWwindowrefreshfun(window: *::api::GLFWwindow)
             => ::WindowRefreshFun(&::Window(window))
     }
@@ -97,7 +97,7 @@ pub callback!(
 
 // Window Focus Callback
 pub callback!(
-    mod windowfocusfun {
+    mod windowfocus {
         ::api::GLFWwindowfocusfun(window: *::api::GLFWwindow,
                                   activated: libc::c_int)
             => ::WindowFocusFun(&::Window(window), activated as bool)
@@ -106,7 +106,7 @@ pub callback!(
 
 // Window Iconify Callback
 pub callback!(
-    mod windowiconifyfun {
+    mod windowiconify {
         ::api::GLFWwindowiconifyfun(window: *::api::GLFWwindow,
                                     iconified: libc::c_int)
             => ::WindowIconifyFun(&::Window(window), iconified as bool)
@@ -115,7 +115,7 @@ pub callback!(
 
 // Key Callback
 pub callback!(
-    mod keyfun {
+    mod key {
         ::api::GLFWkeyfun(window: *::api::GLFWwindow,
                           key: libc::c_int,
                           action: libc::c_int)
@@ -125,7 +125,7 @@ pub callback!(
 
 // Character Callback
 pub callback!(
-    mod charfun {
+    mod char {
         ::api::GLFWcharfun(window: *::api::GLFWwindow,
                            character: libc::c_uint)
             => ::CharFun(&::Window(window),
@@ -138,7 +138,7 @@ pub callback!(
 
 // Mouse Button Callback
 pub callback!(
-    mod mousebuttonfun {
+    mod mousebutton {
         ::api::GLFWmousebuttonfun(window: *::api::GLFWwindow,
                                   button: libc::c_int,
                                   action: libc::c_int)
@@ -148,7 +148,7 @@ pub callback!(
 
 // Cursor Position Callback
 pub callback!(
-    mod cursorposfun {
+    mod cursorpos {
         ::api::GLFWcursorposfun(window: *::api::GLFWwindow,
                                 x: libc::c_int, y: libc::c_int)
             => ::CursorPosFun(&::Window(window), x as int, y as int)
@@ -157,7 +157,7 @@ pub callback!(
 
 // Cursor Enter Callback
 pub callback!(
-    mod cursorenterfun {
+    mod cursorenter {
         ::api::GLFWcursorenterfun(window: *::api::GLFWwindow,
                                   entered: libc::c_int)
             => ::CursorEnterFun(&::Window(window), entered as bool)
@@ -166,7 +166,7 @@ pub callback!(
 
 // Scroll Callback
 pub callback!(
-    mod scrollfun {
+    mod scroll {
         ::api::GLFWscrollfun(window: *::api::GLFWwindow,
                              x: libc::c_double, y: libc::c_double)
             => ::ScrollFun(&::Window(window), x as f64, y as f64)

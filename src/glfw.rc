@@ -7,7 +7,7 @@
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
 
-mod callbacks;
+mod event;
 
 extern mod std;
 use core::libc::*;
@@ -560,7 +560,7 @@ pub fn get_version_string() -> ~str {
 /* Error handling */
 
 pub fn set_error_callback(cbfun: ErrorFun) {
-    do callbacks::errorfun::set(cbfun) |ext| {
+    do event::error::set_callback(cbfun) |ext| {
         unsafe { api::glfwSetErrorCallback(ext); }
     }
 }
@@ -637,7 +637,7 @@ pub impl Monitor {
 }
 
 fn set_monitor_callback(cbfun: MonitorFun) {
-    do callbacks::monitorfun::set(cbfun) |ext| {
+    do event::monitor::set_callback(cbfun) |ext| {
         unsafe { api::glfwSetMonitorCallback(ext); }
     }
 }
@@ -768,37 +768,37 @@ pub impl Window {
     }
 
     fn set_pos_callback(&self, cbfun: WindowSizeFun) {
-        do callbacks::windowposfun::set(cbfun) |ext| {
+        do event::windowpos::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetWindowPosCallback(self.ptr(), ext); }
         }
     }
 
     fn set_size_callback(&self, cbfun: WindowSizeFun) {
-        do callbacks::windowsizefun::set(cbfun) |ext| {
+        do event::windowsize::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetWindowSizeCallback(self.ptr(), ext); }
         }
     }
 
     fn set_close_callback(&self, cbfun: WindowCloseFun) {
-        do callbacks::windowclosefun::set(cbfun) |ext| {
+        do event::windowclose::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetWindowCloseCallback(self.ptr(), ext); }
         }
     }
 
     fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
-        do callbacks::windowrefreshfun::set(cbfun) |ext| {
+        do event::windowrefresh::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetWindowRefreshCallback(self.ptr(), ext); }
         }
     }
 
     fn set_focus_callback(&self, cbfun: WindowFocusFun) {
-        do callbacks::windowfocusfun::set(cbfun) |ext| {
+        do event::windowfocus::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetWindowFocusCallback(self.ptr(), ext); }
         }
     }
 
     fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
-        do callbacks::windowiconifyfun::set(cbfun) |ext| {
+        do event::windowiconify::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetWindowIconifyCallback(self.ptr(), ext); }
         }
     }
@@ -833,37 +833,37 @@ pub impl Window {
     }
 
     fn set_key_callback(&self, cbfun: KeyFun) {
-        do callbacks::keyfun::set(cbfun) |ext| {
+        do event::key::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetKeyCallback(self.ptr(), ext); }
         }
     }
 
     fn set_char_callback(&self, cbfun: CharFun) {
-        do callbacks::charfun::set(cbfun) |ext| {
+        do event::char::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetCharCallback(self.ptr(), ext); }
         }
     }
 
     fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
-        do callbacks::mousebuttonfun::set(cbfun) |ext| {
+        do event::mousebutton::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetMouseButtonCallback(self.ptr(), ext); }
         }
     }
 
     fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
-        do callbacks::cursorposfun::set(cbfun) |ext| {
+        do event::cursorpos::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetCursorPosCallback(self.ptr(), ext); }
         }
     }
 
     fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
-        do callbacks::cursorenterfun::set(cbfun) |ext| {
+        do event::cursorenter::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetCursorEnterCallback(self.ptr(), ext); }
         }
     }
 
     fn set_scroll_callback(&self, cbfun: ScrollFun) {
-        do callbacks::scrollfun::set(cbfun) |ext| {
+        do event::scroll::set_callback(cbfun) |ext| {
             unsafe { api::glfwSetScrollCallback(self.ptr(), ext); }
         }
     }
