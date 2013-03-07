@@ -128,11 +128,7 @@ pub callback!(
     mod char {
         ::api::GLFWcharfun(window: *::api::GLFWwindow,
                            character: libc::c_uint)
-            => ::CharFun(&::Window(window),
-                         // TODO: tempory fix for the lack of a bounds check
-                         // on X11 and Win32 in GLFW
-                         if character == -1 { '0' }
-                         else { character as char })
+            => ::CharFun(&::Window(window), character as char)
     }
 )
 
