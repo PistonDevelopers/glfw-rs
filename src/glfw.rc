@@ -177,21 +177,6 @@ pub const KEY_RIGHT_SUPER      : c_int = 347;
 pub const KEY_MENU             : c_int = 348;
 pub const KEY_LAST             : c_int = KEY_MENU;
 
-/* GLFW 2.x key name aliases (deprecated) */
-pub const KEY_ESC              : c_int = KEY_ESCAPE;
-pub const KEY_DEL              : c_int = KEY_DELETE;
-pub const KEY_PAGEUP           : c_int = KEY_PAGE_UP;
-pub const KEY_PAGEDOWN         : c_int = KEY_PAGE_DOWN;
-pub const KEY_KP_NUM_LOCK      : c_int = KEY_NUM_LOCK;
-pub const KEY_LCTRL            : c_int = KEY_LEFT_CONTROL;
-pub const KEY_LSHIFT           : c_int = KEY_LEFT_SHIFT;
-pub const KEY_LALT             : c_int = KEY_LEFT_ALT;
-pub const KEY_LSUPER           : c_int = KEY_LEFT_SUPER;
-pub const KEY_RCTRL            : c_int = KEY_RIGHT_CONTROL;
-pub const KEY_RSHIFT           : c_int = KEY_RIGHT_SHIFT;
-pub const KEY_RALT             : c_int = KEY_RIGHT_ALT;
-pub const KEY_RSUPER           : c_int = KEY_RIGHT_SUPER;
-
 /* Mouse buttons */
 pub const MOUSE_BUTTON_1       : c_int = 0;
 pub const MOUSE_BUTTON_2       : c_int = 1;
