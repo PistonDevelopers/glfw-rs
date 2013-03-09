@@ -545,9 +545,15 @@ pub fn get_version_string() -> ~str {
 /* Error handling */
 
 pub fn set_error_callback(cbfun: ErrorFun) {
-    do event::error::set_callback(cbfun) |ext| {
-        unsafe { api::glfwSetErrorCallback(ext); }
+    do event::error::set_callback(cbfun) |ext_cb| {
+        unsafe { api::glfwSetErrorCallback(ext_cb); }
     }
+}
+
+fn spawn_error_listener(f: ~fn(event::error::Msg)) {
+    set_error_callback(
+        event::error::spawn_listener(f)
+    );
 }
 
 
@@ -622,9 +628,15 @@ pub impl Monitor {
 }
 
 fn set_monitor_callback(cbfun: MonitorFun) {
-    do event::monitor::set_callback(cbfun) |ext| {
-        unsafe { api::glfwSetMonitorCallback(ext); }
+    do event::monitor::set_callback(cbfun) |ext_cb| {
+        unsafe { api::glfwSetMonitorCallback(ext_cb); }
     }
+}
+
+fn spawn_monitor_listener(f: ~fn(event::monitor::Msg)) {
+    set_monitor_callback(
+        event::monitor::spawn_listener(f)
+    );
 }
 
 impl ToStr for VidMode {
@@ -751,41 +763,79 @@ pub impl Window {
     fn get_user_pointer(&self) -> *c_void {
         unsafe { api::glfwGetWindowUserPointer(self.ptr()) }
     }
+    
+    /* Window event callbacks */
 
     fn set_pos_callback(&self, cbfun: WindowSizeFun) {
-        do event::windowpos::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetWindowPosCallback(self.ptr(), ext); }
+        do event::windowpos::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetWindowPosCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_pos_listener(&self, f: ~fn(event::windowpos::Msg)) {
+        self.set_pos_callback(
+            event::windowpos::spawn_listener(f)
+        );
     }
 
     fn set_size_callback(&self, cbfun: WindowSizeFun) {
-        do event::windowsize::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetWindowSizeCallback(self.ptr(), ext); }
+        do event::windowsize::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetWindowSizeCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_size_listener(&self, f: ~fn(event::windowsize::Msg)) {
+        self.set_size_callback(
+            event::windowsize::spawn_listener(f)
+        );
     }
 
     fn set_close_callback(&self, cbfun: WindowCloseFun) {
-        do event::windowclose::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetWindowCloseCallback(self.ptr(), ext); }
+        do event::windowclose::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetWindowCloseCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_close_listener(&self, f: ~fn(event::windowclose::Msg)) {
+        self.set_close_callback(
+            event::windowclose::spawn_listener(f)
+        );
     }
 
     fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
-        do event::windowrefresh::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetWindowRefreshCallback(self.ptr(), ext); }
+        do event::windowrefresh::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetWindowRefreshCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_refresh_listener(&self, f: ~fn(event::windowrefresh::Msg)) {
+        self.set_refresh_callback(
+            event::windowrefresh::spawn_listener(f)
+        );
     }
 
     fn set_focus_callback(&self, cbfun: WindowFocusFun) {
-        do event::windowfocus::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetWindowFocusCallback(self.ptr(), ext); }
+        do event::windowfocus::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetWindowFocusCallback(self.ptr(), ext_cb); }
         }
     }
 
+    fn spawn_focus_listener(&self, f: ~fn(event::windowfocus::Msg)) {
+        self.set_focus_callback(
+            event::windowfocus::spawn_listener(f)
+        );
+    }
+
     fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
-        do event::windowiconify::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetWindowIconifyCallback(self.ptr(), ext); }
+        do event::windowiconify::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetWindowIconifyCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_iconify_listener(&self, f: ~fn(event::windowiconify::Msg)) {
+        self.set_iconify_callback(
+            event::windowiconify::spawn_listener(f)
+        );
     }
 
 
@@ -816,41 +866,79 @@ pub impl Window {
     fn set_cursor_pos(&self, xpos: int, ypos: int) {
         unsafe { api::glfwSetCursorPos(self.ptr(), xpos as c_int, ypos as c_int); }
     }
+    
+    /* Input Callbacks */
 
     fn set_key_callback(&self, cbfun: KeyFun) {
-        do event::key::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetKeyCallback(self.ptr(), ext); }
+        do event::key::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetKeyCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_key_listener(&self, f: ~fn(event::key::Msg)) {
+        self.set_key_callback(
+            event::key::spawn_listener(f)
+        );
     }
 
     fn set_char_callback(&self, cbfun: CharFun) {
-        do event::char::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetCharCallback(self.ptr(), ext); }
+        do event::char::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetCharCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_char_listener(&self, f: ~fn(event::char::Msg)) {
+        self.set_char_callback(
+            event::char::spawn_listener(f)
+        );
     }
 
     fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
-        do event::mousebutton::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetMouseButtonCallback(self.ptr(), ext); }
+        do event::mousebutton::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetMouseButtonCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_mouse_button_listener(&self, f: ~fn(event::mousebutton::Msg)) {
+        self.set_mouse_button_callback(
+            event::mousebutton::spawn_listener(f)
+        );
     }
 
     fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
-        do event::cursorpos::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetCursorPosCallback(self.ptr(), ext); }
+        do event::cursorpos::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetCursorPosCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_cursor_pos_listener(&self, f: ~fn(event::cursorpos::Msg)) {
+        self.set_cursor_pos_callback(
+            event::cursorpos::spawn_listener(f)
+        );
     }
 
     fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
-        do event::cursorenter::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetCursorEnterCallback(self.ptr(), ext); }
+        do event::cursorenter::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetCursorEnterCallback(self.ptr(), ext_cb); }
         }
     }
 
+    fn spawn_cursor_enter_listener(&self, f: ~fn(event::cursorenter::Msg)) {
+        self.set_cursor_enter_callback(
+            event::cursorenter::spawn_listener(f)
+        );
+    }
+
     fn set_scroll_callback(&self, cbfun: ScrollFun) {
-        do event::scroll::set_callback(cbfun) |ext| {
-            unsafe { api::glfwSetScrollCallback(self.ptr(), ext); }
+        do event::scroll::set_callback(cbfun) |ext_cb| {
+            unsafe { api::glfwSetScrollCallback(self.ptr(), ext_cb); }
         }
+    }
+
+    fn spawn_scroll_listener(&self, f: ~fn(event::scroll::Msg)) {
+        self.set_scroll_callback(
+            event::scroll::spawn_listener(f)
+        );
     }
 
     /* Clipboard */
