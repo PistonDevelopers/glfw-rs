@@ -4,7 +4,7 @@ fn main() {
     // Run this task on the main thread. Unlike C or C++, a Rust program
     // automatically starts a new thread, so this line is _essential_ to ensure
     // that the OS is able to update the window and recieve events from the user.
-    do task::task().sched_mode(task::PlatformThread).spawn  {
+    do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
         
         do (|| {

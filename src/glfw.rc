@@ -505,7 +505,7 @@ pub fn terminate() {
  * automatically called on the success or failure of `f`
  */
 pub fn spawn(f: ~fn()) {
-    do task::task().sched_mode(task::PlatformThread).spawn {
+    do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
 
         do (|| {
