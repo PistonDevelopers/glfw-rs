@@ -3,7 +3,7 @@ RS_FLAGS	:= -L ../lib
 BUILD_DIR	:= bin
 
 
-all: callbacks clipboard defaults manual-init messages modes title version window
+all: callbacks clipboard defaults manual-init gl-struct modes title version window
 	
 builddir:
 	@mkdir -p $(BUILD_DIR)
@@ -17,11 +17,11 @@ clipboard: builddir
 defaults: builddir
 	rustc defaults.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
 	
+gl-struct: builddir
+	rustc gl-struct.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
+	
 manual-init: builddir
 	rustc manual-init.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
-messages: builddir
-	rustc messages.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
 	
 modes: builddir
 	rustc modes.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)

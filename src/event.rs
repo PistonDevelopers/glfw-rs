@@ -7,10 +7,6 @@ macro_rules! event(
             extern_params {
                 $( $arg:ident : $arg_ty:ty => { $arg_conv:expr } ),+
             }
-            
-            message_struct {
-                $($field:ident : $field_ty:ty => { $field_conv:expr } ),+
-            }
         }
     ) => (
         mod $mod_id {
@@ -42,24 +38,6 @@ macro_rules! event(
                     };
                 }
             }
-            
-            pub struct Msg { $($field : $field_ty),+ }
-            
-            pub type Port = comm::Port<Msg>;
-            
-            pub fn spawn_listener(f: ~fn(Msg)) -> $cbfun {
-                let (port, chan) = comm::stream();
-                
-                // call the supplied function every time an event message is recieved
-                do task::spawn {
-                    loop { f(port.recv()); }
-                }
-                
-                // return a callback that sends a message to the channel
-                return |$($arg),+| {
-                    chan.send(Msg { $($field: $field_conv),+ });
-                };
-            }
         }
     )
 )
@@ -75,11 +53,6 @@ pub event!(
             err:    libc::c_int             => { err },
             format: *libc::c_char           => { str::raw::from_c_str(format) }
         }
-        
-        message_struct {
-            err:    libc::c_int             => { err },
-            format: ~str                    => { format }
-        }
     }
 )
 
@@ -91,11 +64,6 @@ pub event!(
         
         extern_params {
             monitor:    *::api::GLFWmonitor => { &::Monitor(monitor) },
-            event:      libc::c_int         => { event }
-        }
-        
-        message_struct {
-            monitor:    ::Monitor           => { *monitor },
             event:      libc::c_int         => { event }
         }
     }
@@ -112,12 +80,6 @@ pub event!(
             x:          libc::c_int         => { x as int },
             y:          libc::c_int         => { y as int }
         }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            x:          int                 => { x },
-            y:          int                 => { y }
-        }
     }
 )
 
@@ -132,12 +94,6 @@ pub event!(
             width:      libc::c_int         => { width as int },
             height:     libc::c_int         => { height as int }
         }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            width:      int                 => { width },
-            height:     int                 => { height }
-        }
     }
 )
 
@@ -150,10 +106,6 @@ pub event!(
         extern_params {
             window:     *::api::GLFWwindow  => { &::Window(window) }
         }
-        
-        message_struct {
-            window:     ::Window            => { *window }
-        }
     }
 )
 
@@ -165,10 +117,6 @@ pub event!(
         
         extern_params {
             window:     *::api::GLFWwindow  => { &::Window(window) }
-        }
-        
-        message_struct {
-            window:     ::Window            => { *window }
         }
     }
 )
@@ -183,11 +131,6 @@ pub event!(
             window:     *::api::GLFWwindow  => { &::Window(window) },
             activated:  libc::c_int         => { activated as bool }
         }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            activated:  bool                => { activated }
-        }
     }
 )
 
@@ -201,11 +144,6 @@ pub event!(
             window:     *::api::GLFWwindow  => { &::Window(window) },
             iconified:  libc::c_int         => { iconified as bool }
         }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            iconified:  bool                => { iconified }
-        }
     }
 )
 
@@ -217,12 +155,6 @@ pub event!(
         
         extern_params {
             window:     *::api::GLFWwindow  => { &::Window(window) },
-            key:        libc::c_int         => { key },
-            action:     libc::c_int         => { action }
-        }
-        
-        message_struct {
-            window:     ::Window            => { *window },
             key:        libc::c_int         => { key },
             action:     libc::c_int         => { action }
         }
@@ -239,11 +171,6 @@ pub event!(
             window:     *::api::GLFWwindow  => { &::Window(window) },
             character:  libc::c_uint        => { character as char }
         }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            character:  char                => { character }
-        }
     }
 )
 
@@ -255,12 +182,6 @@ pub event!(
         
         extern_params {
             window:     *::api::GLFWwindow  => { &::Window(window) },
-            button:     libc::c_int         => { button },
-            action:     libc::c_int         => { action }
-        }
-            
-        message_struct {
-            window:     ::Window            => { *window },
             button:     libc::c_int         => { button },
             action:     libc::c_int         => { action }
         }
@@ -278,12 +199,6 @@ pub event!(
             x:          libc::c_int         => { x as int },
             y:          libc::c_int         => { y as int }
         }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            x:          int                 => { x },
-            y:          int                 => { y }
-        }
     }
 )
 
@@ -296,11 +211,6 @@ pub event!(
         extern_params {
             window:     *::api::GLFWwindow  => { &::Window(window) },
             entered:    libc::c_int         => { entered as bool }
-        }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            entered:    bool                => { entered }
         }
     }
 )
@@ -315,12 +225,6 @@ pub event!(
             window:     *::api::GLFWwindow  => { &::Window(window) },
             x:          libc::c_double      => { x as f64 },
             y:          libc::c_double      => { y as f64 }
-        }
-        
-        message_struct {
-            window:     ::Window            => { *window },
-            x:          f64                 => { x },
-            y:          f64                 => { y }
         }
     }
 )
