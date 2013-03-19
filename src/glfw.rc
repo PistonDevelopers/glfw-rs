@@ -569,7 +569,7 @@ pub impl Monitor {
     
     fn is_null(&self) -> bool { self.ptr().is_null() }
     
-    static fn null() -> Monitor { Monitor(ptr::null()) }
+    fn null() -> Monitor { Monitor(ptr::null()) }
 
     fn get_pos(&self) -> (int, int) {
         let mut xpos = 0, ypos = 0;
@@ -655,13 +655,13 @@ pub impl Window {
 
     fn is_null(&self) -> bool { self.ptr().is_null() }
     
-    static fn null() -> Window { Window(ptr::null()) }
+    fn null() -> Window { Window(ptr::null()) }
 
-    static fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
+    fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
         Window::create_shared(width, height, title, mode, &Window::null())
     }
 
-    static fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Option<Window> {
+    fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Option<Window> {
         let window = Window(
             unsafe {
                 api::glfwCreateWindow(
