@@ -925,7 +925,7 @@ pub impl Joystick {
             let joy_axes = @mut [ 0.0f32, .. 2 ];
             let joy_axes = glfw::JOYSTICK_1.get_axes(joy_axes);
     */
-    fn get_axes(&self, axes: &a/mut[f32]) -> &a/[const f32] {
+    fn get_axes(&self, axes: &'a mut[f32]) -> &'a [const f32] {
         vec::const_slice(axes, 0u, unsafe { api::glfwGetJoystickAxes }(
         	self.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(axes) ) },
@@ -934,7 +934,7 @@ pub impl Joystick {
     }
 
     /* See get_axes for usage instructions */
-    fn get_buttons(&self, buttons: &a/mut[i8]) -> &a/[const i8] {
+    fn get_buttons(&self, buttons: &'a mut[i8]) -> &'a [const i8] {
         vec::const_slice(buttons, 0u, unsafe { api::glfwGetJoystickButtons }(
         	self.id,
         	unsafe { transmute( vec::raw::to_mut_ptr(buttons) ) },
