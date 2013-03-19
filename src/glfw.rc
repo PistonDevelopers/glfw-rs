@@ -359,11 +359,10 @@ pub struct VidMode {
 }
 
 /* Gamma ramp */
-// See https://github.com/mozilla/rust/issues/3469
 pub struct GammaRamp {
-    red     : [c_ushort * 256],      // unsigned short red[GLFW_GAMMA_RAMP_SIZE];
-    green   : [c_ushort * 256],      // unsigned short green[GLFW_GAMMA_RAMP_SIZE];
-    blue    : [c_ushort * 256],      // unsigned short blue[GLFW_GAMMA_RAMP_SIZE];
+    red     : [c_ushort * GAMMA_RAMP_SIZE],
+    green   : [c_ushort * GAMMA_RAMP_SIZE],
+    blue    : [c_ushort * GAMMA_RAMP_SIZE],
 }
 
 #[nolink]
@@ -608,9 +607,9 @@ pub impl Monitor {
 
     pub fn get_gamma_ramp(&self) -> GammaRamp {
         let mut ramp = GammaRamp {
-            red:   [0, ..256],
-            green: [0, ..256],
-            blue:  [0, ..256],
+            red:   [0, ..GAMMA_RAMP_SIZE],
+            green: [0, ..GAMMA_RAMP_SIZE],
+            blue:  [0, ..GAMMA_RAMP_SIZE],
         };
         unsafe { api::glfwGetGammaRamp(self.ptr(), &ramp); }
         return ramp;
