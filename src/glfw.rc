@@ -746,7 +746,8 @@ pub mod joystick {
 
     pub fn get_axes(joy: c_int) -> Result<~[float],()> {
         do num_axes(joy).map_default(Err(())) |&num| {
-            let mut axes = vec::with_capacity(num);
+            let mut axes = ~[];
+            vec::grow(&mut axes, num, &0.0);
             
             if unsafe { ::ll::glfwGetJoystickAxes(joy, &axes[0], num as c_int) > 0 } {
                 Ok(axes.map(|&a| a as float))
@@ -758,7 +759,8 @@ pub mod joystick {
 
     pub fn get_buttons(joy: c_int) -> Result<~[int],()> {
         do num_axes(joy).map_default(Err(())) |&num| {
-            let mut buttons = vec::with_capacity(num);
+            let mut buttons = ~[];
+            vec::grow(&mut buttons, num, &0);
             
             if unsafe { ::ll::glfwGetJoystickButtons(joy, &buttons[0], num as c_int) > 0 } {
                 Ok(buttons.map(|&a| a as int))
