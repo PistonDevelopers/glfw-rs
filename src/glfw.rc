@@ -7,13 +7,10 @@
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
 
-// Declare library modules
 mod event;
 mod ll;
 
-extern mod std;
 use core::libc::*;
-use core::cast::transmute;
 
 /*************************************************************************
  * GLFW version
@@ -189,27 +186,6 @@ pub const JOYSTICK_14          : c_int = 13;
 pub const JOYSTICK_15          : c_int = 14;
 pub const JOYSTICK_16          : c_int = 15;
 pub const JOYSTICK_LAST        : c_int = JOYSTICK_16;
-
-pub struct Joystick { id : c_int }
-
-pub const Joysticks : [Joystick * 16] = [
-    Joystick { id: JOYSTICK_1  },
-    Joystick { id: JOYSTICK_2  },
-    Joystick { id: JOYSTICK_3  },
-    Joystick { id: JOYSTICK_4  },
-    Joystick { id: JOYSTICK_5  },
-    Joystick { id: JOYSTICK_6  },
-    Joystick { id: JOYSTICK_7  },
-    Joystick { id: JOYSTICK_8  },
-    Joystick { id: JOYSTICK_9  },
-    Joystick { id: JOYSTICK_10 },
-    Joystick { id: JOYSTICK_11 },
-    Joystick { id: JOYSTICK_12 },
-    Joystick { id: JOYSTICK_13 },
-    Joystick { id: JOYSTICK_14 },
-    Joystick { id: JOYSTICK_15 },
-    Joystick { id: JOYSTICK_16 },
-];
 
 /*************************************************************************
  * Other definitions
@@ -742,61 +718,57 @@ pub fn wait_events() {
     unsafe { ll::glfwWaitEvents(); }
 }
 
-/*
-// FIXME: https://github.com/bjz/glfw3-rs/issues/4
-pub fn get_joysticks() -> ~[Joystick] {
-    do Joysticks.filter_map |&joy| {
-        if joy.is_present() { Some(joy) } else { None }
-    }
-}*/
-
 /* Joystick input */
-
-pub impl Joystick {
-    fn get_param(&self, param: c_int) -> c_int {
-        unsafe { ll::glfwGetJoystickParam(self.id, param) }
+pub mod joystick {
+    use core::libc::*;
+    
+    pub fn get_param(joy: c_int, param: c_int) -> c_int  {
+        unsafe { ::ll::glfwGetJoystickParam(joy, param) }
     }
-
-    fn is_present(&self) -> bool {
-        self.get_param(PRESENT) as bool
+    
+    pub fn is_present(joy: c_int) -> bool {
+        get_param(joy, ::PRESENT) as bool
     }
-
-    fn num_axes(&self) -> Option<uint> {
-        let axes = self.get_param(AXES);
+    
+    pub fn num_axes(joy: c_int) -> Option<uint> {
+        let axes = get_param(joy, ::AXES);
         if axes > 0 { Some(axes as uint) } else { None }
     }
-
-    fn num_buttons(&self) -> Option<uint> {
-        let buttons = self.get_param(BUTTONS);
+    
+    pub fn num_buttons(joy: c_int) -> Option<uint> {
+        let buttons = get_param(joy, ::BUTTONS);
         if buttons > 0 { Some(buttons as uint) } else { None }
     }
 
-    fn get_name(&self) -> ~str {
-        unsafe { str::raw::from_c_str(ll::glfwGetJoystickName(self.id)) }
+    pub fn get_name(joy: c_int) -> ~str {
+        unsafe { str::raw::from_c_str(::ll::glfwGetJoystickName(joy)) }
     }
 
-    /*
-    	Example usage:
-            let joy_axes = @mut [ 0.0f32, .. 2 ];
-            let joy_axes = glfw::JOYSTICK_1.get_axes(joy_axes);
-    */
-    fn get_axes(&self, axes: &'a mut[f32]) -> &'a [const f32] {
-        vec::const_slice(axes, 0u, unsafe { ll::glfwGetJoystickAxes }(
-        	self.id,
-        	unsafe { transmute( vec::raw::to_mut_ptr(axes) ) },
-        	axes.len() as c_int
-        ) as uint )
+    pub fn get_axes(joy: c_int) -> Result<~[float],()> {
+        do num_axes(joy).map_default(Err(())) |&num| {
+            let mut axes = vec::with_capacity(num);
+            
+            if unsafe { ::ll::glfwGetJoystickAxes(joy, &axes[0], num as c_int) > 0 } {
+                Ok(axes.map(|&a| a as float))
+            } else {
+                Err(())
+            }
+        }
     }
 
-    /* See get_axes for usage instructions */
-    fn get_buttons(&self, buttons: &'a mut[i8]) -> &'a [const i8] {
-        vec::const_slice(buttons, 0u, unsafe { ll::glfwGetJoystickButtons }(
-        	self.id,
-        	unsafe { transmute( vec::raw::to_mut_ptr(buttons) ) },
-        	buttons.len() as c_int
-        ) as uint )
+    pub fn get_buttons(joy: c_int) -> Result<~[int],()> {
+        do num_axes(joy).map_default(Err(())) |&num| {
+            let mut buttons = vec::with_capacity(num);
+            
+            if unsafe { ::ll::glfwGetJoystickButtons(joy, &buttons[0], num as c_int) > 0 } {
+                Ok(buttons.map(|&a| a as int))
+            } else {
+                Err(())
+            }
+        }
     }
 }
+
 
 /* Time */
 
