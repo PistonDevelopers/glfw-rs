@@ -46,7 +46,7 @@ macro_rules! event(
 // Error Event Module
 pub event!(
     mod error {
-        extern_callback_type = ::api::GLFWerrorfun;
+        extern_callback_type = ::ll::GLFWerrorfun;
         intern_callback_type = ::ErrorFun;
         
         extern_params {
@@ -59,11 +59,11 @@ pub event!(
 // Monitor Event Module
 pub event!(
     mod monitor {
-        extern_callback_type = ::api::GLFWmonitorfun;
+        extern_callback_type = ::ll::GLFWmonitorfun;
         intern_callback_type = ::MonitorFun;
         
         extern_params {
-            monitor:    *::api::GLFWmonitor => { &::Monitor(monitor) },
+            monitor:    *::ll::GLFWmonitor => { &::Monitor(monitor) },
             event:      libc::c_int         => { event }
         }
     }
@@ -72,11 +72,11 @@ pub event!(
 // Window Position Event Module
 pub event!(
     mod windowpos {
-        extern_callback_type = ::api::GLFWwindowposfun;
+        extern_callback_type = ::ll::GLFWwindowposfun;
         intern_callback_type = ::WindowPosFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             x:          libc::c_int         => { x as int },
             y:          libc::c_int         => { y as int }
         }
@@ -86,11 +86,11 @@ pub event!(
 // Window Size Event Module
 pub event!(
     mod windowsize {
-        extern_callback_type = ::api::GLFWwindowsizefun;
+        extern_callback_type = ::ll::GLFWwindowsizefun;
         intern_callback_type = ::WindowSizeFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             width:      libc::c_int         => { width as int },
             height:     libc::c_int         => { height as int }
         }
@@ -100,11 +100,11 @@ pub event!(
 // Window Close Event Module
 pub event!(
     mod windowclose {
-        extern_callback_type = ::api::GLFWwindowclosefun;
+        extern_callback_type = ::ll::GLFWwindowclosefun;
         intern_callback_type = ::WindowCloseFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) }
+            window:     *::ll::GLFWwindow  => { &::Window(window) }
         }
     }
 )
@@ -112,11 +112,11 @@ pub event!(
 // Window Refresh Event Module
 pub event!(
     mod windowrefresh {
-        extern_callback_type = ::api::GLFWwindowrefreshfun;
+        extern_callback_type = ::ll::GLFWwindowrefreshfun;
         intern_callback_type = ::WindowRefreshFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) }
+            window:     *::ll::GLFWwindow  => { &::Window(window) }
         }
     }
 )
@@ -124,11 +124,11 @@ pub event!(
 // Window Focus Event Module
 pub event!(
     mod windowfocus {
-        extern_callback_type = ::api::GLFWwindowfocusfun;
+        extern_callback_type = ::ll::GLFWwindowfocusfun;
         intern_callback_type = ::WindowFocusFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             activated:  libc::c_int         => { activated as bool }
         }
     }
@@ -137,11 +137,11 @@ pub event!(
 // Window Iconify Event Module
 pub event!(
     mod windowiconify {
-        extern_callback_type = ::api::GLFWwindowiconifyfun;
+        extern_callback_type = ::ll::GLFWwindowiconifyfun;
         intern_callback_type = ::WindowIconifyFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             iconified:  libc::c_int         => { iconified as bool }
         }
     }
@@ -150,11 +150,11 @@ pub event!(
 // Key Event Module
 pub event!(
     mod key {
-        extern_callback_type = ::api::GLFWkeyfun;
+        extern_callback_type = ::ll::GLFWkeyfun;
         intern_callback_type = ::KeyFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             key:        libc::c_int         => { key },
             action:     libc::c_int         => { action }
         }
@@ -164,11 +164,11 @@ pub event!(
 // Character Event Module
 pub event!(
     mod char {
-        extern_callback_type = ::api::GLFWcharfun;
+        extern_callback_type = ::ll::GLFWcharfun;
         intern_callback_type = ::CharFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             character:  libc::c_uint        => { character as char }
         }
     }
@@ -177,11 +177,11 @@ pub event!(
 // Mouse Button Event Module
 pub event!(
     mod mousebutton {
-        extern_callback_type = ::api::GLFWmousebuttonfun;
+        extern_callback_type = ::ll::GLFWmousebuttonfun;
         intern_callback_type = ::MouseButtonFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             button:     libc::c_int         => { button },
             action:     libc::c_int         => { action }
         }
@@ -191,11 +191,11 @@ pub event!(
 // Cursor Position Event Module
 pub event!(
     mod cursorpos {
-        extern_callback_type = ::api::GLFWscrollfun;
+        extern_callback_type = ::ll::GLFWscrollfun;
         intern_callback_type = ::CursorPosFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             x:          libc::c_int         => { x as int },
             y:          libc::c_int         => { y as int }
         }
@@ -205,11 +205,11 @@ pub event!(
 // Cursor Enter Event Module
 pub event!(
     mod cursorenter {
-        extern_callback_type = ::api::GLFWcursorposfun;
+        extern_callback_type = ::ll::GLFWcursorposfun;
         intern_callback_type = ::CursorEnterFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             entered:    libc::c_int         => { entered as bool }
         }
     }
@@ -218,11 +218,11 @@ pub event!(
 // Scroll Event Module
 pub event!(
     mod scroll {
-        extern_callback_type = ::api::GLFWscrollfun;
+        extern_callback_type = ::ll::GLFWscrollfun;
         intern_callback_type = ::ScrollFun;
         
         extern_params {
-            window:     *::api::GLFWwindow  => { &::Window(window) },
+            window:     *::ll::GLFWwindow  => { &::Window(window) },
             x:          libc::c_double      => { x as f64 },
             y:          libc::c_double      => { y as f64 }
         }
