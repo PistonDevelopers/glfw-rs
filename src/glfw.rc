@@ -315,9 +315,9 @@ pub struct VidMode {
 
 /* Gamma ramp */
 pub struct GammaRamp {
-    red     : [c_ushort * GAMMA_RAMP_SIZE],
-    green   : [c_ushort * GAMMA_RAMP_SIZE],
-    blue    : [c_ushort * GAMMA_RAMP_SIZE],
+    red     : [c_ushort, ..GAMMA_RAMP_SIZE],
+    green   : [c_ushort, ..GAMMA_RAMP_SIZE],
+    blue    : [c_ushort, ..GAMMA_RAMP_SIZE],
 }
 
 /* GLFW initialization, termination and version querying */
