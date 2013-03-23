@@ -14,7 +14,7 @@ struct GL {
 }
 
 impl GL {
-    static fn init() -> GL {
+    fn init() -> GL {
         GL {
             Viewport: |x, y, width, height| {
                 // Obviously this doesn't actually call glViewport
