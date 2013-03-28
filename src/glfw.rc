@@ -7,10 +7,10 @@
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
 
+use core::libc::*;
+
 mod event;
 mod ll;
-
-use core::libc::*;
 
 /*************************************************************************
  * GLFW version
