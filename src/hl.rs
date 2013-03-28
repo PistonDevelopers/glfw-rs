@@ -1,21 +1,21 @@
 /**
  * High level bindings for GLFW.
  */
- 
-#[path = "priv/event.rs"]
-mod event;
 
 use core::libc::*;
+
+use shared::event;
+pub use shared::consts::*;
 
 /**
  * A struct containing a low-level monitor handle
  */
-pub struct Monitor(*::ll::GLFWmonitor);
+pub struct Monitor(*::ml::GLFWmonitor);
 
 /**
  * A struct containing a low-level window handle
  */
-pub struct Window(*::ll::GLFWwindow);
+pub struct Window(*::ml::GLFWwindow);
 
 pub type ErrorFun           = @fn(error: c_int, format: ~str);
 pub type WindowPosFun       = @fn(window: &Window, width: int, height: int);
@@ -46,7 +46,7 @@ pub struct GammaRamp {
     blue    : [c_ushort, ..GAMMA_RAMP_SIZE],
 }
 
-pub type GLProc = ::ll::GLFWglproc;
+pub type GLProc = ::ml::GLFWglproc;
 
 /**
  * Initialises GLFW on the main platform thread. `glfw::terminate` is
@@ -105,7 +105,7 @@ pub fn get_primary_monitor() -> Monitor {
 }
 
 pub impl Monitor {
-    fn ptr(&self) -> *::ll::GLFWmonitor { **self }
+    fn ptr(&self) -> *::ml::GLFWmonitor { **self }
     
     fn is_null(&self) -> bool { self.ptr().is_null() }
     
@@ -179,7 +179,7 @@ pub enum WindowMode {
 }
 
 pub impl Window {
-    fn ptr(&self) -> *::ll::GLFWwindow { **self }
+    fn ptr(&self) -> *::ml::GLFWwindow { **self }
 
     fn is_null(&self) -> bool { self.ptr().is_null() }
     

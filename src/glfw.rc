@@ -7,6 +7,12 @@
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
 
-#[merge="priv/consts.rs"] pub mod ll;
-#[merge="priv/consts.rs"] pub mod ml;
-#[merge="priv/consts.rs"] pub mod hl;
+pub mod ll;
+pub mod ml;
+pub mod hl;
+
+pub mod shared {
+    pub mod consts;
+    pub mod event;
+    pub mod types;
+}
