@@ -322,16 +322,22 @@ pub struct GammaRamp {
 
 /* GLFW initialization, termination and version querying */
 
+/**
+ * Manually initialise GLFW. Returns `false` if unsuccessful.
+ */
 pub fn init() -> bool {
     unsafe { ll::glfwInit() as bool }
 }
 
+/**
+ * Manually terminate GLFW.
+ */
 pub fn terminate() {
     unsafe { ll::glfwTerminate(); }
 }
 
 /**
- * Initialises a glfw on the main platform thread. `glfw::terminate` is
+ * Initialises GLFW on the main platform thread. `glfw::terminate` is
  * automatically called on the success or failure of `f`
  */
 pub fn spawn(f: ~fn()) {
@@ -350,6 +356,9 @@ pub fn spawn(f: ~fn()) {
     }
 }
 
+/**
+ * A struct containing the GLFW version numbers.
+ */
 pub struct Version {
     major: int,
     minor: int,
