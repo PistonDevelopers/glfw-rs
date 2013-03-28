@@ -3,7 +3,8 @@ This example illustrates how a OpenGL function struct might be
 be used for rendering a viewport resize from inside a callback.
 */
 
-extern mod glfw;
+extern mod GLFW (name = "glfw");
+use glfw = GLFW::hl;
 
 type GLint = i32;
 

@@ -1,4 +1,5 @@
-extern mod glfw;
+extern mod GLFW (name = "glfw");
+use glfw = GLFW::hl;
 
 fn main() {
     // get version tuple

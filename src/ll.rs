@@ -16,6 +16,9 @@ extern mod linkhack {}
 
 /* Function pointer types */
 // Will have to be changed once we can do external C callbacks nicely
+
+pub type GLFWglproc             = *u8;  // typedef void (*GLFWglproc)(void);
+
 pub type GLFWerrorfun           = *u8;  // typedef void (* GLFWerrorfun)(int,const char*);
 pub type GLFWwindowposfun       = *u8;  // typedef void (* GLFWwindowposfun)(*GLFWwindow,int,int);
 pub type GLFWwindowsizefun      = *u8;  // typedef void (* GLFWwindowsizefun)(*GLFWwindow,int,int);
@@ -37,21 +40,17 @@ pub struct GLFWmonitor {}
 /* Window handle type */
 pub struct GLFWwindow {}
 
-pub type GLFWgammaramp = ::GammaRamp;
-pub type GLFWvidmode = ::VidMode;
-pub type GLFWglproc = ::GLProc;
+pub type GLFWgammaramp = ::hl::GammaRamp;
+pub type GLFWvidmode   = ::hl::VidMode;
 
 pub extern "C" {
-    /* GLFW initialization, termination and version querying */
     pub fn glfwInit() -> c_int;
     pub fn glfwTerminate();
     pub fn glfwGetVersion(major: *c_int, minor: *c_int, rev: *c_int);
     pub fn glfwGetVersionString() -> *c_char;
-
-    /* Error handling */
+    
     pub fn glfwSetErrorCallback(cbfun: GLFWerrorfun);
-
-    /* Monitor functions */
+    
     pub fn glfwGetMonitors(count: *c_int) -> **GLFWmonitor;
     pub fn glfwGetPrimaryMonitor() -> *GLFWmonitor;
     pub fn glfwGetMonitorPos(monitor: *GLFWmonitor, xpos: *c_int, ypos: *c_int);
@@ -63,8 +62,7 @@ pub extern "C" {
     pub fn glfwSetGamma(monitor: *GLFWmonitor, gamma: c_float);
     pub fn glfwGetGammaRamp(monitor: *GLFWmonitor, ramp: *GLFWgammaramp);
     pub fn glfwSetGammaRamp(monitor: *GLFWmonitor, ramp: *GLFWgammaramp);
-
-    /* Window handling */
+    
     pub fn glfwDefaultWindowHints();
     pub fn glfwWindowHint(target: c_int, hint: c_int);
     pub fn glfwCreateWindow(width: c_int, height: c_int, title: *c_char, monitor: *GLFWmonitor, share: *GLFWwindow) -> *GLFWwindow;
@@ -90,12 +88,10 @@ pub extern "C" {
     pub fn glfwSetWindowRefreshCallback(window: *GLFWwindow, cbfun: GLFWwindowrefreshfun);
     pub fn glfwSetWindowFocusCallback(window: *GLFWwindow, cbfun: GLFWwindowfocusfun);
     pub fn glfwSetWindowIconifyCallback(window: *GLFWwindow, cbfun: GLFWwindowiconifyfun);
-
-    /* Event handling */
+    
     pub fn glfwPollEvents();
     pub fn glfwWaitEvents();
-
-    /* Input handling */
+    
     pub fn glfwGetInputMode(window: *GLFWwindow, mode: c_int) -> c_int;
     pub fn glfwSetInputMode(window: *GLFWwindow, mode: c_int, value: c_int);
     pub fn glfwGetKey(window: *GLFWwindow, key: c_int) -> c_int;
@@ -108,22 +104,18 @@ pub extern "C" {
     pub fn glfwSetCursorPosCallback(window: *GLFWwindow, cbfun: GLFWcursorposfun);
     pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: GLFWcursorenterfun);
     pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: GLFWscrollfun);
-
-    /* Joystick input */
+    
     pub fn glfwGetJoystickParam(joy: c_int, param: c_int) -> c_int;
     pub fn glfwGetJoystickAxes(joy: c_int, axes: *c_float, numaxes: c_int) -> c_int;
     pub fn glfwGetJoystickButtons(joy: c_int, buttons: *c_uchar, numbuttons: c_int) -> c_int;
     pub fn glfwGetJoystickName(joy: c_int) -> *c_char;
-
-    /* Clipboard */
+    
     pub fn glfwSetClipboardString(window: *GLFWwindow, string: *c_char);
     pub fn glfwGetClipboardString(window: *GLFWwindow) -> *c_char;
-
-    /* Time */
+    
     pub fn glfwGetTime() -> c_double;
     pub fn glfwSetTime(time: c_double);
-
-    /* OpenGL support */
+    
     pub fn glfwMakeContextCurrent(window: *GLFWwindow);
     pub fn glfwGetCurrentContext() -> *GLFWwindow;
     pub fn glfwSwapBuffers(window: *GLFWwindow);

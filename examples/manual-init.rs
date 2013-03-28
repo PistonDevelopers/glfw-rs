@@ -1,4 +1,5 @@
-extern mod glfw;
+extern mod GLFW (name = "glfw");
+use glfw = GLFW::hl;
 
 fn main() {
     // Run this task on the main thread. Unlike C or C++, a Rust program
@@ -10,7 +11,7 @@ fn main() {
         do (|| {
             glfw::set_error_callback(error_callback);
             
-            if !glfw::init() { fail!(~"Failed to initialize GLFW\n"); }
+            if !GLFW::ml::init() { fail!(~"Failed to initialize GLFW\n"); }
             
             let window =
                 match glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed) {
@@ -26,7 +27,7 @@ fn main() {
             }
             
         }).finally {
-            glfw::terminate();    // terminate glfw on completion
+            GLFW::ml::terminate();    // terminate glfw on completion
         }
     }
 }

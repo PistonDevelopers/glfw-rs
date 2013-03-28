@@ -1,4 +1,5 @@
-extern mod glfw;
+extern mod GLFW (name = "glfw");
+use glfw = GLFW::hl;
 
 fn main() {
     glfw::set_error_callback(error_callback);
