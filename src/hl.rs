@@ -57,7 +57,7 @@ pub fn spawn(f: ~fn()) {
         use core::unstable::finally::Finally;
 
         do (|| {
-            if ::ml::init() {
+            if ::ml::init() == TRUE {
                 f();        // do user-defined work
             } else {
                 fail!(~"Failed to initialize GLFW");

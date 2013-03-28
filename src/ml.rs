@@ -7,8 +7,8 @@ use core::libc::*;
 pub use shared::consts::*;
 pub use shared::types::*;
 
-pub fn init() -> bool {
-    unsafe { ::ll::glfwInit() as bool }
+pub fn init() -> c_int {
+    unsafe { ::ll::glfwInit() }
 }
 
 pub fn terminate() {
