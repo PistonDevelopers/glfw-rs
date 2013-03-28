@@ -2,6 +2,11 @@
  * Low-level GLFW library bindings and base types.
  */
 
+use core::libc::*;
+
+pub use shared::consts::*;
+pub use shared::types::*;
+
 // Include OS X Frameworks
 #[nolink]
 #[cfg(target_os = "macos")]
@@ -11,11 +16,6 @@ extern mod osx_frameworks {}
 // GLFW Linking
 #[link_name = "glfw"]
 extern mod linkhack {}
-
-use core::libc::*;
-
-pub use shared::consts::*;
-pub use shared::types::*;
 
 pub extern "C" {
     pub fn glfwInit() -> c_int;
