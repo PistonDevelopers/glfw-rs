@@ -399,21 +399,17 @@ pub fn wait_events() {
 pub mod joystick {
     use core::libc::*;
     
-    pub fn get_param(joy: c_int, param: c_int) -> c_int  {
-        ::ml::get_joystick_param(joy, param)
-    }
-    
     pub fn is_present(joy: c_int) -> bool {
-        get_param(joy, ::hl::PRESENT) as bool
+        ::ml::get_joystick_param(joy, ::ml::PRESENT) as bool
     }
     
     pub fn num_axes(joy: c_int) -> Option<uint> {
-        let axes = get_param(joy, ::hl::AXES);
+        let axes = ::ml::get_joystick_param(joy, ::ml::AXES);
         if axes > 0 { Some(axes as uint) } else { None }
     }
     
     pub fn num_buttons(joy: c_int) -> Option<uint> {
-        let buttons = get_param(joy, ::hl::BUTTONS);
+        let buttons = ::ml::get_joystick_param(joy, ::ml::BUTTONS);
         if buttons > 0 { Some(buttons as uint) } else { None }
     }
 
