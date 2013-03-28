@@ -17,19 +17,19 @@ fn main() {
 }
 
 #[cfg(target_os = "macos")]
-fn control_is_down(window: &glfw::Window) -> bool {
+fn mod_key(window: &glfw::Window) -> bool {
     window.get_key(glfw::KEY_LEFT_SUPER) as bool
     || window.get_key(glfw::KEY_RIGHT_SUPER) as bool
 }
 
 #[cfg(target_os = "linux")]
-fn control_is_down(window: &glfw::Window) -> bool {
+fn mod_key(window: &glfw::Window) -> bool {
     window.get_key(glfw::KEY_LEFT_CONTROL) as bool
     || window.get_key(glfw::KEY_RIGHT_CONTROL) as bool
 }
 
 #[cfg(target_os = "win32")]
-fn control_is_down(window: &glfw::Window) -> bool {
+fn mod_key(window: &glfw::Window) -> bool {
     window.get_key(glfw::KEY_LEFT_CONTROL) as bool
     || window.get_key(glfw::KEY_RIGHT_CONTROL) as bool
 }
@@ -40,22 +40,19 @@ fn error_callback(_error: libc::c_int, description: ~str) {
 
 fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
     if action == glfw::PRESS {
-        match key {
-            k if k == glfw::KEY_ESCAPE => {
-                window.set_should_close(true);
+        if key == glfw::KEY_ESCAPE {
+            window.set_should_close(true);
+        }
+        if key == glfw::KEY_V && mod_key(window) {
+            match window.get_clipboard_string() {
+                ref s if !s.is_empty() => io::println(fmt!("Clipboard contains %?", s)),
+                _                      => io::println("Clipboard does not contain a string"),
             }
-            k if k == glfw::KEY_V && control_is_down(window) => {
-                match window.get_clipboard_string() {
-                    ref s if !s.is_empty() => io::println(fmt!("Clipboard contains %?", s)),
-                    _                      => io::println("Clipboard does not contain a string"),
-                }
-            }
-            k if k == glfw::KEY_C && control_is_down(window) => {
-                let s = "Hello GLFW World!";
-                window.set_clipboard_string(s);
-                io::println(fmt!("Setting clipboard to %?", s));
-            }
-            _ => {}
+        }
+        if key == glfw::KEY_C && mod_key(window) {
+            let s = "Hello GLFW World!";
+            window.set_clipboard_string(s);
+            io::println(fmt!("Setting clipboard to %?", s));
         }
     }
 }
