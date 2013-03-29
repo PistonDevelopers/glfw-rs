@@ -32,10 +32,10 @@ pub type GLFWcharfun            = *u8;  // typedef void (* GLFWcharfun)(*GLFWwin
 pub type GLFWmonitorfun         = *u8;  // typedef void (* GLFWmonitorfun)(*GLFWmonitor,int);
 
 /* Monitor handle type */
-pub struct GLFWmonitor {}
+pub struct GLFWmonitor;
 
 /* Window handle type */
-pub struct GLFWwindow {}
+pub struct GLFWwindow;
 
 pub type GLFWgammaramp = ::GammaRamp;
 pub type GLFWvidmode = ::VidMode;
