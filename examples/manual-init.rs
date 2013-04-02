@@ -10,7 +10,7 @@ fn main() {
         do (|| {
             glfw::set_error_callback(error_callback);
             
-            if !glfw::init() { fail!(~"Failed to initialize GLFW\n"); }
+            if !glfw::ml::init() == glfw::FALSE { fail!(~"Failed to initialize GLFW\n"); }
             
             let window =
                 match glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed) {
@@ -26,7 +26,7 @@ fn main() {
             }
             
         }).finally {
-            glfw::terminate();    // terminate glfw on completion
+            glfw::ml::terminate();    // terminate glfw on completion
         }
     }
 }
