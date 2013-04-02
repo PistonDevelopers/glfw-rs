@@ -1,11 +1,11 @@
 /**
- * Low-level GLFW library bindings and base types.
+ * Low-level glfw bindings. Includes public exports of core types and constants.
  */
 
 use core::libc::*;
 
-pub use shared::consts::*;
-pub use shared::types::*;
+pub use support::consts::*;
+pub use support::types::*;
 
 // Include OS X Frameworks
 #[nolink]

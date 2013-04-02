@@ -1,11 +1,12 @@
 /**
- * Mid-level wrapper functions that provide rust-style funtion names.
+ * Mid-level wrapper functions that provide rust-style funtion names. Includes public exports of
+ * core types and constants.
  */
 
 use core::libc::*;
 
-pub use shared::consts::*;
-pub use shared::types::*;
+pub use support::consts::*;
+pub use support::types::*;
 
 pub fn init() -> c_int {
     unsafe { ::ll::glfwInit() }
@@ -82,7 +83,7 @@ pub fn set_gamma(monitor: *GLFWmonitor, gamma: c_float) {
 }
 
 pub fn get_gamma_ramp(monitor: *GLFWmonitor) -> GLFWgammaramp {
-    let mut ramp = ::hl::GammaRamp {
+    let mut ramp = ::GammaRamp {
         red:   [0, ..GAMMA_RAMP_SIZE],
         green: [0, ..GAMMA_RAMP_SIZE],
         blue:  [0, ..GAMMA_RAMP_SIZE],

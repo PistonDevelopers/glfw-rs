@@ -1,3 +1,8 @@
+/**
+ * Common type aliases for the `glfw::ll` and `glfw::ml` modules. You shouldn't have to access these
+ * directly as each of the repective modules publicly exports them.
+ */
+
 /* Function pointer types */
 // Will have to be changed once we can do external C callbacks nicely
 
@@ -24,5 +29,5 @@ pub struct GLFWmonitor;
 /* Window handle type */
 pub struct GLFWwindow;
 
-pub type GLFWgammaramp = ::hl::GammaRamp;
-pub type GLFWvidmode   = ::hl::VidMode;
+pub type GLFWgammaramp = ::GammaRamp;
+pub type GLFWvidmode   = ::VidMode;
