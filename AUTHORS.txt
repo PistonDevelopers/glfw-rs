@@ -1,0 +1,19 @@
+Initial author:
+
+Brendan Zabarauskas         http://voyager3.tumblr.com
+
+
+With help and contributions from:
+
+Andy                        http://github.com/alegalle
+Brian Anderson              http://github.com/brson/
+Dustin Lacewell             http://ldlework.com/
+Jeaye                       http://github.com/Jeaye
+Marvin Löbel                http://github.com/Kimundi
+Niko Matsakis               http://github.com/nikomatsakis
+Tomasz Stachowiak           http://github.com/h3r2tic
+
+
+The GLFW library was created by:
+
+Camilla Berglund            http://www.elmindreda.org/
