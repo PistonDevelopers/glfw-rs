@@ -90,8 +90,8 @@ fn mouse_button_callback(_window: &glfw::Window, button: libc::c_int, action: li
     io::println(fmt!("Mouse Button %s: %s", to_mouse_button_str(button), to_action_str(action)));
 }
 
-fn cursor_pos_callback(window: &glfw::Window, x: int, y: int) {
-    window.set_title(fmt!("Cursor position: [ %d, %d ]", x, y));
+fn cursor_pos_callback(window: &glfw::Window, xpos: float, ypos: float) {
+    window.set_title(fmt!("Cursor position: [ %f, %f ]", xpos, ypos));
 }
 
 fn cursor_enter_callback(_window: &glfw::Window, entered: bool) {

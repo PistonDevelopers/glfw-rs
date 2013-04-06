@@ -42,7 +42,7 @@ pub type WindowRefreshFun   = @fn(window: &Window);
 pub type WindowFocusFun     = @fn(window: &Window, activated: bool);
 pub type WindowIconifyFun   = @fn(window: &Window, iconified: bool);
 pub type MouseButtonFun     = @fn(window: &Window, button: c_int, action: c_int);
-pub type CursorPosFun       = @fn(window: &Window, x: int, y: int);
+pub type CursorPosFun       = @fn(window: &Window, xpos: float, ypos: float);
 pub type CursorEnterFun     = @fn(window: &Window, entered: bool);
 pub type ScrollFun          = @fn(window: &Window, xpos: float, ypos: float);
 pub type KeyFun             = @fn(window: &Window, key: c_int, action: c_int);
@@ -343,13 +343,14 @@ pub impl Window {
         ::ml::get_mouse_button(self.ptr(), button)
     }
 
-    fn get_cursor_pos(&self) -> (int, int) {
-        let (xpos, ypos) = ::ml::get_cursor_pos(self.ptr());
-        (xpos as int, ypos as int)
+    fn get_cursor_pos(&self) -> (float, float) {
+        match ::ml::get_cursor_pos(self.ptr()) {
+            (xpos, ypos) => (xpos as float, ypos as float)
+        }
     }
 
-    fn set_cursor_pos(&self, xpos: int, ypos: int) {
-        ::ml::set_cursor_pos(self.ptr(), xpos as c_int, ypos as c_int);
+    fn set_cursor_pos(&self, xpos: float, ypos: float) {
+        ::ml::set_cursor_pos(self.ptr(), xpos as c_double, ypos as c_double);
     }
 
     fn set_key_callback(&self, cbfun: KeyFun) {

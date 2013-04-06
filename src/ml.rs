@@ -224,15 +224,15 @@ pub fn get_mouse_button(window: *GLFWwindow, button: c_int) -> c_int {
     unsafe { ::ll::glfwGetMouseButton(window, button) }
 }
 
-pub fn get_cursor_pos(window: *GLFWwindow) -> (c_int, c_int) {
+pub fn get_cursor_pos(window: *GLFWwindow) -> (c_double, c_double) {
     unsafe {
-        let mut xpos = 0, ypos = 0;
+        let mut xpos = 0.0, ypos = 0.0;
         ::ll::glfwGetCursorPos(window, &xpos, &ypos);
         (xpos, ypos)
     }
 }
 
-pub fn set_cursor_pos(window: *GLFWwindow, xpos: c_int, ypos: c_int) {
+pub fn set_cursor_pos(window: *GLFWwindow, xpos: c_double, ypos: c_double) {
     unsafe { ::ll::glfwSetCursorPos(window, xpos, ypos); }
 }
 

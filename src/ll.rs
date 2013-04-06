@@ -70,8 +70,8 @@ pub extern "C" {
     pub fn glfwSetInputMode(window: *GLFWwindow, mode: c_int, value: c_int);
     pub fn glfwGetKey(window: *GLFWwindow, key: c_int) -> c_int;
     pub fn glfwGetMouseButton(window: *GLFWwindow, button: c_int) -> c_int;
-    pub fn glfwGetCursorPos(window: *GLFWwindow, xpos: *c_int, ypos: *c_int);
-    pub fn glfwSetCursorPos(window: *GLFWwindow, xpos: c_int, ypos: c_int);
+    pub fn glfwGetCursorPos(window: *GLFWwindow, xpos: *c_double, ypos: *c_double);
+    pub fn glfwSetCursorPos(window: *GLFWwindow, xpos: c_double, ypos: c_double);
     pub fn glfwSetKeyCallback(window: *GLFWwindow, cbfun: GLFWkeyfun);
     pub fn glfwSetCharCallback(window: *GLFWwindow, cbfun: GLFWcharfun);
     pub fn glfwSetMouseButtonCallback(window: *GLFWwindow, cbfun: GLFWmousebuttonfun);
