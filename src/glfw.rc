@@ -95,11 +95,12 @@ pub struct Version {
 }
 
 pub fn get_version() -> Version {
-    let (major, minor, rev) = ::ml::get_version();
-    Version {
-        major: major as int,
-        minor: minor as int,
-        rev:   rev   as int,
+    match ::ml::get_version() {
+        (major, minor, rev) => Version {
+            major: major as int,
+            minor: minor as int,
+            rev:   rev   as int,
+        }
     }
 }
 
@@ -129,13 +130,15 @@ pub impl Monitor {
     fn null() -> Monitor { Monitor(ptr::null()) }
 
     fn get_pos(&self) -> (int, int) {
-        let (xpos, ypos) = ::ml::get_monitor_pos(self.ptr());
-        (xpos as int, ypos as int)
+        match ::ml::get_monitor_pos(self.ptr()) {
+            (xpos, ypos) => (xpos as int, ypos as int)
+        }
     }
 
     fn get_physical_size(&self) -> (int, int) {
-        let (width, height) = ::ml::get_monitor_physical_size(self.ptr());
-        (width as int, height as int)
+        match ::ml::get_monitor_physical_size(self.ptr()) {
+            (width, height) => (width as int, height as int)
+        }
     }
 
     fn get_name(&self) -> ~str {
@@ -240,8 +243,9 @@ pub impl Window {
     }
 
     fn get_pos(&self) -> (int, int) {
-        let (xpos, ypos) = ::ml::get_window_pos(self.ptr());
-        (xpos as int, ypos as int)
+        match ::ml::get_window_pos(self.ptr()) {
+            (xpos, ypos) => (xpos as int, ypos as int)
+        }
     }
 
     fn set_pos(&self, xpos: int, ypos: int) {
@@ -249,8 +253,9 @@ pub impl Window {
     }
 
     fn get_size(&self) -> (int, int) {
-        let (width, height) = ::ml::get_window_size(self.ptr());
-        (width as int, height as int)
+        match ::ml::get_window_size(self.ptr()) {
+            (width, height) => (width as int, height as int)
+        }
     }
 
     fn set_size(&self, width: int, height: int) {
