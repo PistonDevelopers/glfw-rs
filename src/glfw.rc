@@ -85,15 +85,15 @@ pub fn spawn(f: ~fn()) {
     }
 }
 
-/**
- * Returns a struct containing the GLFW version numbers.
- */
 pub struct Version {
     major: int,
     minor: int,
     rev:   int,
 }
 
+/**
+ * Returns a struct containing the GLFW version numbers.
+ */
 pub fn get_version() -> Version {
     match ml::get_version() {
         (major, minor, rev) => Version {
