@@ -223,8 +223,8 @@ pub event!(
         
         extern_params {
             window:     *::ll::GLFWwindow   => { &::Window(window) },
-            x:          libc::c_double      => { x as f64 },
-            y:          libc::c_double      => { y as f64 }
+            xpos:       libc::c_double      => { xpos as float },
+            ypos:       libc::c_double      => { ypos as float }
         }
     }
 )

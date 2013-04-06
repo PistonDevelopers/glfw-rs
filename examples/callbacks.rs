@@ -99,9 +99,8 @@ fn cursor_enter_callback(_window: &glfw::Window, entered: bool) {
     else       { io::println(~"Cursor left window.");    }
 }
 
-// FIXME
-fn scroll_callback(window: &glfw::Window, x: f64, y: f64) {
-    window.set_title(fmt!("Scroll position: [%?, %?]", x, y));
+fn scroll_callback(window: &glfw::Window, xpos: float, ypos: float) {
+    window.set_title(fmt!("Scroll position: [%f, %f]", xpos, ypos));
 }
 
 fn to_action_str(state: libc::c_int) -> ~str {
