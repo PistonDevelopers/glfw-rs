@@ -208,6 +208,7 @@ pub static OPENGL_DEBUG_CONTEXT         : c_int = 0x00022005;
 pub static OPENGL_PROFILE               : c_int = 0x00022006;
 pub static RESIZABLE                    : c_int = 0x00022007;
 pub static VISIBLE                      : c_int = 0x00022008;
+pub static UNDECORATED                  : c_int = 0x00022009;
 
 /* GLFW_CLIENT_API tokens */
 pub static OPENGL_API                   : c_int = 0x00000001;
