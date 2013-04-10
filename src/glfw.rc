@@ -27,12 +27,12 @@ pub mod support {
 /**
  * A struct containing a low-level monitor handle
  */
-pub struct Monitor(*::ml::GLFWmonitor);
+pub struct Monitor { ptr: *::ml::GLFWmonitor }
 
 /**
  * A struct containing a low-level window handle
  */
-pub struct Window(*::ml::GLFWwindow);
+pub struct Window { ptr: *::ml::GLFWwindow }
 
 pub type ErrorFun           = @fn(error: c_int, format: ~str);
 pub type WindowPosFun       = @fn(window: &Window, width: int, height: int);
@@ -110,52 +110,50 @@ pub fn set_error_callback(cbfun: ErrorFun) {
 }
 
 pub fn get_monitors() -> ~[Monitor] {
-    ml::get_monitors().map(|&p| Monitor(p))
+    ml::get_monitors().map(|&m| Monitor { ptr: m })
 }
 
 pub fn get_primary_monitor() -> Monitor {
-    Monitor(ml::get_primary_monitor())
+    Monitor { ptr: ml::get_primary_monitor() }
 }
 
 pub impl Monitor {
-    fn ptr(&self) -> *::ml::GLFWmonitor { **self }
-
     fn get_pos(&self) -> (int, int) {
-        match ml::get_monitor_pos(self.ptr()) {
+        match ml::get_monitor_pos(self.ptr) {
             (xpos, ypos) => (xpos as int, ypos as int)
         }
     }
 
     fn get_physical_size(&self) -> (int, int) {
-        match ml::get_monitor_physical_size(self.ptr()) {
+        match ml::get_monitor_physical_size(self.ptr) {
             (width, height) => (width as int, height as int)
         }
     }
 
     fn get_name(&self) -> ~str {
-        ml::get_monitor_name(self.ptr())
+        ml::get_monitor_name(self.ptr)
     }
 
     fn get_video_modes(&self) -> ~[VidMode] {
-        ml::get_video_modes(self.ptr())
+        ml::get_video_modes(self.ptr)
     }
 
     fn get_video_mode(&self) -> VidMode {
-        ml::get_video_mode(self.ptr())
+        ml::get_video_mode(self.ptr)
     }
 
     /* Gamma ramp functions */
 
     pub fn set_gamma(&self, gamma: float) {
-        ml::set_gamma(self.ptr(), gamma as c_float);
+        ml::set_gamma(self.ptr, gamma as c_float);
     }
 
     pub fn get_gamma_ramp(&self) -> GammaRamp {
-        ml::get_gamma_ramp(self.ptr())
+        ml::get_gamma_ramp(self.ptr)
     }
 
     pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
-        ml::set_gamma_ramp(self.ptr(), ramp);
+        ml::set_gamma_ramp(self.ptr, ramp);
     }
 }
 
@@ -291,10 +289,8 @@ pub enum WindowMode {
 }
 
 pub impl Window {
-    fn ptr(&self) -> *ml::GLFWwindow { **self }
-
     fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,&str> {
-        Window::create_shared(width, height, title, mode, &Window(ptr::null()))
+        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
     }
 
     fn create_shared(width: uint, height: uint, title: &str,
@@ -304,199 +300,199 @@ pub impl Window {
             height as c_int,
             title,
             match mode {
-                FullScreen(m) => m.ptr(),
+                FullScreen(m) => m.ptr,
                 Windowed      => ptr::null()
             },
-            share.ptr()
+            share.ptr
         ) {
-            w if !w.is_null() => Ok(Window(w)),
+            w if !w.is_null() => Ok(Window { ptr: w }),
             _                 => Err("Failed to open GLFW window"),
         }
     }
 
     fn destroy(&self) {
-        ml::destroy_window(self.ptr());
+        ml::destroy_window(self.ptr);
     }
     
     fn should_close(&self) -> bool {
-        ml::window_should_close(self.ptr()) as bool
+        ml::window_should_close(self.ptr) as bool
     }
     
     fn set_should_close(&self, value: bool) {
-        ml::set_window_should_close(self.ptr(), value as c_int)
+        ml::set_window_should_close(self.ptr, value as c_int)
     }
 
     fn set_title(&self, title: &str) {
-        ml::set_window_title(self.ptr(), title)
+        ml::set_window_title(self.ptr, title)
     }
 
     fn get_pos(&self) -> (int, int) {
-        match ml::get_window_pos(self.ptr()) {
+        match ml::get_window_pos(self.ptr) {
             (xpos, ypos) => (xpos as int, ypos as int)
         }
     }
 
     fn set_pos(&self, xpos: int, ypos: int) {
-        ml::set_window_pos(self.ptr(), xpos as c_int, ypos as c_int);
+        ml::set_window_pos(self.ptr, xpos as c_int, ypos as c_int);
     }
 
     fn get_size(&self) -> (int, int) {
-        match ml::get_window_size(self.ptr()) {
+        match ml::get_window_size(self.ptr) {
             (width, height) => (width as int, height as int)
         }
     }
 
     fn set_size(&self, width: int, height: int) {
-        ml::set_window_size(self.ptr(), width as c_int, height as c_int);
+        ml::set_window_size(self.ptr, width as c_int, height as c_int);
     }
 
     fn iconify(&self) {
-        ml::iconify_window(self.ptr());
+        ml::iconify_window(self.ptr);
     }
 
     fn restore(&self) {
-        ml::restore_window(self.ptr());
+        ml::restore_window(self.ptr);
     }
 
     fn show(&self) {
-        ml::show_window(self.ptr());
+        ml::show_window(self.ptr);
     }
 
     fn hide(&self) {
-        ml::hide_window(self.ptr());
+        ml::hide_window(self.ptr);
     }
 
     fn get_monitor(&self) -> WindowMode {
-        match ml::get_window_monitor(self.ptr()) {
+        match ml::get_window_monitor(self.ptr) {
             m if m.is_null() => Windowed,
-            m                => FullScreen(Monitor(m)),
+            m                => FullScreen(Monitor { ptr: m }),
         }
     }
 
     fn get_param(&self, param: c_int) -> c_int {
-        ml::get_window_param(self.ptr(), param)
+        ml::get_window_param(self.ptr, param)
     }
 
     fn set_user_pointer(&self, pointer: *c_void) {
-        ml::set_window_user_pointer(self.ptr(), pointer);
+        ml::set_window_user_pointer(self.ptr, pointer);
     }
 
     fn get_user_pointer(&self) -> *c_void {
-        ml::get_window_user_pointer(self.ptr())
+        ml::get_window_user_pointer(self.ptr)
     }
 
     fn set_pos_callback(&self, cbfun: WindowSizeFun) {
         do event::windowpos::set_callback(cbfun) |ext_cb| {
-            ml::set_window_pos_callback(self.ptr(), ext_cb);
+            ml::set_window_pos_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_size_callback(&self, cbfun: WindowSizeFun) {
         do event::windowsize::set_callback(cbfun) |ext_cb| {
-            ml::set_window_size_callback(self.ptr(), ext_cb);
+            ml::set_window_size_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_close_callback(&self, cbfun: WindowCloseFun) {
         do event::windowclose::set_callback(cbfun) |ext_cb| {
-            ml::set_window_close_callback(self.ptr(), ext_cb);
+            ml::set_window_close_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
         do event::windowrefresh::set_callback(cbfun) |ext_cb| {
-            ml::set_window_refresh_callback(self.ptr(), ext_cb);
+            ml::set_window_refresh_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_focus_callback(&self, cbfun: WindowFocusFun) {
         do event::windowfocus::set_callback(cbfun) |ext_cb| {
-            ml::set_window_focus_callback(self.ptr(), ext_cb);
+            ml::set_window_focus_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
         do event::windowiconify::set_callback(cbfun) |ext_cb| {
-            ml::set_window_iconify_callback(self.ptr(), ext_cb);
+            ml::set_window_iconify_callback(self.ptr, ext_cb);
         }
     }
 
     fn get_input_mode(&self, mode: c_int) -> int {
-        ml::get_input_mode(self.ptr(), mode) as int
+        ml::get_input_mode(self.ptr, mode) as int
     }
 
     fn set_input_mode(&self, mode: c_int, value: int) {
-        ml::set_input_mode(self.ptr(), mode, value as c_int);
+        ml::set_input_mode(self.ptr, mode, value as c_int);
     }
 
     fn get_key(&self, key: c_int) -> c_int {
-        ml::get_key(self.ptr(), key)
+        ml::get_key(self.ptr, key)
     }
 
     fn get_mouse_button(&self, button: c_int) -> c_int {
-        ml::get_mouse_button(self.ptr(), button)
+        ml::get_mouse_button(self.ptr, button)
     }
 
     fn get_cursor_pos(&self) -> (float, float) {
-        match ml::get_cursor_pos(self.ptr()) {
+        match ml::get_cursor_pos(self.ptr) {
             (xpos, ypos) => (xpos as float, ypos as float)
         }
     }
 
     fn set_cursor_pos(&self, xpos: float, ypos: float) {
-        ml::set_cursor_pos(self.ptr(), xpos as c_double, ypos as c_double);
+        ml::set_cursor_pos(self.ptr, xpos as c_double, ypos as c_double);
     }
 
     fn set_key_callback(&self, cbfun: KeyFun) {
         do event::key::set_callback(cbfun) |ext_cb| {
-            ml::set_key_callback(self.ptr(), ext_cb);
+            ml::set_key_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_char_callback(&self, cbfun: CharFun) {
         do event::char::set_callback(cbfun) |ext_cb| {
-            ml::set_char_callback(self.ptr(), ext_cb);
+            ml::set_char_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
         do event::mousebutton::set_callback(cbfun) |ext_cb| {
-            ml::set_mouse_button_callback(self.ptr(), ext_cb);
+            ml::set_mouse_button_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
         do event::cursorpos::set_callback(cbfun) |ext_cb| {
-            ml::set_cursor_pos_callback(self.ptr(), ext_cb);
+            ml::set_cursor_pos_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
         do event::cursorenter::set_callback(cbfun) |ext_cb| {
-            ml::set_cursor_enter_callback(self.ptr(), ext_cb);
+            ml::set_cursor_enter_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_scroll_callback(&self, cbfun: ScrollFun) {
         do event::scroll::set_callback(cbfun) |ext_cb| {
-            ml::set_scroll_callback(self.ptr(), ext_cb);
+            ml::set_scroll_callback(self.ptr, ext_cb);
         }
     }
 
     fn set_clipboard_string(&self, string: &str) {
-        ml::set_clipboard_string(self.ptr(), string);
+        ml::set_clipboard_string(self.ptr, string);
     }
 
     fn get_clipboard_string(&self) -> ~str {
-        ml::get_clipboard_string(self.ptr())
+        ml::get_clipboard_string(self.ptr)
     }
 
     fn make_context_current(&self) {
-        ml::make_context_current(self.ptr());
+        ml::make_context_current(self.ptr);
     }
 
     fn swap_buffers(&self) {
-        ml::swap_buffers(self.ptr());
+        ml::swap_buffers(self.ptr);
     }
 }
 
@@ -571,7 +567,7 @@ pub fn set_time(time: f64) {
 }
 
 pub fn get_current_context() -> Window {
-    Window(ml::get_current_context())
+    Window { ptr: ml::get_current_context() }
 }
 
 pub fn set_swap_interval(interval: int) {

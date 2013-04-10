@@ -63,7 +63,7 @@ pub event!(
         intern_callback_type = ::MonitorFun;
         
         extern_params {
-            monitor:    *::ll::GLFWmonitor  => { &::Monitor(monitor) },
+            monitor:    *::ll::GLFWmonitor  => { &::Monitor { ptr: monitor } },
             event:      libc::c_int         => { event }
         }
     }
@@ -76,7 +76,7 @@ pub event!(
         intern_callback_type = ::WindowPosFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             x:          libc::c_int         => { x as int },
             y:          libc::c_int         => { y as int }
         }
@@ -90,7 +90,7 @@ pub event!(
         intern_callback_type = ::WindowSizeFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             width:      libc::c_int         => { width as int },
             height:     libc::c_int         => { height as int }
         }
@@ -104,7 +104,7 @@ pub event!(
         intern_callback_type = ::WindowCloseFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow  => { &::Window(window) }
+            window:     *::ll::GLFWwindow  => { &::Window { ptr: window } }
         }
     }
 )
@@ -116,7 +116,7 @@ pub event!(
         intern_callback_type = ::WindowRefreshFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow  => { &::Window(window) }
+            window:     *::ll::GLFWwindow  => { &::Window { ptr: window } }
         }
     }
 )
@@ -128,7 +128,7 @@ pub event!(
         intern_callback_type = ::WindowFocusFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             activated:  libc::c_int         => { activated as bool }
         }
     }
@@ -141,7 +141,7 @@ pub event!(
         intern_callback_type = ::WindowIconifyFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             iconified:  libc::c_int         => { iconified as bool }
         }
     }
@@ -154,7 +154,7 @@ pub event!(
         intern_callback_type = ::KeyFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             key:        libc::c_int         => { key },
             action:     libc::c_int         => { action }
         }
@@ -168,7 +168,7 @@ pub event!(
         intern_callback_type = ::CharFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             character:  libc::c_uint        => { character as char }
         }
     }
@@ -181,7 +181,7 @@ pub event!(
         intern_callback_type = ::MouseButtonFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             button:     libc::c_int         => { button },
             action:     libc::c_int         => { action }
         }
@@ -195,7 +195,7 @@ pub event!(
         intern_callback_type = ::CursorPosFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             xpos:       libc::c_double      => { xpos as float },
             ypos:       libc::c_double      => { ypos as float }
         }
@@ -209,7 +209,7 @@ pub event!(
         intern_callback_type = ::CursorEnterFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             entered:    libc::c_int         => { entered as bool }
         }
     }
@@ -222,7 +222,7 @@ pub event!(
         intern_callback_type = ::ScrollFun;
         
         extern_params {
-            window:     *::ll::GLFWwindow   => { &::Window(window) },
+            window:     *::ll::GLFWwindow   => { &::Window { ptr: window } },
             xpos:       libc::c_double      => { xpos as float },
             ypos:       libc::c_double      => { ypos as float }
         }
