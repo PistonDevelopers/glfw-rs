@@ -33,7 +33,7 @@ fn main() {
     glfw::set_error_callback(error_callback);
     
     do glfw::spawn {
-        let window = glfw::Window::create(640, 480, "Resize the window to call glViewport", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(640, 480, "Resize the window to call glViewport", glfw::Windowed).get();
         
         window.make_context_current();
         

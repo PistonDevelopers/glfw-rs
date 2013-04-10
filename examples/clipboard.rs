@@ -4,7 +4,7 @@ fn main() {
     glfw::set_error_callback(error_callback);
     
     do glfw::spawn {
-        let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).get();
         
         window.make_context_current();
         window.set_key_callback(key_callback);

@@ -4,7 +4,7 @@ fn main() {
     glfw::set_error_callback(error_callback);
     
     do glfw::spawn {
-        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).get();
         
         window.make_context_current();
         window.set_key_callback(key_callback);
