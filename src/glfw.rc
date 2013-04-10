@@ -73,14 +73,9 @@ pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
         
-        if ml::init() == FALSE {
-            fail!(~"Failed to initialize GLFW");
-        }
-        
-        do (|| {
-            f();
-        }).finally {
-            ml::terminate();    // terminate glfw on completion or failure
+        match ml::init() { 
+            FALSE => fail!(~"Failed to initialize GLFW"),
+            _ => (||f()).finally(ml::terminate),
         }
     }
 }
