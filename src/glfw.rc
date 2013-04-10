@@ -119,10 +119,6 @@ pub fn get_primary_monitor() -> Monitor {
 
 pub impl Monitor {
     fn ptr(&self) -> *::ml::GLFWmonitor { **self }
-    
-    fn is_null(&self) -> bool { self.ptr().is_null() }
-    
-    fn null() -> Monitor { Monitor(ptr::null()) }
 
     fn get_pos(&self) -> (int, int) {
         match ml::get_monitor_pos(self.ptr()) {
@@ -297,12 +293,8 @@ pub enum WindowMode {
 pub impl Window {
     fn ptr(&self) -> *ml::GLFWwindow { **self }
 
-    fn is_null(&self) -> bool { self.ptr().is_null() }
-    
-    fn null() -> Window { Window(ptr::null()) }
-
     fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,&str> {
-        Window::create_shared(width, height, title, mode, &Window::null())
+        Window::create_shared(width, height, title, mode, &Window(ptr::null()))
     }
 
     fn create_shared(width: uint, height: uint, title: &str,
@@ -313,12 +305,12 @@ pub impl Window {
             title,
             match mode {
                 FullScreen(m) => m.ptr(),
-                Windowed => ptr::null()
+                Windowed      => ptr::null()
             },
             share.ptr()
         ) {
             w if !w.is_null() => Ok(Window(w)),
-            _ => Err("Failed to open GLFW window")
+            _                 => Err("Failed to open GLFW window"),
         }
     }
 
@@ -375,9 +367,10 @@ pub impl Window {
     }
 
     fn get_monitor(&self) -> WindowMode {
-        let m = ml::get_window_monitor(self.ptr());
-        
-        if m.is_null() { Windowed } else { FullScreen(Monitor(m)) }
+        match ml::get_window_monitor(self.ptr()) {
+            m if m.is_null() => Windowed,
+            m                => FullScreen(Monitor(m)),
+        }
     }
 
     fn get_param(&self, param: c_int) -> c_int {
