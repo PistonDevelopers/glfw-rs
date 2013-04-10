@@ -9,7 +9,7 @@ fn main() {
     
     do glfw::spawn {
         
-        glfw::window_hint(glfw::VISIBLE, glfw::TRUE);
+        glfw::window_hint::visible(true);
         
         let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
         

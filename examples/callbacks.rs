@@ -5,7 +5,7 @@ fn main() {
     
     do glfw::spawn {
         
-        glfw::window_hint(glfw::RESIZABLE, glfw::TRUE);
+        glfw::window_hint::resizable(true);
         
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
         

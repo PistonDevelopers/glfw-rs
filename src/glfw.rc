@@ -185,12 +185,113 @@ impl ToStr for VidMode {
 
 /* Window handling */
 
-pub fn default_window_hints() {
-    ml::default_window_hints();
-}
-
-pub fn window_hint(target: c_int, hint: c_int) {
-    ml::window_hint(target, hint);
+pub mod window_hint {
+    use core::libc::c_int;
+    
+    pub fn default() {
+        ::ml::default_window_hints();
+    }
+    
+    pub fn red_bits(bits: uint) {
+        ::ml::window_hint(::RED_BITS, bits as c_int);
+    }
+    
+    pub fn green_bits(bits: uint) {
+        ::ml::window_hint(::GREEN_BITS, bits as c_int);
+    }
+    
+    pub fn blue_bits(bits: uint) {
+        ::ml::window_hint(::BLUE_BITS, bits as c_int);
+    }
+    
+    pub fn alpha_bits(bits: uint) {
+        ::ml::window_hint(::ALPHA_BITS, bits as c_int);
+    }
+    
+    pub fn depth_bits(bits: uint) {
+        ::ml::window_hint(::DEPTH_BITS, bits as c_int);
+    }
+    
+    pub fn stencil_bits(bits: uint) {
+        ::ml::window_hint(::STENCIL_BITS, bits as c_int);
+    }
+    
+    pub fn accum_red_bits(bits: uint) {
+        ::ml::window_hint(::ACCUM_RED_BITS, bits as c_int);
+    }
+    
+    pub fn accum_green_bits(bits: uint) {
+        ::ml::window_hint(::ACCUM_GREEN_BITS, bits as c_int);
+    }
+    
+    pub fn accum_blue_bits(bits: uint) {
+        ::ml::window_hint(::ACCUM_BLUE_BITS, bits as c_int);
+    }
+    
+    pub fn accum_alpha_bits(bits: uint) {
+        ::ml::window_hint(::ACCUM_ALPHA_BITS, bits as c_int);
+    }
+    
+    pub fn aux_buffers(buffers: uint) {
+        ::ml::window_hint(::AUX_BUFFERS, buffers as c_int);
+    }
+    
+    pub fn stereo(value: bool) {
+        ::ml::window_hint(::STEREO, value as c_int);
+    }
+    
+    pub fn samples(samples: uint) {
+        ::ml::window_hint(::SAMPLES, samples as c_int);
+    }
+    
+    pub fn srgb_capable(value: bool) {
+        ::ml::window_hint(::SRGB_CAPABLE, value as c_int);
+    }
+    
+    pub fn client_api(api: c_int) {
+        ::ml::window_hint(::CLIENT_API, api);
+    }
+    
+    pub fn context_version_major(version: uint) {
+        ::ml::window_hint(::CONTEXT_VERSION_MAJOR, version as c_int);
+    }
+    
+    pub fn context_version_minor(version: uint) {
+        ::ml::window_hint(::CONTEXT_VERSION_MINOR, version as c_int);
+    }
+    
+    pub fn context_version(major: uint, minor: uint) {
+        ::ml::window_hint(::CONTEXT_VERSION_MAJOR, major as c_int);
+        ::ml::window_hint(::CONTEXT_VERSION_MINOR, minor as c_int);
+    }
+    
+    pub fn context_robustness(value: bool) {
+        ::ml::window_hint(::CONTEXT_ROBUSTNESS, value as c_int);
+    }
+    
+    pub fn opengl_forward_compat(value: bool) {
+        ::ml::window_hint(::OPENGL_FORWARD_COMPAT, value as c_int);
+    }
+    
+    pub fn opengl_debug_context(value: bool) {
+        ::ml::window_hint(::OPENGL_DEBUG_CONTEXT, value as c_int);
+    }
+    
+    pub fn opengl_profile(profile: c_int) {
+        ::ml::window_hint(::OPENGL_PROFILE, profile);
+    }
+    
+    pub fn resizable(value: bool) {
+        ::ml::window_hint(::RESIZABLE, value as c_int);
+    }
+    
+    pub fn visible(value: bool) {
+        ::ml::window_hint(::VISIBLE, value as c_int);
+    }
+    
+    pub fn undecorated(value: bool) {
+        ::ml::window_hint(::UNDECORATED, value as c_int);
+    }
 }
 
 pub enum WindowMode {
