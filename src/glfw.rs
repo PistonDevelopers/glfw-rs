@@ -223,12 +223,12 @@ pub enum WindowMode {
 }
 
 pub impl Window {
-    fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,&str> {
+    fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,~str> {
         Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
     }
 
     fn create_shared(width: uint, height: uint, title: &str,
-                     mode: WindowMode, share: &Window) -> Result<Window,&str> {
+                     mode: WindowMode, share: &Window) -> Result<Window,~str> {
         match ml::create_window(
             width as c_int,
             height as c_int,
@@ -240,7 +240,7 @@ pub impl Window {
             share.ptr
         ) {
             w if !w.is_null() => Ok(Window { ptr: w }),
-            _                 => Err("Failed to open GLFW window"),
+            _                 => Err(~"Failed to open GLFW window"),
         }
     }
 
