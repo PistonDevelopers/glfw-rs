@@ -50,17 +50,17 @@ pub type CharFun            = @fn(window: &Window, character: char);
 pub type MonitorFun         = @fn(monitor: &Monitor, event: c_int);
 
 pub struct VidMode {
-    width      : c_int,
-    height     : c_int,
-    redBits    : c_int,
-    blueBits   : c_int,
-    greenBits  : c_int,
+    width:      c_int,
+    height:     c_int,
+    redBits:    c_int,
+    greenBits:  c_int,
+    blueBits:   c_int,
 }
 
 pub struct GammaRamp {
-    red     : [c_ushort, ..GAMMA_RAMP_SIZE],
-    green   : [c_ushort, ..GAMMA_RAMP_SIZE],
-    blue    : [c_ushort, ..GAMMA_RAMP_SIZE],
+    red:    [c_ushort, ..GAMMA_RAMP_SIZE],
+    green:  [c_ushort, ..GAMMA_RAMP_SIZE],
+    blue:   [c_ushort, ..GAMMA_RAMP_SIZE],
 }
 
 pub type GLProc = ::ml::GLFWglproc;
