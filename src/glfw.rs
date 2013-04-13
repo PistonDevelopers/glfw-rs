@@ -75,7 +75,7 @@ pub fn spawn(f: ~fn()) {
         
         match ml::init() { 
             FALSE => fail!(~"Failed to initialize GLFW"),
-            _ => (||f()).finally(ml::terminate),
+            _ => f.finally(ml::terminate),
         }
     }
 }
