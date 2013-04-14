@@ -12,6 +12,7 @@ Jeaye                       http://github.com/Jeaye
 Marvin Löbel                http://github.com/Kimundi
 Niko Matsakis               http://github.com/nikomatsakis
 Tomasz Stachowiak           http://github.com/h3r2tic
+zofrex                      https://github.com/zofrex
 
 
 The GLFW library was created by:
