@@ -351,12 +351,28 @@ pub impl Window {
         }
     }
 
-    fn get_input_mode(&self, mode: c_int) -> int {
-        ml::get_input_mode(self.ptr, mode) as int
+    fn get_cursor_mode(&self) -> c_int {
+        ml::get_input_mode(self.ptr, CURSOR_MODE)
     }
 
-    fn set_input_mode(&self, mode: c_int, value: int) {
-        ml::set_input_mode(self.ptr, mode, value as c_int);
+    fn set_cursor_mode(&self, mode: c_int) {
+        ml::set_input_mode(self.ptr, CURSOR_MODE, mode);
+    }
+
+    fn has_sticky_keys(&self) -> bool {
+        ml::get_input_mode(self.ptr, STICKY_KEYS) as bool
+    }
+
+    fn set_sticky_keys(&self, value: bool) {
+        ml::set_input_mode(self.ptr, STICKY_KEYS, value as c_int);
+    }
+
+    fn has_sticky_mouse_buttons(&self) -> bool {
+        ml::get_input_mode(self.ptr, STICKY_MOUSE_BUTTONS) as bool
+    }
+
+    fn set_sticky_mouse_buttons(&self, value: bool) {
+        ml::set_input_mode(self.ptr, STICKY_MOUSE_BUTTONS, value as c_int);
     }
 
     fn get_key(&self, key: c_int) -> c_int {
