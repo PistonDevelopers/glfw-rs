@@ -17,3 +17,9 @@ GLFW3 bindings and wrapper for The Rust Programming Language.
 
 1. `$ cd glfw/examples`
 2. `$ make` or for a specific example `$ make <example name>` (eg. `$ make window`)
+
+## glfw-rs in use
+
+- [q3](https://github.com/Jeaye/q3)
+- [rsmc](https://github.com/cyndis/rsmc/)
+- [open.gl-tutorials](https://github.com/bjz/open.gl-tutorials)
