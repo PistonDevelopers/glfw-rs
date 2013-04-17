@@ -18,11 +18,11 @@ fn main() {
         let (width, height) = window.get_size();
         io::println(fmt!("window size: %? x %?", width, height));
         
-        println(fmt!("Context version major: %?",     window.get_param(glfw::CONTEXT_VERSION_MAJOR)));
-        println(fmt!("Context version minor: %?",     window.get_param(glfw::CONTEXT_VERSION_MINOR)));
-        println(fmt!("OpenGL forward compatible: %?", window.get_param(glfw::OPENGL_FORWARD_COMPAT)));
-        println(fmt!("OpenGL debug context: %?",      window.get_param(glfw::OPENGL_DEBUG_CONTEXT)));
-        println(fmt!("OpenGL profile: %?",            window.get_param(glfw::OPENGL_PROFILE)));
+        println(fmt!("Context version major: %?",     window.get_context_version_major()));
+        println(fmt!("Context version minor: %?",     window.get_context_version_minor()));
+        println(fmt!("OpenGL forward compatible: %?", window.is_opengl_forward_compat()));
+        println(fmt!("OpenGL debug context: %?",      window.is_opengl_debug_context()));
+        println(fmt!("OpenGL profile: %?",            window.get_opengl_profile()));
         
         let gl_params = [
             (gl::RED_BITS,          None,   "red bits"          ),
