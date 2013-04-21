@@ -9,7 +9,7 @@ fn main() {
         
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).get();
         
-        window.set_input_mode(glfw::STICKY_KEYS, 1);
+        window.set_sticky_keys(true);
         
         // Register event callbacks
         
