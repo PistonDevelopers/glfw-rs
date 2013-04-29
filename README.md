@@ -20,6 +20,6 @@ GLFW3 bindings and wrapper for The Rust Programming Language.
 
 ## glfw-rs in use
 
-- [q3](https://github.com/Jeaye/q3)
-- [rsmc](https://github.com/cyndis/rsmc/)
-- [open.gl-tutorials](https://github.com/bjz/open.gl-tutorials)
+- [Jeaye/q3](https://github.com/Jeaye/q3)
+- [cyndis/rsmc](https://github.com/cyndis/rsmc/)
+- [bjz/open.gl-tutorials](https://github.com/bjz/open.gl-tutorials)

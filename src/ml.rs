@@ -30,8 +30,8 @@ pub fn get_version_string() -> ~str {
     unsafe { str::raw::from_c_str(::ll::glfwGetVersionString()) }
 }
 
-pub fn set_error_callback(cbfun: GLFWerrorfun) {
-    unsafe { ::ll::glfwSetErrorCallback(cbfun); }
+pub fn set_error_callback(cbfun: GLFWerrorfun) -> GLFWerrorfun {
+    unsafe { ::ll::glfwSetErrorCallback(cbfun) }
 }
 
 pub fn get_monitors() -> ~[*GLFWmonitor] {
@@ -96,8 +96,8 @@ pub fn set_gamma_ramp(monitor: *GLFWmonitor, ramp: &GLFWgammaramp) {
     unsafe { ::ll::glfwSetGammaRamp(monitor, ramp); }
 }
 
-pub fn set_monitor_callback(cbfun: GLFWmonitorfun) {
-    unsafe { ::ll::glfwSetMonitorCallback(cbfun); }
+pub fn set_monitor_callback(cbfun: GLFWmonitorfun) -> GLFWmonitorfun {
+    unsafe { ::ll::glfwSetMonitorCallback(cbfun) }
 }
 
 pub fn default_window_hints() {
@@ -184,28 +184,28 @@ pub fn get_window_user_pointer(window: *GLFWwindow) -> *c_void {
     unsafe { ::ll::glfwGetWindowUserPointer(window) }
 }
 
-pub fn set_window_pos_callback(window: *GLFWwindow, cbfun: GLFWwindowposfun) {
-    unsafe { ::ll::glfwSetWindowPosCallback(window, cbfun); }
+pub fn set_window_pos_callback(window: *GLFWwindow, cbfun: GLFWwindowposfun) -> GLFWwindowposfun {
+    unsafe { ::ll::glfwSetWindowPosCallback(window, cbfun) }
 }
 
-pub fn set_window_size_callback(window: *GLFWwindow, cbfun: GLFWwindowsizefun) {
-    unsafe { ::ll::glfwSetWindowSizeCallback(window, cbfun); }
+pub fn set_window_size_callback(window: *GLFWwindow, cbfun: GLFWwindowsizefun) -> GLFWwindowsizefun {
+    unsafe { ::ll::glfwSetWindowSizeCallback(window, cbfun) }
 }
 
-pub fn set_window_close_callback(window: *GLFWwindow, cbfun: GLFWwindowclosefun) {
-    unsafe { ::ll::glfwSetWindowCloseCallback(window, cbfun); }
+pub fn set_window_close_callback(window: *GLFWwindow, cbfun: GLFWwindowclosefun) -> GLFWwindowclosefun {
+    unsafe { ::ll::glfwSetWindowCloseCallback(window, cbfun) }
 }
 
-pub fn set_window_refresh_callback(window: *GLFWwindow, cbfun: GLFWwindowrefreshfun) {
-    unsafe { ::ll::glfwSetWindowRefreshCallback(window, cbfun); }
+pub fn set_window_refresh_callback(window: *GLFWwindow, cbfun: GLFWwindowrefreshfun) -> GLFWwindowrefreshfun {
+    unsafe { ::ll::glfwSetWindowRefreshCallback(window, cbfun) }
 }
 
-pub fn set_window_focus_callback(window: *GLFWwindow, cbfun: GLFWwindowfocusfun) {
-    unsafe { ::ll::glfwSetWindowFocusCallback(window, cbfun); }
+pub fn set_window_focus_callback(window: *GLFWwindow, cbfun: GLFWwindowfocusfun) -> GLFWwindowfocusfun {
+    unsafe { ::ll::glfwSetWindowFocusCallback(window, cbfun) }
 }
 
-pub fn set_window_iconify_callback(window: *GLFWwindow, cbfun: GLFWwindowiconifyfun) {
-    unsafe { ::ll::glfwSetWindowIconifyCallback(window, cbfun); }
+pub fn set_window_iconify_callback(window: *GLFWwindow, cbfun: GLFWwindowiconifyfun) -> GLFWwindowiconifyfun {
+    unsafe { ::ll::glfwSetWindowIconifyCallback(window, cbfun) }
 }
 
 pub fn get_input_mode(window: *GLFWwindow, mode: c_int) -> c_int {
@@ -236,28 +236,28 @@ pub fn set_cursor_pos(window: *GLFWwindow, xpos: c_double, ypos: c_double) {
     unsafe { ::ll::glfwSetCursorPos(window, xpos, ypos); }
 }
 
-pub fn set_key_callback(window: *GLFWwindow, cbfun: GLFWkeyfun) {
-    unsafe { ::ll::glfwSetKeyCallback(window, cbfun); }
+pub fn set_key_callback(window: *GLFWwindow, cbfun: GLFWkeyfun) -> GLFWkeyfun {
+    unsafe { ::ll::glfwSetKeyCallback(window, cbfun) }
 }
 
-pub fn set_char_callback(window: *GLFWwindow, cbfun: GLFWcharfun) {
-    unsafe { ::ll::glfwSetCharCallback(window, cbfun); }
+pub fn set_char_callback(window: *GLFWwindow, cbfun: GLFWcharfun) -> GLFWcharfun {
+    unsafe { ::ll::glfwSetCharCallback(window, cbfun) }
 }
 
-pub fn set_mouse_button_callback(window: *GLFWwindow, cbfun: GLFWmousebuttonfun) {
-    unsafe { ::ll::glfwSetMouseButtonCallback(window, cbfun); }
+pub fn set_mouse_button_callback(window: *GLFWwindow, cbfun: GLFWmousebuttonfun) -> GLFWmousebuttonfun {
+    unsafe { ::ll::glfwSetMouseButtonCallback(window, cbfun) }
 }
 
-pub fn set_cursor_pos_callback(window: *GLFWwindow, cbfun: GLFWcursorposfun) {
-    unsafe { ::ll::glfwSetCursorPosCallback(window, cbfun); }
+pub fn set_cursor_pos_callback(window: *GLFWwindow, cbfun: GLFWcursorposfun) -> GLFWcursorposfun {
+    unsafe { ::ll::glfwSetCursorPosCallback(window, cbfun) }
 }
 
-pub fn set_cursor_enter_callback(window: *GLFWwindow, cbfun: GLFWcursorenterfun) {
-    unsafe { ::ll::glfwSetCursorEnterCallback(window, cbfun); }
+pub fn set_cursor_enter_callback(window: *GLFWwindow, cbfun: GLFWcursorenterfun) -> GLFWcursorenterfun {
+    unsafe { ::ll::glfwSetCursorEnterCallback(window, cbfun) }
 }
 
-pub fn set_scroll_callback(window: *GLFWwindow, cbfun: GLFWscrollfun) {
-    unsafe { ::ll::glfwSetScrollCallback(window, cbfun); }
+pub fn set_scroll_callback(window: *GLFWwindow, cbfun: GLFWscrollfun) -> GLFWscrollfun {
+    unsafe { ::ll::glfwSetScrollCallback(window, cbfun) }
 }
 
 pub fn set_clipboard_string(window: *GLFWwindow, string: &str) {
