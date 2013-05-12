@@ -22,7 +22,7 @@ macro_rules! event(
              */
             pub fn set_callback(cbfun: $cbfun, f: &fn($ext_cbfun) ) {
                 unsafe {
-                    task::local_data::local_data_set(tls_key, @cbfun);
+                    local_data::local_data_set(tls_key, @cbfun);
                     f(ext_cbfun);   // TODO: pass on return value from `::ml::set_*_callback` function
                 }
             }
@@ -33,7 +33,7 @@ macro_rules! event(
              */
             pub extern fn ext_cbfun( $($arg : $arg_ty),+ ) {
                 unsafe {
-                    do task::local_data::local_data_get(tls_key).map |&cb| {
+                    do local_data::local_data_get(tls_key).map |&cb| {
                         (*cb)( $($arg_conv),+ )
                     };
                 }
