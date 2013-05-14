@@ -18,9 +18,9 @@ pub fn terminate() {
 
 pub fn get_version() -> (c_int, c_int, c_int) {
     unsafe {
-        let mut major = 0,
-                minor = 0,
-                rev   = 0;
+        let major = 0,
+            minor = 0,
+            rev   = 0;
         ::ll::glfwGetVersion(&major, &minor, &rev);
         (major, minor, rev)
     }
@@ -36,7 +36,7 @@ pub fn set_error_callback(cbfun: GLFWerrorfun) -> GLFWerrorfun {
 
 pub fn get_monitors() -> ~[*GLFWmonitor] {
     unsafe {
-        let mut count = 0;
+        let count = 0;
         let ptr = ::ll::glfwGetMonitors(&count);
         vec::from_buf(ptr, count as uint)
     }
@@ -48,7 +48,8 @@ pub fn get_primary_monitor() -> *GLFWmonitor {
 
 pub fn get_monitor_pos(monitor: *GLFWmonitor) -> (c_int, c_int) {
     unsafe {
-        let mut xpos = 0, ypos = 0;
+        let xpos = 0,
+            ypos = 0;
         ::ll::glfwGetMonitorPos(monitor, &xpos, &ypos);
         (xpos, ypos)
     }
@@ -56,7 +57,8 @@ pub fn get_monitor_pos(monitor: *GLFWmonitor) -> (c_int, c_int) {
 
 pub fn get_monitor_physical_size(monitor: *GLFWmonitor) -> (c_int, c_int) {
     unsafe {
-        let mut width = 0, height = 0;
+        let width  = 0,
+            height = 0;
         ::ll::glfwGetMonitorPhysicalSize(monitor, &width, &height);
         (width, height)
     }
@@ -68,7 +70,7 @@ pub fn get_monitor_name(monitor: *GLFWmonitor) -> ~str {
 
 pub fn get_video_modes(monitor: *GLFWmonitor) -> ~[GLFWvidmode] {
     unsafe {
-        let mut count = 0;
+        let count = 0;
         let ptr = ::ll::glfwGetVideoModes(monitor, &count);
         vec::from_buf(ptr, count as uint)
     }
@@ -83,13 +85,15 @@ pub fn set_gamma(monitor: *GLFWmonitor, gamma: c_float) {
 }
 
 pub fn get_gamma_ramp(monitor: *GLFWmonitor) -> GLFWgammaramp {
-    let mut ramp = ::GammaRamp {
-        red:   [0, ..GAMMA_RAMP_SIZE],
-        green: [0, ..GAMMA_RAMP_SIZE],
-        blue:  [0, ..GAMMA_RAMP_SIZE],
-    };
-    unsafe { ::ll::glfwGetGammaRamp(monitor, &ramp); }
-    return ramp;
+    unsafe {
+        let ramp = ::GammaRamp {
+            red:   [0, ..GAMMA_RAMP_SIZE],
+            green: [0, ..GAMMA_RAMP_SIZE],
+            blue:  [0, ..GAMMA_RAMP_SIZE],
+        };
+        ::ll::glfwGetGammaRamp(monitor, &ramp);
+        ramp
+    }
 }
 
 pub fn set_gamma_ramp(monitor: *GLFWmonitor, ramp: &GLFWgammaramp) {
@@ -130,7 +134,8 @@ pub fn set_window_title(window: *GLFWwindow, title: &str) {
 
 pub fn get_window_pos(window: *GLFWwindow) -> (c_int, c_int) {
     unsafe {
-        let mut xpos = 0, ypos = 0;
+        let xpos = 0,
+            ypos = 0;
         ::ll::glfwGetWindowPos(window, &xpos, &ypos);
         (xpos, ypos)
     }
@@ -142,7 +147,8 @@ pub fn set_window_pos(window: *GLFWwindow, xpos: c_int, ypos: c_int) {
 
 pub fn get_window_size(window: *GLFWwindow) -> (c_int, c_int) {
     unsafe {
-        let mut width = 0, height = 0;
+        let width  = 0,
+            height = 0;
         ::ll::glfwGetWindowSize(window, &width, &height);
         (width, height)
     }
@@ -226,7 +232,8 @@ pub fn get_mouse_button(window: *GLFWwindow, button: c_int) -> c_int {
 
 pub fn get_cursor_pos(window: *GLFWwindow) -> (c_double, c_double) {
     unsafe {
-        let mut xpos = 0.0, ypos = 0.0;
+        let xpos = 0.0,
+            ypos = 0.0;
         ::ll::glfwGetCursorPos(window, &xpos, &ypos);
         (xpos, ypos)
     }
