@@ -2,33 +2,33 @@ extern mod glfw;
 
 fn main() {
     glfw::set_error_callback(error_callback);
-    
+
     do glfw::spawn {
-        
+
         glfw::window_hint::resizable(true);
-        
+
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).get();
-        
+
         window.set_sticky_keys(true);
-        
+
         // Register event callbacks
-        
+
         window.set_pos_callback(window_pos_callback);
         window.set_size_callback(window_size_callback);
         window.set_close_callback(window_close_callback);
         window.set_refresh_callback(window_refresh_callback);  // FIXME
         window.set_focus_callback(window_focus_callback);
         window.set_iconify_callback(window_iconify_callback);
-        
+
         window.set_key_callback(key_callback);
         window.set_char_callback(char_callback);
         window.set_mouse_button_callback(mouse_button_callback);
         window.set_cursor_pos_callback(cursor_pos_callback);
         window.set_cursor_enter_callback(cursor_enter_callback);
         window.set_scroll_callback(scroll_callback);  // FIXME
-        
+
         window.make_context_current();
-        
+
         while !window.should_close() {
             glfw::poll_events();
         }
@@ -69,12 +69,12 @@ fn window_iconify_callback(_window: &glfw::Window, iconified: bool) {
 
 fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
     io::println(fmt!("Key %s: %s", to_key_str(key), to_action_str(action)));
-    
+
     if action == glfw::PRESS {
         if key == glfw::KEY_ESCAPE {
             window.set_should_close(true);
         }
-        
+
         // FIXME: this should trigger the window refresh callback.
         if key == glfw::KEY_R {
             window.swap_buffers();

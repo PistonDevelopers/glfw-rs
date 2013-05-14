@@ -2,14 +2,14 @@ extern mod glfw;
 
 fn main() {
     glfw::set_error_callback(error_callback);
-    
+
     do glfw::spawn {
         let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).get();
-        
+
         window.make_context_current();
         window.set_key_callback(key_callback);
         glfw::set_swap_interval(1);
-        
+
         while !window.should_close() {
             glfw::wait_events();
         }

@@ -13,29 +13,29 @@ fn main() {
     // that the OS is able to update the window and recieve events from the user.
     do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
-        
+
         // The `glfw::{TRUE, FALSE}` constants are added for convenience. You could also use
         // the `GL_TRUE` or `GL_FALSE` constants from you OpenGL bindings.
         if glfw::init() == glfw::FALSE {
             fail!(~"Failed to initialize GLFW");
         }
-        
+
         // Using `do (|| { ... }).finally { glfw::terminate() }` allows us to ensure that
         // `glfw::terminate` is called even when failure occurs during runtime
         do (|| {
             glfw::set_error_callback(error_callback);
-            
+
             let window = glfw::create_window(300, 300, "Hello this is window", ptr::null(), ptr::null());
-            
+
             if window.is_null() { fail!(~"Failed to initialize GLFW window\n"); }
-            
+
             glfw::set_key_callback(window, key_callback);
             glfw::make_context_current(window);
-            
+
             while glfw::window_should_close(window) == glfw::FALSE {
                 glfw::poll_events();
             }
-            
+
         }).finally {
             glfw::terminate();    // terminate glfw on completion
         }

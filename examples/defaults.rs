@@ -6,24 +6,24 @@ fn error_callback(_error: libc::c_int, description: ~str) {
 
 fn main() {
     glfw::set_error_callback(error_callback);
-    
+
     do glfw::spawn {
-        
+
         glfw::window_hint::visible(true);
-        
+
         let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).get();
-        
+
         window.make_context_current();
-        
+
         let (width, height) = window.get_size();
         io::println(fmt!("window size: %? x %?", width, height));
-        
+
         println(fmt!("Context version major: %?",     window.get_context_version_major()));
         println(fmt!("Context version minor: %?",     window.get_context_version_minor()));
         println(fmt!("OpenGL forward compatible: %?", window.is_opengl_forward_compat()));
         println(fmt!("OpenGL debug context: %?",      window.is_opengl_debug_context()));
         println(fmt!("OpenGL profile: %?",            window.get_opengl_profile()));
-        
+
         let gl_params = [
             (gl::RED_BITS,          None,   "red bits"          ),
             (gl::GREEN_BITS,        None,   "green bits"        ),
@@ -38,16 +38,16 @@ fn main() {
             (gl::STEREO,            None,   "stereo"            ),
             (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
         ];
-        
+
         for gl_params.each |&p| {
             let (param, ext, name) = p;
-            
+
             if do ext.map_default(true) |&s| {
                 glfw::extension_supported(s)
             } {
                 let mut value = 0;
                 unsafe { gl::GetIntegerv(param, &value); }
-                
+
                 println(fmt!("OpenGL %s: %?", name, value));
             };
         }
@@ -64,10 +64,10 @@ mod gl {
     #[link_args="-lGL"]
     #[cfg(target_os = "linux")]
     extern mod linkhack {}
-    
+
     pub type GLenum = libc::c_uint;
     pub type GLint  = libc::c_int;
-    
+
     pub static RED_BITS              : GLenum = 0x0D52;
     pub static GREEN_BITS            : GLenum = 0x0D53;
     pub static BLUE_BITS             : GLenum = 0x0D54;
@@ -80,7 +80,7 @@ mod gl {
     pub static ACCUM_ALPHA_BITS      : GLenum = 0x0D5B;
     pub static STEREO                : GLenum = 0x0C33;
     pub static SAMPLES_ARB           : GLenum = 0x80A9;
-    
+
     pub extern "C" {
         #[link_name="glGetIntegerv"]
         pub fn GetIntegerv(pname: GLenum, params: *GLint);

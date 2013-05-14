@@ -22,7 +22,7 @@ impl GL {
             }
         }
     }
-    
+
     #[inline(always)]
     fn Viewport(&self, x: GLint, y: GLint, width: GLint, height: GLint) {
         (self.Viewport)(x, y, width, height)
@@ -31,21 +31,21 @@ impl GL {
 
 fn main() {
     glfw::set_error_callback(error_callback);
-    
+
     do glfw::spawn {
         let window = glfw::Window::create(640, 480, "Resize the window to call glViewport", glfw::Windowed).get();
-        
+
         window.make_context_current();
-        
+
         let gl = GL::init();
-        
+
         do window.set_size_callback |_, width, height| {
             // Rust doesn't have global state, so we use a borrowed pointer
             // to the gl struct in order to perform rendering operations
             // in other functions
             render_resize(&gl, width, height);
         }
-        
+
         while !window.should_close() {
             glfw::poll_events();
         }

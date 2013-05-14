@@ -4,34 +4,34 @@ BUILD_DIR	:= bin
 
 
 all: callbacks clipboard defaults ml-wrapper gl-struct modes title version window
-	
+
 builddir:
 	@mkdir -p $(BUILD_DIR)
-	
+
 callbacks: builddir
 	rustc callbacks.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 clipboard: builddir
 	rustc clipboard.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 defaults: builddir
 	rustc defaults.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 gl-struct: builddir
 	rustc gl-struct.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 ml-wrapper: builddir
 	rustc ml-wrapper.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 modes: builddir
 	rustc modes.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 title: builddir
 	rustc title.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 version: builddir
 	rustc version.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-	
+
 window: builddir
 	rustc window.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
 

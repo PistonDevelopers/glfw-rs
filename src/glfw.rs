@@ -72,8 +72,8 @@ pub type GLProc = ::ml::GLFWglproc;
 pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
-        
-        match ml::init() { 
+
+        match ml::init() {
             FALSE => fail!(~"Failed to initialize GLFW"),
             _ => f.finally(ml::terminate),
         }
@@ -184,11 +184,11 @@ macro_rules! hint(
 
 pub mod window_hint {
     use core::libc::c_int;
-    
+
     pub fn default() {
         ::ml::default_window_hints();
     }
-    
+
     hint!(red_bits               (bits: uint)      => (::RED_BITS, bits as c_int))
     hint!(green_bits             (bits: uint)      => (::GREEN_BITS, bits as c_int))
     hint!(blue_bits              (bits: uint)      => (::BLUE_BITS, bits as c_int))
@@ -247,11 +247,11 @@ pub impl Window {
     fn destroy(&self) {
         ml::destroy_window(self.ptr);
     }
-    
+
     fn should_close(&self) -> bool {
         ml::window_should_close(self.ptr) as bool
     }
-    
+
     fn set_should_close(&self, value: bool) {
         ml::set_window_should_close(self.ptr, value as c_int)
     }
@@ -466,16 +466,16 @@ pub fn wait_events() {
 
 pub mod joystick {
     use core::libc::*;
-    
+
     pub fn is_present(joy: c_int) -> bool {
         ::ml::get_joystick_param(joy, ::ml::PRESENT) as bool
     }
-    
+
     pub fn num_axes(joy: c_int) -> Option<uint> {
         let axes = ::ml::get_joystick_param(joy, ::ml::AXES);
         if axes > 0 { Some(axes as uint) } else { None }
     }
-    
+
     pub fn num_buttons(joy: c_int) -> Option<uint> {
         let buttons = ::ml::get_joystick_param(joy, ::ml::BUTTONS);
         if buttons > 0 { Some(buttons as uint) } else { None }
@@ -487,7 +487,7 @@ pub mod joystick {
                 let mut axes = ~[];
                 vec::grow(&mut axes, num, &0.0);
                 vec::raw::set_len(&mut axes, num);
-            
+
                 if ::ll::glfwGetJoystickAxes(joy, &axes[0], num as c_int) > 0 {
                     Ok(axes.map(|&a| a as float))
                 } else {
@@ -503,7 +503,7 @@ pub mod joystick {
                 let mut buttons = ~[];
                 vec::grow(&mut buttons, num, &0);
                 vec::raw::set_len(&mut buttons, num);
-                
+
                 if ::ll::glfwGetJoystickButtons(joy, &buttons[0], num as c_int) > 0 {
                     Ok(buttons.map(|&a| a as int))
                 } else {
