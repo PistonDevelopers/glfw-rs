@@ -58,12 +58,12 @@ mod gl {
     #[nolink]
     #[link_args="-framework OpenGL"]
     #[cfg(target_os = "macos")]
-    extern mod linkhack {}
+    pub extern { }
 
     #[nolink]
     #[link_args="-lGL"]
     #[cfg(target_os = "linux")]
-    extern mod linkhack {}
+    pub extern { }
 
     pub type GLenum = libc::c_uint;
     pub type GLint  = libc::c_int;

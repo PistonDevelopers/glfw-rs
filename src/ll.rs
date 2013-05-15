@@ -10,12 +10,13 @@ pub use support::types::*;
 // Include OS X Frameworks
 #[nolink]
 #[cfg(target_os = "macos")]
-#[link_args="-framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
-extern mod osx_frameworks {}
+#[link_args="-lglfw -framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
+pub extern { }
 
-// GLFW Linking
-#[link_name = "glfw"]
-extern mod linkhack {}
+#[nolink]
+#[cfg(target_os = "linux")]
+#[link_args="-lglfw"]
+pub extern { }
 
 pub extern "C" {
     pub fn glfwInit() -> c_int;
