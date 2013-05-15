@@ -45,10 +45,11 @@ fn main() {
             if do ext.map_default(true) |&s| {
                 glfw::extension_supported(s)
             } {
-                let mut value = 0;
-                unsafe { gl::GetIntegerv(param, &value); }
-
-                println(fmt!("OpenGL %s: %?", name, value));
+                unsafe {
+                    let value = 0;
+                    gl::GetIntegerv(param, &value);
+                    println(fmt!("OpenGL %s: %?", name, value));
+                }
             };
         }
     }
