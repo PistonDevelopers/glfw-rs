@@ -9,29 +9,26 @@
 
 use core::libc::*;
 
+// re-export constants
 pub use consts::*;
 
-/// Low-level bindings
 pub mod ll;
-
-/// Mid-level wrapper functions
 pub mod ml;
-
 #[path = "support/private.rs"]
 priv mod private;
 #[path = "support/consts.rs"]
 pub mod consts;
 
-/**
- * A struct containing a low-level monitor handle
- */
-pub struct Monitor { ptr: *ml::GLFWmonitor }
+/// A struct containing a low-level monitor handle
+pub struct Monitor {
+    ptr: *ml::GLFWmonitor
+}
 
-/**
- * A struct containing a low-level window handle
- */
+/// A struct containing a low-level window handle
 #[deriving(Eq, IterBytes)]
-pub struct Window { ptr: *ml::GLFWwindow }
+pub struct Window {
+    ptr: *ml::GLFWwindow
+}
 
 pub type ErrorFun           = @fn(error: c_int, format: ~str);
 pub type WindowPosFun       = @fn(window: &Window, width: int, height: int);
@@ -64,10 +61,8 @@ pub struct GammaRamp {
 
 pub type GLProc = ml::GLFWglproc;
 
-/**
- * Initialises GLFW on the main platform thread. `glfw::terminate` is
- * automatically called on the success or failure of `f`
- */
+/// Initialises GLFW on the main platform thread. `glfw::terminate` is
+/// automatically called on the success or failure of `f`
 pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
@@ -87,9 +82,7 @@ pub struct Version {
     rev:   int,
 }
 
-/**
- * Returns a struct containing the GLFW version numbers.
- */
+/// Returns a struct containing the GLFW version numbers.
 pub fn get_version() -> Version {
     match ml::get_version() {
         (major, minor, rev) => Version {
@@ -143,8 +136,6 @@ pub impl Monitor {
         unsafe { cast::transmute(ml::get_video_mode(self.ptr)) }
     }
 
-    /* Gamma ramp functions */
-
     pub fn set_gamma(&self, gamma: float) {
         ml::set_gamma(self.ptr, gamma as c_float);
     }
@@ -174,7 +165,7 @@ impl ToStr for VidMode {
 }
 
 macro_rules! window_hints(
-    ($(fn $name:ident $(($arg_name:ident: $arg_ty:ty) => ($hint:expr, $arg_conv:expr))+)+) => (
+    ($(fn $name:ident $(($arg_name:ident: $arg_ty:ty => $hint:expr, $arg_conv:expr))+)+) => (
         pub mod window_hint {
             use core::libc::c_int;
             use ml;
@@ -191,32 +182,32 @@ macro_rules! window_hints(
 )
 
 window_hints!(
-    fn red_bits               (bits: uint)      => (ml::RED_BITS, bits as c_int)
-    fn green_bits             (bits: uint)      => (ml::GREEN_BITS, bits as c_int)
-    fn blue_bits              (bits: uint)      => (ml::BLUE_BITS, bits as c_int)
-    fn alpha_bits             (bits: uint)      => (ml::ALPHA_BITS, bits as c_int)
-    fn depth_bits             (bits: uint)      => (ml::DEPTH_BITS, bits as c_int)
-    fn stencil_bits           (bits: uint)      => (ml::STENCIL_BITS, bits as c_int)
-    fn accum_red_bits         (bits: uint)      => (ml::ACCUM_RED_BITS, bits as c_int)
-    fn accum_green_bits       (bits: uint)      => (ml::ACCUM_GREEN_BITS, bits as c_int)
-    fn accum_blue_bits        (bits: uint)      => (ml::ACCUM_BLUE_BITS, bits as c_int)
-    fn accum_alpha_bits       (bits: uint)      => (ml::ACCUM_ALPHA_BITS, bits as c_int)
-    fn aux_buffers            (buffers: uint)   => (ml::AUX_BUFFERS, buffers as c_int)
-    fn stereo                 (value: bool)     => (ml::STEREO, value as c_int)
-    fn samples                (samples: uint)   => (ml::SAMPLES, samples as c_int)
-    fn srgb_capable           (value: bool)     => (ml::SRGB_CAPABLE, value as c_int)
-    fn client_api             (api: c_int)      => (ml::CLIENT_API, api)
-    fn context_version_major  (major: uint)     => (ml::CONTEXT_VERSION_MAJOR, major as c_int)
-    fn context_version_minor  (minor: uint)     => (ml::CONTEXT_VERSION_MINOR, minor as c_int)
-    fn context_version        (major: uint)     => (ml::CONTEXT_VERSION_MAJOR, major as c_int)
-                              (minor: uint)     => (ml::CONTEXT_VERSION_MINOR, minor as c_int)
-    fn context_robustness     (value: bool)     => (ml::CONTEXT_ROBUSTNESS, value as c_int)
-    fn opengl_forward_compat  (value: bool)     => (ml::OPENGL_FORWARD_COMPAT, value as c_int)
-    fn opengl_debug_context   (value: bool)     => (ml::OPENGL_DEBUG_CONTEXT, value as c_int)
-    fn opengl_profile         (profile: c_int)  => (ml::OPENGL_PROFILE, profile)
-    fn resizable              (value: bool)     => (ml::RESIZABLE, value as c_int)
-    fn visible                (value: bool)     => (ml::VISIBLE, value as c_int)
-    fn undecorated            (value: bool)     => (ml::UNDECORATED, value as c_int)
+    fn red_bits               (bits: uint       => ml::RED_BITS, bits as c_int)
+    fn green_bits             (bits: uint       => ml::GREEN_BITS, bits as c_int)
+    fn blue_bits              (bits: uint       => ml::BLUE_BITS, bits as c_int)
+    fn alpha_bits             (bits: uint       => ml::ALPHA_BITS, bits as c_int)
+    fn depth_bits             (bits: uint       => ml::DEPTH_BITS, bits as c_int)
+    fn stencil_bits           (bits: uint       => ml::STENCIL_BITS, bits as c_int)
+    fn accum_red_bits         (bits: uint       => ml::ACCUM_RED_BITS, bits as c_int)
+    fn accum_green_bits       (bits: uint       => ml::ACCUM_GREEN_BITS, bits as c_int)
+    fn accum_blue_bits        (bits: uint       => ml::ACCUM_BLUE_BITS, bits as c_int)
+    fn accum_alpha_bits       (bits: uint       => ml::ACCUM_ALPHA_BITS, bits as c_int)
+    fn aux_buffers            (buffers: uint    => ml::AUX_BUFFERS, buffers as c_int)
+    fn stereo                 (value: bool      => ml::STEREO, value as c_int)
+    fn samples                (samples: uint    => ml::SAMPLES, samples as c_int)
+    fn srgb_capable           (value: bool      => ml::SRGB_CAPABLE, value as c_int)
+    fn client_api             (api: c_int       => ml::CLIENT_API, api)
+    fn context_version_major  (major: uint      => ml::CONTEXT_VERSION_MAJOR, major as c_int)
+    fn context_version_minor  (minor: uint      => ml::CONTEXT_VERSION_MINOR, minor as c_int)
+    fn context_version        (major: uint      => ml::CONTEXT_VERSION_MAJOR, major as c_int)
+                              (minor: uint      => ml::CONTEXT_VERSION_MINOR, minor as c_int)
+    fn context_robustness     (value: bool      => ml::CONTEXT_ROBUSTNESS, value as c_int)
+    fn opengl_forward_compat  (value: bool      => ml::OPENGL_FORWARD_COMPAT, value as c_int)
+    fn opengl_debug_context   (value: bool      => ml::OPENGL_DEBUG_CONTEXT, value as c_int)
+    fn opengl_profile         (profile: c_int   => ml::OPENGL_PROFILE, profile)
+    fn resizable              (value: bool      => ml::RESIZABLE, value as c_int)
+    fn visible                (value: bool      => ml::VISIBLE, value as c_int)
+    fn undecorated            (value: bool      => ml::UNDECORATED, value as c_int)
 )
 
 pub enum WindowMode {

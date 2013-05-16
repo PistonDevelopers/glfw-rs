@@ -1,9 +1,8 @@
-/**
- * Low-level glfw bindings. Includes public exports of core types and constants.
- */
+//! Low-level glfw bindings. Includes public exports of core types and constants.
 
 use core::libc::*;
 
+// re-export constants
 pub use consts::*;
 
 // TODO: Will have to be changed once we can do external C callbacks nicely
@@ -43,7 +42,8 @@ pub struct GLFWvidmode {
     blueBits:   c_int,
 }
 
-// Include OS X Frameworks
+// Linking
+
 #[nolink]
 #[cfg(target_os = "macos")]
 #[link_args="-lglfw -framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
@@ -53,6 +53,8 @@ pub extern { }
 #[cfg(target_os = "linux")]
 #[link_args="-lglfw"]
 pub extern { }
+
+// C function bindings
 
 pub extern "C" {
     pub fn glfwInit() -> c_int;

@@ -6,6 +6,7 @@
 use core::libc::*;
 use ll;
 
+// re-export constants
 pub use consts::*;
 
 // re-export low-level types
