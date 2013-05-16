@@ -9,7 +9,6 @@
 
 use core::libc::*;
 
-use support::event;
 pub use support::consts::*;
 
 /// Low-level bindings
@@ -18,9 +17,11 @@ pub mod ll;
 /// Mid-level wrapper functions
 pub mod ml;
 
+#[path = "support/private.rs"]
+priv mod private;
+
 pub mod support {
     pub mod consts;
-    pub mod event;
     pub mod types;
 }
 
@@ -32,6 +33,7 @@ pub struct Monitor { ptr: *::ml::GLFWmonitor }
 /**
  * A struct containing a low-level window handle
  */
+#[deriving(Eq, IterBytes)]
 pub struct Window { ptr: *::ml::GLFWwindow }
 
 pub type ErrorFun           = @fn(error: c_int, format: ~str);
@@ -73,6 +75,8 @@ pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
 
+        private::WindowDataMap::init();
+
         match ml::init() {
             FALSE => fail!(~"Failed to initialize GLFW"),
             _ => f.finally(ml::terminate),
@@ -104,7 +108,7 @@ pub fn get_version_string() -> ~str {
 }
 
 pub fn set_error_callback(cbfun: ErrorFun) {
-    do event::error::set_callback(cbfun) |ext_cb| {
+    do private::set_error_fun(cbfun) |ext_cb| {
         ml::set_error_callback(ext_cb);
     }
 }
@@ -158,7 +162,7 @@ pub impl Monitor {
 }
 
 fn set_monitor_callback(cbfun: MonitorFun) {
-    do event::monitor::set_callback(cbfun) |ext_cb| {
+    do private::set_monitor_fun(cbfun) |ext_cb| {
         ml::set_monitor_callback(ext_cb);
     }
 }
@@ -222,6 +226,15 @@ pub enum WindowMode {
     Windowed,
 }
 
+priv impl WindowMode {
+    fn to_monitor_ptr(&self) -> *ml::GLFWmonitor {
+        match *self {
+            FullScreen(monitor) => monitor.ptr,
+            Windowed => ptr::null()
+        }
+    }
+}
+
 pub impl Window {
     fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,~str> {
         Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
@@ -229,23 +242,30 @@ pub impl Window {
 
     fn create_shared(width: uint, height: uint, title: &str,
                      mode: WindowMode, share: &Window) -> Result<Window,~str> {
-        match ml::create_window(
-            width as c_int,
-            height as c_int,
-            title,
-            match mode {
-                FullScreen(m) => m.ptr,
-                Windowed      => ptr::null()
-            },
-            share.ptr
-        ) {
-            w if !w.is_null() => Ok(Window { ptr: w }),
-            _                 => Err(~"Failed to open GLFW window"),
+        let window = Window {
+            ptr: ml::create_window(
+                width as c_int, height as c_int, title,
+                mode.to_monitor_ptr(), share.ptr
+            )
+        };
+
+        if !window.ptr.is_null() {
+            // Initialize the local data for this window in TLS
+            private::WindowDataMap::get().insert(
+                window, @mut private::WindowData::new()
+            );
+            Ok(window)
+        } else {
+            Err(~"Failed to open GLFW window")
         }
     }
 
-    fn destroy(&self) {
-        ml::destroy_window(self.ptr);
+    /// Gets a mutable pointer to the window's local data from TLS
+    priv fn get_local_data(&self) -> @mut private::WindowData {
+        match private::WindowDataMap::get().find_mut(self) {
+            Some(&data) => data,
+            None => fail!("Could not find local data for this window."),
+        }
     }
 
     fn should_close(&self) -> bool {
@@ -257,7 +277,7 @@ pub impl Window {
     }
 
     fn set_title(&self, title: &str) {
-        ml::set_window_title(self.ptr, title)
+        ml::set_window_title(self.ptr, title);
     }
 
     fn get_pos(&self) -> (int, int) {
@@ -326,39 +346,33 @@ pub impl Window {
     }
 
     fn set_pos_callback(&self, cbfun: WindowSizeFun) {
-        do event::windowpos::set_callback(cbfun) |ext_cb| {
-            ml::set_window_pos_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().pos_fun = Some(cbfun);
+        ml::set_window_pos_callback(self.ptr, private::window_pos_callback);
     }
 
     fn set_size_callback(&self, cbfun: WindowSizeFun) {
-        do event::windowsize::set_callback(cbfun) |ext_cb| {
-            ml::set_window_size_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().size_fun = Some(cbfun);
+        ml::set_window_size_callback(self.ptr, private::window_size_callback);
     }
 
     fn set_close_callback(&self, cbfun: WindowCloseFun) {
-        do event::windowclose::set_callback(cbfun) |ext_cb| {
-            ml::set_window_close_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().close_fun = Some(cbfun);
+        ml::set_window_close_callback(self.ptr, private::window_close_callback);
     }
 
     fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
-        do event::windowrefresh::set_callback(cbfun) |ext_cb| {
-            ml::set_window_refresh_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().refresh_fun = Some(cbfun);
+        ml::set_window_refresh_callback(self.ptr, private::window_refresh_callback);
     }
 
     fn set_focus_callback(&self, cbfun: WindowFocusFun) {
-        do event::windowfocus::set_callback(cbfun) |ext_cb| {
-            ml::set_window_focus_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().focus_fun = Some(cbfun);
+        ml::set_window_focus_callback(self.ptr, private::window_focus_callback);
     }
 
     fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
-        do event::windowiconify::set_callback(cbfun) |ext_cb| {
-            ml::set_window_iconify_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().iconify_fun = Some(cbfun);
+        ml::set_window_iconify_callback(self.ptr, private::window_iconify_callback);
     }
 
     fn get_cursor_mode(&self) -> c_int {
@@ -404,39 +418,33 @@ pub impl Window {
     }
 
     fn set_key_callback(&self, cbfun: KeyFun) {
-        do event::key::set_callback(cbfun) |ext_cb| {
-            ml::set_key_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().key_fun = Some(cbfun);
+        ml::set_key_callback(self.ptr, private::key_callback);
     }
 
     fn set_char_callback(&self, cbfun: CharFun) {
-        do event::char::set_callback(cbfun) |ext_cb| {
-            ml::set_char_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().char_fun = Some(cbfun);
+        ml::set_char_callback(self.ptr, private::char_callback);
     }
 
     fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
-        do event::mousebutton::set_callback(cbfun) |ext_cb| {
-            ml::set_mouse_button_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().mouse_button_fun = Some(cbfun);
+        ml::set_mouse_button_callback(self.ptr, private::mouse_button_callback);
     }
 
     fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
-        do event::cursorpos::set_callback(cbfun) |ext_cb| {
-            ml::set_cursor_pos_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().cursor_pos_fun = Some(cbfun);
+        ml::set_cursor_pos_callback(self.ptr, private::cursor_pos_callback);
     }
 
     fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
-        do event::cursorenter::set_callback(cbfun) |ext_cb| {
-            ml::set_cursor_enter_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().cursor_enter_fun = Some(cbfun);
+        ml::set_cursor_enter_callback(self.ptr, private::cursor_enter_callback);
     }
 
     fn set_scroll_callback(&self, cbfun: ScrollFun) {
-        do event::scroll::set_callback(cbfun) |ext_cb| {
-            ml::set_scroll_callback(self.ptr, ext_cb);
-        }
+        self.get_local_data().scroll_fun = Some(cbfun);
+        ml::set_scroll_callback(self.ptr, private::scroll_callback);
     }
 
     fn set_clipboard_string(&self, string: &str) {
