@@ -564,11 +564,11 @@ pub mod joystick {
     }
 }
 
-pub fn get_time() -> f64 {
-    ml::get_time() as f64
+pub fn get_time() -> float {
+    ml::get_time() as float
 }
 
-pub fn set_time(time: f64) {
+pub fn set_time(time: float) {
     ml::set_time(time as c_double);
 }
 
