@@ -3,7 +3,7 @@ use core::hashmap::*;
 use core::local_data::*;
 
 use super::*;
-use support::types::*;
+use ll::*;
 
 /// Holds the local data associated with a window
 pub struct WindowData {

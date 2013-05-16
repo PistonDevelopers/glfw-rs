@@ -22,7 +22,6 @@ priv mod private;
 
 pub mod support {
     pub mod consts;
-    pub mod types;
 }
 
 /**
@@ -139,11 +138,11 @@ pub impl Monitor {
     }
 
     fn get_video_modes(&self) -> ~[VidMode] {
-        ml::get_video_modes(self.ptr)
+        unsafe { cast::transmute(ml::get_video_modes(self.ptr)) }
     }
 
     fn get_video_mode(&self) -> VidMode {
-        ml::get_video_mode(self.ptr)
+        unsafe { cast::transmute(ml::get_video_mode(self.ptr)) }
     }
 
     /* Gamma ramp functions */
@@ -153,11 +152,11 @@ pub impl Monitor {
     }
 
     pub fn get_gamma_ramp(&self) -> GammaRamp {
-        ml::get_gamma_ramp(self.ptr)
+        unsafe { cast::transmute(ml::get_gamma_ramp(self.ptr)) }
     }
 
     pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
-        ml::set_gamma_ramp(self.ptr, ramp);
+        ml::set_gamma_ramp(self.ptr, unsafe { cast::transmute(ramp) });
     }
 }
 

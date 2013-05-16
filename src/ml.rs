@@ -6,7 +6,29 @@
 use core::libc::*;
 
 pub use support::consts::*;
-pub use support::types::*;
+
+// re-export low-level types
+pub use ll::{
+    GLFWglproc,
+    GLFWerrorfun,
+    GLFWwindowposfun,
+    GLFWwindowsizefun,
+    GLFWwindowclosefun,
+    GLFWwindowrefreshfun,
+    GLFWwindowfocusfun,
+    GLFWwindowiconifyfun,
+    GLFWmousebuttonfun,
+    GLFWcursorposfun,
+    GLFWcursorenterfun,
+    GLFWscrollfun,
+    GLFWkeyfun,
+    GLFWcharfun,
+    GLFWmonitorfun,
+    GLFWmonitor,
+    GLFWwindow,
+    GLFWgammaramp,
+    GLFWvidmode
+};
 
 pub fn init() -> c_int {
     unsafe { ::ll::glfwInit() }
@@ -86,7 +108,7 @@ pub fn set_gamma(monitor: *GLFWmonitor, gamma: c_float) {
 
 pub fn get_gamma_ramp(monitor: *GLFWmonitor) -> GLFWgammaramp {
     unsafe {
-        let ramp = ::GammaRamp {
+        let ramp = GLFWgammaramp {
             red:   [0, ..GAMMA_RAMP_SIZE],
             green: [0, ..GAMMA_RAMP_SIZE],
             blue:  [0, ..GAMMA_RAMP_SIZE],
