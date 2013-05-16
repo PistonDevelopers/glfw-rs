@@ -321,19 +321,62 @@ pub impl Window {
         }
     }
 
-    fn is_focused(&self)                -> bool  { ml::get_window_param(self.ptr, FOCUSED)               as bool }
-    fn is_iconified(&self)              -> bool  { ml::get_window_param(self.ptr, ICONIFIED)             as bool }
-    fn is_context_revision(&self)       -> bool  { ml::get_window_param(self.ptr, CONTEXT_REVISION)      as bool }
-    fn get_client_api(&self)            -> c_int { ml::get_window_param(self.ptr, CLIENT_API)                    }
-    fn get_context_version_major(&self) -> uint  { ml::get_window_param(self.ptr, CONTEXT_VERSION_MAJOR) as uint }
-    fn get_context_version_minor(&self) -> uint  { ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint }
-    fn get_context_robustness(&self)    -> c_int { ml::get_window_param(self.ptr, CONTEXT_ROBUSTNESS)            }
-    fn is_opengl_forward_compat(&self)  -> bool  { ml::get_window_param(self.ptr, OPENGL_FORWARD_COMPAT) as bool }
-    fn is_opengl_debug_context(&self)   -> bool  { ml::get_window_param(self.ptr, OPENGL_DEBUG_CONTEXT)  as bool }
-    fn get_opengl_profile(&self)        -> c_int { ml::get_window_param(self.ptr, OPENGL_PROFILE)                }
-    fn is_resizable(&self)              -> bool  { ml::get_window_param(self.ptr, RESIZABLE)             as bool }
-    fn is_visible(&self)                -> bool  { ml::get_window_param(self.ptr, VISIBLE)               as bool }
-    fn is_undecorated(&self)            -> bool  { ml::get_window_param(self.ptr, UNDECORATED)           as bool }
+    fn is_focused(&self) -> bool {
+        ml::get_window_param(self.ptr, FOCUSED) as bool
+    }
+
+    fn is_iconified(&self) -> bool {
+        ml::get_window_param(self.ptr, ICONIFIED) as bool
+    }
+
+    fn is_context_revision(&self) -> bool {
+        ml::get_window_param(self.ptr, CONTEXT_REVISION) as bool
+    }
+
+    fn get_client_api(&self) -> c_int {
+        ml::get_window_param(self.ptr, CLIENT_API)
+    }
+
+    fn get_context_version_major(&self) -> uint {
+        ml::get_window_param(self.ptr, CONTEXT_VERSION_MAJOR) as uint
+    }
+
+    fn get_context_version_minor(&self) -> uint {
+        ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint
+    }
+
+    fn get_context_version(&self) -> (uint,uint) { (
+        ml::get_window_param(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
+        ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint,
+    ) }
+
+    fn get_context_robustness(&self) -> c_int {
+        ml::get_window_param(self.ptr, CONTEXT_ROBUSTNESS)
+    }
+
+    fn is_opengl_forward_compat(&self) -> bool {
+        ml::get_window_param(self.ptr, OPENGL_FORWARD_COMPAT) as bool
+    }
+
+    fn is_opengl_debug_context(&self) -> bool {
+        ml::get_window_param(self.ptr, OPENGL_DEBUG_CONTEXT) as bool
+    }
+
+    fn get_opengl_profile(&self) -> c_int {
+        ml::get_window_param(self.ptr, OPENGL_PROFILE)
+    }
+
+    fn is_resizable(&self) -> bool {
+        ml::get_window_param(self.ptr, RESIZABLE) as bool
+    }
+
+    fn is_visible(&self) -> bool {
+        ml::get_window_param(self.ptr, VISIBLE) as bool
+    }
+
+    fn is_undecorated(&self) -> bool {
+        ml::get_window_param(self.ptr, UNDECORATED) as bool
+    }
 
     fn set_user_pointer(&self, pointer: *c_void) {
         ml::set_window_user_pointer(self.ptr, pointer);
