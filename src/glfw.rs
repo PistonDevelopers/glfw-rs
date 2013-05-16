@@ -572,8 +572,11 @@ pub fn set_time(time: float) {
     ml::set_time(time as c_double);
 }
 
-pub fn get_current_context() -> Window {
-    Window { ptr: ml::get_current_context() }
+pub fn get_current_context() -> Option<Window> {
+    match ml::get_current_context() {
+        ptr if !ptr.is_null() => Some(Window { ptr: ptr }),
+        _ => None,
+    }
 }
 
 pub fn set_swap_interval(interval: int) {
