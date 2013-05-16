@@ -63,6 +63,13 @@ pub impl WindowDataMap {
             None => fail!("Could not find a WindowDataMap in thread-local storage."),
         }
     }
+
+    /// Removes the data from TLS if it exists.
+    fn remove() {
+        unsafe {
+            local_data_modify(WindowDataMap::tls_key, |_| None);
+        }
+    }
 }
 
 // External window callbacks

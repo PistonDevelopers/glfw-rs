@@ -70,8 +70,13 @@ pub fn spawn(f: ~fn()) {
         private::WindowDataMap::init();
 
         match ml::init() {
-            FALSE => fail!(~"Failed to initialize GLFW"),
-            _ => f.finally(ml::terminate),
+            ml::TRUE => {
+                do f.finally {
+                    ml::terminate();
+                    private::WindowDataMap::remove();
+                }
+            }
+            _ => fail!(~"Failed to initialize GLFW"),
         }
     }
 }
