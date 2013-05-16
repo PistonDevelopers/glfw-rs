@@ -48,9 +48,9 @@ pub type MonitorFun         = @fn(monitor: &Monitor, event: c_int);
 pub struct VidMode {
     width:      c_int,
     height:     c_int,
-    redBits:    c_int,
-    greenBits:  c_int,
-    blueBits:   c_int,
+    red_bits:   c_int,
+    green_bits: c_int,
+    blue_bits:  c_int,
 }
 
 pub struct GammaRamp {
@@ -164,8 +164,8 @@ impl ToStr for VidMode {
     fn to_str(&self) -> ~str {
         fmt!("%? x %? %? (%? %? %?)",
              self.width, self.height,
-             (self.redBits + self.blueBits + self.greenBits),
-             self.redBits, self.blueBits, self.greenBits)
+             (self.red_bits + self.green_bits + self.blue_bits),
+             self.red_bits, self.green_bits, self.blue_bits)
     }
 }
 
