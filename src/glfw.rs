@@ -221,6 +221,14 @@ pub enum WindowMode {
 }
 
 priv impl WindowMode {
+    fn from_monitor_ptr(ptr: *ml::GLFWmonitor) -> WindowMode {
+        if ptr.is_null() {
+            Windowed
+        } else {
+            FullScreen(Monitor { ptr: ptr })
+        }
+    }
+
     fn to_monitor_ptr(&self) -> *ml::GLFWmonitor {
         match *self {
             FullScreen(monitor) => monitor.ptr,
@@ -310,11 +318,10 @@ pub impl Window {
         ml::hide_window(self.ptr);
     }
 
-    fn get_monitor(&self) -> WindowMode {
-        match ml::get_window_monitor(self.ptr) {
-            m if m.is_null() => Windowed,
-            m                => FullScreen(Monitor { ptr: m }),
-        }
+    fn get_window_mode(&self) -> WindowMode {
+        WindowMode::from_monitor_ptr(
+            ml::get_window_monitor(self.ptr)
+        )
     }
 
     fn is_focused(&self) -> bool {
