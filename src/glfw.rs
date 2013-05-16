@@ -25,13 +25,13 @@ pub mod consts;
 /**
  * A struct containing a low-level monitor handle
  */
-pub struct Monitor { ptr: *::ml::GLFWmonitor }
+pub struct Monitor { ptr: *ml::GLFWmonitor }
 
 /**
  * A struct containing a low-level window handle
  */
 #[deriving(Eq, IterBytes)]
-pub struct Window { ptr: *::ml::GLFWwindow }
+pub struct Window { ptr: *ml::GLFWwindow }
 
 pub type ErrorFun           = @fn(error: c_int, format: ~str);
 pub type WindowPosFun       = @fn(window: &Window, width: int, height: int);
@@ -62,7 +62,7 @@ pub struct GammaRamp {
     blue:   [c_ushort, ..GAMMA_RAMP_SIZE],
 }
 
-pub type GLProc = ::ml::GLFWglproc;
+pub type GLProc = ml::GLFWglproc;
 
 /**
  * Initialises GLFW on the main platform thread. `glfw::terminate` is
@@ -178,16 +178,17 @@ impl ToStr for VidMode {
 macro_rules! hint(
     ($name:ident $(($arg_name:ident: $arg_ty:ty) => ($hint:expr, $arg_conv:expr))+) => (
         pub fn $name($($arg_name: $arg_ty),+) {
-            $(::ml::window_hint($hint, $arg_conv);)+
+            $(ml::window_hint($hint, $arg_conv);)+
         }
     )
 )
 
 pub mod window_hint {
     use core::libc::c_int;
+    use ml;
 
     pub fn default() {
-        ::ml::default_window_hints();
+        ml::default_window_hints();
     }
 
     hint!(red_bits               (bits: uint)      => (::RED_BITS, bits as c_int))
@@ -471,18 +472,19 @@ pub fn wait_events() {
 
 pub mod joystick {
     use core::libc::*;
+    use ml;
 
     pub fn is_present(joy: c_int) -> bool {
-        ::ml::get_joystick_param(joy, ::ml::PRESENT) as bool
+        ml::get_joystick_param(joy, ml::PRESENT) as bool
     }
 
     pub fn num_axes(joy: c_int) -> Option<uint> {
-        let axes = ::ml::get_joystick_param(joy, ::ml::AXES);
+        let axes = ml::get_joystick_param(joy, ml::AXES);
         if axes > 0 { Some(axes as uint) } else { None }
     }
 
     pub fn num_buttons(joy: c_int) -> Option<uint> {
-        let buttons = ::ml::get_joystick_param(joy, ::ml::BUTTONS);
+        let buttons = ml::get_joystick_param(joy, ml::BUTTONS);
         if buttons > 0 { Some(buttons as uint) } else { None }
     }
 
@@ -519,7 +521,7 @@ pub mod joystick {
     }
 
     pub fn get_name(joy: c_int) -> ~str {
-        ::ml::get_joystick_name(joy)
+        ml::get_joystick_name(joy)
     }
 }
 
