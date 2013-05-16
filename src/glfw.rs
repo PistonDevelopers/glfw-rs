@@ -9,7 +9,7 @@
 
 use core::libc::*;
 
-pub use support::consts::*;
+pub use consts::*;
 
 /// Low-level bindings
 pub mod ll;
@@ -19,10 +19,8 @@ pub mod ml;
 
 #[path = "support/private.rs"]
 priv mod private;
-
-pub mod support {
-    pub mod consts;
-}
+#[path = "support/consts.rs"]
+pub mod consts;
 
 /**
  * A struct containing a low-level monitor handle

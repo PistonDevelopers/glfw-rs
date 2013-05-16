@@ -5,7 +5,7 @@
 
 use core::libc::*;
 
-pub use support::consts::*;
+pub use consts::*;
 
 // re-export low-level types
 pub use ll::{

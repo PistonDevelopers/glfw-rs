@@ -4,7 +4,7 @@
 
 use core::libc::*;
 
-pub use support::consts::*;
+pub use consts::*;
 
 // TODO: Will have to be changed once we can do external C callbacks nicely
 
