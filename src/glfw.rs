@@ -212,7 +212,7 @@ window_hints!(
     fn opengl_profile         (profile: c_int   => ml::OPENGL_PROFILE, profile)
     fn resizable              (value: bool      => ml::RESIZABLE, value as c_int)
     fn visible                (value: bool      => ml::VISIBLE, value as c_int)
-    fn undecorated            (value: bool      => ml::UNDECORATED, value as c_int)
+    fn decorated              (value: bool      => ml::DECORATED, value as c_int)
 )
 
 pub enum WindowMode {
@@ -377,8 +377,8 @@ pub impl Window {
         ml::get_window_param(self.ptr, VISIBLE) as bool
     }
 
-    fn is_undecorated(&self) -> bool {
-        ml::get_window_param(self.ptr, UNDECORATED) as bool
+    fn is_decorated(&self) -> bool {
+        ml::get_window_param(self.ptr, DECORATED) as bool
     }
 
     fn set_user_pointer(&self, pointer: *c_void) {
