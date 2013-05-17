@@ -256,6 +256,11 @@ pub impl Window {
             private::WindowDataMap::get().insert(
                 window, @mut private::WindowData::new()
             );
+            // We must set the close callback initially, because it cleans up
+            // the TLS when the window is closed by the user or if
+            // `Window::set_should_close` was called with a value of `true`.
+            window.set_close_callback(|_|{});
+
             Ok(window)
         } else {
             Err(~"Failed to open GLFW window")
