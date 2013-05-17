@@ -1,3 +1,6 @@
+
+//! Private functions and items used with the high-level library wrapper
+
 use core::libc::*;
 use core::hashmap::*;
 use core::local_data::*;
@@ -5,7 +8,9 @@ use core::local_data::*;
 use super::*;
 use ll::*;
 
-/// Holds the local data associated with a window
+///
+/// Holds data associated with a window for storage in TLS
+///
 pub struct WindowData {
     pos_fun:             Option<WindowPosFun>,
     size_fun:            Option<WindowSizeFun>,
@@ -41,12 +46,16 @@ pub impl WindowData {
     }
 }
 
+///
+/// A map of window data to be stored in TLS
+///
 pub struct WindowDataMap(HashMap<Window, @mut WindowData>);
 
 pub impl WindowDataMap {
+    /// Function stub used for retrieving a the map of window data from TLS.
     priv fn tls_key(_: @@mut WindowDataMap) {}
 
-    /// Initializes the local data in TLS
+    /// Initializes a map of window data in TLS.
     fn init() {
         unsafe {
             local_data_set(
@@ -56,7 +65,8 @@ pub impl WindowDataMap {
         }
     }
 
-    /// Retrieves a local data struct from TLS.
+    /// Retrieves a mutable pointer to the map of window data stored TLS,
+    /// failing if the map could not be found.
     fn get() -> @mut WindowDataMap {
         match unsafe { local_data_get(WindowDataMap::tls_key) } {
             Some(@local_data) => local_data,
@@ -64,7 +74,7 @@ pub impl WindowDataMap {
         }
     }
 
-    /// Removes the data from TLS if it exists.
+    /// Removes the map of window data from TLS if it exists.
     fn remove() {
         unsafe {
             local_data_modify(WindowDataMap::tls_key, |_| None);
@@ -140,10 +150,10 @@ pub extern "C" fn window_refresh_callback(window: *GLFWwindow) {
     };
 }
 
-pub extern "C" fn window_focus_callback(window: *GLFWwindow, activated: c_int) {
+pub extern "C" fn window_focus_callback(window: *GLFWwindow, focused: c_int) {
     let window_ = Window { ptr: window };
     do window_.get_local_data().focus_fun.map |&cb| {
-        cb(&window_, activated as bool)
+        cb(&window_, focused as bool)
     };
 }
 

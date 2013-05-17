@@ -19,32 +19,177 @@ priv mod private;
 #[path = "support/consts.rs"]
 pub mod consts;
 
-/// A struct containing a low-level monitor handle
+///
+/// A struct containing a low-level monitor handle.
+///
+/// # Feilds
+///
+/// - `ptr`: A low-level handle to the monitor.
+///
 pub struct Monitor {
     ptr: *ml::GLFWmonitor
 }
 
-/// A struct containing a low-level window handle
+///
+/// A struct containing a low-level window handle.
+///
+/// # Feilds
+///
+/// - `ptr`: A low-level handle to the window.
+///
 #[deriving(Eq, IterBytes)]
 pub struct Window {
     ptr: *ml::GLFWwindow
 }
 
-pub type ErrorFun           = @fn(error: c_int, format: ~str);
-pub type WindowPosFun       = @fn(window: &Window, width: int, height: int);
-pub type WindowSizeFun      = @fn(window: &Window, width: int, height: int);
-pub type WindowCloseFun     = @fn(window: &Window);
-pub type WindowRefreshFun   = @fn(window: &Window);
-pub type WindowFocusFun     = @fn(window: &Window, activated: bool);
-pub type WindowIconifyFun   = @fn(window: &Window, iconified: bool);
-pub type MouseButtonFun     = @fn(window: &Window, button: c_int, action: c_int);
-pub type CursorPosFun       = @fn(window: &Window, xpos: float, ypos: float);
-pub type CursorEnterFun     = @fn(window: &Window, entered: bool);
-pub type ScrollFun          = @fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun             = @fn(window: &Window, key: c_int, action: c_int);
-pub type CharFun            = @fn(window: &Window, character: char);
-pub type MonitorFun         = @fn(monitor: &Monitor, event: c_int);
+///
+/// The function type for error callbacks.
+///
+/// # Parameters
+///
+/// - `error`: An error code.
+/// - `description`: A string describing the error.
+///
+pub type ErrorFun = @fn(error: c_int, description: ~str);
 
+///
+/// The function type for window position callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that the user moved.
+/// - `xpos`: The new x-coordinate.
+/// - `ypos`: The new y-coordinate.
+///
+pub type WindowPosFun = @fn(window: &Window, xpos: int, ypos: int);
+
+///
+/// The function type for window size callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that the user resized.
+/// - `width`: The new width of the window.
+/// - `height`: The new height of the window.
+///
+pub type WindowSizeFun = @fn(window: &Window, width: int, height: int);
+
+///
+/// The function type for window close callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that the user attempted to close.
+///
+pub type WindowCloseFun = @fn(window: &Window);
+
+///
+/// The function type for window refresh callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window whose content needs to be refreshed.
+///
+pub type WindowRefreshFun = @fn(window: &Window);
+
+///
+/// The function type for window focus/defocus callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that was focused or defocused.
+/// - `focused`: `true` if the window was focused or `false` if the window was
+///   defocused.
+///
+pub type WindowFocusFun = @fn(window: &Window, focused: bool);
+
+///
+/// The function type for window iconify/restore callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that was iconified or restored.
+/// - `iconified`: `true` if the window was iconified or `false` if the window
+///   was defocused.
+///
+pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
+
+///
+/// The function type for mouse button callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that recieved the event.
+/// - `button`: The mouse button that was pressed or released.
+/// - `action`: Either `PRESS` or `RELEASE`.
+///
+pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int);
+
+///
+/// The function type of cursor position callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that recieved the event.
+/// - `xpos`: The new x-coordinate of the cursor.
+/// - `ypos`: The new y-coordinate of the cursor.
+///
+pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
+
+///
+/// The function type of cursor enter/leave callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that recieved the event.
+/// - `entered`: `true` if the cursor entered the window's client area or
+///   `false` if the cursor left it.
+pub type CursorEnterFun = @fn(window: &Window, entered: bool);
+
+///
+/// The function type of scroll callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that recieved the event.
+/// - `xpos`: The scroll offset along the x-axis.
+/// - `ypos`: The scroll offset along the y-axis.
+///
+pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
+
+///
+/// The function type of key callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that recieved the event.
+/// - `key`: The key that was pressed or released.
+/// - `action`: Either `PRESS`, `RELEASE`, or `REPEAT`.
+///
+pub type KeyFun = @fn(window: &Window, key: c_int, action: c_int);
+
+///
+/// The function type for character callbacks.
+///
+/// # Parameters
+///
+/// - `window`: The window that recieved the event.
+/// - `character`: The Unicode code point of the character.
+///
+pub type CharFun = @fn(window: &Window, character: char);
+
+///
+/// The function type for monitor configuration callbacks.
+///
+/// # Parameters
+///
+/// - `monitor`: The monitor that was connected or disconnected.
+/// - `event`: Either `CONNECTED` or `DISCONNECTED`.
+pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
+
+///
+/// Describes a single video mode.
+///
 pub struct VidMode {
     width:      c_int,
     height:     c_int,
@@ -53,6 +198,9 @@ pub struct VidMode {
     blue_bits:  c_int,
 }
 
+///
+/// Describes the gamma ramp of a monitor.
+///
 pub struct GammaRamp {
     red:    [c_ushort, ..GAMMA_RAMP_SIZE],
     green:  [c_ushort, ..GAMMA_RAMP_SIZE],
@@ -61,8 +209,10 @@ pub struct GammaRamp {
 
 pub type GLProc = ml::GLFWglproc;
 
-/// Initialises GLFW on the main platform thread. `glfw::terminate` is
-/// automatically called on the success or failure of `f`
+///
+/// Initialises GLFW on the main platform thread. Fails if the initialisation
+/// was unsuccessful.
+///
 pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
         use core::unstable::finally::Finally;
@@ -81,13 +231,19 @@ pub fn spawn(f: ~fn()) {
     }
 }
 
+///
+/// Holds the version information of the underlying GLFW library
+///
 pub struct Version {
     major: int,
     minor: int,
     rev:   int,
 }
 
-/// Returns a struct containing the GLFW version numbers.
+///
+/// Returns a struct containing the version numbers of the underlying GLFW
+/// library.
+///
 pub fn get_version() -> Version {
     match ml::get_version() {
         (major, minor, rev) => Version {
@@ -98,16 +254,26 @@ pub fn get_version() -> Version {
     }
 }
 
+///
+/// Returns a string describing the compile time configuration of the underlying
+/// GLFW library.
+///
 pub fn get_version_string() -> ~str {
     ml::get_version_string()
 }
 
+///
+/// Sets a callback to be run when an error is encountered.
+///
 pub fn set_error_callback(cbfun: ErrorFun) {
     do private::set_error_fun(cbfun) |ext_cb| {
         ml::set_error_callback(ext_cb);
     }
 }
 
+///
+/// Returns the currently connected monitors.
+///
 pub fn get_monitors() -> ~[Monitor] {
     ml::get_monitors().map(|&m| Monitor { ptr: m })
 }
@@ -160,6 +326,13 @@ fn set_monitor_callback(cbfun: MonitorFun) {
     }
 }
 
+///
+/// Returns a string representation of the video mode in the form:
+///
+/// ~~~
+/// ~"[width] x [height] [total_bits] ([red_bits] [green_bits] [blue_bits])"
+/// ~~~
+///
 impl ToStr for VidMode {
     fn to_str(&self) -> ~str {
         fmt!("%? x %? %? (%? %? %?)",
@@ -215,6 +388,9 @@ window_hints!(
     fn decorated              (value: bool      => ml::DECORATED, value as c_int)
 )
 
+///
+/// Describes the mode that a window is currently in
+///
 pub enum WindowMode {
     FullScreen(Monitor),
     Windowed,
@@ -238,6 +414,11 @@ priv impl WindowMode {
 }
 
 pub impl Window {
+    ///
+    /// Creates a new window and an associated context, returning a handle
+    /// wrapped in `Ok` if it succeeds. If an error has occured, `Err` is
+    /// returned instead.
+    ///
     fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,~str> {
         Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
     }
@@ -267,7 +448,7 @@ pub impl Window {
         }
     }
 
-    /// Gets a mutable pointer to the window's local data from TLS
+    /// Gets a mutable pointer to the window's local data
     priv fn get_local_data(&self) -> @mut private::WindowData {
         match private::WindowDataMap::get().find_mut(self) {
             Some(&data) => data,
@@ -508,6 +689,7 @@ pub impl Window {
         ml::make_context_current(self.ptr);
     }
 
+    /// Swaps the front and back buffers of the window.
     fn swap_buffers(&self) {
         ml::swap_buffers(self.ptr);
     }
@@ -576,14 +758,25 @@ pub mod joystick {
     }
 }
 
+///
+/// Returns the time elapsed since GLFW was initialized, unless it was
+/// subsequently altered with `set_time`.
+///
 pub fn get_time() -> float {
     ml::get_time() as float
 }
 
+///
+/// Sets the value of the GLFW timer.
+///
 pub fn set_time(time: float) {
     ml::set_time(time as c_double);
 }
 
+///
+/// Returns the window whose context is current, wrapped in `Some`. If no
+/// context is current, `None` is returned.
+///
 pub fn get_current_context() -> Option<Window> {
     match ml::get_current_context() {
         ptr if !ptr.is_null() => Some(Window { ptr: ptr }),

@@ -1,7 +1,7 @@
-/**
- * Mid-level wrapper functions that provide rust-style funtion names. Includes public exports of
- * core types and constants.
- */
+
+//! Mid-level wrapper functions that provide rust-style funtion names. Includes
+//! public exports of core types and constants.
+
 
 use core::libc::*;
 use ll;

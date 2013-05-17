@@ -1,7 +1,6 @@
-/**
- * Common constants for glfw. You shouldn't have to access these directly as each module
- * publicly exports them.
- */
+
+//! Common constants for glfw. You shouldn't have to access these directly as each module
+//! publicly exports them.
 
 use core::libc::c_int;
 
