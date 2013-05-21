@@ -230,7 +230,6 @@ pub fn spawn(f: ~fn()) {
             ml::TRUE => {
                 do f.finally {
                     ml::terminate();
-                    private::WindowDataMap::remove();
                 }
             }
             _ => fail!(~"Failed to initialize GLFW"),

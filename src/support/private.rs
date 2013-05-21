@@ -75,11 +75,26 @@ pub impl WindowDataMap {
         }
     }
 
-    /// Removes the map of window data from task-local storage if it exists.
-    fn remove() {
-        unsafe {
-            local_data_modify(WindowDataMap::tls_key, |_| None);
-        }
+    /// Clears all external callbacks and removes the window from the map.
+    /// Returns `true` if the window was present in the map, otherwise `false`.
+    fn remove(&mut self, window: &*GLFWwindow) -> bool {
+        do self.pop(window).map |&data| {
+            unsafe {
+                // Clear all external callbacks
+                data.pos_fun.map           (|_| glfwSetWindowPosCallback(*window, ptr::null()));
+                data.size_fun.map          (|_| glfwSetWindowSizeCallback(*window, ptr::null()));
+                data.close_fun.map         (|_| glfwSetWindowCloseCallback(*window, ptr::null()));
+                data.refresh_fun.map       (|_| glfwSetWindowRefreshCallback(*window, ptr::null()));
+                data.focus_fun.map         (|_| glfwSetWindowFocusCallback(*window, ptr::null()));
+                data.iconify_fun.map       (|_| glfwSetWindowIconifyCallback(*window, ptr::null()));
+                data.mouse_button_fun.map  (|_| glfwSetMouseButtonCallback(*window, ptr::null()));
+                data.cursor_pos_fun.map    (|_| glfwSetCursorPosCallback(*window, ptr::null()));
+                data.cursor_enter_fun.map  (|_| glfwSetCursorEnterCallback(*window, ptr::null()));
+                data.scroll_fun.map        (|_| glfwSetScrollCallback(*window, ptr::null()));
+                data.key_fun.map           (|_| glfwSetKeyCallback(*window, ptr::null()));
+                data.char_fun.map          (|_| glfwSetCharCallback(*window, ptr::null()));
+            }
+        }.is_some()
     }
 }
 
