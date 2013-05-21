@@ -121,98 +121,36 @@ pub fn set_monitor_fun(cbfun: MonitorFun, f: &fn(GLFWmonitorfun) ) {
 
 // External window callbacks
 
-pub extern "C" fn window_pos_callback(window: *GLFWwindow, xpos: c_int, ypos: c_int) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().pos_fun.map |&cb| {
-        cb(&window_, xpos as int, ypos as int)
-    };
-    unsafe { cast::forget(window_); }
-}
+macro_rules! window_callback(
+    (fn $name:ident () => $field:ident()) => (
+        pub extern "C" fn $name(window: *GLFWwindow) {
+            let window_ = Window { ptr: window };
+            do window_.get_local_data().$field.map |&cb| {
+                cb(&window_)
+            };
+            unsafe { cast::forget(window_); }
+        }
+    );
+    (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $field:ident($($arg_conv:expr),*)) => (
+        pub extern "C" fn $name(window: *GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
+            let window_ = Window { ptr: window };
+            do window_.get_local_data().$field.map |&cb| {
+                cb(&window_ $(, $arg_conv)*)
+            };
+            unsafe { cast::forget(window_); }
+        }
+    );
+)
 
-pub extern "C" fn window_size_callback(window: *GLFWwindow, width: c_int, height: c_int) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().size_fun.map |&cb| {
-        cb(&window_, width as int, height as int)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn window_close_callback(window: *GLFWwindow) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().close_fun.map |&cb| {
-        cb(&window_)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn window_refresh_callback(window: *GLFWwindow) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().refresh_fun.map |&cb| {
-        cb(&window_)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn window_focus_callback(window: *GLFWwindow, focused: c_int) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().focus_fun.map |&cb| {
-        cb(&window_, focused as bool)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn window_iconify_callback(window: *GLFWwindow, iconified: c_int) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().iconify_fun.map |&cb| {
-        cb(&window_, iconified as bool)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn mouse_button_callback(window: *GLFWwindow, button: c_int, action: c_int) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().mouse_button_fun.map |&cb| {
-        cb(&window_, button, action)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn cursor_pos_callback(window: *GLFWwindow, xpos: c_double, ypos: c_double) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().cursor_pos_fun.map |&cb| {
-        cb(&window_, xpos as float, ypos as float)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn cursor_enter_callback(window: *GLFWwindow, entered: c_int) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().cursor_enter_fun.map |&cb| {
-        cb(&window_, entered as bool)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn scroll_callback(window: *GLFWwindow, xpos: c_double, ypos: c_double) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().scroll_fun.map |&cb| {
-        cb(&window_, xpos as float, ypos as float)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn key_callback(window: *GLFWwindow, key: c_int, action: c_int) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().key_fun.map |&cb| {
-        cb(&window_, key, action)
-    };
-    unsafe { cast::forget(window_); }
-}
-
-pub extern "C" fn char_callback(window: *GLFWwindow, character: c_uint) {
-    let window_ = Window { ptr: window };
-    do window_.get_local_data().char_fun.map |&cb| {
-        cb(&window_, character as char)
-    };
-    unsafe { cast::forget(window_); }
-}
+window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)       => pos_fun(xpos as int, ypos as int))
+window_callback!(fn window_size_callback(width: c_int, height: c_int)   => size_fun(width as int, height as int))
+window_callback!(fn window_close_callback()                             => close_fun())
+window_callback!(fn window_refresh_callback()                           => refresh_fun())
+window_callback!(fn window_focus_callback(focused: c_int)               => focus_fun(focused as bool))
+window_callback!(fn window_iconify_callback(iconified: c_int)           => iconify_fun(iconified as bool))
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int) => mouse_button_fun(button, action))
+window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double) => cursor_pos_fun(xpos as float, ypos as float))
+window_callback!(fn cursor_enter_callback(entered: c_int)               => cursor_enter_fun(entered as bool))
+window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)     => scroll_fun(xpos as float, ypos as float))
+window_callback!(fn key_callback(key: c_int, action: c_int)             => key_fun(key, action))
+window_callback!(fn char_callback(character: c_uint)                    => char_fun(character as char))
