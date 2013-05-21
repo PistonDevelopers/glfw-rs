@@ -11,7 +11,7 @@ fn main() {
 
         glfw::window_hint::visible(true);
 
-        let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).get();
+        let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
 
         window.make_context_current();
 
