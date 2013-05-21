@@ -1,5 +1,5 @@
 
-//! Private functions and items used with the high-level library wrapper
+//! Private functions and items to be used with the high-level library wrapper.
 
 use core::libc::*;
 use core::hashmap::*;
@@ -9,7 +9,7 @@ use super::*;
 use ll::*;
 
 ///
-/// Holds data associated with a window for storage in TLS
+/// Holds the callback functions associated with a window
 ///
 pub struct WindowData {
     pos_fun:             Option<WindowPosFun>,
@@ -27,7 +27,7 @@ pub struct WindowData {
 }
 
 pub impl WindowData {
-    /// Initialize an empty struct
+    /// Initialize the struct with all callbacks set to `None`.
     fn new() -> WindowData {
         WindowData {
             pos_fun:             None,
@@ -47,15 +47,16 @@ pub impl WindowData {
 }
 
 ///
-/// A map of window data to be stored in TLS
+/// A map of window data to be stored in task-local storage.
 ///
 pub struct WindowDataMap(HashMap<*GLFWwindow, @mut WindowData>);
 
 pub impl WindowDataMap {
-    /// Function stub used for retrieving a the map of window data from TLS.
+    /// Function stub used for retrieving a the map of window data from
+    /// task-local storage.
     priv fn tls_key(_: @@mut WindowDataMap) {}
 
-    /// Initializes a map of window data in TLS.
+    /// Initializes a map of window data in task-local storage.
     fn init() {
         unsafe {
             local_data_set(
@@ -65,8 +66,8 @@ pub impl WindowDataMap {
         }
     }
 
-    /// Retrieves a mutable pointer to the map of window data stored TLS,
-    /// failing if the map could not be found.
+    /// Retrieves a mutable pointer to the map of window data stored task-local
+    /// storage, failing if the map could not be found.
     fn get() -> @mut WindowDataMap {
         match unsafe { local_data_get(WindowDataMap::tls_key) } {
             Some(@local_data) => local_data,
@@ -74,7 +75,7 @@ pub impl WindowDataMap {
         }
     }
 
-    /// Removes the map of window data from TLS if it exists.
+    /// Removes the map of window data from task-local storage if it exists.
     fn remove() {
         unsafe {
             local_data_modify(WindowDataMap::tls_key, |_| None);
