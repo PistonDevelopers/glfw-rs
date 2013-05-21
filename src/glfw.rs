@@ -281,9 +281,8 @@ pub impl Monitor {
     /// The primary monitor wrapped in `Some`, or `None` if an error occurred.
     ///
     pub fn get_primary() -> Option<Monitor> {
-        match ml::get_primary_monitor() {
-            ptr if !ptr.is_null() => Some(Monitor { ptr: ptr }),
-            _ => None,
+        do ml::get_primary_monitor().to_option().map |&ptr| {
+            Monitor { ptr: ptr }
         }
     }
 
@@ -439,31 +438,36 @@ priv impl WindowMode {
 
 pub impl Window {
     ///
-    /// Creates a new window and an associated context, returning a handle
-    /// wrapped in `Ok` if it succeeds. If an error has occured, `Err` is
-    /// returned instead.
+    /// Creates a new window and an associated context.
     ///
-    fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,~str> {
+    /// # Parameters
+    ///
+    /// - `width`: The desired window width, in screen coordinates.
+    /// - `height`: The desired window height, in screen coordinates.
+    /// - `title`: The initial window title.
+    /// - `mode`: The mode of the window, either `Windowed` or `FullScreen`
+    ///
+    /// # Returns
+    ///
+    /// The handle of the created window, wrapped in `Some`, or `None` if an
+    /// error occurred.
+    ///
+    fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
         Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
     }
 
     fn create_shared(width: uint, height: uint, title: &str,
-                     mode: WindowMode, share: &Window) -> Result<Window,~str> {
-        let window = Window {
-            ptr: ml::create_window(
-                width as c_int, height as c_int, title,
-                mode.to_monitor_ptr(), share.ptr
-            )
-        };
-
-        if !window.ptr.is_null() {
+                     mode: WindowMode, share: &Window) -> Option<Window> {
+        do ml::create_window(
+            width as c_int, height as c_int,
+            title, mode.to_monitor_ptr(), share.ptr
+        ).to_option().map |&ptr| {
             // Initialize the local data for this window in TLS
             private::WindowDataMap::get().insert(
-                window.ptr, @mut private::WindowData::new()
+                unsafe { cast::transmute(ptr) },
+                @mut private::WindowData::new()
             );
-            Ok(window)
-        } else {
-            Err(~"Failed to open GLFW window")
+            Window { ptr: unsafe { cast::transmute(ptr) } }
         }
     }
 
