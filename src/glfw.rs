@@ -596,17 +596,12 @@ pub impl Window {
     /// error occurred.
     ///
     fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
-        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
-    }
-
-    fn create_shared(width: uint, height: uint, title: &str,
-                     mode: WindowMode, share: &Window) -> Option<Window> {
         do ml::create_window(
             width as c_int,
             height as c_int,
             title,
             mode.to_ptr(),
-            share.ptr
+            ptr::null()
         ).to_option().map |&ptr| {
             // Initialize the local data for this window in TLS
             private::WindowDataMap::get().insert(
@@ -856,31 +851,6 @@ pub impl Window {
     ///
     fn is_decorated(&self) -> bool {
         ml::get_window_param(self.ptr, DECORATED) as bool
-    }
-
-    ///
-    /// Sets the user-defined pointer of the window. The current value is
-    /// retained until the window's destructor is called. The initial value
-    /// is null.
-    ///
-    /// # Parameters
-    ///
-    /// - `pointer`: The new pointer.
-    ///
-    fn set_user_pointer(&self, pointer: *c_void) {
-        ml::set_window_user_pointer(self.ptr, pointer);
-    }
-
-    ///
-    /// Returns the current value of the user-defined pointer of the
-    /// specified window.
-    ///
-    /// # Returns
-    ///
-    /// The current pointer.
-    ///
-    fn get_user_pointer(&self) -> *c_void {
-        ml::get_window_user_pointer(self.ptr)
     }
 
     fn set_pos_callback(&self, cbfun: WindowSizeFun) {
