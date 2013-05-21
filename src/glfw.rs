@@ -779,17 +779,6 @@ pub fn set_time(time: float) {
     ml::set_time(time as c_double);
 }
 
-///
-/// Returns the window whose context is current, wrapped in `Some`. If no
-/// context is current, `None` is returned.
-///
-pub fn get_current_context() -> Option<Window> {
-    match ml::get_current_context() {
-        ptr if !ptr.is_null() => Some(Window { ptr: ptr }),
-        _ => None,
-    }
-}
-
 pub fn set_swap_interval(interval: int) {
     ml::set_swap_interval(interval as c_int);
 }
