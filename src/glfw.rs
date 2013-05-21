@@ -235,9 +235,9 @@ pub fn spawn(f: ~fn()) {
 /// Holds the version information of the underlying GLFW library
 ///
 pub struct Version {
-    major: int,
-    minor: int,
-    rev:   int,
+    major: uint,
+    minor: uint,
+    rev:   uint,
 }
 
 ///
@@ -247,9 +247,9 @@ pub struct Version {
 pub fn get_version() -> Version {
     match ml::get_version() {
         (major, minor, rev) => Version {
-            major: major as int,
-            minor: minor as int,
-            rev:   rev   as int,
+            major: major as uint,
+            minor: minor as uint,
+            rev:   rev   as uint,
         }
     }
 }
