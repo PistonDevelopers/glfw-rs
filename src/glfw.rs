@@ -583,23 +583,11 @@ pub impl Window {
         ml::get_window_param(self.ptr, CLIENT_API)
     }
 
-    fn get_context_version_major(&self) -> uint {
-        ml::get_window_param(self.ptr, CONTEXT_VERSION_MAJOR) as uint
-    }
-
-    fn get_context_version_minor(&self) -> uint {
-        ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint
-    }
-
-    fn get_context_revision(&self) -> uint {
-        ml::get_window_param(self.ptr, CONTEXT_REVISION) as uint
-    }
-
     fn get_context_version(&self) -> Version {
         Version {
-            major:  self.get_context_version_major(),
-            minor:  self.get_context_version_minor(),
-            rev:    self.get_context_revision(),
+            major:  ml::get_window_param(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
+            minor:  ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint,
+            rev:    ml::get_window_param(self.ptr, CONTEXT_REVISION) as uint,
         }
     }
 
