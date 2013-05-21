@@ -579,10 +579,6 @@ pub impl Window {
         ml::get_window_param(self.ptr, ICONIFIED) as bool
     }
 
-    fn is_context_revision(&self) -> bool {
-        ml::get_window_param(self.ptr, CONTEXT_REVISION) as bool
-    }
-
     fn get_client_api(&self) -> c_int {
         ml::get_window_param(self.ptr, CLIENT_API)
     }
@@ -595,10 +591,17 @@ pub impl Window {
         ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint
     }
 
-    fn get_context_version(&self) -> (uint,uint) { (
-        ml::get_window_param(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
-        ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint,
-    ) }
+    fn get_context_revision(&self) -> uint {
+        ml::get_window_param(self.ptr, CONTEXT_REVISION) as uint
+    }
+
+    fn get_context_version(&self) -> Version {
+        Version {
+            major:  self.get_context_version_major(),
+            minor:  self.get_context_version_minor(),
+            rev:    self.get_context_revision(),
+        }
+    }
 
     fn get_context_robustness(&self) -> c_int {
         ml::get_window_param(self.ptr, CONTEXT_ROBUSTNESS)
