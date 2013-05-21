@@ -446,6 +446,17 @@ priv impl WindowMode {
     }
 }
 
+macro_rules! set_window_callback(
+    (
+        setter:   $ml_fn:ident,
+        callback: $ext_fn:ident,
+        field:    $data_field:ident
+    ) => ({
+        self.get_local_data().$data_field = Some(cbfun);
+        ml::$ml_fn(self.ptr, private::$ext_fn);
+    })
+)
+
 pub impl Window {
     ///
     /// Creates a new window and an associated context.
@@ -609,33 +620,39 @@ pub impl Window {
     }
 
     fn set_pos_callback(&self, cbfun: WindowSizeFun) {
-        self.get_local_data().pos_fun = Some(cbfun);
-        ml::set_window_pos_callback(self.ptr, private::window_pos_callback);
+        set_window_callback!(setter:   set_window_pos_callback,
+                             callback: window_pos_callback,
+                             field:    pos_fun);
     }
 
     fn set_size_callback(&self, cbfun: WindowSizeFun) {
-        self.get_local_data().size_fun = Some(cbfun);
-        ml::set_window_size_callback(self.ptr, private::window_size_callback);
+        set_window_callback!(setter:   set_window_size_callback,
+                             callback: window_size_callback,
+                             field:    size_fun);
     }
 
     fn set_close_callback(&self, cbfun: WindowCloseFun) {
-        self.get_local_data().close_fun = Some(cbfun);
-        ml::set_window_close_callback(self.ptr, private::window_close_callback);
+        set_window_callback!(setter:   set_window_close_callback,
+                             callback: window_close_callback,
+                             field:    close_fun);
     }
 
     fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
-        self.get_local_data().refresh_fun = Some(cbfun);
-        ml::set_window_refresh_callback(self.ptr, private::window_refresh_callback);
+        set_window_callback!(setter:   set_window_refresh_callback,
+                             callback: window_refresh_callback,
+                             field:    refresh_fun);
     }
 
     fn set_focus_callback(&self, cbfun: WindowFocusFun) {
-        self.get_local_data().focus_fun = Some(cbfun);
-        ml::set_window_focus_callback(self.ptr, private::window_focus_callback);
+        set_window_callback!(setter:   set_window_focus_callback,
+                             callback: window_focus_callback,
+                             field:    focus_fun);
     }
 
     fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
-        self.get_local_data().iconify_fun = Some(cbfun);
-        ml::set_window_iconify_callback(self.ptr, private::window_iconify_callback);
+        set_window_callback!(setter:   set_window_iconify_callback,
+                             callback: window_iconify_callback,
+                             field:    iconify_fun);
     }
 
     fn get_cursor_mode(&self) -> c_int {
@@ -681,33 +698,39 @@ pub impl Window {
     }
 
     fn set_key_callback(&self, cbfun: KeyFun) {
-        self.get_local_data().key_fun = Some(cbfun);
-        ml::set_key_callback(self.ptr, private::key_callback);
+        set_window_callback!(setter:   set_key_callback,
+                             callback: key_callback,
+                             field:    key_fun);
     }
 
     fn set_char_callback(&self, cbfun: CharFun) {
-        self.get_local_data().char_fun = Some(cbfun);
-        ml::set_char_callback(self.ptr, private::char_callback);
+        set_window_callback!(setter:   set_char_callback,
+                             callback: char_callback,
+                             field:    char_fun);
     }
 
     fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
-        self.get_local_data().mouse_button_fun = Some(cbfun);
-        ml::set_mouse_button_callback(self.ptr, private::mouse_button_callback);
+        set_window_callback!(setter:   set_mouse_button_callback,
+                             callback: mouse_button_callback,
+                             field:    mouse_button_fun);
     }
 
     fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
-        self.get_local_data().cursor_pos_fun = Some(cbfun);
-        ml::set_cursor_pos_callback(self.ptr, private::cursor_pos_callback);
+        set_window_callback!(setter:   set_cursor_pos_callback,
+                             callback: cursor_pos_callback,
+                             field:    cursor_pos_fun);
     }
 
     fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
-        self.get_local_data().cursor_enter_fun = Some(cbfun);
-        ml::set_cursor_enter_callback(self.ptr, private::cursor_enter_callback);
+        set_window_callback!(setter:   set_cursor_enter_callback,
+                             callback: cursor_enter_callback,
+                             field:    cursor_enter_fun);
     }
 
     fn set_scroll_callback(&self, cbfun: ScrollFun) {
-        self.get_local_data().scroll_fun = Some(cbfun);
-        ml::set_scroll_callback(self.ptr, private::scroll_callback);
+        set_window_callback!(setter:   set_scroll_callback,
+                             callback: scroll_callback,
+                             field:    scroll_fun);
     }
 
     fn set_clipboard_string(&self, string: &str) {
