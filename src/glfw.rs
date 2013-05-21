@@ -327,7 +327,9 @@ pub impl Monitor {
     /// occurred.
     ///
     fn get_video_mode(&self) -> Option<VidMode> {
-        unsafe { cast::transmute(ml::get_video_mode(self.ptr)) }
+        do ml::get_video_mode(self.ptr).map |&vid_mode| {
+            unsafe { cast::transmute(vid_mode) }
+        }
     }
 
     pub fn set_gamma(&self, gamma: float) {
