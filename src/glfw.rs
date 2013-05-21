@@ -240,6 +240,23 @@ pub struct Version {
     rev:   uint,
 }
 
+impl ToStr for Version {
+    ///
+    /// Returns a string representation of the version struct.
+    ///
+    /// # Returns
+    ///
+    /// A string in the form:
+    ///
+    /// ~~~
+    /// ~"[major].[minor].[rev]"
+    /// ~~~
+    ///
+    fn to_str(&self) -> ~str {
+        fmt!("%?.%?.%?", self.major, self.minor, self.rev)
+    }
+}
+
 ///
 /// Returns a struct containing the version numbers of the underlying GLFW
 /// library.
