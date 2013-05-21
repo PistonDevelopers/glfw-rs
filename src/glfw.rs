@@ -343,11 +343,19 @@ pub impl Monitor {
     pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
         ml::set_gamma_ramp(self.ptr, unsafe { cast::transmute(ramp) });
     }
-}
 
-fn set_monitor_callback(cbfun: MonitorFun) {
-    do private::set_monitor_fun(cbfun) |ext_cb| {
-        ml::set_monitor_callback(ext_cb);
+    ///
+    /// Sets the monitor configuration callback. This is called when a monitor
+    /// is connected to or disconnected from the system.
+    ///
+    /// # Parameters
+    ///
+    /// - `cbfun`: The new callback.
+    ///
+    fn set_callback(cbfun: MonitorFun) {
+        do private::set_monitor_fun(cbfun) |ext_cb| {
+            ml::set_monitor_callback(ext_cb);
+        }
     }
 }
 
