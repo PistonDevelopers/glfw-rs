@@ -49,7 +49,7 @@ pub impl WindowData {
 ///
 /// A map of window data to be stored in TLS
 ///
-pub struct WindowDataMap(HashMap<Window, @mut WindowData>);
+pub struct WindowDataMap(HashMap<*GLFWwindow, @mut WindowData>);
 
 pub impl WindowDataMap {
     /// Function stub used for retrieving a the map of window data from TLS.
@@ -82,7 +82,7 @@ pub impl WindowDataMap {
     }
 }
 
-// External window callbacks
+// Global callbacks
 
 fn error_fun_tls_key(_: @ErrorFun) {}
 
@@ -126,6 +126,7 @@ pub extern "C" fn window_pos_callback(window: *GLFWwindow, xpos: c_int, ypos: c_
     do window_.get_local_data().pos_fun.map |&cb| {
         cb(&window_, xpos as int, ypos as int)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn window_size_callback(window: *GLFWwindow, width: c_int, height: c_int) {
@@ -133,6 +134,7 @@ pub extern "C" fn window_size_callback(window: *GLFWwindow, width: c_int, height
     do window_.get_local_data().size_fun.map |&cb| {
         cb(&window_, width as int, height as int)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn window_close_callback(window: *GLFWwindow) {
@@ -140,7 +142,7 @@ pub extern "C" fn window_close_callback(window: *GLFWwindow) {
     do window_.get_local_data().close_fun.map |&cb| {
         cb(&window_)
     };
-    WindowDataMap::get().remove(&window_);
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn window_refresh_callback(window: *GLFWwindow) {
@@ -148,6 +150,7 @@ pub extern "C" fn window_refresh_callback(window: *GLFWwindow) {
     do window_.get_local_data().refresh_fun.map |&cb| {
         cb(&window_)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn window_focus_callback(window: *GLFWwindow, focused: c_int) {
@@ -155,6 +158,7 @@ pub extern "C" fn window_focus_callback(window: *GLFWwindow, focused: c_int) {
     do window_.get_local_data().focus_fun.map |&cb| {
         cb(&window_, focused as bool)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn window_iconify_callback(window: *GLFWwindow, iconified: c_int) {
@@ -162,6 +166,7 @@ pub extern "C" fn window_iconify_callback(window: *GLFWwindow, iconified: c_int)
     do window_.get_local_data().iconify_fun.map |&cb| {
         cb(&window_, iconified as bool)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn mouse_button_callback(window: *GLFWwindow, button: c_int, action: c_int) {
@@ -169,6 +174,7 @@ pub extern "C" fn mouse_button_callback(window: *GLFWwindow, button: c_int, acti
     do window_.get_local_data().mouse_button_fun.map |&cb| {
         cb(&window_, button, action)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn cursor_pos_callback(window: *GLFWwindow, xpos: c_double, ypos: c_double) {
@@ -176,6 +182,7 @@ pub extern "C" fn cursor_pos_callback(window: *GLFWwindow, xpos: c_double, ypos:
     do window_.get_local_data().cursor_pos_fun.map |&cb| {
         cb(&window_, xpos as float, ypos as float)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn cursor_enter_callback(window: *GLFWwindow, entered: c_int) {
@@ -183,6 +190,7 @@ pub extern "C" fn cursor_enter_callback(window: *GLFWwindow, entered: c_int) {
     do window_.get_local_data().cursor_enter_fun.map |&cb| {
         cb(&window_, entered as bool)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn scroll_callback(window: *GLFWwindow, xpos: c_double, ypos: c_double) {
@@ -190,6 +198,7 @@ pub extern "C" fn scroll_callback(window: *GLFWwindow, xpos: c_double, ypos: c_d
     do window_.get_local_data().scroll_fun.map |&cb| {
         cb(&window_, xpos as float, ypos as float)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn key_callback(window: *GLFWwindow, key: c_int, action: c_int) {
@@ -197,6 +206,7 @@ pub extern "C" fn key_callback(window: *GLFWwindow, key: c_int, action: c_int) {
     do window_.get_local_data().key_fun.map |&cb| {
         cb(&window_, key, action)
     };
+    unsafe { cast::forget(window_); }
 }
 
 pub extern "C" fn char_callback(window: *GLFWwindow, character: c_uint) {
@@ -204,4 +214,5 @@ pub extern "C" fn char_callback(window: *GLFWwindow, character: c_uint) {
     do window_.get_local_data().char_fun.map |&cb| {
         cb(&window_, character as char)
     };
+    unsafe { cast::forget(window_); }
 }

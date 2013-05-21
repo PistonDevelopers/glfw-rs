@@ -435,13 +435,8 @@ pub impl Window {
         if !window.ptr.is_null() {
             // Initialize the local data for this window in TLS
             private::WindowDataMap::get().insert(
-                window, @mut private::WindowData::new()
+                window.ptr, @mut private::WindowData::new()
             );
-            // We must set the close callback initially, because it cleans up
-            // the TLS when the window is closed by the user or if
-            // `Window::set_should_close` was called with a value of `true`.
-            window.set_close_callback(|_|{});
-
             Ok(window)
         } else {
             Err(~"Failed to open GLFW window")
@@ -450,7 +445,7 @@ pub impl Window {
 
     /// Gets a mutable pointer to the window's local data
     priv fn get_local_data(&self) -> @mut private::WindowData {
-        match private::WindowDataMap::get().find_mut(self) {
+        match private::WindowDataMap::get().find_mut(&self.ptr) {
             Some(&data) => data,
             None => fail!("Could not find local data for this window."),
         }
@@ -689,9 +684,20 @@ pub impl Window {
         ml::make_context_current(self.ptr);
     }
 
+    fn is_current_context(&self) -> bool {
+        self.ptr == ml::get_current_context()
+    }
+
     /// Swaps the front and back buffers of the window.
     fn swap_buffers(&self) {
         ml::swap_buffers(self.ptr);
+    }
+}
+
+impl Drop for Window {
+    fn finalize(&self) {
+        ml::destroy_window(self.ptr);
+        private::WindowDataMap::get().remove(&self.ptr);
     }
 }
 
