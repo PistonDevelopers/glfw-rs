@@ -271,18 +271,33 @@ pub fn set_error_callback(cbfun: ErrorFun) {
     }
 }
 
-///
-/// Returns the currently connected monitors.
-///
-pub fn get_monitors() -> ~[Monitor] {
-    ml::get_monitors().map(|&m| Monitor { ptr: m })
-}
-
-pub fn get_primary_monitor() -> Monitor {
-    Monitor { ptr: ml::get_primary_monitor() }
-}
-
 pub impl Monitor {
+    ///
+    /// Returns the primary monitor. This is usually the monitor where elements
+    /// like the Windows task bar or the OS X menu bar is located.
+    ///
+    /// # Returns
+    ///
+    /// The primary monitor wrapped in `Some`, or `None` if an error occurred.
+    ///
+    pub fn get_primary() -> Option<Monitor> {
+        match ml::get_primary_monitor() {
+            ptr if !ptr.is_null() => Some(Monitor { ptr: ptr }),
+            _ => None,
+        }
+    }
+
+    ///
+    /// Returns the currently connected monitors.
+    ///
+    /// # Implementation Notes
+    ///
+    /// Calls `glfwGetMonitors`.
+    ///
+    pub fn get_connected() -> ~[Monitor] {
+        ml::get_monitors().map(|&m| Monitor { ptr: m })
+    }
+
     fn get_pos(&self) -> (int, int) {
         match ml::get_monitor_pos(self.ptr) {
             (xpos, ypos) => (xpos as int, ypos as int)
@@ -303,7 +318,16 @@ pub impl Monitor {
         unsafe { cast::transmute(ml::get_video_modes(self.ptr)) }
     }
 
-    fn get_video_mode(&self) -> VidMode {
+    ///
+    /// Returns the current video mode of the specified monitor. If you are using
+    /// a full screen window, the return value will depend on whether it is focused.
+    ///
+    /// # Returns
+    ///
+    /// The current mode of the monitor wrapped in `Some`, or `None` if an error
+    /// occurred.
+    ///
+    fn get_video_mode(&self) -> Option<VidMode> {
         unsafe { cast::transmute(ml::get_video_mode(self.ptr)) }
     }
 
