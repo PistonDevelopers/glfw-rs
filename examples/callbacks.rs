@@ -7,7 +7,7 @@ fn main() {
 
         glfw::window_hint::resizable(true);
 
-        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).get();
+        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
 
         window.set_sticky_keys(true);
 
