@@ -475,54 +475,130 @@ impl ToStr for VidMode {
     }
 }
 
-macro_rules! window_hints(
-    ($(fn $name:ident $(($arg_name:ident: $arg_ty:ty => $hint:expr, $arg_conv:expr))+)+) => (
-        pub mod window_hint {
-            use core::libc::c_int;
-            use ml;
+///
+/// A series of functions that set specified window hints to the desired.
+/// value or values. The hints, once set, retain their values until changed by a
+/// call to a specific window hint function in the `glfw::window_hint` module,
+/// or until `glfw::spawn` has terminated.
+///
+/// # Implementation Notes
+///
+/// Apart from `glfw::window_hint::default`, the functions contained in this
+/// are implemented using calls to `glfw::ll::glfwWindowHint`. This has been
+/// done to ensure the user does not need to perform any type casts.
+///
+pub mod window_hint {
+    use core::libc::c_int;
+    use ml;
 
-            ///
-            /// Resets all window hints to their default values.
-            ///
-            pub fn default() {
-                ml::default_window_hints();
-            }
+    ///
+    /// Resets all window hints to their default values.
+    ///
+    pub fn default() {
+        ml::default_window_hints();
+    }
 
-            $(pub fn $name($($arg_name: $arg_ty),+) {
-                $(ml::window_hint($hint, $arg_conv);)+
-            })+
-        }
-    )
-)
+    fn red_bits(bits: uint) {
+        ml::window_hint(ml::RED_BITS, bits as c_int)
+    }
 
-window_hints!(
-    fn red_bits               (bits: uint       => ml::RED_BITS, bits as c_int)
-    fn green_bits             (bits: uint       => ml::GREEN_BITS, bits as c_int)
-    fn blue_bits              (bits: uint       => ml::BLUE_BITS, bits as c_int)
-    fn alpha_bits             (bits: uint       => ml::ALPHA_BITS, bits as c_int)
-    fn depth_bits             (bits: uint       => ml::DEPTH_BITS, bits as c_int)
-    fn stencil_bits           (bits: uint       => ml::STENCIL_BITS, bits as c_int)
-    fn accum_red_bits         (bits: uint       => ml::ACCUM_RED_BITS, bits as c_int)
-    fn accum_green_bits       (bits: uint       => ml::ACCUM_GREEN_BITS, bits as c_int)
-    fn accum_blue_bits        (bits: uint       => ml::ACCUM_BLUE_BITS, bits as c_int)
-    fn accum_alpha_bits       (bits: uint       => ml::ACCUM_ALPHA_BITS, bits as c_int)
-    fn aux_buffers            (buffers: uint    => ml::AUX_BUFFERS, buffers as c_int)
-    fn stereo                 (value: bool      => ml::STEREO, value as c_int)
-    fn samples                (samples: uint    => ml::SAMPLES, samples as c_int)
-    fn srgb_capable           (value: bool      => ml::SRGB_CAPABLE, value as c_int)
-    fn client_api             (api: c_int       => ml::CLIENT_API, api)
-    fn context_version_major  (major: uint      => ml::CONTEXT_VERSION_MAJOR, major as c_int)
-    fn context_version_minor  (minor: uint      => ml::CONTEXT_VERSION_MINOR, minor as c_int)
-    fn context_version        (major: uint      => ml::CONTEXT_VERSION_MAJOR, major as c_int)
-                              (minor: uint      => ml::CONTEXT_VERSION_MINOR, minor as c_int)
-    fn context_robustness     (value: bool      => ml::CONTEXT_ROBUSTNESS, value as c_int)
-    fn opengl_forward_compat  (value: bool      => ml::OPENGL_FORWARD_COMPAT, value as c_int)
-    fn opengl_debug_context   (value: bool      => ml::OPENGL_DEBUG_CONTEXT, value as c_int)
-    fn opengl_profile         (profile: c_int   => ml::OPENGL_PROFILE, profile)
-    fn resizable              (value: bool      => ml::RESIZABLE, value as c_int)
-    fn visible                (value: bool      => ml::VISIBLE, value as c_int)
-    fn decorated              (value: bool      => ml::DECORATED, value as c_int)
-)
+    fn green_bits(bits: uint) {
+        ml::window_hint(ml::GREEN_BITS, bits as c_int)
+    }
+
+    fn blue_bits(bits: uint) {
+        ml::window_hint(ml::BLUE_BITS, bits as c_int)
+    }
+
+    fn alpha_bits(bits: uint) {
+        ml::window_hint(ml::ALPHA_BITS, bits as c_int)
+    }
+
+    fn depth_bits(bits: uint) {
+        ml::window_hint(ml::DEPTH_BITS, bits as c_int)
+    }
+
+    fn stencil_bits(bits: uint) {
+        ml::window_hint(ml::STENCIL_BITS, bits as c_int)
+    }
+
+    fn accum_red_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_RED_BITS, bits as c_int)
+    }
+
+    fn accum_green_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_GREEN_BITS, bits as c_int)
+    }
+
+    fn accum_blue_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_BLUE_BITS, bits as c_int)
+    }
+
+    fn accum_alpha_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_ALPHA_BITS, bits as c_int)
+    }
+
+    fn aux_buffers(buffers: uint) {
+        ml::window_hint(ml::AUX_BUFFERS, buffers as c_int)
+    }
+
+    fn stereo(value: bool) {
+        ml::window_hint(ml::STEREO, value as c_int)
+    }
+
+    fn samples(samples: uint) {
+        ml::window_hint(ml::SAMPLES, samples as c_int)
+    }
+
+    fn srgb_capable(value: bool) {
+        ml::window_hint(ml::SRGB_CAPABLE, value as c_int)
+    }
+
+    fn client_api(api: c_int) {
+        ml::window_hint(ml::CLIENT_API, api)
+    }
+
+    fn context_version_major(major: uint) {
+        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int)
+    }
+
+    fn context_version_minor(minor: uint) {
+        ml::window_hint(ml::CONTEXT_VERSION_MINOR, minor as c_int)
+    }
+
+    fn context_version(major: uint, minor: uint) {
+        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int)
+        ml::window_hint(ml::CONTEXT_VERSION_MINOR, minor as c_int)
+    }
+
+    fn context_robustness(value: bool) {
+        ml::window_hint(ml::CONTEXT_ROBUSTNESS, value as c_int)
+    }
+
+    fn opengl_forward_compat(value: bool) {
+        ml::window_hint(ml::OPENGL_FORWARD_COMPAT, value as c_int)
+    }
+
+    fn opengl_debug_context(value: bool) {
+        ml::window_hint(ml::OPENGL_DEBUG_CONTEXT, value as c_int)
+    }
+
+    fn opengl_profile(profile: c_int) {
+        ml::window_hint(ml::OPENGL_PROFILE, profile)
+    }
+
+    fn resizable(value: bool) {
+        ml::window_hint(ml::RESIZABLE, value as c_int)
+    }
+
+    fn visible(value: bool) {
+        ml::window_hint(ml::VISIBLE, value as c_int)
+    }
+
+    fn decorated(value: bool) {
+        ml::window_hint(ml::DECORATED, value as c_int)
+    }
+}
 
 ///
 /// Describes the mode of a window
