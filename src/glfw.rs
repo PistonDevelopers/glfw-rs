@@ -504,104 +504,104 @@ pub mod window_hint {
     }
 
     fn red_bits(bits: uint) {
-        ml::window_hint(ml::RED_BITS, bits as c_int)
+        ml::window_hint(ml::RED_BITS, bits as c_int);
     }
 
     fn green_bits(bits: uint) {
-        ml::window_hint(ml::GREEN_BITS, bits as c_int)
+        ml::window_hint(ml::GREEN_BITS, bits as c_int);
     }
 
     fn blue_bits(bits: uint) {
-        ml::window_hint(ml::BLUE_BITS, bits as c_int)
+        ml::window_hint(ml::BLUE_BITS, bits as c_int);
     }
 
     fn alpha_bits(bits: uint) {
-        ml::window_hint(ml::ALPHA_BITS, bits as c_int)
+        ml::window_hint(ml::ALPHA_BITS, bits as c_int);
     }
 
     fn depth_bits(bits: uint) {
-        ml::window_hint(ml::DEPTH_BITS, bits as c_int)
+        ml::window_hint(ml::DEPTH_BITS, bits as c_int);
     }
 
     fn stencil_bits(bits: uint) {
-        ml::window_hint(ml::STENCIL_BITS, bits as c_int)
+        ml::window_hint(ml::STENCIL_BITS, bits as c_int);
     }
 
     fn accum_red_bits(bits: uint) {
-        ml::window_hint(ml::ACCUM_RED_BITS, bits as c_int)
+        ml::window_hint(ml::ACCUM_RED_BITS, bits as c_int);
     }
 
     fn accum_green_bits(bits: uint) {
-        ml::window_hint(ml::ACCUM_GREEN_BITS, bits as c_int)
+        ml::window_hint(ml::ACCUM_GREEN_BITS, bits as c_int);
     }
 
     fn accum_blue_bits(bits: uint) {
-        ml::window_hint(ml::ACCUM_BLUE_BITS, bits as c_int)
+        ml::window_hint(ml::ACCUM_BLUE_BITS, bits as c_int);
     }
 
     fn accum_alpha_bits(bits: uint) {
-        ml::window_hint(ml::ACCUM_ALPHA_BITS, bits as c_int)
+        ml::window_hint(ml::ACCUM_ALPHA_BITS, bits as c_int);
     }
 
     fn aux_buffers(buffers: uint) {
-        ml::window_hint(ml::AUX_BUFFERS, buffers as c_int)
+        ml::window_hint(ml::AUX_BUFFERS, buffers as c_int);
     }
 
     fn stereo(value: bool) {
-        ml::window_hint(ml::STEREO, value as c_int)
+        ml::window_hint(ml::STEREO, value as c_int);
     }
 
     fn samples(samples: uint) {
-        ml::window_hint(ml::SAMPLES, samples as c_int)
+        ml::window_hint(ml::SAMPLES, samples as c_int);
     }
 
     fn srgb_capable(value: bool) {
-        ml::window_hint(ml::SRGB_CAPABLE, value as c_int)
+        ml::window_hint(ml::SRGB_CAPABLE, value as c_int);
     }
 
     fn client_api(api: c_int) {
-        ml::window_hint(ml::CLIENT_API, api)
+        ml::window_hint(ml::CLIENT_API, api);
     }
 
     fn context_version_major(major: uint) {
-        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int)
+        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int);
     }
 
     fn context_version_minor(minor: uint) {
-        ml::window_hint(ml::CONTEXT_VERSION_MINOR, minor as c_int)
+        ml::window_hint(ml::CONTEXT_VERSION_MINOR, minor as c_int);
     }
 
     fn context_version(major: uint, minor: uint) {
-        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int)
+        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int);
         ml::window_hint(ml::CONTEXT_VERSION_MINOR, minor as c_int)
     }
 
     fn context_robustness(value: bool) {
-        ml::window_hint(ml::CONTEXT_ROBUSTNESS, value as c_int)
+        ml::window_hint(ml::CONTEXT_ROBUSTNESS, value as c_int);
     }
 
     fn opengl_forward_compat(value: bool) {
-        ml::window_hint(ml::OPENGL_FORWARD_COMPAT, value as c_int)
+        ml::window_hint(ml::OPENGL_FORWARD_COMPAT, value as c_int);
     }
 
     fn opengl_debug_context(value: bool) {
-        ml::window_hint(ml::OPENGL_DEBUG_CONTEXT, value as c_int)
+        ml::window_hint(ml::OPENGL_DEBUG_CONTEXT, value as c_int);
     }
 
     fn opengl_profile(profile: c_int) {
-        ml::window_hint(ml::OPENGL_PROFILE, profile)
+        ml::window_hint(ml::OPENGL_PROFILE, profile);
     }
 
     fn resizable(value: bool) {
-        ml::window_hint(ml::RESIZABLE, value as c_int)
+        ml::window_hint(ml::RESIZABLE, value as c_int);
     }
 
     fn visible(value: bool) {
-        ml::window_hint(ml::VISIBLE, value as c_int)
+        ml::window_hint(ml::VISIBLE, value as c_int);
     }
 
     fn decorated(value: bool) {
-        ml::window_hint(ml::DECORATED, value as c_int)
+        ml::window_hint(ml::DECORATED, value as c_int);
     }
 }
 
