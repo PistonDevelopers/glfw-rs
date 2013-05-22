@@ -341,7 +341,8 @@ pub impl Monitor {
     ///
     /// # Returns
     ///
-    /// A tuple holding the x-coordinate and y-coordinate of the monitor
+    /// A tuple holding the x-coordinate and y-coordinate of the monitor,
+    /// measured in screen coordinates.
     ///
     fn get_pos(&self) -> (int, int) {
         match ml::get_monitor_pos(self.ptr) {
@@ -355,7 +356,7 @@ pub impl Monitor {
     ///
     /// # Returns
     ///
-    /// A tuple holding the width and height of the monitor in mm
+    /// A tuple holding the width and height of the monitor in mm.
     ///
     /// # Note
     ///
@@ -424,6 +425,10 @@ pub impl Monitor {
 
     ///
     /// Retrieves the current gamma ramp of the specified monitor.
+    ///
+    /// # Returns
+    ///
+    /// A struct containing the gamma ramp.
     ///
     pub fn get_gamma_ramp(&self) -> GammaRamp {
         unsafe { cast::transmute(ml::get_gamma_ramp(self.ptr)) }
@@ -664,7 +669,7 @@ pub impl Window {
     /// - `height`: The desired window height, in screen coordinates.
     /// - `title`: The initial window title.
     /// - `mode`: The mode of the window, either `glfw::Windowed` or
-    ///   `glfw::FullScreen`
+    ///   `glfw::FullScreen`.
     ///
     /// # Returns
     ///
@@ -718,22 +723,83 @@ pub impl Window {
         ml::set_window_title(self.ptr, title);
     }
 
+    ///
+    /// Retrieves the position of the upper-left corner of the window's client
+    /// area.
+    ///
+    /// # Returns
+    ///
+    /// A tuple holding the x-coordinate and y-coordinate measured in screen
+    /// coordinates from the upper-left corner of the window'sclient area.
+    ///
     fn get_pos(&self) -> (int, int) {
         match ml::get_window_pos(self.ptr) {
             (xpos, ypos) => (xpos as int, ypos as int)
         }
     }
 
+    ///
+    /// Sets the position of the upper-left corner of the window's client area.
+    ///
+    /// If the window is full screen, this function does nothing.
+    ///
+    /// # Parameters
+    ///
+    /// - `xpos`: The x-coordinate of the upper-left corner of the client area,
+    ///   measured in screen coordinates.
+    /// - `ypos`: The y-coordinate of the upper-left corner of the client area,
+    ///   measured in screen coordinates.
+    ///
+    /// # Notes
+    ///
+    /// - It is very rarely a good idea to move an already visible window, as it
+    ///   will confuse and annoy the user.
+    ///
+    /// - This function may only be called from the main thread.
+    ///
+    /// - The window manager may put limits on what positions are allowed.
+    ///
+    /// # Bugs
+    ///
+    /// - X11: Some window managers ignore the set position of hidden (i.e.
+    ///   unmapped) windows, instead placing them where it thinks is appropriate
+    ///   once they are shown.
+    ///
+    /// - Mac OS X: The screen coordinate system is inverted.
+    ///
     fn set_pos(&self, xpos: int, ypos: int) {
         ml::set_window_pos(self.ptr, xpos as c_int, ypos as c_int);
     }
 
+    ///
+    /// Retrieves the size of the window's client area.
+    ///
+    /// # Returns
+    ///
+    /// A tuple holding the width and height of the window's client area,
+    /// measured in screen coordinates.
+    ///
     fn get_size(&self) -> (int, int) {
         match ml::get_window_size(self.ptr) {
             (width, height) => (width as int, height as int)
         }
     }
 
+    ///
+    /// Sets the size of the window's client area.
+    ///
+    /// For full screen windows, this function selects and switches to the
+    /// resolution closest to the specified size, without affecting the window's
+    /// context. As the context is unaffected, the bit depths of the framebuffer
+    /// remain unchanged.
+    ///
+    /// # Parameters
+    ///
+    /// - `width`: The desired width of the specified window, measured in screen
+    ///   coordinates.
+    /// - `height`: The desired height of the specified window, measured in
+    ///   screen coordinates.
+    ///
     fn set_size(&self, width: int, height: int) {
         ml::set_window_size(self.ptr, width as c_int, height as c_int);
     }
@@ -831,7 +897,6 @@ pub impl Window {
     /// `glfw::LOSE_CONTEXT_ON_RESET` or `glfw::NO_RESET_NOTIFICATION` if the
     /// context supports robustness, or `glfw::NO_ROBUSTNESS` otherwise.
     ///
-    ///
     /// # Implementation Notes
     ///
     /// This method calls `glfw::ll::glfwGetWindowParam` with the constant
@@ -878,7 +943,6 @@ pub impl Window {
     /// `glfw::OPENGL_CORE_PROFILE` or `glfw::OPENGL_COMPAT_PROFILE` if the
     /// context uses a known profile, or `glfw::OPENGL_NO_PROFILE` if the OpenGL
     /// profile is unknown or the context is for another client API.
-    ///
     ///
     /// # Implementation Notes
     ///
