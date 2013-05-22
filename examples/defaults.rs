@@ -18,8 +18,7 @@ fn main() {
         let (width, height) = window.get_size();
         io::println(fmt!("window size: %? x %?", width, height));
 
-        println(fmt!("Context version major: %?",     window.get_context_version_major()));
-        println(fmt!("Context version minor: %?",     window.get_context_version_minor()));
+        println(fmt!("Context version: %s",           window.get_context_version().to_str()));
         println(fmt!("OpenGL forward compatible: %?", window.is_opengl_forward_compat()));
         println(fmt!("OpenGL debug context: %?",      window.is_opengl_debug_context()));
         println(fmt!("OpenGL profile: %?",            window.get_opengl_profile()));

@@ -90,6 +90,7 @@ pub fn get_monitor_physical_size(monitor: *GLFWmonitor) -> (c_int, c_int) {
 
 pub fn get_monitor_name(monitor: *GLFWmonitor) -> ~str {
     unsafe { str::raw::from_c_str(ll::glfwGetMonitorName(monitor)) }
+
 }
 
 pub fn get_video_modes(monitor: *GLFWmonitor) -> ~[GLFWvidmode] {
@@ -100,8 +101,17 @@ pub fn get_video_modes(monitor: *GLFWmonitor) -> ~[GLFWvidmode] {
     }
 }
 
-pub fn get_video_mode(monitor: *GLFWmonitor) -> GLFWvidmode {
-    unsafe { ll::glfwGetVideoMode(monitor) }
+pub fn get_video_mode(monitor: *GLFWmonitor) -> Option<GLFWvidmode> {
+    match unsafe { ll::glfwGetVideoMode(monitor) } {
+        GLFWvidmode {
+            width:      0,
+            height:     0,
+            redBits:    0,
+            greenBits:  0,
+            blueBits:   0
+        } => None,
+        vidmode => Some(vidmode),
+    }
 }
 
 pub fn set_gamma(monitor: *GLFWmonitor, gamma: c_float) {
