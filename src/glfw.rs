@@ -341,7 +341,8 @@ pub impl Monitor {
     ///
     /// # Returns
     ///
-    /// A tuple holding the x-coordinate and y-coordinate of the monitor
+    /// A tuple holding the x-coordinate and y-coordinate of the monitor,
+    /// measured in screen coordinates.
     ///
     fn get_pos(&self) -> (int, int) {
         match ml::get_monitor_pos(self.ptr) {
@@ -355,7 +356,7 @@ pub impl Monitor {
     ///
     /// # Returns
     ///
-    /// A tuple holding the width and height of the monitor in mm
+    /// A tuple holding the width and height of the monitor in mm.
     ///
     /// # Note
     ///
@@ -425,6 +426,10 @@ pub impl Monitor {
     ///
     /// Retrieves the current gamma ramp of the specified monitor.
     ///
+    /// # Returns
+    ///
+    /// A struct containing the gamma ramp.
+    ///
     pub fn get_gamma_ramp(&self) -> GammaRamp {
         unsafe { cast::transmute(ml::get_gamma_ramp(self.ptr)) }
     }
@@ -475,54 +480,130 @@ impl ToStr for VidMode {
     }
 }
 
-macro_rules! window_hints(
-    ($(fn $name:ident $(($arg_name:ident: $arg_ty:ty => $hint:expr, $arg_conv:expr))+)+) => (
-        pub mod window_hint {
-            use core::libc::c_int;
-            use ml;
+///
+/// A series of functions that set specified window hints to the desired.
+/// value or values. The hints, once set, retain their values until changed by a
+/// call to a specific window hint function in the `glfw::window_hint` module,
+/// or until `glfw::spawn` has terminated.
+///
+/// # Implementation Notes
+///
+/// Apart from `glfw::window_hint::default`, the functions contained in this
+/// are implemented using calls to `glfw::ll::glfwWindowHint`. This has been
+/// done to ensure the user does not need to perform any type casts.
+///
+pub mod window_hint {
+    use core::libc::c_int;
+    use ml;
 
-            ///
-            /// Resets all window hints to their default values.
-            ///
-            pub fn default() {
-                ml::default_window_hints();
-            }
+    ///
+    /// Resets all window hints to their default values.
+    ///
+    pub fn default() {
+        ml::default_window_hints();
+    }
 
-            $(pub fn $name($($arg_name: $arg_ty),+) {
-                $(ml::window_hint($hint, $arg_conv);)+
-            })+
-        }
-    )
-)
+    fn red_bits(bits: uint) {
+        ml::window_hint(ml::RED_BITS, bits as c_int)
+    }
 
-window_hints!(
-    fn red_bits               (bits: uint       => ml::RED_BITS, bits as c_int)
-    fn green_bits             (bits: uint       => ml::GREEN_BITS, bits as c_int)
-    fn blue_bits              (bits: uint       => ml::BLUE_BITS, bits as c_int)
-    fn alpha_bits             (bits: uint       => ml::ALPHA_BITS, bits as c_int)
-    fn depth_bits             (bits: uint       => ml::DEPTH_BITS, bits as c_int)
-    fn stencil_bits           (bits: uint       => ml::STENCIL_BITS, bits as c_int)
-    fn accum_red_bits         (bits: uint       => ml::ACCUM_RED_BITS, bits as c_int)
-    fn accum_green_bits       (bits: uint       => ml::ACCUM_GREEN_BITS, bits as c_int)
-    fn accum_blue_bits        (bits: uint       => ml::ACCUM_BLUE_BITS, bits as c_int)
-    fn accum_alpha_bits       (bits: uint       => ml::ACCUM_ALPHA_BITS, bits as c_int)
-    fn aux_buffers            (buffers: uint    => ml::AUX_BUFFERS, buffers as c_int)
-    fn stereo                 (value: bool      => ml::STEREO, value as c_int)
-    fn samples                (samples: uint    => ml::SAMPLES, samples as c_int)
-    fn srgb_capable           (value: bool      => ml::SRGB_CAPABLE, value as c_int)
-    fn client_api             (api: c_int       => ml::CLIENT_API, api)
-    fn context_version_major  (major: uint      => ml::CONTEXT_VERSION_MAJOR, major as c_int)
-    fn context_version_minor  (minor: uint      => ml::CONTEXT_VERSION_MINOR, minor as c_int)
-    fn context_version        (major: uint      => ml::CONTEXT_VERSION_MAJOR, major as c_int)
-                              (minor: uint      => ml::CONTEXT_VERSION_MINOR, minor as c_int)
-    fn context_robustness     (value: bool      => ml::CONTEXT_ROBUSTNESS, value as c_int)
-    fn opengl_forward_compat  (value: bool      => ml::OPENGL_FORWARD_COMPAT, value as c_int)
-    fn opengl_debug_context   (value: bool      => ml::OPENGL_DEBUG_CONTEXT, value as c_int)
-    fn opengl_profile         (profile: c_int   => ml::OPENGL_PROFILE, profile)
-    fn resizable              (value: bool      => ml::RESIZABLE, value as c_int)
-    fn visible                (value: bool      => ml::VISIBLE, value as c_int)
-    fn decorated              (value: bool      => ml::DECORATED, value as c_int)
-)
+    fn green_bits(bits: uint) {
+        ml::window_hint(ml::GREEN_BITS, bits as c_int)
+    }
+
+    fn blue_bits(bits: uint) {
+        ml::window_hint(ml::BLUE_BITS, bits as c_int)
+    }
+
+    fn alpha_bits(bits: uint) {
+        ml::window_hint(ml::ALPHA_BITS, bits as c_int)
+    }
+
+    fn depth_bits(bits: uint) {
+        ml::window_hint(ml::DEPTH_BITS, bits as c_int)
+    }
+
+    fn stencil_bits(bits: uint) {
+        ml::window_hint(ml::STENCIL_BITS, bits as c_int)
+    }
+
+    fn accum_red_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_RED_BITS, bits as c_int)
+    }
+
+    fn accum_green_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_GREEN_BITS, bits as c_int)
+    }
+
+    fn accum_blue_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_BLUE_BITS, bits as c_int)
+    }
+
+    fn accum_alpha_bits(bits: uint) {
+        ml::window_hint(ml::ACCUM_ALPHA_BITS, bits as c_int)
+    }
+
+    fn aux_buffers(buffers: uint) {
+        ml::window_hint(ml::AUX_BUFFERS, buffers as c_int)
+    }
+
+    fn stereo(value: bool) {
+        ml::window_hint(ml::STEREO, value as c_int)
+    }
+
+    fn samples(samples: uint) {
+        ml::window_hint(ml::SAMPLES, samples as c_int)
+    }
+
+    fn srgb_capable(value: bool) {
+        ml::window_hint(ml::SRGB_CAPABLE, value as c_int)
+    }
+
+    fn client_api(api: c_int) {
+        ml::window_hint(ml::CLIENT_API, api)
+    }
+
+    fn context_version_major(major: uint) {
+        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int)
+    }
+
+    fn context_version_minor(minor: uint) {
+        ml::window_hint(ml::CONTEXT_VERSION_MINOR, minor as c_int)
+    }
+
+    fn context_version(major: uint, minor: uint) {
+        ml::window_hint(ml::CONTEXT_VERSION_MAJOR, major as c_int)
+        ml::window_hint(ml::CONTEXT_VERSION_MINOR, minor as c_int)
+    }
+
+    fn context_robustness(value: bool) {
+        ml::window_hint(ml::CONTEXT_ROBUSTNESS, value as c_int)
+    }
+
+    fn opengl_forward_compat(value: bool) {
+        ml::window_hint(ml::OPENGL_FORWARD_COMPAT, value as c_int)
+    }
+
+    fn opengl_debug_context(value: bool) {
+        ml::window_hint(ml::OPENGL_DEBUG_CONTEXT, value as c_int)
+    }
+
+    fn opengl_profile(profile: c_int) {
+        ml::window_hint(ml::OPENGL_PROFILE, profile)
+    }
+
+    fn resizable(value: bool) {
+        ml::window_hint(ml::RESIZABLE, value as c_int)
+    }
+
+    fn visible(value: bool) {
+        ml::window_hint(ml::VISIBLE, value as c_int)
+    }
+
+    fn decorated(value: bool) {
+        ml::window_hint(ml::DECORATED, value as c_int)
+    }
+}
 
 ///
 /// Describes the mode of a window
@@ -588,7 +669,7 @@ pub impl Window {
     /// - `height`: The desired window height, in screen coordinates.
     /// - `title`: The initial window title.
     /// - `mode`: The mode of the window, either `glfw::Windowed` or
-    ///   `glfw::FullScreen`
+    ///   `glfw::FullScreen`.
     ///
     /// # Returns
     ///
@@ -642,22 +723,83 @@ pub impl Window {
         ml::set_window_title(self.ptr, title);
     }
 
+    ///
+    /// Retrieves the position of the upper-left corner of the window's client
+    /// area.
+    ///
+    /// # Returns
+    ///
+    /// A tuple holding the x-coordinate and y-coordinate measured in screen
+    /// coordinates from the upper-left corner of the window'sclient area.
+    ///
     fn get_pos(&self) -> (int, int) {
         match ml::get_window_pos(self.ptr) {
             (xpos, ypos) => (xpos as int, ypos as int)
         }
     }
 
+    ///
+    /// Sets the position of the upper-left corner of the window's client area.
+    ///
+    /// If the window is full screen, this function does nothing.
+    ///
+    /// # Parameters
+    ///
+    /// - `xpos`: The x-coordinate of the upper-left corner of the client area,
+    ///   measured in screen coordinates.
+    /// - `ypos`: The y-coordinate of the upper-left corner of the client area,
+    ///   measured in screen coordinates.
+    ///
+    /// # Notes
+    ///
+    /// - It is very rarely a good idea to move an already visible window, as it
+    ///   will confuse and annoy the user.
+    ///
+    /// - This function may only be called from the main thread.
+    ///
+    /// - The window manager may put limits on what positions are allowed.
+    ///
+    /// # Bugs
+    ///
+    /// - X11: Some window managers ignore the set position of hidden (i.e.
+    ///   unmapped) windows, instead placing them where it thinks is appropriate
+    ///   once they are shown.
+    ///
+    /// - Mac OS X: The screen coordinate system is inverted.
+    ///
     fn set_pos(&self, xpos: int, ypos: int) {
         ml::set_window_pos(self.ptr, xpos as c_int, ypos as c_int);
     }
 
+    ///
+    /// Retrieves the size of the window's client area.
+    ///
+    /// # Returns
+    ///
+    /// A tuple holding the width and height of the window's client area,
+    /// measured in screen coordinates.
+    ///
     fn get_size(&self) -> (int, int) {
         match ml::get_window_size(self.ptr) {
             (width, height) => (width as int, height as int)
         }
     }
 
+    ///
+    /// Sets the size of the window's client area.
+    ///
+    /// For full screen windows, this function selects and switches to the
+    /// resolution closest to the specified size, without affecting the window's
+    /// context. As the context is unaffected, the bit depths of the framebuffer
+    /// remain unchanged.
+    ///
+    /// # Parameters
+    ///
+    /// - `width`: The desired width of the specified window, measured in screen
+    ///   coordinates.
+    /// - `height`: The desired height of the specified window, measured in
+    ///   screen coordinates.
+    ///
     fn set_size(&self, width: int, height: int) {
         ml::set_window_size(self.ptr, width as c_int, height as c_int);
     }
@@ -755,7 +897,6 @@ pub impl Window {
     /// `glfw::LOSE_CONTEXT_ON_RESET` or `glfw::NO_RESET_NOTIFICATION` if the
     /// context supports robustness, or `glfw::NO_ROBUSTNESS` otherwise.
     ///
-    ///
     /// # Implementation Notes
     ///
     /// This method calls `glfw::ll::glfwGetWindowParam` with the constant
@@ -802,7 +943,6 @@ pub impl Window {
     /// `glfw::OPENGL_CORE_PROFILE` or `glfw::OPENGL_COMPAT_PROFILE` if the
     /// context uses a known profile, or `glfw::OPENGL_NO_PROFILE` if the OpenGL
     /// profile is unknown or the context is for another client API.
-    ///
     ///
     /// # Implementation Notes
     ///
