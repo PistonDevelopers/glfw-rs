@@ -178,8 +178,9 @@ pub static JOYSTICK_LAST                : c_int = JOYSTICK_16;
 
 /* Modifier keys */
 pub static MOD_SHIFT                    : c_int = 0x0001;
-pub static MOD_CTRL                     : c_int = 0x0002;
+pub static MOD_CONTROL                  : c_int = 0x0002;
 pub static MOD_ALT                      : c_int = 0x0004;
+pub static MOD_SUPER                    : c_int = 0x0008;
 
 /* glfwGetWindowParam tokens */
 pub static FOCUSED                      : c_int = 0x00020001;

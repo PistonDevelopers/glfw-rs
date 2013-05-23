@@ -263,8 +263,9 @@ fn mouse_button_to_str(btn: libc::c_int) -> ~str {
 
 fn modifiers_to_str(mods: libc::c_int) -> ~str {
     let mut ss = ~[];
-    if (mods & glfw::MOD_SHIFT) as bool { ss.push(~"shift")   }
-    if (mods & glfw::MOD_CTRL)  as bool { ss.push(~"ctrl")    }
-    if (mods & glfw::MOD_ALT)   as bool { ss.push(~"alt")     }
+    if (mods & glfw::MOD_SHIFT)   as bool { ss.push(~"shift")   }
+    if (mods & glfw::MOD_CONTROL) as bool { ss.push(~"control") }
+    if (mods & glfw::MOD_ALT)     as bool { ss.push(~"alt")     }
+    if (mods & glfw::MOD_SUPER)   as bool { ss.push(~"super")   }
     str::connect(ss, ", ")
 }
