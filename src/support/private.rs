@@ -26,9 +26,9 @@ pub struct WindowData {
     char_fun:            Option<CharFun>,
 }
 
-pub impl WindowData {
+impl WindowData {
     /// Initialize the struct with all callbacks set to `None`.
-    fn new() -> WindowData {
+    pub fn new() -> WindowData {
         WindowData {
             pos_fun:             None,
             size_fun:            None,
@@ -51,13 +51,13 @@ pub impl WindowData {
 ///
 pub struct WindowDataMap(HashMap<*GLFWwindow, @mut WindowData>);
 
-pub impl WindowDataMap {
+impl WindowDataMap {
     /// Function stub used for retrieving a the map of window data from
     /// task-local storage.
     priv fn tls_key(_: @@mut WindowDataMap) {}
 
     /// Initializes a map of window data in task-local storage.
-    fn init() {
+    pub fn init() {
         unsafe {
             local_data_set(
                 WindowDataMap::tls_key,
@@ -68,7 +68,7 @@ pub impl WindowDataMap {
 
     /// Retrieves a mutable pointer to the map of window data stored task-local
     /// storage, failing if the map could not be found.
-    fn get() -> @mut WindowDataMap {
+    pub fn get() -> @mut WindowDataMap {
         match unsafe { local_data_get(WindowDataMap::tls_key) } {
             Some(@local_data) => local_data,
             None => fail!("Could not find a WindowDataMap in thread-local storage."),
@@ -77,7 +77,7 @@ pub impl WindowDataMap {
 
     /// Clears all external callbacks and removes the window from the map.
     /// Returns `true` if the window was present in the map, otherwise `false`.
-    fn remove(&mut self, window: &*GLFWwindow) -> bool {
+    pub fn remove(&mut self, window: &*GLFWwindow) -> bool {
         do self.pop(window).map |&data| {
             unsafe {
                 // Clear all external callbacks
