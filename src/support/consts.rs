@@ -250,9 +250,6 @@ pub static VERSION_UNAVAILABLE          : c_int = 0x00070007;
 pub static PLATFORM_ERROR               : c_int = 0x00070008;
 pub static FORMAT_UNAVAILABLE           : c_int = 0x00070009;
 
-/* Gamma ramps */
-pub static GAMMA_RAMP_SIZE              : c_int = 256;
-
 /* Monitor event tokens */
 pub static CONNECTED                    : c_int = 0x00061000;
 pub static DISCONNECTED                 : c_int = 0x00061001;
