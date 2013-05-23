@@ -12,7 +12,7 @@ fn main() {
     // automatically starts a new thread, so this line is _essential_ to ensure
     // that the OS is able to update the window and recieve events from the user.
     do task::spawn_sched(task::PlatformThread) {
-        use core::unstable::finally::Finally;
+        use std::unstable::finally::Finally;
 
         // The `glfw::{TRUE, FALSE}` constants are added for convenience. You could also use
         // the `GL_TRUE` or `GL_FALSE` constants from you OpenGL bindings.
@@ -42,12 +42,12 @@ fn main() {
     }
 }
 
-extern fn key_callback(window: *glfw::GLFWwindow, key: libc::c_int, action: libc::c_int) {
+extern fn key_callback(window: *glfw::GLFWwindow, key: libc::c_int, action: libc::c_int, _: libc::c_int) {
     if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
         glfw::set_window_should_close(window, glfw::TRUE);
     }
 }
 
-extern fn error_callback(_error: libc::c_int, description: *libc::c_char) {
+extern fn error_callback(_: libc::c_int, description: *libc::c_char) {
     io::println(fmt!("GLFW Error: %s", unsafe { str::raw::from_c_str(description) }));
 }

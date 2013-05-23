@@ -2,7 +2,7 @@
 //! Common constants for glfw. You shouldn't have to access these directly as each module
 //! publicly exports them.
 
-use core::libc::c_int;
+use std::libc::c_int;
 
 /* GLFW version */
 pub static VERSION_MAJOR                : c_int = 3;
@@ -176,6 +176,11 @@ pub static JOYSTICK_15                  : c_int = 14;
 pub static JOYSTICK_16                  : c_int = 15;
 pub static JOYSTICK_LAST                : c_int = JOYSTICK_16;
 
+/* Modifier keys */
+pub static MOD_SHIFT                    : c_int = 0x0001;
+pub static MOD_CTRL                     : c_int = 0x0002;
+pub static MOD_ALT                      : c_int = 0x0004;
+
 /* glfwGetWindowParam tokens */
 pub static FOCUSED                      : c_int = 0x00020001;
 pub static ICONIFIED                    : c_int = 0x00020002;
@@ -224,19 +229,14 @@ pub static OPENGL_CORE_PROFILE          : c_int = 0x00000001;
 pub static OPENGL_COMPAT_PROFILE        : c_int = 0x00000002;
 
 /* glfwGetInputMode/glfwSetInputMode tokens */
-pub static CURSOR_MODE                  : c_int = 0x00030001;
+pub static CURSOR                       : c_int = 0x00030001;
 pub static STICKY_KEYS                  : c_int = 0x00030002;
 pub static STICKY_MOUSE_BUTTONS         : c_int = 0x00030003;
 
 /* GLFW_CURSOR_MODE values */
 pub static CURSOR_NORMAL                : c_int = 0x00040001;
 pub static CURSOR_HIDDEN                : c_int = 0x00040002;
-pub static CURSOR_CAPTURED              : c_int = 0x00040003;
-
-/* glfwGetJoystickParam tokens */
-pub static PRESENT                      : c_int = 0x00050001;
-pub static AXES                         : c_int = 0x00050002;
-pub static BUTTONS                      : c_int = 0x00050003;
+pub static CURSOR_DISABLED              : c_int = 0x00040003;
 
 /* glfwGetError/glfwErrorString tokens */
 pub static NOT_INITIALIZED              : c_int = 0x00070001;

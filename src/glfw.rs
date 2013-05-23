@@ -9,7 +9,7 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-use core::libc::*;
+use std::libc::*;
 
 // re-export constants
 pub use consts::*;
@@ -125,8 +125,9 @@ pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
 /// - `window`: The window that recieved the event.
 /// - `button`: The mouse button that was pressed or released.
 /// - `action`: Either `PRESS` or `RELEASE`.
+/// - `mods`: Bit field describing which modifier keys were held down.
 ///
-pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int);
+pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: c_int);
 
 ///
 /// The function type of cursor position callbacks.
@@ -168,8 +169,9 @@ pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
 /// - `window`: The window that recieved the event.
 /// - `key`: The key that was pressed or released.
 /// - `action`: Either `PRESS`, `RELEASE`, or `REPEAT`.
+/// - `mods`: Bit field describing which modifier keys were held down.
 ///
-pub type KeyFun = @fn(window: &Window, key: c_int, action: c_int);
+pub type KeyFun = @fn(window: &Window, key: c_int, action: c_int, mods: c_int);
 
 ///
 /// The function type for character callbacks.
@@ -205,9 +207,9 @@ pub struct VidMode {
 /// Describes the gamma ramp of a monitor.
 ///
 pub struct GammaRamp {
-    red:    [c_ushort, ..GAMMA_RAMP_SIZE],
-    green:  [c_ushort, ..GAMMA_RAMP_SIZE],
-    blue:   [c_ushort, ..GAMMA_RAMP_SIZE],
+    red:    ~[c_ushort],
+    green:  ~[c_ushort],
+    blue:   ~[c_ushort],
 }
 
 pub type GLProc = ml::GLFWglproc;
@@ -222,7 +224,7 @@ pub type GLProc = ml::GLFWglproc;
 ///
 pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
-        use core::unstable::finally::Finally;
+        use std::unstable::finally::Finally;
 
         private::WindowDataMap::init();
 
@@ -431,7 +433,14 @@ pub impl Monitor {
     /// A struct containing the gamma ramp.
     ///
     pub fn get_gamma_ramp(&self) -> GammaRamp {
-        unsafe { cast::transmute(ml::get_gamma_ramp(self.ptr)) }
+        unsafe {
+            let llramp = ml::get_gamma_ramp(self.ptr);
+            GammaRamp {
+                red:    vec::from_buf(llramp.red,   llramp.size as uint),
+                green:  vec::from_buf(llramp.green, llramp.size as uint),
+                blue:   vec::from_buf(llramp.blue,  llramp.size as uint),
+            }
+        }
     }
 
     ///
@@ -442,7 +451,15 @@ pub impl Monitor {
     /// - `ramp`: The gamma ramp to use.
     ///
     pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
-        ml::set_gamma_ramp(self.ptr, unsafe { cast::transmute(ramp) });
+        ml::set_gamma_ramp(
+            self.ptr,
+            &ml::GLFWgammaramp {
+                red:    vec::raw::to_ptr(ramp.red),
+                green:  vec::raw::to_ptr(ramp.green),
+                blue:   vec::raw::to_ptr(ramp.blue),
+                size:   ramp.red.len() as c_uint,
+            }
+        );
     }
 
     ///
@@ -493,7 +510,7 @@ impl ToStr for VidMode {
 /// done to ensure the user does not need to perform any type casts.
 ///
 pub mod window_hint {
-    use core::libc::c_int;
+    use std::libc::c_int;
     use ml;
 
     ///
@@ -1035,16 +1052,16 @@ pub impl Window {
     /// # Returns
     ///
     /// One of the following constants: `glfw::CURSOR_NORMAL`,
-    /// `glfw::CURSOR_HIDDEN` or `glfw::CURSOR_CAPTURED`.
+    /// `glfw::CURSOR_HIDDEN` or `glfw::CURSOR_DISABLED`.
     ///
     /// # Implementation Notes
     ///
     /// This method calls `glfw::ll::glfwGetInputMode` with the constant
-    /// `glfw::CURSOR_MODE`. The function has been divided up into separate
+    /// `glfw::CURSOR`. The function has been divided up into separate
     /// methods to remove the need for casting between types.
     ///
     fn get_cursor_mode(&self) -> c_int {
-        ml::get_input_mode(self.ptr, CURSOR_MODE)
+        ml::get_input_mode(self.ptr, CURSOR)
     }
 
     ///
@@ -1057,18 +1074,17 @@ pub impl Window {
     ///       normally.
     ///     - `glfw::CURSOR_HIDDEN`: Makes the cursor invisible when it is over
     ///       the client area of the window.
-    ///     - `glfw::CURSOR_CAPTURED`: Makes the cursor invisible and unable to
-    ///       leave the window but unconstrained in terms of position. This is
-    ///       useful for first-person free-look cameras.
+    ///     - `glfw::CURSOR_DISABLED`: disables the cursor and removes any
+    ///       limitations on cursor movement.
     ///
     /// # Implementation Notes
     ///
     /// This method calls `glfw::ll::glfwSetInputMode` with the constant
-    /// `glfw::CURSOR_MODE. The function has been divided up into separate
+    /// `glfw::CURSOR`. The function has been divided up into separate
     /// methods to remove the need for casting between types.
     ///
     fn set_cursor_mode(&self, mode: c_int) {
-        ml::set_input_mode(self.ptr, CURSOR_MODE, mode);
+        ml::set_input_mode(self.ptr, CURSOR, mode);
     }
 
     ///
@@ -1287,53 +1303,19 @@ pub fn wait_events() {
 }
 
 pub mod joystick {
-    use core::libc::*;
+    use std::libc::*;
     use ml;
 
     pub fn is_present(joy: c_int) -> bool {
-        ml::get_joystick_param(joy, ml::PRESENT) as bool
+        ml::joystick_present(joy) as bool
     }
 
-    pub fn num_axes(joy: c_int) -> Option<uint> {
-        let axes = ml::get_joystick_param(joy, ml::AXES);
-        if axes > 0 { Some(axes as uint) } else { None }
+    pub fn get_axes(joy: c_int) -> ~[float] {
+        ml::get_joystick_axes(joy).map(|&a| a as float)
     }
 
-    pub fn num_buttons(joy: c_int) -> Option<uint> {
-        let buttons = ml::get_joystick_param(joy, ml::BUTTONS);
-        if buttons > 0 { Some(buttons as uint) } else { None }
-    }
-
-    pub fn get_axes(joy: c_int) -> Result<~[float],()> {
-        do num_axes(joy).map_default(Err(())) |&num| {
-            unsafe {
-                let mut axes = ~[];
-                vec::grow(&mut axes, num, &0.0);
-                vec::raw::set_len(&mut axes, num);
-
-                if ::ll::glfwGetJoystickAxes(joy, &axes[0], num as c_int) > 0 {
-                    Ok(axes.map(|&a| a as float))
-                } else {
-                    Err(())
-                }
-            }
-        }
-    }
-
-    pub fn get_buttons(joy: c_int) -> Result<~[int],()> {
-        do num_axes(joy).map_default(Err(())) |&num| {
-            unsafe {
-                let mut buttons = ~[];
-                vec::grow(&mut buttons, num, &0);
-                vec::raw::set_len(&mut buttons, num);
-
-                if ::ll::glfwGetJoystickButtons(joy, &buttons[0], num as c_int) > 0 {
-                    Ok(buttons.map(|&a| a as int))
-                } else {
-                    Err(())
-                }
-            }
-        }
+    pub fn get_buttons(joy: c_int) -> ~[c_int] {
+        ml::get_joystick_buttons(joy).map(|&b| b as c_int)
     }
 
     pub fn get_name(joy: c_int) -> ~str {

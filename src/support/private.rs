@@ -1,9 +1,9 @@
 
 //! Private functions and items to be used with the high-level library wrapper.
 
-use core::libc::*;
-use core::hashmap::*;
-use core::local_data::*;
+use std::libc::*;
+use std::hashmap::*;
+use std::local_data::*;
 
 use super::*;
 use ll::*;
@@ -158,15 +158,15 @@ macro_rules! window_callback(
     );
 )
 
-window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)       => pos_fun(xpos as int, ypos as int))
-window_callback!(fn window_size_callback(width: c_int, height: c_int)   => size_fun(width as int, height as int))
-window_callback!(fn window_close_callback()                             => close_fun())
-window_callback!(fn window_refresh_callback()                           => refresh_fun())
-window_callback!(fn window_focus_callback(focused: c_int)               => focus_fun(focused as bool))
-window_callback!(fn window_iconify_callback(iconified: c_int)           => iconify_fun(iconified as bool))
-window_callback!(fn mouse_button_callback(button: c_int, action: c_int) => mouse_button_fun(button, action))
-window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double) => cursor_pos_fun(xpos as float, ypos as float))
-window_callback!(fn cursor_enter_callback(entered: c_int)               => cursor_enter_fun(entered as bool))
-window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)     => scroll_fun(xpos as float, ypos as float))
-window_callback!(fn key_callback(key: c_int, action: c_int)             => key_fun(key, action))
-window_callback!(fn char_callback(character: c_uint)                    => char_fun(character as char))
+window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                    => pos_fun(xpos as int, ypos as int))
+window_callback!(fn window_size_callback(width: c_int, height: c_int)                => size_fun(width as int, height as int))
+window_callback!(fn window_close_callback()                                          => close_fun())
+window_callback!(fn window_refresh_callback()                                        => refresh_fun())
+window_callback!(fn window_focus_callback(focused: c_int)                            => focus_fun(focused as bool))
+window_callback!(fn window_iconify_callback(iconified: c_int)                        => iconify_fun(iconified as bool))
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int) => mouse_button_fun(button, action, mods))
+window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)              => cursor_pos_fun(xpos as float, ypos as float))
+window_callback!(fn cursor_enter_callback(entered: c_int)                            => cursor_enter_fun(entered as bool))
+window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                  => scroll_fun(xpos as float, ypos as float))
+window_callback!(fn key_callback(key: c_int, action: c_int, mods: c_int)             => key_fun(key, action, mods))
+window_callback!(fn char_callback(character: c_uint)                                 => char_fun(character as char))

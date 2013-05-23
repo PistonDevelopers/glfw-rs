@@ -36,7 +36,7 @@ fn main() {
 }
 
 fn error_callback(_error: libc::c_int, name: ~str) {
-    io::println(fmt!("GLFW Error: %s", name));
+    println(fmt!("GLFW Error: %s", name));
 }
 
 fn window_pos_callback(window: &glfw::Window, x: int, y: int) {
@@ -47,28 +47,33 @@ fn window_size_callback(window: &glfw::Window, width: int, height: int) {
     window.set_title(fmt!("Window size: %d x %d", width, height));
 }
 
-// `_window` is preceded with an undescore to silence the unused variable warning
-fn window_close_callback(_window: &glfw::Window) {
-    io::println(~"Window close requested.");
+fn window_close_callback(_: &glfw::Window) {
+    println("Window close requested.");
 }
 
 // FIXME
-fn window_refresh_callback(_window: &glfw::Window) {
-    io::println(~"Window refresh callback triggered.");
+fn window_refresh_callback(_: &glfw::Window) {
+    println("Window refresh callback triggered.");
 }
 
-fn window_focus_callback(_window: &glfw::Window, activated: bool) {
-    if activated { io::println(~"Window focus gained."); }
-    else         { io::println(~"Window focus lost.");   }
+fn window_focus_callback(_: &glfw::Window, activated: bool) {
+    if activated { println("Window focus gained."); }
+    else         { println("Window focus lost.");   }
 }
 
-fn window_iconify_callback(_window: &glfw::Window, iconified: bool) {
-    if iconified { io::println(~"Window was minimised");  }
-    else         { io::println(~"Window was maximised."); }
+fn window_iconify_callback(_: &glfw::Window, iconified: bool) {
+    if iconified { println("Window was minimised");  }
+    else         { println("Window was maximised."); }
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
-    io::println(fmt!("Key %s: %s", to_key_str(key), to_action_str(action)));
+fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, mods: libc::c_int) {
+    println(fmt!("Key %s: %s%s",
+                 key_to_str(key),
+                 action_to_str(action),
+                 match modifiers_to_str(mods) {
+                    ~""    => ~"",
+                    copy s => fmt!(" with: %s", s),
+                 }));
 
     if action == glfw::PRESS {
         if key == glfw::KEY_ESCAPE {
@@ -82,28 +87,34 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
     }
 }
 
-fn char_callback(_window: &glfw::Window, character: char) {
-    io::println(fmt!("Character: %?", character));
+fn char_callback(_: &glfw::Window, character: char) {
+    println(fmt!("Character: %?", character));
 }
 
-fn mouse_button_callback(_window: &glfw::Window, button: libc::c_int, action: libc::c_int) {
-    io::println(fmt!("Mouse Button %s: %s", to_mouse_button_str(button), to_action_str(action)));
+fn mouse_button_callback(_: &glfw::Window, button: libc::c_int, action: libc::c_int, mods: libc::c_int) {
+    println(fmt!("Mouse Button %s: %s%s",
+                 mouse_button_to_str(button),
+                 action_to_str(action),
+                 match modifiers_to_str(mods) {
+                    ~""    => ~"",
+                    copy s => fmt!(" with: %s", s),
+                 }));
 }
 
 fn cursor_pos_callback(window: &glfw::Window, xpos: float, ypos: float) {
     window.set_title(fmt!("Cursor position: [ %f, %f ]", xpos, ypos));
 }
 
-fn cursor_enter_callback(_window: &glfw::Window, entered: bool) {
-    if entered { io::println(~"Cursor entered window."); }
-    else       { io::println(~"Cursor left window.");    }
+fn cursor_enter_callback(_: &glfw::Window, entered: bool) {
+    if entered { println("Cursor entered window."); }
+    else       { println("Cursor left window.");    }
 }
 
 fn scroll_callback(window: &glfw::Window, xpos: float, ypos: float) {
     window.set_title(fmt!("Scroll position: [%f, %f]", xpos, ypos));
 }
 
-fn to_action_str(state: libc::c_int) -> ~str {
+fn action_to_str(state: libc::c_int) -> ~str {
     match state {
         glfw::RELEASE => { ~"Released" }
         glfw::PRESS   => { ~"Pressed"  }
@@ -112,7 +123,7 @@ fn to_action_str(state: libc::c_int) -> ~str {
     }
 }
 
-fn to_key_str(key: libc::c_int) -> ~str {
+fn key_to_str(key: libc::c_int) -> ~str {
     match key {
         /* Printable keys */
         glfw::KEY_SPACE             => { ~"Space"         }
@@ -241,11 +252,19 @@ fn to_key_str(key: libc::c_int) -> ~str {
     }
 }
 
-fn to_mouse_button_str(btn: libc::c_int) -> ~str {
+fn mouse_button_to_str(btn: libc::c_int) -> ~str {
     match btn {
         glfw::MOUSE_BUTTON_LEFT     => { ~"Left"     }
         glfw::MOUSE_BUTTON_RIGHT    => { ~"Right"    }
         glfw::MOUSE_BUTTON_MIDDLE   => { ~"Middle"   }
         _                           => { ~"Unknown"  }
     }
+}
+
+fn modifiers_to_str(mods: libc::c_int) -> ~str {
+    let mut ss = ~[];
+    if (mods & glfw::MOD_SHIFT) as bool { ss.push(~"shift")   }
+    if (mods & glfw::MOD_CTRL)  as bool { ss.push(~"ctrl")    }
+    if (mods & glfw::MOD_ALT)   as bool { ss.push(~"alt")     }
+    str::connect(ss, ", ")
 }

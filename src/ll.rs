@@ -1,7 +1,7 @@
 
 //! Low-level glfw bindings. Includes public exports of core types and constants.
 
-use core::libc::*;
+use std::libc::*;
 
 // re-export constants
 pub use consts::*;
@@ -17,11 +17,11 @@ pub type GLFWwindowclosefun     = *u8;  // typedef void (* GLFWwindowclosefun)(*
 pub type GLFWwindowrefreshfun   = *u8;  // typedef void (* GLFWwindowrefreshfun)(*GLFWwindow);
 pub type GLFWwindowfocusfun     = *u8;  // typedef void (* GLFWwindowfocusfun)(*GLFWwindow,int);
 pub type GLFWwindowiconifyfun   = *u8;  // typedef void (* GLFWwindowiconifyfun)(*GLFWwindow,int);
-pub type GLFWmousebuttonfun     = *u8;  // typedef void (* GLFWmousebuttonfun)(*GLFWwindow,int,int);
+pub type GLFWmousebuttonfun     = *u8;  // typedef void (* GLFWmousebuttonfun)(*GLFWwindow,int,int,int);
 pub type GLFWcursorposfun       = *u8;  // typedef void (* GLFWcursorposfun)(*GLFWwindow,double,double);
 pub type GLFWcursorenterfun     = *u8;  // typedef void (* GLFWcursorenterfun)(*GLFWwindow,int);
 pub type GLFWscrollfun          = *u8;  // typedef void (* GLFWscrollfun)(*GLFWwindow,double,double);
-pub type GLFWkeyfun             = *u8;  // typedef void (* GLFWkeyfun)(*GLFWwindow,int,int);
+pub type GLFWkeyfun             = *u8;  // typedef void (* GLFWkeyfun)(*GLFWwindow,int,int,int);
 pub type GLFWcharfun            = *u8;  // typedef void (* GLFWcharfun)(*GLFWwindow,unsigned int);
 pub type GLFWmonitorfun         = *u8;  // typedef void (* GLFWmonitorfun)(*GLFWmonitor,int);
 
@@ -30,9 +30,10 @@ pub struct GLFWmonitor;
 pub struct GLFWwindow;
 
 pub struct GLFWgammaramp {
-    red:    [c_ushort, ..GAMMA_RAMP_SIZE],
-    green:  [c_ushort, ..GAMMA_RAMP_SIZE],
-    blue:   [c_ushort, ..GAMMA_RAMP_SIZE],
+    red:    *c_ushort,
+    green:  *c_ushort,
+    blue:   *c_ushort,
+    size:   c_uint,
 }
 
 pub struct GLFWvidmode {
@@ -72,9 +73,9 @@ pub extern "C" {
     pub fn glfwGetMonitorName(monitor: *GLFWmonitor) -> *c_char;
     pub fn glfwSetMonitorCallback(cbfun: GLFWmonitorfun) -> GLFWmonitorfun;
     pub fn glfwGetVideoModes(monitor: *GLFWmonitor, count: *c_int) -> *GLFWvidmode;
-    pub fn glfwGetVideoMode(monitor: *GLFWmonitor) -> GLFWvidmode;
+    pub fn glfwGetVideoMode(monitor: *GLFWmonitor) -> *GLFWvidmode;
     pub fn glfwSetGamma(monitor: *GLFWmonitor, gamma: c_float);
-    pub fn glfwGetGammaRamp(monitor: *GLFWmonitor, ramp: *GLFWgammaramp);
+    pub fn glfwGetGammaRamp(monitor: *GLFWmonitor) -> *GLFWgammaramp;
     pub fn glfwSetGammaRamp(monitor: *GLFWmonitor, ramp: *GLFWgammaramp);
 
     pub fn glfwDefaultWindowHints();
@@ -119,9 +120,9 @@ pub extern "C" {
     pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: GLFWcursorenterfun) -> GLFWcursorenterfun;
     pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: GLFWscrollfun) -> GLFWscrollfun;
 
-    pub fn glfwGetJoystickParam(joy: c_int, param: c_int) -> c_int;
-    pub fn glfwGetJoystickAxes(joy: c_int, axes: *c_float, numaxes: c_int) -> c_int;
-    pub fn glfwGetJoystickButtons(joy: c_int, buttons: *c_uchar, numbuttons: c_int) -> c_int;
+    pub fn glfwJoystickPresent(joy: c_int) -> c_int;
+    pub fn glfwGetJoystickAxes(joy: c_int, count: *c_int) -> *c_float;
+    pub fn glfwGetJoystickButtons(joy: c_int, count: *c_int) -> *c_uchar;
     pub fn glfwGetJoystickName(joy: c_int) -> *c_char;
 
     pub fn glfwSetClipboardString(window: *GLFWwindow, string: *c_char);
