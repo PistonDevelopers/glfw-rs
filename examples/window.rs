@@ -18,12 +18,12 @@ fn main() {
     }
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int) {
+fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, _: libc::c_int) {
     if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
         window.set_should_close(true);
     }
 }
 
-fn error_callback(_error: libc::c_int, description: ~str) {
+fn error_callback(_: libc::c_int, description: ~str) {
     io::println(fmt!("GLFW Error: %s", description));
 }

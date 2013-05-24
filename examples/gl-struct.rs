@@ -56,6 +56,6 @@ fn render_resize(gl: &GL, width: int, height: int) {
     gl.Viewport(0, 0, width as GLint, height as GLint);
 }
 
-fn error_callback(_error: libc::c_int, description: ~str) {
+fn error_callback(_: libc::c_int, description: ~str) {
     io::println(fmt!("GLFW Error: %s", description));
 }

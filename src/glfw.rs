@@ -9,7 +9,7 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-use core::libc::*;
+use std::libc::*;
 
 // re-export constants
 pub use consts::*;
@@ -125,8 +125,9 @@ pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
 /// - `window`: The window that recieved the event.
 /// - `button`: The mouse button that was pressed or released.
 /// - `action`: Either `PRESS` or `RELEASE`.
+/// - `mods`: Bit field describing which modifier keys were held down.
 ///
-pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int);
+pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: c_int);
 
 ///
 /// The function type of cursor position callbacks.
@@ -168,8 +169,9 @@ pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
 /// - `window`: The window that recieved the event.
 /// - `key`: The key that was pressed or released.
 /// - `action`: Either `PRESS`, `RELEASE`, or `REPEAT`.
+/// - `mods`: Bit field describing which modifier keys were held down.
 ///
-pub type KeyFun = @fn(window: &Window, key: c_int, action: c_int);
+pub type KeyFun = @fn(window: &Window, key: c_int, action: c_int, mods: c_int);
 
 ///
 /// The function type for character callbacks.
@@ -205,9 +207,9 @@ pub struct VidMode {
 /// Describes the gamma ramp of a monitor.
 ///
 pub struct GammaRamp {
-    red:    [c_ushort, ..GAMMA_RAMP_SIZE],
-    green:  [c_ushort, ..GAMMA_RAMP_SIZE],
-    blue:   [c_ushort, ..GAMMA_RAMP_SIZE],
+    red:    ~[c_ushort],
+    green:  ~[c_ushort],
+    blue:   ~[c_ushort],
 }
 
 pub type GLProc = ml::GLFWglproc;
@@ -222,7 +224,7 @@ pub type GLProc = ml::GLFWglproc;
 ///
 pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
-        use core::unstable::finally::Finally;
+        use std::unstable::finally::Finally;
 
         private::WindowDataMap::init();
 
@@ -309,7 +311,7 @@ pub fn set_error_callback(cbfun: ErrorFun) {
     }
 }
 
-pub impl Monitor {
+impl Monitor {
     ///
     /// Returns the primary monitor. This is usually the monitor where elements
     /// like the Windows task bar or the OS X menu bar is located.
@@ -344,7 +346,7 @@ pub impl Monitor {
     /// A tuple holding the x-coordinate and y-coordinate of the monitor,
     /// measured in screen coordinates.
     ///
-    fn get_pos(&self) -> (int, int) {
+    pub fn get_pos(&self) -> (int, int) {
         match ml::get_monitor_pos(self.ptr) {
             (xpos, ypos) => (xpos as int, ypos as int)
         }
@@ -364,7 +366,7 @@ pub impl Monitor {
     /// because the monitor's EDID data is incorrect, or because the driver does
     /// not report it accurately.
     ///
-    fn get_physical_size(&self) -> (int, int) {
+    pub fn get_physical_size(&self) -> (int, int) {
         match ml::get_monitor_physical_size(self.ptr) {
             (width, height) => (width as int, height as int)
         }
@@ -377,7 +379,7 @@ pub impl Monitor {
     ///
     /// The name of the monitor. The string is empty if an error occurred.
     ///
-    fn get_name(&self) -> ~str {
+    pub fn get_name(&self) -> ~str {
         ml::get_monitor_name(self.ptr)
     }
 
@@ -392,7 +394,7 @@ pub impl Monitor {
     /// An vector of the available modes. The vector is empty if an error
     /// occurred.
     ///
-    fn get_video_modes(&self) -> ~[VidMode] {
+    pub fn get_video_modes(&self) -> ~[VidMode] {
         unsafe { cast::transmute(ml::get_video_modes(self.ptr)) }
     }
 
@@ -405,7 +407,7 @@ pub impl Monitor {
     /// The current mode of the monitor wrapped in `Some`, or `None` if an error
     /// occurred.
     ///
-    fn get_video_mode(&self) -> Option<VidMode> {
+    pub fn get_video_mode(&self) -> Option<VidMode> {
         do ml::get_video_mode(self.ptr).map |&vid_mode| {
             unsafe { cast::transmute(vid_mode) }
         }
@@ -431,7 +433,14 @@ pub impl Monitor {
     /// A struct containing the gamma ramp.
     ///
     pub fn get_gamma_ramp(&self) -> GammaRamp {
-        unsafe { cast::transmute(ml::get_gamma_ramp(self.ptr)) }
+        unsafe {
+            let llramp = ml::get_gamma_ramp(self.ptr);
+            GammaRamp {
+                red:    vec::from_buf(llramp.red,   llramp.size as uint),
+                green:  vec::from_buf(llramp.green, llramp.size as uint),
+                blue:   vec::from_buf(llramp.blue,  llramp.size as uint),
+            }
+        }
     }
 
     ///
@@ -442,7 +451,15 @@ pub impl Monitor {
     /// - `ramp`: The gamma ramp to use.
     ///
     pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
-        ml::set_gamma_ramp(self.ptr, unsafe { cast::transmute(ramp) });
+        ml::set_gamma_ramp(
+            self.ptr,
+            &ml::GLFWgammaramp {
+                red:    vec::raw::to_ptr(ramp.red),
+                green:  vec::raw::to_ptr(ramp.green),
+                blue:   vec::raw::to_ptr(ramp.blue),
+                size:   ramp.red.len() as c_uint,
+            }
+        );
     }
 
     ///
@@ -453,7 +470,7 @@ pub impl Monitor {
     ///
     /// - `cbfun`: The new callback.
     ///
-    fn set_callback(cbfun: MonitorFun) {
+    pub fn set_callback(cbfun: MonitorFun) {
         do private::set_monitor_fun(cbfun) |ext_cb| {
             ml::set_monitor_callback(ext_cb);
         }
@@ -493,7 +510,7 @@ impl ToStr for VidMode {
 /// done to ensure the user does not need to perform any type casts.
 ///
 pub mod window_hint {
-    use core::libc::c_int;
+    use std::libc::c_int;
     use ml;
 
     ///
@@ -622,13 +639,13 @@ pub enum WindowMode {
 ///
 /// Private conversion methods for `glfw::WindowMode`
 ///
-priv impl WindowMode {
+impl WindowMode {
     ///
     /// Extract the window mode from a low-level monitor pointer. If the pointer
     /// is null it assumes the window is in windowed mode and returns `Windowed`,
     /// otherwise it returns the pointer wrapped in `glfw::FullScreen`.
     ///
-    fn from_ptr(ptr: *ml::GLFWmonitor) -> WindowMode {
+    priv fn from_ptr(ptr: *ml::GLFWmonitor) -> WindowMode {
         if ptr.is_null() {
             Windowed
         } else {
@@ -640,7 +657,7 @@ priv impl WindowMode {
     /// Returns a pointer to a monitor if the window is fullscreen, otherwise
     /// it returns a null pointer (if it is in windowed mode).
     ///
-    fn to_ptr(&self) -> *ml::GLFWmonitor {
+    priv fn to_ptr(&self) -> *ml::GLFWmonitor {
         match *self {
             FullScreen(monitor) => monitor.ptr,
             Windowed => ptr::null()
@@ -659,7 +676,7 @@ macro_rules! set_window_callback(
     })
 )
 
-pub impl Window {
+impl Window {
     ///
     /// Creates a new window and an associated context.
     ///
@@ -676,7 +693,7 @@ pub impl Window {
     /// The handle of the created window, wrapped in `Some`, or `None` if an
     /// error occurred.
     ///
-    fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
+    pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
         do ml::create_window(
             width as c_int,
             height as c_int,
@@ -704,11 +721,11 @@ pub impl Window {
         }
     }
 
-    fn should_close(&self) -> bool {
+    pub fn should_close(&self) -> bool {
         ml::window_should_close(self.ptr) as bool
     }
 
-    fn set_should_close(&self, value: bool) {
+    pub fn set_should_close(&self, value: bool) {
         ml::set_window_should_close(self.ptr, value as c_int)
     }
 
@@ -719,7 +736,7 @@ pub impl Window {
     ///
     /// - `title`: The new window title.
     ///
-    fn set_title(&self, title: &str) {
+    pub fn set_title(&self, title: &str) {
         ml::set_window_title(self.ptr, title);
     }
 
@@ -732,7 +749,7 @@ pub impl Window {
     /// A tuple holding the x-coordinate and y-coordinate measured in screen
     /// coordinates from the upper-left corner of the window'sclient area.
     ///
-    fn get_pos(&self) -> (int, int) {
+    pub fn get_pos(&self) -> (int, int) {
         match ml::get_window_pos(self.ptr) {
             (xpos, ypos) => (xpos as int, ypos as int)
         }
@@ -767,7 +784,7 @@ pub impl Window {
     ///
     /// - Mac OS X: The screen coordinate system is inverted.
     ///
-    fn set_pos(&self, xpos: int, ypos: int) {
+    pub fn set_pos(&self, xpos: int, ypos: int) {
         ml::set_window_pos(self.ptr, xpos as c_int, ypos as c_int);
     }
 
@@ -779,7 +796,7 @@ pub impl Window {
     /// A tuple holding the width and height of the window's client area,
     /// measured in screen coordinates.
     ///
-    fn get_size(&self) -> (int, int) {
+    pub fn get_size(&self) -> (int, int) {
         match ml::get_window_size(self.ptr) {
             (width, height) => (width as int, height as int)
         }
@@ -800,28 +817,28 @@ pub impl Window {
     /// - `height`: The desired height of the specified window, measured in
     ///   screen coordinates.
     ///
-    fn set_size(&self, width: int, height: int) {
+    pub fn set_size(&self, width: int, height: int) {
         ml::set_window_size(self.ptr, width as c_int, height as c_int);
     }
 
-    fn iconify(&self) {
+    pub fn iconify(&self) {
         ml::iconify_window(self.ptr);
     }
 
-    fn restore(&self) {
+    pub fn restore(&self) {
         ml::restore_window(self.ptr);
     }
 
-    fn show(&self) {
+    pub fn show(&self) {
         ml::show_window(self.ptr);
     }
 
-    fn hide(&self) {
+    pub fn hide(&self) {
         ml::hide_window(self.ptr);
     }
 
     /// Returns the window mode; either glfw::FullScreen or glfw::Windowed
-    fn get_window_mode(&self) -> WindowMode {
+    pub fn get_window_mode(&self) -> WindowMode {
         WindowMode::from_ptr(
             ml::get_window_monitor(self.ptr)
         )
@@ -836,7 +853,7 @@ pub impl Window {
     /// `glfw::FOCUSED`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn is_focused(&self) -> bool {
+    pub fn is_focused(&self) -> bool {
         ml::get_window_param(self.ptr, FOCUSED) as bool
     }
 
@@ -849,7 +866,7 @@ pub impl Window {
     /// `glfw::ICONIFIED`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn is_iconified(&self) -> bool {
+    pub fn is_iconified(&self) -> bool {
         ml::get_window_param(self.ptr, ICONIFIED) as bool
     }
 
@@ -867,7 +884,7 @@ pub impl Window {
     /// `glfw::CLIENT_API`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn get_client_api(&self) -> c_int {
+    pub fn get_client_api(&self) -> c_int {
         ml::get_window_param(self.ptr, CLIENT_API)
     }
 
@@ -881,7 +898,7 @@ pub impl Window {
     /// with the following constants in turn: `glfw::CONTEXT_VERSION_MAJOR`,
     /// `glfw::CONTEXT_VERSION_MINOR` and `glfw::CONTEXT_REVISION`.
     ///
-    fn get_context_version(&self) -> Version {
+    pub fn get_context_version(&self) -> Version {
         Version {
             major:  ml::get_window_param(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
             minor:  ml::get_window_param(self.ptr, CONTEXT_VERSION_MINOR) as uint,
@@ -903,7 +920,7 @@ pub impl Window {
     /// `glfw::CONTEXT_ROBUSTNESS`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn get_context_robustness(&self) -> c_int {
+    pub fn get_context_robustness(&self) -> c_int {
         ml::get_window_param(self.ptr, CONTEXT_ROBUSTNESS)
     }
 
@@ -917,7 +934,7 @@ pub impl Window {
     /// `glfw::OPENGL_FORWARD_COMPAT`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn is_opengl_forward_compat(&self) -> bool {
+    pub fn is_opengl_forward_compat(&self) -> bool {
         ml::get_window_param(self.ptr, OPENGL_FORWARD_COMPAT) as bool
     }
 
@@ -931,7 +948,7 @@ pub impl Window {
     /// `glfw::OPENGL_DEBUG_CONTEXT`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn is_opengl_debug_context(&self) -> bool {
+    pub fn is_opengl_debug_context(&self) -> bool {
         ml::get_window_param(self.ptr, OPENGL_DEBUG_CONTEXT) as bool
     }
 
@@ -950,7 +967,7 @@ pub impl Window {
     /// `glfw::OPENGL_PROFILE`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn get_opengl_profile(&self) -> c_int {
+    pub fn get_opengl_profile(&self) -> c_int {
         ml::get_window_param(self.ptr, OPENGL_PROFILE)
     }
 
@@ -963,7 +980,7 @@ pub impl Window {
     /// `glfw::RESIZABLE`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn is_resizable(&self) -> bool {
+    pub fn is_resizable(&self) -> bool {
         ml::get_window_param(self.ptr, RESIZABLE) as bool
     }
 
@@ -976,7 +993,7 @@ pub impl Window {
     /// `glfw::VISIBLE`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn is_visible(&self) -> bool {
+    pub fn is_visible(&self) -> bool {
         ml::get_window_param(self.ptr, VISIBLE) as bool
     }
 
@@ -989,41 +1006,41 @@ pub impl Window {
     /// `glfw::DECORATED`. The function was divided into multiple methods to
     /// remove the need for casting between types.
     ///
-    fn is_decorated(&self) -> bool {
+    pub fn is_decorated(&self) -> bool {
         ml::get_window_param(self.ptr, DECORATED) as bool
     }
 
-    fn set_pos_callback(&self, cbfun: WindowSizeFun) {
+    pub fn set_pos_callback(&self, cbfun: WindowSizeFun) {
         set_window_callback!(setter:   set_window_pos_callback,
                              callback: window_pos_callback,
                              field:    pos_fun);
     }
 
-    fn set_size_callback(&self, cbfun: WindowSizeFun) {
+    pub fn set_size_callback(&self, cbfun: WindowSizeFun) {
         set_window_callback!(setter:   set_window_size_callback,
                              callback: window_size_callback,
                              field:    size_fun);
     }
 
-    fn set_close_callback(&self, cbfun: WindowCloseFun) {
+    pub fn set_close_callback(&self, cbfun: WindowCloseFun) {
         set_window_callback!(setter:   set_window_close_callback,
                              callback: window_close_callback,
                              field:    close_fun);
     }
 
-    fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
+    pub fn set_refresh_callback(&self, cbfun: WindowRefreshFun) {
         set_window_callback!(setter:   set_window_refresh_callback,
                              callback: window_refresh_callback,
                              field:    refresh_fun);
     }
 
-    fn set_focus_callback(&self, cbfun: WindowFocusFun) {
+    pub fn set_focus_callback(&self, cbfun: WindowFocusFun) {
         set_window_callback!(setter:   set_window_focus_callback,
                              callback: window_focus_callback,
                              field:    focus_fun);
     }
 
-    fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
+    pub fn set_iconify_callback(&self, cbfun: WindowIconifyFun) {
         set_window_callback!(setter:   set_window_iconify_callback,
                              callback: window_iconify_callback,
                              field:    iconify_fun);
@@ -1035,16 +1052,16 @@ pub impl Window {
     /// # Returns
     ///
     /// One of the following constants: `glfw::CURSOR_NORMAL`,
-    /// `glfw::CURSOR_HIDDEN` or `glfw::CURSOR_CAPTURED`.
+    /// `glfw::CURSOR_HIDDEN` or `glfw::CURSOR_DISABLED`.
     ///
     /// # Implementation Notes
     ///
     /// This method calls `glfw::ll::glfwGetInputMode` with the constant
-    /// `glfw::CURSOR_MODE`. The function has been divided up into separate
+    /// `glfw::CURSOR`. The function has been divided up into separate
     /// methods to remove the need for casting between types.
     ///
-    fn get_cursor_mode(&self) -> c_int {
-        ml::get_input_mode(self.ptr, CURSOR_MODE)
+    pub fn get_cursor_mode(&self) -> c_int {
+        ml::get_input_mode(self.ptr, CURSOR)
     }
 
     ///
@@ -1057,18 +1074,17 @@ pub impl Window {
     ///       normally.
     ///     - `glfw::CURSOR_HIDDEN`: Makes the cursor invisible when it is over
     ///       the client area of the window.
-    ///     - `glfw::CURSOR_CAPTURED`: Makes the cursor invisible and unable to
-    ///       leave the window but unconstrained in terms of position. This is
-    ///       useful for first-person free-look cameras.
+    ///     - `glfw::CURSOR_DISABLED`: disables the cursor and removes any
+    ///       limitations on cursor movement.
     ///
     /// # Implementation Notes
     ///
     /// This method calls `glfw::ll::glfwSetInputMode` with the constant
-    /// `glfw::CURSOR_MODE. The function has been divided up into separate
+    /// `glfw::CURSOR`. The function has been divided up into separate
     /// methods to remove the need for casting between types.
     ///
-    fn set_cursor_mode(&self, mode: c_int) {
-        ml::set_input_mode(self.ptr, CURSOR_MODE, mode);
+    pub fn set_cursor_mode(&self, mode: c_int) {
+        ml::set_input_mode(self.ptr, CURSOR, mode);
     }
 
     ///
@@ -1084,7 +1100,7 @@ pub impl Window {
     /// `glfw::STICKY_KEYS`. The function has been divided up into separate
     /// methods to remove the need for casting between types.
     ///
-    fn has_sticky_keys(&self) -> bool {
+    pub fn has_sticky_keys(&self) -> bool {
         ml::get_input_mode(self.ptr, STICKY_KEYS) as bool
     }
 
@@ -1103,7 +1119,7 @@ pub impl Window {
     /// `glfw::STICKY_KEYS. The function has been divided up into separate
     /// methods to remove the need for casting between types.
     ///
-    fn set_sticky_keys(&self, value: bool) {
+    pub fn set_sticky_keys(&self, value: bool) {
         ml::set_input_mode(self.ptr, STICKY_KEYS, value as c_int);
     }
 
@@ -1120,7 +1136,7 @@ pub impl Window {
     /// `glfw::STICKY_MOUSE_BUTTONS`. The function has been divided up into
     /// separate methods to remove the need for casting between types.
     ///
-    fn has_sticky_mouse_buttons(&self) -> bool {
+    pub fn has_sticky_mouse_buttons(&self) -> bool {
         ml::get_input_mode(self.ptr, STICKY_MOUSE_BUTTONS) as bool
     }
 
@@ -1140,7 +1156,7 @@ pub impl Window {
     /// `glfw::STICKY_MOUSE_BUTTONS`. The function has been divided up into
     /// separate methods to remove the need for casting between types.
     ///
-    fn set_sticky_mouse_buttons(&self, value: bool) {
+    pub fn set_sticky_mouse_buttons(&self, value: bool) {
         ml::set_input_mode(self.ptr, STICKY_MOUSE_BUTTONS, value as c_int);
     }
 
@@ -1166,55 +1182,55 @@ pub impl Window {
     ///
     /// The state of the specified key, either `glfw::PRESS` or `glfw::RELEASE`.
     ///
-    fn get_key(&self, key: c_int) -> c_int {
+    pub fn get_key(&self, key: c_int) -> c_int {
         ml::get_key(self.ptr, key)
     }
 
-    fn get_mouse_button(&self, button: c_int) -> c_int {
+    pub fn get_mouse_button(&self, button: c_int) -> c_int {
         ml::get_mouse_button(self.ptr, button)
     }
 
-    fn get_cursor_pos(&self) -> (float, float) {
+    pub fn get_cursor_pos(&self) -> (float, float) {
         match ml::get_cursor_pos(self.ptr) {
             (xpos, ypos) => (xpos as float, ypos as float)
         }
     }
 
-    fn set_cursor_pos(&self, xpos: float, ypos: float) {
+    pub fn set_cursor_pos(&self, xpos: float, ypos: float) {
         ml::set_cursor_pos(self.ptr, xpos as c_double, ypos as c_double);
     }
 
-    fn set_key_callback(&self, cbfun: KeyFun) {
+    pub fn set_key_callback(&self, cbfun: KeyFun) {
         set_window_callback!(setter:   set_key_callback,
                              callback: key_callback,
                              field:    key_fun);
     }
 
-    fn set_char_callback(&self, cbfun: CharFun) {
+    pub fn set_char_callback(&self, cbfun: CharFun) {
         set_window_callback!(setter:   set_char_callback,
                              callback: char_callback,
                              field:    char_fun);
     }
 
-    fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
+    pub fn set_mouse_button_callback(&self, cbfun: MouseButtonFun) {
         set_window_callback!(setter:   set_mouse_button_callback,
                              callback: mouse_button_callback,
                              field:    mouse_button_fun);
     }
 
-    fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
+    pub fn set_cursor_pos_callback(&self, cbfun: CursorPosFun) {
         set_window_callback!(setter:   set_cursor_pos_callback,
                              callback: cursor_pos_callback,
                              field:    cursor_pos_fun);
     }
 
-    fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
+    pub fn set_cursor_enter_callback(&self, cbfun: CursorEnterFun) {
         set_window_callback!(setter:   set_cursor_enter_callback,
                              callback: cursor_enter_callback,
                              field:    cursor_enter_fun);
     }
 
-    fn set_scroll_callback(&self, cbfun: ScrollFun) {
+    pub fn set_scroll_callback(&self, cbfun: ScrollFun) {
         set_window_callback!(setter:   set_scroll_callback,
                              callback: scroll_callback,
                              field:    scroll_fun);
@@ -1227,7 +1243,7 @@ pub impl Window {
     ///
     /// - `string`: The string that the clipboard will be set to.
     ///
-    fn set_clipboard_string(&self, string: &str) {
+    pub fn set_clipboard_string(&self, string: &str) {
         ml::set_clipboard_string(self.ptr, string);
     }
 
@@ -1239,22 +1255,22 @@ pub impl Window {
     ///
     /// The clipboard contents.
     ///
-    fn get_clipboard_string(&self) -> ~str {
+    pub fn get_clipboard_string(&self) -> ~str {
         ml::get_clipboard_string(self.ptr)
     }
 
-    fn make_context_current(&self) {
+    pub fn make_context_current(&self) {
         ml::make_context_current(self.ptr);
     }
 
-    fn is_current_context(&self) -> bool {
+    pub fn is_current_context(&self) -> bool {
         self.ptr == ml::get_current_context()
     }
 
     ///
     /// Swaps the front and back buffers of the window.
     ///
-    fn swap_buffers(&self) {
+    pub fn swap_buffers(&self) {
         ml::swap_buffers(self.ptr);
     }
 }
@@ -1272,7 +1288,7 @@ impl Drop for Window {
     /// Calls `glfw::ll::glfwDestroyWindow` on the window pointer and cleans up
     /// the callbacks stored in task-local storage
     ///
-    fn finalize(&self) {
+    pub fn finalize(&self) {
         ml::destroy_window(self.ptr);
         private::WindowDataMap::get().remove(&self.ptr);
     }
@@ -1287,53 +1303,19 @@ pub fn wait_events() {
 }
 
 pub mod joystick {
-    use core::libc::*;
+    use std::libc::*;
     use ml;
 
     pub fn is_present(joy: c_int) -> bool {
-        ml::get_joystick_param(joy, ml::PRESENT) as bool
+        ml::joystick_present(joy) as bool
     }
 
-    pub fn num_axes(joy: c_int) -> Option<uint> {
-        let axes = ml::get_joystick_param(joy, ml::AXES);
-        if axes > 0 { Some(axes as uint) } else { None }
+    pub fn get_axes(joy: c_int) -> ~[float] {
+        ml::get_joystick_axes(joy).map(|&a| a as float)
     }
 
-    pub fn num_buttons(joy: c_int) -> Option<uint> {
-        let buttons = ml::get_joystick_param(joy, ml::BUTTONS);
-        if buttons > 0 { Some(buttons as uint) } else { None }
-    }
-
-    pub fn get_axes(joy: c_int) -> Result<~[float],()> {
-        do num_axes(joy).map_default(Err(())) |&num| {
-            unsafe {
-                let mut axes = ~[];
-                vec::grow(&mut axes, num, &0.0);
-                vec::raw::set_len(&mut axes, num);
-
-                if ::ll::glfwGetJoystickAxes(joy, &axes[0], num as c_int) > 0 {
-                    Ok(axes.map(|&a| a as float))
-                } else {
-                    Err(())
-                }
-            }
-        }
-    }
-
-    pub fn get_buttons(joy: c_int) -> Result<~[int],()> {
-        do num_axes(joy).map_default(Err(())) |&num| {
-            unsafe {
-                let mut buttons = ~[];
-                vec::grow(&mut buttons, num, &0);
-                vec::raw::set_len(&mut buttons, num);
-
-                if ::ll::glfwGetJoystickButtons(joy, &buttons[0], num as c_int) > 0 {
-                    Ok(buttons.map(|&a| a as int))
-                } else {
-                    Err(())
-                }
-            }
-        }
+    pub fn get_buttons(joy: c_int) -> ~[c_int] {
+        ml::get_joystick_buttons(joy).map(|&b| b as c_int)
     }
 
     pub fn get_name(joy: c_int) -> ~str {

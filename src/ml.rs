@@ -3,7 +3,7 @@
 //! public exports of core types and constants.
 
 
-use core::libc::*;
+use std::libc::*;
 use ll;
 
 // re-export constants
@@ -102,15 +102,8 @@ pub fn get_video_modes(monitor: *GLFWmonitor) -> ~[GLFWvidmode] {
 }
 
 pub fn get_video_mode(monitor: *GLFWmonitor) -> Option<GLFWvidmode> {
-    match unsafe { ll::glfwGetVideoMode(monitor) } {
-        GLFWvidmode {
-            width:      0,
-            height:     0,
-            redBits:    0,
-            greenBits:  0,
-            blueBits:   0
-        } => None,
-        vidmode => Some(vidmode),
+    unsafe {
+        ll::glfwGetVideoMode(monitor).to_option().map(|&mode| *mode)
     }
 }
 
@@ -119,15 +112,7 @@ pub fn set_gamma(monitor: *GLFWmonitor, gamma: c_float) {
 }
 
 pub fn get_gamma_ramp(monitor: *GLFWmonitor) -> GLFWgammaramp {
-    unsafe {
-        let ramp = GLFWgammaramp {
-            red:   [0, ..GAMMA_RAMP_SIZE],
-            green: [0, ..GAMMA_RAMP_SIZE],
-            blue:  [0, ..GAMMA_RAMP_SIZE],
-        };
-        ll::glfwGetGammaRamp(monitor, &ramp);
-        ramp
-    }
+    unsafe { *ll::glfwGetGammaRamp(monitor) }
 }
 
 pub fn set_gamma_ramp(monitor: *GLFWmonitor, ramp: &GLFWgammaramp) {
@@ -325,19 +310,25 @@ pub fn wait_events() {
     unsafe { ll::glfwWaitEvents(); }
 }
 
-pub fn get_joystick_param(joy: c_int, param: c_int) -> c_int {
-    unsafe { ll::glfwGetJoystickParam(joy, param) }
+pub fn joystick_present(joy: c_int) -> c_int {
+    unsafe { ll::glfwJoystickPresent(joy) }
 }
 
-// TODO
-// pub fn get_joystick_axes(joy: c_int, axes: *c_float, numaxes: c_int) -> ~[c_int] {
-//     unsafe { ll::glfwGetJoystickAxes(joy, ...) }
-// }
+pub fn get_joystick_axes(joy: c_int) -> ~[c_float] {
+    unsafe {
+        let count = 0;
+        let ptr = ll::glfwGetJoystickAxes(joy, &count);
+        vec::from_buf(ptr, count as uint)
+    }
+}
 
-// TODO
-// pub fn get_joystick_buttons(joy: c_int, buttons: *c_uchar, numbuttons: c_int) -> ~[c_int] {
-//     unsafe { ll::glfwGetJoystickButtons(joy, ...) }
-// }
+pub fn get_joystick_buttons(joy: c_int) -> ~[c_uchar] {
+    unsafe {
+        let count = 0;
+        let ptr = ll::glfwGetJoystickButtons(joy, &count);
+        vec::from_buf(ptr, count as uint)
+    }
+}
 
 pub fn get_joystick_name(joy: c_int) -> ~str {
     unsafe { str::raw::from_c_str(ll::glfwGetJoystickName(joy)) }

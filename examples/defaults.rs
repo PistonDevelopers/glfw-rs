@@ -1,6 +1,6 @@
 extern mod glfw;
 
-fn error_callback(_error: libc::c_int, description: ~str) {
+fn error_callback(_: libc::c_int, description: ~str) {
     io::println(fmt!("GLFW Error: %s", description));
 }
 

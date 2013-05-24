@@ -7,8 +7,8 @@ fn main() {
                 io::println(fmt!("    %s\n", monitor.get_video_mode().get().to_str()));
         };
 
-        io::println(~"Available monitors\n\
-                      ------------------");
+        io::println("Available monitors\n\
+                     ------------------");
         do glfw::Monitor::get_connected().map |monitor| {
             io::println(fmt!("%s:", monitor.get_name()));
 
