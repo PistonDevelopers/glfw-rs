@@ -3,7 +3,7 @@ RS_FLAGS	:= -L ../lib
 BUILD_DIR	:= bin
 
 
-all: callbacks clipboard defaults ml-wrapper gl-struct modes title version window
+all: callbacks clipboard defaults gl-struct modes title version window
 
 builddir:
 	@mkdir -p $(BUILD_DIR)
@@ -19,9 +19,6 @@ defaults: builddir
 
 gl-struct: builddir
 	rustc gl-struct.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
-
-ml-wrapper: builddir
-	rustc ml-wrapper.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
 
 modes: builddir
 	rustc modes.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
