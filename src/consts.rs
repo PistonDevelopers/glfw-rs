@@ -4,21 +4,17 @@
 
 use std::libc::c_int;
 
-/* GLFW version */
 pub static VERSION_MAJOR                : c_int = 3;
 pub static VERSION_MINOR                : c_int = 0;
 pub static VERSION_REVISION             : c_int = 0;
 
-/* Not actually defined in GLFW, but very useful */
 pub static FALSE                        : c_int = 0;
 pub static TRUE                         : c_int = 1;
 
-/* Key and button state/action definitions */
 pub static RELEASE                      : c_int = 0;
 pub static PRESS                        : c_int = 1;
 pub static REPEAT                       : c_int = 2;
 
-/* Printable keys */
 pub static KEY_SPACE                    : c_int = 32;
 pub static KEY_APOSTROPHE               : c_int = 39;
 pub static KEY_COMMA                    : c_int = 44;
@@ -70,7 +66,6 @@ pub static KEY_GRAVE_ACCENT             : c_int = 96;
 pub static KEY_WORLD_1                  : c_int = 161;
 pub static KEY_WORLD_2                  : c_int = 162;
 
-/* Function keys */
 pub static KEY_ESCAPE                   : c_int = 256;
 pub static KEY_ENTER                    : c_int = 257;
 pub static KEY_TAB                      : c_int = 258;
@@ -143,7 +138,11 @@ pub static KEY_RIGHT_SUPER              : c_int = 347;
 pub static KEY_MENU                     : c_int = 348;
 pub static KEY_LAST                     : c_int = KEY_MENU;
 
-/* Mouse buttons */
+pub static MOD_SHIFT                    : c_int = 0x0001;
+pub static MOD_CONTROL                  : c_int = 0x0002;
+pub static MOD_ALT                      : c_int = 0x0004;
+pub static MOD_SUPER                    : c_int = 0x0008;
+
 pub static MOUSE_BUTTON_1               : c_int = 0;
 pub static MOUSE_BUTTON_2               : c_int = 1;
 pub static MOUSE_BUTTON_3               : c_int = 2;
@@ -157,7 +156,6 @@ pub static MOUSE_BUTTON_RIGHT           : c_int = MOUSE_BUTTON_2;
 pub static MOUSE_BUTTON_MIDDLE          : c_int = MOUSE_BUTTON_3;
 pub static MOUSE_BUTTON_LAST            : c_int = MOUSE_BUTTON_8;
 
-/* Joysticks */
 pub static JOYSTICK_1                   : c_int = 0;
 pub static JOYSTICK_2                   : c_int = 1;
 pub static JOYSTICK_3                   : c_int = 2;
@@ -176,34 +174,38 @@ pub static JOYSTICK_15                  : c_int = 14;
 pub static JOYSTICK_16                  : c_int = 15;
 pub static JOYSTICK_LAST                : c_int = JOYSTICK_16;
 
-/* Modifier keys */
-pub static MOD_SHIFT                    : c_int = 0x0001;
-pub static MOD_CONTROL                  : c_int = 0x0002;
-pub static MOD_ALT                      : c_int = 0x0004;
-pub static MOD_SUPER                    : c_int = 0x0008;
+pub static NOT_INITIALIZED              : c_int = 0x00010001;
+pub static NO_CURRENT_CONTEXT           : c_int = 0x00010002;
+pub static INVALID_ENUM                 : c_int = 0x00010003;
+pub static INVALID_VALUE                : c_int = 0x00010004;
+pub static OUT_OF_MEMORY                : c_int = 0x00010005;
+pub static API_UNAVAILABLE              : c_int = 0x00010006;
+pub static VERSION_UNAVAILABLE          : c_int = 0x00010007;
+pub static PLATFORM_ERROR               : c_int = 0x00010008;
+pub static FORMAT_UNAVAILABLE           : c_int = 0x00010009;
 
-/* glfwGetWindowParam tokens */
 pub static FOCUSED                      : c_int = 0x00020001;
 pub static ICONIFIED                    : c_int = 0x00020002;
-pub static CONTEXT_REVISION             : c_int = 0x00020004;
+pub static RESIZABLE                    : c_int = 0x00020003;
+pub static VISIBLE                      : c_int = 0x00020004;
+pub static DECORATED                    : c_int = 0x00020005;
 
-/* glfwWindowHint tokens */
-pub static RED_BITS                     : c_int = 0x00021000;
-pub static GREEN_BITS                   : c_int = 0x00021001;
-pub static BLUE_BITS                    : c_int = 0x00021002;
-pub static ALPHA_BITS                   : c_int = 0x00021003;
-pub static DEPTH_BITS                   : c_int = 0x00021004;
-pub static STENCIL_BITS                 : c_int = 0x00021005;
-pub static ACCUM_RED_BITS               : c_int = 0x00021006;
-pub static ACCUM_GREEN_BITS             : c_int = 0x00021007;
-pub static ACCUM_BLUE_BITS              : c_int = 0x00021008;
-pub static ACCUM_ALPHA_BITS             : c_int = 0x00021009;
-pub static AUX_BUFFERS                  : c_int = 0x0002100A;
-pub static STEREO                       : c_int = 0x0002100B;
-pub static SAMPLES                      : c_int = 0x0002100C;
-pub static SRGB_CAPABLE                 : c_int = 0x0002100D;
+pub static CONTEXT_REVISION             : c_int = 0x00021001;
+pub static RED_BITS                     : c_int = 0x00021002;
+pub static GREEN_BITS                   : c_int = 0x00021003;
+pub static BLUE_BITS                    : c_int = 0x00021004;
+pub static ALPHA_BITS                   : c_int = 0x00021005;
+pub static DEPTH_BITS                   : c_int = 0x00021006;
+pub static STENCIL_BITS                 : c_int = 0x00021007;
+pub static ACCUM_RED_BITS               : c_int = 0x00021008;
+pub static ACCUM_GREEN_BITS             : c_int = 0x00021009;
+pub static ACCUM_BLUE_BITS              : c_int = 0x0002100A;
+pub static ACCUM_ALPHA_BITS             : c_int = 0x0002100B;
+pub static AUX_BUFFERS                  : c_int = 0x0002100C;
+pub static STEREO                       : c_int = 0x0002100D;
+pub static SAMPLES                      : c_int = 0x0002100E;
+pub static SRGB_CAPABLE                 : c_int = 0x0002100F;
 
-/* Used with both glfwGetWindowParam and glfwWindowHint */
 pub static CLIENT_API                   : c_int = 0x00022000;
 pub static CONTEXT_VERSION_MAJOR        : c_int = 0x00022001;
 pub static CONTEXT_VERSION_MINOR        : c_int = 0x00022002;
@@ -211,45 +213,25 @@ pub static CONTEXT_ROBUSTNESS           : c_int = 0x00022003;
 pub static OPENGL_FORWARD_COMPAT        : c_int = 0x00022004;
 pub static OPENGL_DEBUG_CONTEXT         : c_int = 0x00022005;
 pub static OPENGL_PROFILE               : c_int = 0x00022006;
-pub static RESIZABLE                    : c_int = 0x00022007;
-pub static VISIBLE                      : c_int = 0x00022008;
-pub static DECORATED                    : c_int = 0x00022009;
 
-/* GLFW_CLIENT_API tokens */
-pub static OPENGL_API                   : c_int = 0x00000001;
-pub static OPENGL_ES_API                : c_int = 0x00000002;
+pub static OPENGL_API                   : c_int = 0x00030001;
+pub static OPENGL_ES_API                : c_int = 0x00030002;
 
-/* GLFW_CONTEXT_ROBUSTNESS mode tokens */
 pub static NO_ROBUSTNESS                : c_int = 0x00000000;
-pub static NO_RESET_NOTIFICATION        : c_int = 0x00000001;
-pub static LOSE_CONTEXT_ON_RESET        : c_int = 0x00000002;
+pub static NO_RESET_NOTIFICATION        : c_int = 0x00031001;
+pub static LOSE_CONTEXT_ON_RESET        : c_int = 0x00031002;
 
-/* GLFW_OPENGL_PROFILE bit tokens */
 pub static OPENGL_NO_PROFILE            : c_int = 0x00000000;
-pub static OPENGL_CORE_PROFILE          : c_int = 0x00000001;
-pub static OPENGL_COMPAT_PROFILE        : c_int = 0x00000002;
+pub static OPENGL_CORE_PROFILE          : c_int = 0x00032001;
+pub static OPENGL_COMPAT_PROFILE        : c_int = 0x00032002;
 
-/* glfwGetInputMode/glfwSetInputMode tokens */
-pub static CURSOR                       : c_int = 0x00030001;
-pub static STICKY_KEYS                  : c_int = 0x00030002;
-pub static STICKY_MOUSE_BUTTONS         : c_int = 0x00030003;
+pub static CURSOR                       : c_int = 0x00033001;
+pub static STICKY_KEYS                  : c_int = 0x00033002;
+pub static STICKY_MOUSE_BUTTONS         : c_int = 0x00033003;
 
-/* GLFW_CURSOR_MODE values */
-pub static CURSOR_NORMAL                : c_int = 0x00040001;
-pub static CURSOR_HIDDEN                : c_int = 0x00040002;
-pub static CURSOR_DISABLED              : c_int = 0x00040003;
+pub static CURSOR_NORMAL                : c_int = 0x00034001;
+pub static CURSOR_HIDDEN                : c_int = 0x00034002;
+pub static CURSOR_DISABLED              : c_int = 0x00034003;
 
-/* glfwGetError/glfwErrorString tokens */
-pub static NOT_INITIALIZED              : c_int = 0x00070001;
-pub static NO_CURRENT_CONTEXT           : c_int = 0x00070002;
-pub static INVALID_ENUM                 : c_int = 0x00070003;
-pub static INVALID_VALUE                : c_int = 0x00070004;
-pub static OUT_OF_MEMORY                : c_int = 0x00070005;
-pub static API_UNAVAILABLE              : c_int = 0x00070006;
-pub static VERSION_UNAVAILABLE          : c_int = 0x00070007;
-pub static PLATFORM_ERROR               : c_int = 0x00070008;
-pub static FORMAT_UNAVAILABLE           : c_int = 0x00070009;
-
-/* Monitor event tokens */
-pub static CONNECTED                    : c_int = 0x00061000;
-pub static DISCONNECTED                 : c_int = 0x00061001;
+pub static CONNECTED                    : c_int = 0x00040001;
+pub static DISCONNECTED                 : c_int = 0x00040002;

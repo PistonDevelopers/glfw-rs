@@ -544,22 +544,22 @@ impl Window {
         )
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `FOCUSED`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
     pub fn is_focused(&self) -> bool {
-        unsafe { ll::glfwGetWindowParam(self.ptr, FOCUSED) as bool }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, FOCUSED) as bool }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `ICONIFIED`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `ICONIFIED`.
     pub fn is_iconified(&self) -> bool {
-        unsafe { ll::glfwGetWindowParam(self.ptr, ICONIFIED) as bool }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, ICONIFIED) as bool }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `CLIENT_API`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `CLIENT_API`.
     pub fn get_client_api(&self) -> c_int {
-        unsafe { ll::glfwGetWindowParam(self.ptr, CLIENT_API) }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, CLIENT_API) }
     }
 
-    /// Wrapper for `glfw::ll::glfwGetWindowParam` called with
+    /// Wrapper for `glfw::ll::glfwGetWindowAttrib` called with
     /// `CONTEXT_VERSION_MAJOR`, `CONTEXT_VERSION_MINOR` and `CONTEXT_REVISION`.
     ///
     /// # Returns
@@ -569,46 +569,46 @@ impl Window {
     pub fn get_context_version(&self) -> Version {
         unsafe {
             Version {
-                major:  ll::glfwGetWindowParam(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
-                minor:  ll::glfwGetWindowParam(self.ptr, CONTEXT_VERSION_MINOR) as uint,
-                rev:    ll::glfwGetWindowParam(self.ptr, CONTEXT_REVISION) as uint,
+                major:  ll::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
+                minor:  ll::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MINOR) as uint,
+                rev:    ll::glfwGetWindowAttrib(self.ptr, CONTEXT_REVISION) as uint,
             }
         }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `CONTEXT_ROBUSTNESS`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `CONTEXT_ROBUSTNESS`.
     pub fn get_context_robustness(&self) -> c_int {
-        unsafe { ll::glfwGetWindowParam(self.ptr, CONTEXT_ROBUSTNESS) }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, CONTEXT_ROBUSTNESS) }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `OPENGL_FORWARD_COMPAT`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_FORWARD_COMPAT`.
     pub fn is_opengl_forward_compat(&self) -> bool {
-        unsafe { ll::glfwGetWindowParam(self.ptr, OPENGL_FORWARD_COMPAT) as bool }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) as bool }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `OPENGL_DEBUG_CONTEXT`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_DEBUG_CONTEXT`.
     pub fn is_opengl_debug_context(&self) -> bool {
-        unsafe { ll::glfwGetWindowParam(self.ptr, OPENGL_DEBUG_CONTEXT) as bool }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) as bool }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `OPENGL_PROFILE`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_PROFILE`.
     pub fn get_opengl_profile(&self) -> c_int {
-        unsafe { ll::glfwGetWindowParam(self.ptr, OPENGL_PROFILE) }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, OPENGL_PROFILE) }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `RESIZABLE`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `RESIZABLE`.
     pub fn is_resizable(&self) -> bool {
-        unsafe { ll::glfwGetWindowParam(self.ptr, RESIZABLE) as bool }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, RESIZABLE) as bool }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `VISIBLE`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
     pub fn is_visible(&self) -> bool {
-        unsafe { ll::glfwGetWindowParam(self.ptr, VISIBLE) as bool }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, VISIBLE) as bool }
     }
 
-    /// Wrapper for `glfwGetWindowParam` called with `DECORATED`.
+    /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
     pub fn is_decorated(&self) -> bool {
-        unsafe { ll::glfwGetWindowParam(self.ptr, DECORATED) as bool }
+        unsafe { ll::glfwGetWindowAttrib(self.ptr, DECORATED) as bool }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
@@ -785,13 +785,9 @@ impl Drop for Window {
     /// Closes the window and removes all associated callbacks.
     ///
     /// Wrapper for `glfwDestroyWindow`.
-    ///
-    /// # Implementation notes
-    ///
-    /// Calls `glfwDestroyWindow` on the window pointer and cleans up the
-    /// callbacks stored in task-local storage
     pub fn finalize(&self) {
         unsafe { ll::glfwDestroyWindow(self.ptr); }
+        // Remove data from task-local storage
         private::WindowDataMap::get().remove(&self.ptr);
     }
 }
