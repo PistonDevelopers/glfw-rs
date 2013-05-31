@@ -51,11 +51,12 @@ pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
 
 /// Describes a single video mode.
 pub struct VidMode {
-    width:      c_int,
-    height:     c_int,
-    red_bits:   c_int,
-    green_bits: c_int,
-    blue_bits:  c_int,
+    width:        uint,
+    height:       uint,
+    red_bits:     uint,
+    green_bits:   uint,
+    blue_bits:    uint,
+    refresh_rate: uint,
 }
 
 /// Describes the gamma ramp of a monitor.
@@ -113,9 +114,7 @@ impl ToStr for Version {
 /// Wrapper for `glfwGetVersion`.
 pub fn get_version() -> Version {
     unsafe {
-        let major = 0;
-        let minor = 0;
-        let rev   = 0;
+        let (major, minor, rev) = (0, 0, 0);
         ll::glfwGetVersion(&major, &minor, &rev);
         Version {
             major: major as uint,
@@ -157,8 +156,7 @@ impl Monitor {
     /// Wrapper for `glfwGetMonitorPos`.
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let xpos = 0;
-            let ypos = 0;
+            let (xpos, ypos) = (0, 0);
             ll::glfwGetMonitorPos(self.ptr, &xpos, &ypos);
             (xpos as int, ypos as int)
         }
@@ -167,8 +165,7 @@ impl Monitor {
     /// Wrapper for `glfwGetMonitorPhysicalSize`.
     pub fn get_physical_size(&self) -> (int, int) {
         unsafe {
-            let width  = 0;
-            let height = 0;
+            let (width, height) = (0, 0);
             ll::glfwGetMonitorPhysicalSize(self.ptr, &width, &height);
             (width as int, height as int)
         }
@@ -191,14 +188,14 @@ impl Monitor {
         unsafe {
             let count = 0;
             let ptr = ll::glfwGetVideoModes(self.ptr, &count);
-            transmute(from_buf(ptr, count as uint))
+            from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
         }
     }
 
     /// Wrapper for `glfwGetVideoMode`.
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
-            ll::glfwGetVideoMode(self.ptr).to_option().map(|&mode| transmute(*mode))
+            ll::glfwGetVideoMode(self.ptr).to_option().map(|&v| VidMode::from_glfw_vid_mode(v))
         }
     }
 
@@ -235,6 +232,19 @@ impl Monitor {
     }
 }
 
+impl VidMode {
+    fn from_glfw_vid_mode(mode: &ll::GLFWvidmode) -> VidMode {
+        VidMode {
+            width:        mode.width as uint,
+            height:       mode.height as uint,
+            red_bits:     mode.redBits as uint,
+            green_bits:   mode.greenBits as uint,
+            blue_bits:    mode.blueBits as uint,
+            refresh_rate: mode.refreshRate as uint,
+        }
+    }
+}
+
 impl ToStr for VidMode {
     /// Returns a string representation of the video mode.
     ///
@@ -243,13 +253,14 @@ impl ToStr for VidMode {
     /// A string in the form:
     ///
     /// ~~~
-    /// ~"[width] x [height] [total_bits] ([red_bits] [green_bits] [blue_bits])"
+    /// ~"[width] x [height], [total_bits] ([red_bits] [green_bits] [blue_bits]) [refresh_rate] Hz"
     /// ~~~
     fn to_str(&self) -> ~str {
-        fmt!("%? x %? %? (%? %? %?)",
+        fmt!("%? x %?, %? (%? %? %?) %? Hz",
              self.width, self.height,
-             (self.red_bits + self.green_bits + self.blue_bits),
-             self.red_bits, self.green_bits, self.blue_bits)
+             self.red_bits + self.green_bits + self.blue_bits,
+             self.red_bits, self.green_bits, self.blue_bits,
+             self.refresh_rate)
     }
 }
 
@@ -330,6 +341,11 @@ pub mod window_hint {
     /// Wrapper for `glfwWindowHint` called with `SRGB_CAPABLE`.
     pub fn srgb_capable(value: bool) {
         unsafe { ll::glfwWindowHint(ll::SRGB_CAPABLE, value as c_int); }
+    }
+
+    /// Wrapper for `glfwWindowHint` called with `REFRESH_RATE`.
+    pub fn refresh_rate(rate: int) {
+        unsafe { ll::glfwWindowHint(ll::REFRESH_RATE, rate as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CLIENT_API`.
@@ -486,8 +502,7 @@ impl Window {
     /// Wrapper for `glfwGetWindowPos`.
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let xpos = 0;
-            let ypos = 0;
+            let (xpos, ypos) = (0, 0);
             ll::glfwGetWindowPos(self.ptr, &xpos, &ypos);
             (xpos as int, ypos as int)
         }
@@ -501,8 +516,7 @@ impl Window {
     /// Wrapper for `glfwGetWindowSize`.
     pub fn get_size(&self) -> (int, int) {
         unsafe {
-            let width  = 0;
-            let height = 0;
+            let (width, height) = (0, 0);
             ll::glfwGetWindowSize(self.ptr, &width, &height);
             (width as int, height as int)
         }
@@ -696,8 +710,7 @@ impl Window {
     /// Wrapper for `glfwGetCursorPos`.
     pub fn get_cursor_pos(&self) -> (float, float) {
         unsafe {
-            let xpos = 0.0;
-            let ypos = 0.0;
+            let (xpos, ypos) = (0.0, 0.0);
             ll::glfwGetCursorPos(self.ptr, &xpos, &ypos);
             (xpos as float, ypos as float)
         }

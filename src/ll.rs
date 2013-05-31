@@ -37,11 +37,12 @@ pub struct GLFWgammaramp {
 }
 
 pub struct GLFWvidmode {
-    width:      c_int,
-    height:     c_int,
-    redBits:    c_int,
-    greenBits:  c_int,
-    blueBits:   c_int,
+    width:       c_int,
+    height:      c_int,
+    redBits:     c_int,
+    greenBits:   c_int,
+    blueBits:    c_int,
+    refreshRate: c_int,
 }
 
 // Linking
