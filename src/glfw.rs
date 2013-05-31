@@ -113,9 +113,7 @@ impl ToStr for Version {
 /// Wrapper for `glfwGetVersion`.
 pub fn get_version() -> Version {
     unsafe {
-        let major = 0;
-        let minor = 0;
-        let rev   = 0;
+        let (major, minor, rev) = (0, 0, 0);
         ll::glfwGetVersion(&major, &minor, &rev);
         Version {
             major: major as uint,
@@ -157,8 +155,7 @@ impl Monitor {
     /// Wrapper for `glfwGetMonitorPos`.
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let xpos = 0;
-            let ypos = 0;
+            let (xpos, ypos) = (0, 0);
             ll::glfwGetMonitorPos(self.ptr, &xpos, &ypos);
             (xpos as int, ypos as int)
         }
@@ -167,8 +164,7 @@ impl Monitor {
     /// Wrapper for `glfwGetMonitorPhysicalSize`.
     pub fn get_physical_size(&self) -> (int, int) {
         unsafe {
-            let width  = 0;
-            let height = 0;
+            let (width, height) = (0, 0);
             ll::glfwGetMonitorPhysicalSize(self.ptr, &width, &height);
             (width as int, height as int)
         }
@@ -486,8 +482,7 @@ impl Window {
     /// Wrapper for `glfwGetWindowPos`.
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let xpos = 0;
-            let ypos = 0;
+            let (xpos, ypos) = (0, 0);
             ll::glfwGetWindowPos(self.ptr, &xpos, &ypos);
             (xpos as int, ypos as int)
         }
@@ -501,8 +496,7 @@ impl Window {
     /// Wrapper for `glfwGetWindowSize`.
     pub fn get_size(&self) -> (int, int) {
         unsafe {
-            let width  = 0;
-            let height = 0;
+            let (width, height) = (0, 0);
             ll::glfwGetWindowSize(self.ptr, &width, &height);
             (width as int, height as int)
         }
@@ -696,8 +690,7 @@ impl Window {
     /// Wrapper for `glfwGetCursorPos`.
     pub fn get_cursor_pos(&self) -> (float, float) {
         unsafe {
-            let xpos = 0.0;
-            let ypos = 0.0;
+            let (xpos, ypos) = (0.0, 0.0);
             ll::glfwGetCursorPos(self.ptr, &xpos, &ypos);
             (xpos as float, ypos as float)
         }
