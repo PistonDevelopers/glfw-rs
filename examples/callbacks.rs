@@ -35,8 +35,8 @@ fn main() {
     }
 }
 
-fn error_callback(_error: libc::c_int, name: ~str) {
-    println(fmt!("GLFW Error: %s", name));
+fn error_callback(_error: libc::c_int, description: ~str) {
+    println(fmt!("GLFW Error: %s", description));
 }
 
 fn window_pos_callback(window: &glfw::Window, x: int, y: int) {

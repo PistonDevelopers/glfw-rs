@@ -94,7 +94,7 @@ pub extern "C" {
     pub fn glfwShowWindow(window: *GLFWwindow);
     pub fn glfwHideWindow(window: *GLFWwindow);
     pub fn glfwGetWindowMonitor(window: *GLFWwindow) -> *GLFWmonitor;
-    pub fn glfwGetWindowParam(window: *GLFWwindow, param: c_int) -> c_int;
+    pub fn glfwGetWindowAttrib(window: *GLFWwindow, attrib: c_int) -> c_int;
     pub fn glfwSetWindowUserPointer(window: *GLFWwindow, pointer: *c_void);
     pub fn glfwGetWindowUserPointer(window: *GLFWwindow) -> *c_void;
     pub fn glfwSetWindowPosCallback(window: *GLFWwindow, cbfun: GLFWwindowposfun) -> GLFWwindowposfun;
