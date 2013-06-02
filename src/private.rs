@@ -15,9 +15,12 @@
 
 //! Private functions and items to be used with the high-level library wrapper.
 
-use std::libc::*;
+use std::cast;
 use std::hashmap::*;
+use std::libc::*;
 use std::local_data::*;
+use std::ptr;
+use std::str;
 
 use super::*;
 use ll::*;

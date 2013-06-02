@@ -18,6 +18,8 @@
 
 extern mod glfw;
 
+use std::libc;
+
 type GLint = i32;
 
 // This would be supplied be an external library
@@ -31,7 +33,7 @@ impl GL {
         GL {
             Viewport: |x, y, width, height| {
                 // Obviously this doesn't actually call glViewport
-                io::println(fmt!("glResize(%?, %?, %?, %?)", x, y, width, height));
+                println(fmt!("glResize(%?, %?, %?, %?)", x, y, width, height));
             }
         }
     }
@@ -70,5 +72,5 @@ fn render_resize(gl: &GL, width: int, height: int) {
 }
 
 fn error_callback(_: libc::c_int, description: ~str) {
-    io::println(fmt!("GLFW Error: %s", description));
+    println(fmt!("GLFW Error: %s", description));
 }

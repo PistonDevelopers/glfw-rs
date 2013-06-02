@@ -15,6 +15,9 @@
 
 extern mod glfw;
 
+use std::str;
+use std::libc;
+
 fn main() {
     glfw::set_error_callback(error_callback);
 
@@ -86,8 +89,8 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, mo
                  key_to_str(key),
                  action_to_str(action),
                  match modifiers_to_str(mods) {
-                    ~""    => ~"",
-                    copy s => fmt!(" with: %s", s),
+                    ~"" => ~"",
+                    s => fmt!(" with: %s", s),
                  }));
 
     if action == glfw::PRESS {
@@ -111,8 +114,8 @@ fn mouse_button_callback(_: &glfw::Window, button: libc::c_int, action: libc::c_
                  mouse_button_to_str(button),
                  action_to_str(action),
                  match modifiers_to_str(mods) {
-                    ~""    => ~"",
-                    copy s => fmt!(" with: %s", s),
+                    ~"" => ~"",
+                    s => fmt!(" with: %s", s),
                  }));
 }
 

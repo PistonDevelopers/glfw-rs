@@ -15,6 +15,8 @@
 
 extern mod glfw;
 
+use std::libc;
+
 fn main() {
     glfw::set_error_callback(error_callback);
 
@@ -38,7 +40,7 @@ static NATIVE_MOD: libc::c_int = glfw::MOD_SUPER;
 static NATIVE_MOD: libc::c_int = glfw::MOD_CONTROL;
 
 fn error_callback(_: libc::c_int, description: ~str) {
-    io::println(fmt!("GLFW Error: %s", description));
+    println(fmt!("GLFW Error: %s", description));
 }
 
 fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, mods: libc::c_int) {
@@ -48,14 +50,14 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, mo
         }
         if (key == glfw::KEY_V) && (mods & NATIVE_MOD > 0) {
             match window.get_clipboard_string() {
-                ref s if !s.is_empty() => io::println(fmt!("Clipboard contains %?", s)),
-                _                      => io::println("Clipboard does not contain a string"),
+                ref s if !s.is_empty() => println(fmt!("Clipboard contains %?", s)),
+                _                      => println("Clipboard does not contain a string"),
             }
         }
         if (key == glfw::KEY_C) && (mods & NATIVE_MOD > 0) {
             let s = "Hello GLFW World!";
             window.set_clipboard_string(s);
-            io::println(fmt!("Setting clipboard to %?", s));
+            println(fmt!("Setting clipboard to %?", s));
         }
     }
 }

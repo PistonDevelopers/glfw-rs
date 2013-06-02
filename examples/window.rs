@@ -15,6 +15,8 @@
 
 extern mod glfw;
 
+use std::libc;
+
 fn main() {
     glfw::set_error_callback(error_callback);
 
@@ -40,5 +42,5 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, _:
 }
 
 fn error_callback(_: libc::c_int, description: ~str) {
-    io::println(fmt!("GLFW Error: %s", description));
+    println(fmt!("GLFW Error: %s", description));
 }

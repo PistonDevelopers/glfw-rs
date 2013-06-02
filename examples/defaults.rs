@@ -15,8 +15,10 @@
 
 extern mod glfw;
 
+use std::libc;
+
 fn error_callback(_: libc::c_int, description: ~str) {
-    io::println(fmt!("GLFW Error: %s", description));
+    println(fmt!("GLFW Error: %s", description));
 }
 
 fn main() {
@@ -31,7 +33,7 @@ fn main() {
         window.make_context_current();
 
         let (width, height) = window.get_size();
-        io::println(fmt!("window size: %? x %?", width, height));
+        println(fmt!("window size: %? x %?", width, height));
 
         println(fmt!("Context version: %s",           window.get_context_version().to_str()));
         println(fmt!("OpenGL forward compatible: %?", window.is_opengl_forward_compat()));
@@ -68,6 +70,8 @@ fn main() {
 }
 
 mod gl {
+    use std::libc;
+
     #[nolink]
     #[link_args="-framework OpenGL"]
     #[cfg(target_os = "macos")]
