@@ -62,7 +62,7 @@ pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mod
 pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
 pub type CursorEnterFun = @fn(window: &Window, entered: bool);
 pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun = @fn(window: &Window, key: c_int, action: c_int, mods: c_int);
+pub type KeyFun = @fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: c_int);
 pub type CharFun = @fn(window: &Window, character: char);
 pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
 
