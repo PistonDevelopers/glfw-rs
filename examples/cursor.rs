@@ -30,7 +30,7 @@ fn main() {
             println(fmt!("Cursor position: [ %f, %f ]", xpos, ypos));
         }
 
-        do window.set_key_callback |window, key, action, _| {
+        do window.set_key_callback |window, key, _, action, _| {
             match (action, key) {
                 (glfw::PRESS, glfw::KEY_ESCAPE) => window.set_should_close(true),
                 (glfw::PRESS, glfw::KEY_SPACE) => {
