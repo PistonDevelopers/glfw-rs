@@ -57,6 +57,7 @@ pub type WindowCloseFun = @fn(window: &Window);
 pub type WindowRefreshFun = @fn(window: &Window);
 pub type WindowFocusFun = @fn(window: &Window, focused: bool);
 pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
+pub type FramebufferSizeFun = @fn(window: &Window, width: int, height: int);
 pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: c_int);
 pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
 pub type CursorEnterFun = @fn(window: &Window, entered: bool);
@@ -543,6 +544,15 @@ impl Window {
         unsafe { ll::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
     }
 
+    /// Wrapper for `glfwGetFramebufferSize`.
+    pub fn get_framebuffer_size(&self) -> (int, int) {
+        unsafe {
+            let (width, height) = (0, 0);
+            ll::glfwGetFramebufferSize(self.ptr, &width, &height);
+            (width as int, height as int)
+        }
+    }
+
     /// Wrapper for `glfwIconifyWindow`.
     pub fn iconify(&self) {
         unsafe { ll::glfwIconifyWindow(self.ptr); }
@@ -681,6 +691,13 @@ impl Window {
         set_window_callback!(setter:   glfwSetWindowIconifyCallback,
                              callback: window_iconify_callback,
                              field:    iconify_fun);
+    }
+
+    /// Wrapper for `glfwSetFramebufferSizeCallback`.
+    pub fn set_framebuffer_size_callback(&self, cbfun: FramebufferSizeFun) {
+        set_window_callback!(setter:   glfwSetFramebufferSizeCallback,
+                             callback: framebuffer_size_callback,
+                             field:    framebuffer_size_fun);
     }
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.

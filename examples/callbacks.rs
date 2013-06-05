@@ -37,6 +37,7 @@ fn main() {
         window.set_refresh_callback(window_refresh_callback);  // FIXME
         window.set_focus_callback(window_focus_callback);
         window.set_iconify_callback(window_iconify_callback);
+        window.set_framebuffer_size_callback(framebuffer_size_callback);
 
         window.set_key_callback(key_callback);
         window.set_char_callback(char_callback);
@@ -82,6 +83,10 @@ fn window_focus_callback(_: &glfw::Window, activated: bool) {
 fn window_iconify_callback(_: &glfw::Window, iconified: bool) {
     if iconified { println("Window was minimised");  }
     else         { println("Window was maximised."); }
+}
+
+fn framebuffer_size_callback(_: &glfw::Window, width: int, height: int) {
+    println(fmt!("Framebuffer size: %? %?", width, height));
 }
 
 fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, mods: libc::c_int) {
