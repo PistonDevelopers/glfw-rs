@@ -89,14 +89,15 @@ fn framebuffer_size_callback(_: &glfw::Window, width: int, height: int) {
     println(fmt!("Framebuffer size: %? %?", width, height));
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, action: libc::c_int, mods: libc::c_int) {
-    println(fmt!("Key %s: %s%s",
+fn key_callback(window: &glfw::Window, key: libc::c_int, scancode: libc::c_int, action: libc::c_int, mods: libc::c_int) {
+    println(fmt!("Key %s: %s%s (scan code : %?)",
                  key_to_str(key),
                  action_to_str(action),
                  match modifiers_to_str(mods) {
                     ~"" => ~"",
                     s => fmt!(" with: %s", s),
-                 }));
+                 },
+                 scancode));
 
     if action == glfw::PRESS {
         if key == glfw::KEY_ESCAPE {
