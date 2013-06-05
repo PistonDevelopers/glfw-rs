@@ -236,7 +236,7 @@ pub static NO_ROBUSTNESS                : c_int = 0x00000000;
 pub static NO_RESET_NOTIFICATION        : c_int = 0x00031001;
 pub static LOSE_CONTEXT_ON_RESET        : c_int = 0x00031002;
 
-pub static OPENGL_NO_PROFILE            : c_int = 0x00000000;
+pub static OPENGL_ANY_PROFILE           : c_int = 0x00000000;
 pub static OPENGL_CORE_PROFILE          : c_int = 0x00032001;
 pub static OPENGL_COMPAT_PROFILE        : c_int = 0x00032002;
 
