@@ -15,7 +15,6 @@
 
 extern mod glfw;
 
-use std::str;
 use std::libc;
 
 fn main() {
@@ -34,7 +33,7 @@ fn main() {
         window.set_pos_callback(window_pos_callback);
         window.set_size_callback(window_size_callback);
         window.set_close_callback(window_close_callback);
-        window.set_refresh_callback(window_refresh_callback);  // FIXME
+        window.set_refresh_callback(window_refresh_callback);  
         window.set_focus_callback(window_focus_callback);
         window.set_iconify_callback(window_iconify_callback);
         window.set_framebuffer_size_callback(framebuffer_size_callback);
@@ -44,7 +43,7 @@ fn main() {
         window.set_mouse_button_callback(mouse_button_callback);
         window.set_cursor_pos_callback(cursor_pos_callback);
         window.set_cursor_enter_callback(cursor_enter_callback);
-        window.set_scroll_callback(scroll_callback);  // FIXME
+        window.set_scroll_callback(scroll_callback);  
 
         window.make_context_current();
 
@@ -70,7 +69,6 @@ fn window_close_callback(_: &glfw::Window) {
     println("Window close requested.");
 }
 
-// FIXME
 fn window_refresh_callback(_: &glfw::Window) {
     println("Window refresh callback triggered.");
 }
@@ -104,9 +102,11 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, scancode: libc::c_int, 
             window.set_should_close(true);
         }
 
-        // FIXME: this should trigger the window refresh callback.
         if key == glfw::KEY_R {
-            window.swap_buffers();
+            // Resize should cause the window to "refresh"
+            let (window_width, window_height) = window.get_size();
+            window.set_size(window_width + 1, window_height);
+            window.set_size(window_width, window_height);
         }
     }
 }
@@ -134,8 +134,8 @@ fn cursor_enter_callback(_: &glfw::Window, entered: bool) {
     else       { println("Cursor left window.");    }
 }
 
-fn scroll_callback(window: &glfw::Window, xpos: float, ypos: float) {
-    window.set_title(fmt!("Scroll position: [%f, %f]", xpos, ypos));
+fn scroll_callback(window: &glfw::Window, xoff: float, yoff: float) {
+    window.set_title(fmt!("Scroll offset: [%f, %f]", xoff, yoff));
 }
 
 fn action_to_str(state: libc::c_int) -> ~str {
@@ -291,5 +291,5 @@ fn modifiers_to_str(mods: libc::c_int) -> ~str {
     if (mods & glfw::MOD_CONTROL) as bool { ss.push(~"control") }
     if (mods & glfw::MOD_ALT)     as bool { ss.push(~"alt")     }
     if (mods & glfw::MOD_SUPER)   as bool { ss.push(~"super")   }
-    str::connect(ss, ", ")
+    ss.connect(", ")
 }
