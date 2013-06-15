@@ -811,7 +811,7 @@ impl Window {
         unsafe { ll::glfwMakeContextCurrent(self.ptr); }
     }
 
-    // TODO: documentation
+    /// Wrapper for `glfwGetCurrentContext`
     pub fn is_current_context(&self) -> bool {
         self.ptr == unsafe { ll::glfwGetCurrentContext() }
     }
