@@ -1,3 +1,18 @@
+// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
+// refer to the AUTHORS file at the top-level directory of this distribution.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #[link(name = "glfw",
 	   vers = "0.1",
        uuid = "6199FAD3-6D03-4E29-87E7-7DC1B1B65C2C",
@@ -9,11 +24,12 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-use std::cast::transmute;
+use std::cast;
 use std::libc::*;
-use std::str::as_c_str;
-use std::str::raw::from_c_str;
-use std::vec::from_buf;
+use std::ptr;
+use std::str;
+use std::task;
+use std::vec;
 
 // re-export constants
 pub use consts::*;
@@ -41,11 +57,12 @@ pub type WindowCloseFun = @fn(window: &Window);
 pub type WindowRefreshFun = @fn(window: &Window);
 pub type WindowFocusFun = @fn(window: &Window, focused: bool);
 pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
+pub type FramebufferSizeFun = @fn(window: &Window, width: int, height: int);
 pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: c_int);
 pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
 pub type CursorEnterFun = @fn(window: &Window, entered: bool);
 pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun = @fn(window: &Window, key: c_int, action: c_int, mods: c_int);
+pub type KeyFun = @fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: c_int);
 pub type CharFun = @fn(window: &Window, character: char);
 pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
 
@@ -126,7 +143,7 @@ pub fn get_version() -> Version {
 
 /// Wrapper for `glfwGetVersionString`.
 pub fn get_version_string() -> ~str {
-    unsafe { from_c_str(ll::glfwGetVersionString()) }
+    unsafe { str::raw::from_c_str(ll::glfwGetVersionString()) }
 }
 
 /// Wrapper for `glfwSetErrorCallback`.
@@ -149,7 +166,7 @@ impl Monitor {
         unsafe {
             let count = 0;
             let ptr = ll::glfwGetMonitors(&count);
-            from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
+            vec::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
         }
     }
 
@@ -173,7 +190,7 @@ impl Monitor {
 
     /// Wrapper for `glfwGetMonitorName`.
     pub fn get_name(&self) -> ~str {
-        unsafe { from_c_str(ll::glfwGetMonitorName(self.ptr)) }
+        unsafe { str::raw::from_c_str(ll::glfwGetMonitorName(self.ptr)) }
     }
 
     /// Wrapper for `glfwSetMonitorCallback`.
@@ -188,7 +205,7 @@ impl Monitor {
         unsafe {
             let count = 0;
             let ptr = ll::glfwGetVideoModes(self.ptr, &count);
-            from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
+            vec::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
         }
     }
 
@@ -207,11 +224,11 @@ impl Monitor {
     /// Wrapper for `glfwGetGammaRamp`.
     pub fn get_gamma_ramp(&self) -> GammaRamp {
         unsafe {
-            let llramp = unsafe { *ll::glfwGetGammaRamp(self.ptr) };
+            let llramp = *ll::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    from_buf(llramp.red,   llramp.size as uint),
-                green:  from_buf(llramp.green, llramp.size as uint),
-                blue:   from_buf(llramp.blue,  llramp.size as uint),
+                red:    vec::from_buf(llramp.red,   llramp.size as uint),
+                green:  vec::from_buf(llramp.green, llramp.size as uint),
+                blue:   vec::from_buf(llramp.blue,  llramp.size as uint),
             }
         }
     }
@@ -462,15 +479,15 @@ impl Window {
             do ll::glfwCreateWindow(
                 width as c_int,
                 height as c_int,
-                as_c_str(title, |a| a),
+                str::as_c_str(title, |a| a),
                 mode.to_ptr(),
                 ptr::null()
             ).to_option().map |&ptr| {
                 // Initialize the local data for this window in TLS
                 private::WindowDataMap::get().insert(
-                    transmute(ptr), @mut private::WindowData::new()
+                    cast::transmute(ptr), @mut private::WindowData::new()
                 );
-                Window { ptr: transmute(ptr) }
+                Window { ptr: cast::transmute(ptr) }
             }
         }
     }
@@ -496,7 +513,7 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
-        unsafe { ll::glfwSetWindowTitle(self.ptr, as_c_str(title, |a| a)); }
+        unsafe { ll::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a)); }
     }
 
     /// Wrapper for `glfwGetWindowPos`.
@@ -525,6 +542,15 @@ impl Window {
     /// Wrapper for `glfwSetWindowSize`.
     pub fn set_size(&self, width: int, height: int) {
         unsafe { ll::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
+    }
+
+    /// Wrapper for `glfwGetFramebufferSize`.
+    pub fn get_framebuffer_size(&self) -> (int, int) {
+        unsafe {
+            let (width, height) = (0, 0);
+            ll::glfwGetFramebufferSize(self.ptr, &width, &height);
+            (width as int, height as int)
+        }
     }
 
     /// Wrapper for `glfwIconifyWindow`.
@@ -667,6 +693,13 @@ impl Window {
                              field:    iconify_fun);
     }
 
+    /// Wrapper for `glfwSetFramebufferSizeCallback`.
+    pub fn set_framebuffer_size_callback(&self, cbfun: FramebufferSizeFun) {
+        set_window_callback!(setter:   glfwSetFramebufferSizeCallback,
+                             callback: framebuffer_size_callback,
+                             field:    framebuffer_size_fun);
+    }
+
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
     pub fn get_cursor_mode(&self) -> c_int {
         unsafe { ll::glfwGetInputMode(self.ptr, CURSOR) }
@@ -765,12 +798,12 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
-        unsafe { ll::glfwSetClipboardString(self.ptr, as_c_str(string, |a| a)); }
+        unsafe { ll::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a)); }
     }
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn get_clipboard_string(&self) -> ~str {
-        unsafe { from_c_str(ll::glfwGetClipboardString(self.ptr)) }
+        unsafe { str::raw::from_c_str(ll::glfwGetClipboardString(self.ptr)) }
     }
 
     /// Wrapper for `glfwMakeContextCurrent`.
@@ -778,7 +811,7 @@ impl Window {
         unsafe { ll::glfwMakeContextCurrent(self.ptr); }
     }
 
-    // TODO: documentation
+    /// Wrapper for `glfwGetCurrentContext`
     pub fn is_current_context(&self) -> bool {
         self.ptr == unsafe { ll::glfwGetCurrentContext() }
     }
@@ -817,8 +850,8 @@ pub fn wait_events() {
 
 pub mod joystick {
     use std::libc::*;
-    use std::str::raw::from_c_str;
-    use std::vec::from_buf;
+    use std::str;
+    use std::vec;
 
     use ll;
 
@@ -841,13 +874,13 @@ pub mod joystick {
         unsafe {
             let count = 0;
             let ptr = ll::glfwGetJoystickButtons(joy, &count);
-            from_buf(ptr, count as uint).map(|&b| b as c_int)
+            vec::from_buf(ptr, count as uint).map(|&b| b as c_int)
         }
     }
 
     /// Wrapper for `glfwGetJoystickName`.
     pub fn get_name(joy: c_int) -> ~str {
-    unsafe { from_c_str(ll::glfwGetJoystickName(joy)) }
+        unsafe { str::raw::from_c_str(ll::glfwGetJoystickName(joy)) }
     }
 }
 
@@ -868,10 +901,10 @@ pub fn set_swap_interval(interval: int) {
 
 /// Wrapper for `glfwExtensionSupported`.
 pub fn extension_supported(extension: &str) -> bool {
-    unsafe { ll::glfwExtensionSupported(as_c_str(extension, |a| a)) as bool }
+    unsafe { ll::glfwExtensionSupported(str::as_c_str(extension, |a| a)) as bool }
 }
 
 /// Wrapper for `glfwGetProcAddress`.
 pub fn get_proc_address(procname: &str) -> GLProc {
-    unsafe { ll::glfwGetProcAddress(as_c_str(procname, |a| a)) }
+    unsafe { ll::glfwGetProcAddress(str::as_c_str(procname, |a| a)) }
 }

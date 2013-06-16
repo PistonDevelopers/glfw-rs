@@ -1,3 +1,17 @@
+// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
+// refer to the AUTHORS file at the top-level directory of this distribution.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 //! Low-level glfw bindings. Includes public exports of core types and constants.
 
@@ -17,6 +31,7 @@ pub type GLFWwindowclosefun     = *u8;  // typedef void (* GLFWwindowclosefun)(*
 pub type GLFWwindowrefreshfun   = *u8;  // typedef void (* GLFWwindowrefreshfun)(*GLFWwindow);
 pub type GLFWwindowfocusfun     = *u8;  // typedef void (* GLFWwindowfocusfun)(*GLFWwindow,int);
 pub type GLFWwindowiconifyfun   = *u8;  // typedef void (* GLFWwindowiconifyfun)(*GLFWwindow,int);
+pub type GLFWframebuffersizefun = *u8;  // typedef void (* GLFWframebuffersizefun)(GLFWwindow*,int,int);
 pub type GLFWmousebuttonfun     = *u8;  // typedef void (* GLFWmousebuttonfun)(*GLFWwindow,int,int,int);
 pub type GLFWcursorposfun       = *u8;  // typedef void (* GLFWcursorposfun)(*GLFWwindow,double,double);
 pub type GLFWcursorenterfun     = *u8;  // typedef void (* GLFWcursorenterfun)(*GLFWwindow,int);
@@ -90,6 +105,7 @@ pub extern "C" {
     pub fn glfwSetWindowPos(window: *GLFWwindow, xpos: c_int, ypos: c_int);
     pub fn glfwGetWindowSize(window: *GLFWwindow, width: *c_int, height: *c_int);
     pub fn glfwSetWindowSize(window: *GLFWwindow, width: c_int, height: c_int);
+    pub fn glfwGetFramebufferSize(window: *GLFWwindow, width: *c_int, height: *c_int);
     pub fn glfwIconifyWindow(window: *GLFWwindow);
     pub fn glfwRestoreWindow(window: *GLFWwindow);
     pub fn glfwShowWindow(window: *GLFWwindow);
@@ -104,6 +120,7 @@ pub extern "C" {
     pub fn glfwSetWindowRefreshCallback(window: *GLFWwindow, cbfun: GLFWwindowrefreshfun) -> GLFWwindowrefreshfun;
     pub fn glfwSetWindowFocusCallback(window: *GLFWwindow, cbfun: GLFWwindowfocusfun) -> GLFWwindowfocusfun;
     pub fn glfwSetWindowIconifyCallback(window: *GLFWwindow, cbfun: GLFWwindowiconifyfun) -> GLFWwindowiconifyfun;
+    pub fn glfwSetFramebufferSizeCallback(window: *GLFWwindow, cbfun: GLFWframebuffersizefun) -> GLFWframebuffersizefun;
 
     pub fn glfwPollEvents();
     pub fn glfwWaitEvents();
