@@ -69,7 +69,7 @@ pub extern { }
 
 #[nolink]
 #[cfg(target_os = "linux")]
-#[link_args="-lglfw"]
+#[link_args="-lglfw -lX11 -lXrandr -lXi -lXxf86vm"]
 pub extern { }
 
 // C function bindings
