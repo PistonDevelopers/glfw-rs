@@ -479,7 +479,7 @@ impl Window {
             do ll::glfwCreateWindow(
                 width as c_int,
                 height as c_int,
-                str::as_c_str(title, |a| a),
+                title.as_c_str(|a| a),
                 mode.to_ptr(),
                 ptr::null()
             ).to_option().map |&ptr| {
@@ -513,7 +513,7 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
-        unsafe { ll::glfwSetWindowTitle(self.ptr, str::as_c_str(title, |a| a)); }
+        unsafe { ll::glfwSetWindowTitle(self.ptr, title.as_c_str(|a| a)); }
     }
 
     /// Wrapper for `glfwGetWindowPos`.
@@ -798,7 +798,7 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
-        unsafe { ll::glfwSetClipboardString(self.ptr, str::as_c_str(string, |a| a)); }
+        unsafe { ll::glfwSetClipboardString(self.ptr, string.as_c_str(|a| a)); }
     }
 
     /// Wrapper for `glfwGetClipboardString`.
@@ -831,7 +831,7 @@ impl Drop for Window {
     /// Closes the window and removes all associated callbacks.
     ///
     /// Wrapper for `glfwDestroyWindow`.
-    pub fn finalize(&self) {
+    pub fn drop(&self) {
         unsafe { ll::glfwDestroyWindow(self.ptr); }
         // Remove data from task-local storage
         private::WindowDataMap::get().remove(&self.ptr);
@@ -901,10 +901,10 @@ pub fn set_swap_interval(interval: int) {
 
 /// Wrapper for `glfwExtensionSupported`.
 pub fn extension_supported(extension: &str) -> bool {
-    unsafe { ll::glfwExtensionSupported(str::as_c_str(extension, |a| a)) as bool }
+    unsafe { ll::glfwExtensionSupported(extension.as_c_str(|a| a)) as bool }
 }
 
 /// Wrapper for `glfwGetProcAddress`.
 pub fn get_proc_address(procname: &str) -> GLProc {
-    unsafe { ll::glfwGetProcAddress(str::as_c_str(procname, |a| a)) }
+    unsafe { ll::glfwGetProcAddress(procname.as_c_str(|a| a)) }
 }

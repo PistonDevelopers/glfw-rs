@@ -155,4 +155,8 @@ pub extern "C" {
     pub fn glfwSwapInterval(interval: c_int);
     pub fn glfwExtensionSupported(extension: *c_char) -> c_int;
     pub fn glfwGetProcAddress(procname: *c_char) -> GLFWglproc;
+
+    // native APIs
+    #[cfg(target_os="linux")]
+    pub fn glfwGetX11Display() -> *c_void;
 }
