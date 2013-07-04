@@ -820,11 +820,53 @@ impl Window {
     pub fn swap_buffers(&self) {
         unsafe { ll::glfwSwapBuffers(self.ptr); }
     }
+
+    /// Wrapper for `glfwGetWin32Window`
+    #[cfg(target_os="win32")]
+    pub fn get_win32_window(&self) -> *c_void {
+        unsafe { ll::glfwGetWin32Window(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetWGLContext`
+    #[cfg(target_os="win32")]
+    pub fn get_wgl_context(&self) -> *c_void {
+        unsafe { ll::glfwGetWGLContext(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetCocoaWindow`
+    #[cfg(target_os="macos")]
+    pub fn get_cocoa_window(&self) -> *c_void {
+        unsafe { ll::glfwGetCocoaWindow(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetNSGLContext`
+    #[cfg(target_os="macos")]
+    pub fn get_nsgl_context(&self) -> *c_void {
+        unsafe { ll::glfwGetNSGLContext(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetX11Window`
+    #[cfg(target_os="linux")]
+    pub fn get_x11_window(&self) -> *c_void {
+        unsafe { ll::glfwGetX11Window(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetGLXContext`
+    #[cfg(target_os="linux")]
+    pub fn get_glx_context(&self) -> *c_void {
+        unsafe { ll::glfwGetGLXContext(self.ptr) }
+    }
 }
 
-/// Wrapper for glfwMakeContextCurrent` called with `null`.
+/// Wrapper for `glfwMakeContextCurrent` called with `null`.
 pub fn detach_current_context() {
     unsafe { ll::glfwMakeContextCurrent(ptr::null()); }
+}
+
+/// Wrapper for `glfwGetX11Display`
+#[cfg(target_os="linux")]
+pub fn get_x11_display() -> *c_void {
+    unsafe { ll::glfwGetX11Display() }
 }
 
 impl Drop for Window {
