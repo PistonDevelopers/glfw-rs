@@ -1,0 +1,24 @@
+VPATH=%VPATH%
+
+RUSTC ?= rustc
+RUSTFLAGS ?=
+
+RUST_SRC = \
+	$(addprefix src/,\
+		consts.rs \
+		ll.rs \
+		private.rs)
+
+.PHONY: all
+all: libglfwrs.dummy
+
+libglfwrs.dummy: src/glfw.rs $(RUST_SRC)
+	$(RUSTC) $(RUSTFLAGS) -L ../glfw $< -o $@
+	touch $@
+
+.PHONY: check
+check:
+
+.PHONY: clean
+clean:
+	rm -f *.o *.a *.so *.dylib *.dll *.dummy *-test
