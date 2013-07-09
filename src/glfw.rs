@@ -85,10 +85,25 @@ pub struct GammaRamp {
 
 pub type GLProc = ll::GLFWglproc;
 
+/// Initialise glfw. This must be called on the main platform thread.
+///
+/// Returns `true` if the initialisation was successful, otherwise `false`.
+///
+/// Wrapper for `glfwInit`.
+pub fn init() -> bool {
+    private::WindowDataMap::init();
+    unsafe { ll::glfwInit() as bool }
+}
+
+/// Terminate glfw. This must be called on the main platform thread.
+///
+/// Wrapper for `glfwTerminate`.
+pub fn terminate() {
+    unsafe { ll::glfwTerminate() }
+}
+
 /// Initialises GLFW on the main platform thread. Fails if the initialisation
 /// was unsuccessful.
-///
-/// Wrapper for `glfwInit` and `glfwTerminate`.
 ///
 /// # Parameters
 ///
@@ -99,9 +114,10 @@ pub fn spawn(f: ~fn()) {
 
         private::WindowDataMap::init();
 
-        match unsafe { ll::glfwInit() } {
-            ll::TRUE => f.finally(|| unsafe { ll::glfwTerminate() }),
-            _        => fail!(~"Failed to initialize GLFW"),
+        if init() {
+            f.finally(terminate);
+        } else {
+            fail!(~"Failed to initialize GLFW");
         }
     }
 }
