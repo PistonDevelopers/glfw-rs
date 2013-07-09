@@ -90,9 +90,12 @@ pub type GLProc = ll::GLFWglproc;
 /// Returns `true` if the initialisation was successful, otherwise `false`.
 ///
 /// Wrapper for `glfwInit`.
-pub fn init() -> bool {
+pub fn init() -> Result<(),()> {
     private::WindowDataMap::init();
-    unsafe { ll::glfwInit() as bool }
+    match unsafe { ll::glfwInit() } {
+        TRUE => Ok(()),
+        _    => Err(()),
+    }
 }
 
 /// Terminate glfw. This must be called on the main platform thread.
@@ -112,9 +115,7 @@ pub fn spawn(f: ~fn()) {
     do task::spawn_sched(task::PlatformThread) {
         use std::unstable::finally::Finally;
 
-        private::WindowDataMap::init();
-
-        if init() {
+        if init().is_ok() {
             f.finally(terminate);
         } else {
             fail!(~"Failed to initialize GLFW");
