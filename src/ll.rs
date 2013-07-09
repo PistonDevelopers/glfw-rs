@@ -157,6 +157,14 @@ pub extern "C" {
     pub fn glfwGetProcAddress(procname: *c_char) -> GLFWglproc;
 
     // native APIs
-    #[cfg(target_os="linux")]
-    pub fn glfwGetX11Display() -> *c_void;
+
+    #[cfg(target_os="win32")] pub fn glfwGetWin32Window(window: *GLFWwindow) -> *c_void;
+    #[cfg(target_os="win32")] pub fn glfwGetWGLContext(window: *GLFWwindow) -> *c_void;
+
+    #[cfg(target_os="macos")] pub fn glfwGetCocoaWindow(window: *GLFWwindow) -> *c_void;
+    #[cfg(target_os="macos")] pub fn glfwGetNSGLContext(window: *GLFWwindow) -> *c_void;
+
+    #[cfg(target_os="linux")] pub fn glfwGetX11Window(window: *GLFWwindow) -> *c_void;
+    #[cfg(target_os="linux")] pub fn glfwGetX11Display() -> *c_void;
+    #[cfg(target_os="linux")] pub fn glfwGetGLXContext(window: *GLFWwindow) -> *c_void;
 }

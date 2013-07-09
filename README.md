@@ -1,6 +1,35 @@
 # glfw-rs
 
-GLFW3 bindings and wrapper for The Rust Programming Language.
+GLFW bindings and wrapper for The Rust Programming Language.
+
+## Example code
+
+GLFW is extremely easy to set up. More complex examples can be found in the `examples` directory.
+
+~~~rust
+extern mod glfw;
+
+fn main() {
+    // Initialize the library on the main platform thread
+    do glfw::spawn {
+        // Create a windowed mode window and its OpenGL context
+        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+
+        // Make the window's context current
+        window.make_context_current();
+
+        // Loop until the user closes the window
+        while !window.should_close() {
+
+            // Swap front and back buffers
+            window.swap_buffers();
+
+            // Poll for and process events
+            glfw::poll_events();
+        }
+    }
+}
+~~~
 
 ## Instructions
 
