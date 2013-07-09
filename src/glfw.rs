@@ -14,10 +14,10 @@
 // limitations under the License.
 
 #[link(name = "glfw",
-	   vers = "0.1",
+       vers = "0.1",
        uuid = "6199FAD3-6D03-4E29-87E7-7DC1B1B65C2C",
-	   author = "Brendan Zabarauskas",
-	   url = "https://github.com/bjz/glfw3-rs")];
+       author = "Brendan Zabarauskas",
+       url = "https://github.com/bjz/glfw3-rs")];
 
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
