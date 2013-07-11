@@ -49,4 +49,4 @@ fn main() {
 
 - [Jeaye/q3](https://github.com/Jeaye/q3)
 - [cyndis/rsmc](https://github.com/cyndis/rsmc/)
-- [bjz/open.gl-tutorials](https://github.com/bjz/open.gl-tutorials)
+- [mozilla/servo](https://github.com/mozilla/servo)
