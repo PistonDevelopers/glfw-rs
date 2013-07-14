@@ -18,7 +18,7 @@ RS_FLAGS	:= -L ../lib
 BUILD_DIR	:= bin
 
 
-all: callbacks clipboard cursor defaults gl-struct modes title version window
+all: callbacks clipboard cursor defaults gl-struct manual-init modes title version window
 
 builddir:
 	@mkdir -p $(BUILD_DIR)
@@ -37,6 +37,9 @@ defaults: builddir
 
 gl-struct: builddir
 	rustc gl-struct.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
+
+manual-init: builddir
+	rustc manual-init.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
 
 modes: builddir
 	rustc modes.rs $(RS_FLAGS) --out-dir $(BUILD_DIR)
