@@ -71,27 +71,25 @@ pub struct WindowDataMap(HashMap<*ffi::GLFWwindow, @mut WindowData>);
 
 /// Key used for retrieving the map of window data from
 /// task-local storage.
-static tls_key: local_data::Key<@@mut WindowDataMap> = &local_data::Key;
+static tls_key: local_data::Key<@mut WindowDataMap> = &local_data::Key;
 
 impl WindowDataMap {
     /// Initializes a map of window data in task-local storage.
     pub fn init() {
         local_data::set(
             tls_key,
-            @@mut WindowDataMap(HashMap::new())
+            @mut WindowDataMap(HashMap::new())
         )
     }
 
     /// Retrieves a mutable pointer to the map of window data stored task-local
     /// storage, failing if the map could not be found.
     pub fn get() -> @mut WindowDataMap {
-        do local_data::get(tls_key) |data|
-        {
-          match data
-          {
-            Some(&@local_data) => local_data,
-            None => fail!("Could not find a WindowDataMap in thread-local storage."),
-          }
+        do local_data::get(tls_key) |data| {
+            match data {
+                Some(&local_data) => local_data,
+                None => fail!("Could not find a WindowDataMap in thread-local storage."),
+            }
         }
     }
 
@@ -121,37 +119,35 @@ impl WindowDataMap {
 
 // Global callbacks
 
-static error_fun_tls_key: local_data::Key<@ErrorFun> = &local_data::Key;
+static error_fun_tls_key: local_data::Key<ErrorFun> = &local_data::Key;
 
 pub extern "C" fn error_callback(error: c_int, description: *c_char) {
     unsafe {
-        do local_data::get(error_fun_tls_key) |data|
-        {
-          do data.map |& &@cb| {
-            cb(error, str::raw::from_c_str(description))
-          };
+        do local_data::get(error_fun_tls_key) |data| {
+            do data.map |& &cb| {
+                cb(error, str::raw::from_c_str(description))
+            };
         }
     }
 }
 
 pub fn set_error_fun(cbfun: ErrorFun, f: &fn(ffi::GLFWerrorfun) ) {
-    local_data::set(error_fun_tls_key, @cbfun);
+    local_data::set(error_fun_tls_key, cbfun);
     f(error_callback);
 }
 
-static monitor_fun_tls_key: local_data::Key<@MonitorFun> = &local_data::Key;
+static monitor_fun_tls_key: local_data::Key<MonitorFun> = &local_data::Key;
 
 pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
-    do local_data::get(monitor_fun_tls_key) |data|
-    {
-      do data.map |& &@cb| {
-        cb(&Monitor { ptr: monitor }, event)
-      };
+    do local_data::get(monitor_fun_tls_key) |data| {
+        do data.map |& &cb| {
+            cb(&Monitor { ptr: monitor }, event)
+        };
     }
 }
 
 pub fn set_monitor_fun(cbfun: MonitorFun, f: &fn(ffi::GLFWmonitorfun) ) {
-    local_data::set(monitor_fun_tls_key, @cbfun);
+    local_data::set(monitor_fun_tls_key, cbfun);
     f(monitor_callback);
 }
 
