@@ -10,6 +10,11 @@ GLFW is extremely easy to set up. More complex examples can be found in the `exa
 extern mod glfw;
 
 fn main() {
+    // Set an error callback
+    do glfw::set_error_callback |_, description| {
+        println(fmt!("GLFW Error: %s", description));
+    }
+
     // Initialize the library on the main platform thread
     do glfw::spawn {
         // Create a windowed mode window and its OpenGL context
