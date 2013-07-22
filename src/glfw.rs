@@ -24,7 +24,6 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-use std::cast;
 use std::libc::*;
 use std::ptr;
 use std::str;
@@ -91,7 +90,6 @@ pub type GLProc = ffi::GLFWglproc;
 ///
 /// Wrapper for `glfwInit`.
 pub fn init() -> Result<(),()> {
-    private::WindowDataMap::init();
     match unsafe { ffi::glfwInit() } {
         TRUE => Ok(()),
         _    => Err(()),
@@ -102,7 +100,9 @@ pub fn init() -> Result<(),()> {
 ///
 /// Wrapper for `glfwTerminate`.
 pub fn terminate() {
-    unsafe { ffi::glfwTerminate() }
+    unsafe {
+        ffi::glfwTerminate()
+    }
 }
 
 /// Initialises GLFW on the main platform thread. Fails if the initialisation
@@ -484,7 +484,7 @@ macro_rules! set_window_callback(
         callback: $ext_fn:ident,
         field:    $data_field:ident
     ) => ({
-        self.get_local_data().$data_field = Some(cbfun);
+        private::WindowDataMap::get_or_init(self.ptr).$data_field = Some(cbfun);
         unsafe { ffi::$ll_fn(self.ptr, private::$ext_fn); }
     })
 )
@@ -496,29 +496,16 @@ impl Window {
     ///
     /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
-        unsafe {
-            do ffi::glfwCreateWindow(
+        do unsafe {
+            ffi::glfwCreateWindow(
                 width as c_int,
                 height as c_int,
                 title.as_c_str(|a| a),
                 mode.to_ptr(),
                 ptr::null()
-            ).to_option().map_default(Err(())) |&ptr| {
-                // Initialize the local data for this window in TLS
-                private::WindowDataMap::get().insert(
-                    cast::transmute(ptr), @mut private::WindowData::new()
-                );
-                Ok(Window { ptr: cast::transmute(ptr) })
-            }
-        }
-    }
-
-    /// Returns a mutable pointer to the window's local data stored in task-
-    /// local storage. Fails if no data is found.
-    priv fn get_local_data(&self) -> @mut private::WindowData {
-        match private::WindowDataMap::get().find_mut(&self.ptr) {
-            Some(&data) => data,
-            None => fail!("Could not find local data for this window."),
+            ).to_option()
+        }.map_default(Err(())) |&ptr| {
+            Ok(Window { ptr: ptr::to_unsafe_ptr(ptr) })
         }
     }
 
@@ -897,7 +884,7 @@ impl Drop for Window {
     pub fn drop(&self) {
         unsafe { ffi::glfwDestroyWindow(self.ptr); }
         // Remove data from task-local storage
-        private::WindowDataMap::get().remove(&self.ptr);
+        private::WindowDataMap::remove(self.ptr);
     }
 }
 

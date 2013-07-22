@@ -75,12 +75,12 @@ mod gl {
     #[nolink]
     #[link_args="-framework OpenGL"]
     #[cfg(target_os = "macos")]
-    pub extern { }
+    extern { }
 
     #[nolink]
     #[link_args="-lGL"]
     #[cfg(target_os = "linux")]
-    pub extern { }
+    extern { }
 
     pub type GLenum = libc::c_uint;
     pub type GLint  = libc::c_int;
@@ -98,7 +98,7 @@ mod gl {
     pub static STEREO                : GLenum = 0x0C33;
     pub static SAMPLES_ARB           : GLenum = 0x80A9;
 
-    pub extern "C" {
+    extern "C" {
         #[link_name="glGetIntegerv"]
         pub fn GetIntegerv(pname: GLenum, params: *GLint);
     }

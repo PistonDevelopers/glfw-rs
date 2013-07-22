@@ -65,16 +65,16 @@ pub struct GLFWvidmode {
 #[nolink]
 #[cfg(target_os = "macos")]
 #[link_args="-lglfw -framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
-pub extern { }
+extern { }
 
 #[nolink]
 #[cfg(target_os = "linux")]
 #[link_args="-lglfw -lX11 -lXrandr -lXi -lXxf86vm"]
-pub extern { }
+extern { }
 
 // C function bindings
 
-pub extern "C" {
+extern "C" {
     pub fn glfwInit() -> c_int;
     pub fn glfwTerminate();
     pub fn glfwGetVersion(major: *c_int, minor: *c_int, rev: *c_int);
