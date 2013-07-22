@@ -71,49 +71,49 @@ pub struct WindowDataMap(HashMap<*ffi::GLFWwindow, @mut WindowData>);
 
 /// Key used for retrieving the map of window data from
 /// task-local storage.
-static tls_key: local_data::Key<@mut WindowDataMap> = &local_data::Key;
+priv static data_map_tls_key: local_data::Key<@mut WindowDataMap> = &local_data::Key;
 
 impl WindowDataMap {
-    /// Initializes a map of window data in task-local storage.
-    pub fn init() {
-        local_data::set(
-            tls_key,
-            @mut WindowDataMap(HashMap::new())
-        )
-    }
-
-    /// Retrieves a mutable pointer to the map of window data stored task-local
-    /// storage, failing if the map could not be found.
-    pub fn get() -> @mut WindowDataMap {
-        do local_data::get(tls_key) |data| {
-            match data {
-                Some(&local_data) => local_data,
-                None => fail!("Could not find a WindowDataMap in thread-local storage."),
-            }
+    /// Returns a mutable pointer to the window's local data. Initializes the
+    /// data if none is found.
+    pub fn get_or_init(window: *ffi::GLFWwindow) -> @mut WindowData {
+        do local_data::get_mut(data_map_tls_key) |opt| {
+            *match opt {
+                Some(&dmap) => dmap,
+                None => {
+                    let dmap = @mut WindowDataMap(HashMap::new());
+                    local_data::set(data_map_tls_key, dmap);
+                    dmap
+                }
+            }.find_or_insert(window, @mut WindowData::new())
         }
     }
 
-    /// Clears all external callbacks and removes the window from the map.
+    /// Clears all external callbacks and removes the window data from the map.
     /// Returns `true` if the window was present in the map, otherwise `false`.
-    pub fn remove(&mut self, window: &*ffi::GLFWwindow) -> bool {
-        do self.pop(window).map |&data| {
-            unsafe {
-                // Clear all external callbacks
-                data.pos_fun.map                (|_| ffi::glfwSetWindowPosCallback(*window, ptr::null()));
-                data.size_fun.map               (|_| ffi::glfwSetWindowSizeCallback(*window, ptr::null()));
-                data.close_fun.map              (|_| ffi::glfwSetWindowCloseCallback(*window, ptr::null()));
-                data.refresh_fun.map            (|_| ffi::glfwSetWindowRefreshCallback(*window, ptr::null()));
-                data.focus_fun.map              (|_| ffi::glfwSetWindowFocusCallback(*window, ptr::null()));
-                data.iconify_fun.map            (|_| ffi::glfwSetWindowIconifyCallback(*window, ptr::null()));
-                data.framebuffer_size_fun.map   (|_| ffi::glfwSetFramebufferSizeCallback(*window, ptr::null()));
-                data.mouse_button_fun.map       (|_| ffi::glfwSetMouseButtonCallback(*window, ptr::null()));
-                data.cursor_pos_fun.map         (|_| ffi::glfwSetCursorPosCallback(*window, ptr::null()));
-                data.cursor_enter_fun.map       (|_| ffi::glfwSetCursorEnterCallback(*window, ptr::null()));
-                data.scroll_fun.map             (|_| ffi::glfwSetScrollCallback(*window, ptr::null()));
-                data.key_fun.map                (|_| ffi::glfwSetKeyCallback(*window, ptr::null()));
-                data.char_fun.map               (|_| ffi::glfwSetCharCallback(*window, ptr::null()));
-            }
-        }.is_some()
+    pub fn remove(window: *ffi::GLFWwindow) -> bool {
+        do local_data::get(data_map_tls_key) |data_map| {
+            do data_map.map |&dmap| {
+                do dmap.pop(&window).map |&data| {
+                    unsafe {
+                        // Clear all external callbacks
+                        data.pos_fun.map                (|_| ffi::glfwSetWindowPosCallback(window, ptr::null()));
+                        data.size_fun.map               (|_| ffi::glfwSetWindowSizeCallback(window, ptr::null()));
+                        data.close_fun.map              (|_| ffi::glfwSetWindowCloseCallback(window, ptr::null()));
+                        data.refresh_fun.map            (|_| ffi::glfwSetWindowRefreshCallback(window, ptr::null()));
+                        data.focus_fun.map              (|_| ffi::glfwSetWindowFocusCallback(window, ptr::null()));
+                        data.iconify_fun.map            (|_| ffi::glfwSetWindowIconifyCallback(window, ptr::null()));
+                        data.framebuffer_size_fun.map   (|_| ffi::glfwSetFramebufferSizeCallback(window, ptr::null()));
+                        data.mouse_button_fun.map       (|_| ffi::glfwSetMouseButtonCallback(window, ptr::null()));
+                        data.cursor_pos_fun.map         (|_| ffi::glfwSetCursorPosCallback(window, ptr::null()));
+                        data.cursor_enter_fun.map       (|_| ffi::glfwSetCursorEnterCallback(window, ptr::null()));
+                        data.scroll_fun.map             (|_| ffi::glfwSetScrollCallback(window, ptr::null()));
+                        data.key_fun.map                (|_| ffi::glfwSetKeyCallback(window, ptr::null()));
+                        data.char_fun.map               (|_| ffi::glfwSetCharCallback(window, ptr::null()));
+                    }
+                }
+            }.is_some()
+        }
     }
 }
 
@@ -157,20 +157,20 @@ pub fn set_monitor_fun(cbfun: MonitorFun, f: &fn(ffi::GLFWmonitorfun) ) {
 macro_rules! window_callback(
     (fn $name:ident () => $field:ident()) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow) {
-            let window_ = Window { ptr: window };
-            do window_.get_local_data().$field.map |&cb| {
-                cb(&window_)
+            do WindowDataMap::get_or_init(window).$field.map |&cb| {
+                let window_ = Window { ptr: window };
+                cb(&window_);
+                unsafe { cast::forget(window_); }
             };
-            unsafe { cast::forget(window_); }
         }
     );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $field:ident($($arg_conv:expr),*)) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            let window_ = Window { ptr: window };
-            do window_.get_local_data().$field.map |&cb| {
-                cb(&window_ $(, $arg_conv)*)
+            do WindowDataMap::get_or_init(window).$field.map |&cb| {
+                let window_ = Window { ptr: window };
+                cb(&window_ $(, $arg_conv)*);
+                unsafe { cast::forget(window_); }
             };
-            unsafe { cast::forget(window_); }
         }
     );
 )
