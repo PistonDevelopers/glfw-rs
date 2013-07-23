@@ -484,7 +484,7 @@ macro_rules! set_window_callback(
         callback: $ext_fn:ident,
         field:    $data_field:ident
     ) => ({
-        private::WindowDataMap::get_or_init(self.ptr).$data_field = Some(cbfun);
+        private::WindowDataMap::find_or_insert(self.ptr).$data_field = Some(cbfun);
         unsafe { ffi::$ll_fn(self.ptr, private::$ext_fn); }
     })
 )
