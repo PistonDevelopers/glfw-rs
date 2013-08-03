@@ -496,11 +496,11 @@ impl Window {
     ///
     /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
-        Window::create_shared(width, height, title, mode, Window { ptr: ptr::null() })
+        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
     }
 
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: Window) -> Result<Window,()> {
+    pub fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Result<Window,()> {
         do unsafe {
             ffi::glfwCreateWindow(
               width as c_int,
