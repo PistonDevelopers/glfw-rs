@@ -46,7 +46,8 @@ pub struct Monitor {
 /// A struct that wraps a `*GLFWwindow` handle.
 #[deriving(Eq, IterBytes)]
 pub struct Window {
-    ptr: *ffi::GLFWwindow
+    ptr: *ffi::GLFWwindow,
+    shared: bool
 }
 
 pub type ErrorFun = @fn(error: c_int, description: ~str);
@@ -496,7 +497,7 @@ impl Window {
     ///
     /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
-        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null() })
+        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null(), shared: false })
     }
 
     /// Wrapper for `glfwCreateWindow`.
@@ -510,7 +511,7 @@ impl Window {
               share.ptr
               ).to_option()
         }.map_default(Err(())) |&ptr| {
-            Ok(Window { ptr: ptr::to_unsafe_ptr(ptr) })
+            Ok(Window { ptr: ptr::to_unsafe_ptr(ptr), shared: true })
         }
     }
 
@@ -887,7 +888,10 @@ impl Drop for Window {
     ///
     /// Wrapper for `glfwDestroyWindow`.
     pub fn drop(&self) {
-        unsafe { ffi::glfwDestroyWindow(self.ptr); }
+        if !self.shared {
+          unsafe { ffi::glfwDestroyWindow(self.ptr); }
+        }
+
         // Remove data from task-local storage
         private::WindowDataMap::remove(self.ptr);
     }
