@@ -158,7 +158,7 @@ macro_rules! window_callback(
     (fn $name:ident () => $field:ident()) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow) {
             do WindowDataMap::get_or_init(window).$field.map |&cb| {
-                let window_ = Window { ptr: window };
+                let window_ = Window { ptr: window, shared: false };
                 cb(&window_);
                 unsafe { cast::forget(window_); }
             };
@@ -167,7 +167,7 @@ macro_rules! window_callback(
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $field:ident($($arg_conv:expr),*)) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
             do WindowDataMap::get_or_init(window).$field.map |&cb| {
-                let window_ = Window { ptr: window };
+                let window_ = Window { ptr: window, shared: false };
                 cb(&window_ $(, $arg_conv)*);
                 unsafe { cast::forget(window_); }
             };
