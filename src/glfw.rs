@@ -112,7 +112,7 @@ pub fn terminate() {
 ///
 /// - `f`: A closure to be called after the GLFW is initialised.
 pub fn spawn(f: ~fn()) {
-    do task::spawn_sched(task::PlatformThread) {
+    do task::spawn_sched(task::DefaultScheduler) {
         use std::unstable::finally::Finally;
 
         if init().is_ok() {
