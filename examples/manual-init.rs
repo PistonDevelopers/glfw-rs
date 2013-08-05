@@ -22,8 +22,8 @@ use std::unstable::finally::Finally;
 fn main() {
     glfw::set_error_callback(error_callback);
 
-    // GLFW must run on the main platform thread
-    do task::spawn_sched(task::PlatformThread) {
+    
+    do spawn {
         if glfw::init().is_err() {
             fail!(~"Failed to initialize GLFW");
         } else {

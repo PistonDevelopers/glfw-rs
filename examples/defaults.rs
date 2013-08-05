@@ -55,7 +55,7 @@ fn main() {
             (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
         ];
 
-        for gl_params.iter().advance |&(param, ext, name)| {
+        for &(param, ext, name) in gl_params.iter() {
             if do ext.map_default(true) |&s| {
                 glfw::extension_supported(s)
             } {
