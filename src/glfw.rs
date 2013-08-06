@@ -27,7 +27,6 @@
 use std::libc::*;
 use std::ptr;
 use std::str;
-use std::task;
 use std::vec;
 
 // re-export constants
@@ -105,21 +104,18 @@ pub fn terminate() {
     }
 }
 
-/// Initialises GLFW on the main platform thread. Fails if the initialisation
-/// was unsuccessful.
+/// Initialises GLFW, automatically calling `glfw::terminate` on exit or
+/// failure. Fails if the initialisation was unsuccessful.
 ///
 /// # Parameters
 ///
 /// - `f`: A closure to be called after the GLFW is initialised.
-pub fn spawn(f: ~fn()) {
-    do task::spawn_sched(task::PlatformThread) {
-        use std::unstable::finally::Finally;
-
-        if init().is_ok() {
-            f.finally(terminate);
-        } else {
-            fail!(~"Failed to initialize GLFW");
-        }
+pub fn start(f: ~fn()) {
+    use std::unstable::finally::Finally;
+    if init().is_ok() {
+        f.finally(terminate);
+    } else {
+        fail!(~"Failed to initialize GLFW");
     }
 }
 
@@ -816,7 +812,7 @@ impl Window {
 
     /// Wrapper for `glfwMakeContextCurrent`.
     pub fn make_context_current(&self) {
-        unsafe { ffi::glfwMakeContextCurrent(self.ptr); }
+        make_context_current(Some(self));
     }
 
     /// Wrapper for `glfwGetCurrentContext`
@@ -866,9 +862,12 @@ impl Window {
     }
 }
 
-/// Wrapper for `glfwMakeContextCurrent` called with `null`.
-pub fn detach_current_context() {
-    unsafe { ffi::glfwMakeContextCurrent(ptr::null()); }
+/// Wrapper for `glfwMakeContextCurrent`.
+pub fn make_context_current(context: Option<&Window>) {
+    match context {
+        Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
+        None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
+    }
 }
 
 /// Wrapper for `glfwGetX11Display`
