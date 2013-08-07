@@ -16,14 +16,15 @@
 extern mod glfw;
 
 use std::libc;
-use std::task;
+use std::rt;
 use std::unstable::finally::Finally;
 
-fn main() {
-    glfw::set_error_callback(error_callback);
-
+#[start]
+fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
     // GLFW must run on the main platform thread
-    do task::spawn_sched(task::PlatformThread) {
+    do rt::start_on_main_thread(argc, argv, crate_map) {
+        glfw::set_error_callback(error_callback);
+
         if glfw::init().is_err() {
             fail!(~"Failed to initialize GLFW");
         } else {

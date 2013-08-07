@@ -16,21 +16,22 @@
 extern mod glfw;
 
 use std::libc;
+use std::rt;
 
-fn main() {
-    glfw::set_error_callback(error_callback);
+#[start]
+fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
+    do rt::start_on_main_thread(argc, argv, crate_map) {
+        glfw::set_error_callback(error_callback);
 
-    do glfw::spawn {
-        // Calling `Option::unwrap` will fail if `glfw::Window::create`
-        // returns `None`. If you want to manually handle this eventuality
-        // you can perform a match (see `examples/manual-init.rs`).
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+        do glfw::start() {
+            let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
 
-        window.set_key_callback(key_callback);
-        window.make_context_current();
+            window.set_key_callback(key_callback);
+            window.make_context_current();
 
-        while !window.should_close() {
-            glfw::poll_events();
+            while !window.should_close() {
+                glfw::poll_events();
+            }
         }
     }
 }
