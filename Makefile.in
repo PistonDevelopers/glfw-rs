@@ -6,7 +6,7 @@ RUSTFLAGS ?=
 RUST_SRC = \
 	$(addprefix src/,\
 		consts.rs \
-		ll.rs \
+		ffi.rs \
 		private.rs)
 
 .PHONY: all

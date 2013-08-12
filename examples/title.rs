@@ -16,19 +16,23 @@
 extern mod glfw;
 
 use std::libc;
+use std::rt;
 
-fn main() {
-    glfw::set_error_callback(error_callback);
+#[start]
+fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
+    do rt::start_on_main_thread(argc, argv, crate_map) {
+        glfw::set_error_callback(error_callback);
 
-    do glfw::spawn {
-        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).unwrap();
+        do glfw::start() {
+            let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).unwrap();
 
-        window.make_context_current();
-        window.set_key_callback(key_callback);
-        glfw::set_swap_interval(1);
+            window.make_context_current();
+            window.set_key_callback(key_callback);
+            glfw::set_swap_interval(1);
 
-        while !window.should_close() {
-            glfw::wait_events();
+            while !window.should_close() {
+                glfw::wait_events();
+            }
         }
     }
 }
