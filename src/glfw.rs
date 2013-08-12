@@ -34,7 +34,7 @@ pub use consts::*;
 
 pub mod ffi;
 pub mod consts;
-priv mod private;
+mod private;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
@@ -456,7 +456,7 @@ impl WindowMode {
     /// Extract the window mode from a low-level monitor pointer. If the pointer
     /// is null it assumes the window is in windowed mode and returns `Windowed`,
     /// otherwise it returns the pointer wrapped in `glfw::FullScreen`.
-    priv fn from_ptr(ptr: *ffi::GLFWmonitor) -> WindowMode {
+    fn from_ptr(ptr: *ffi::GLFWmonitor) -> WindowMode {
         if ptr.is_null() {
             Windowed
         } else {
@@ -466,7 +466,7 @@ impl WindowMode {
 
     /// Returns a pointer to a monitor if the window is fullscreen, otherwise
     /// it returns a null pointer (if it is in windowed mode).
-    priv fn to_ptr(&self) -> *ffi::GLFWmonitor {
+    fn to_ptr(&self) -> *ffi::GLFWmonitor {
         match *self {
             FullScreen(monitor) => monitor.ptr,
             Windowed => ptr::null()
@@ -496,7 +496,7 @@ impl Window {
             ffi::glfwCreateWindow(
                 width as c_int,
                 height as c_int,
-                title.as_c_str(|a| a),
+                title.to_c_str().with_ref(|a| a),
                 mode.to_ptr(),
                 ptr::null()
             ).to_option()
@@ -517,7 +517,7 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
-        unsafe { ffi::glfwSetWindowTitle(self.ptr, title.as_c_str(|a| a)); }
+        unsafe { ffi::glfwSetWindowTitle(self.ptr, title.to_c_str().with_ref(|a| a)); }
     }
 
     /// Wrapper for `glfwGetWindowPos`.
@@ -802,7 +802,7 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
-        unsafe { ffi::glfwSetClipboardString(self.ptr, string.as_c_str(|a| a)); }
+        unsafe { ffi::glfwSetClipboardString(self.ptr, string.to_c_str().with_ref(|a| a)); }
     }
 
     /// Wrapper for `glfwGetClipboardString`.
@@ -950,10 +950,10 @@ pub fn set_swap_interval(interval: int) {
 
 /// Wrapper for `glfwExtensionSupported`.
 pub fn extension_supported(extension: &str) -> bool {
-    unsafe { ffi::glfwExtensionSupported(extension.as_c_str(|a| a)) as bool }
+    unsafe { ffi::glfwExtensionSupported(extension.to_c_str().with_ref(|a| a)) as bool }
 }
 
 /// Wrapper for `glfwGetProcAddress`.
 pub fn get_proc_address(procname: &str) -> GLProc {
-    unsafe { ffi::glfwGetProcAddress(procname.as_c_str(|a| a)) }
+    unsafe { ffi::glfwGetProcAddress(procname.to_c_str().with_ref(|a| a)) }
 }
