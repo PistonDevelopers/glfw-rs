@@ -14,40 +14,38 @@
 // limitations under the License.
 
 #[link(name = "glfw",
-	   vers = "0.1",
+       vers = "0.1",
        uuid = "6199FAD3-6D03-4E29-87E7-7DC1B1B65C2C",
-	   author = "Brendan Zabarauskas",
-	   url = "https://github.com/bjz/glfw3-rs")];
+       author = "Brendan Zabarauskas",
+       url = "https://github.com/bjz/glfw3-rs")];
 
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
 
 // TODO: Document differences between GLFW and glfw-rs
 
-use std::cast;
 use std::libc::*;
 use std::ptr;
 use std::str;
-use std::task;
 use std::vec;
 
 // re-export constants
 pub use consts::*;
 
-pub mod ll;
+pub mod ffi;
 pub mod consts;
 priv mod private;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
 pub struct Monitor {
-    ptr: *ll::GLFWmonitor
+    ptr: *ffi::GLFWmonitor
 }
 
 /// A struct that wraps a `*GLFWwindow` handle.
 #[deriving(Eq, IterBytes)]
 pub struct Window {
-    ptr: *ll::GLFWwindow
+    ptr: *ffi::GLFWwindow
 }
 
 pub type ErrorFun = @fn(error: c_int, description: ~str);
@@ -83,42 +81,41 @@ pub struct GammaRamp {
     blue:   ~[c_ushort],
 }
 
-pub type GLProc = ll::GLFWglproc;
+pub type GLProc = ffi::GLFWglproc;
 
 /// Initialise glfw. This must be called on the main platform thread.
 ///
 /// Returns `true` if the initialisation was successful, otherwise `false`.
 ///
 /// Wrapper for `glfwInit`.
-pub fn init() -> bool {
-    private::WindowDataMap::init();
-    unsafe { ll::glfwInit() as bool }
+pub fn init() -> Result<(),()> {
+    match unsafe { ffi::glfwInit() } {
+        TRUE => Ok(()),
+        _    => Err(()),
+    }
 }
 
 /// Terminate glfw. This must be called on the main platform thread.
 ///
 /// Wrapper for `glfwTerminate`.
 pub fn terminate() {
-    unsafe { ll::glfwTerminate() }
+    unsafe {
+        ffi::glfwTerminate()
+    }
 }
 
-/// Initialises GLFW on the main platform thread. Fails if the initialisation
-/// was unsuccessful.
+/// Initialises GLFW, automatically calling `glfw::terminate` on exit or
+/// failure. Fails if the initialisation was unsuccessful.
 ///
 /// # Parameters
 ///
 /// - `f`: A closure to be called after the GLFW is initialised.
-pub fn spawn(f: ~fn()) {
-    do task::spawn_sched(task::PlatformThread) {
-        use std::unstable::finally::Finally;
-
-        private::WindowDataMap::init();
-
-        if init() {
-            f.finally(terminate);
-        } else {
-            fail!(~"Failed to initialize GLFW");
-        }
+pub fn start(f: ~fn()) {
+    use std::unstable::finally::Finally;
+    if init().is_ok() {
+        f.finally(terminate);
+    } else {
+        fail!(~"Failed to initialize GLFW");
     }
 }
 
@@ -148,7 +145,7 @@ impl ToStr for Version {
 pub fn get_version() -> Version {
     unsafe {
         let (major, minor, rev) = (0, 0, 0);
-        ll::glfwGetVersion(&major, &minor, &rev);
+        ffi::glfwGetVersion(&major, &minor, &rev);
         Version {
             major: major as uint,
             minor: minor as uint,
@@ -159,21 +156,25 @@ pub fn get_version() -> Version {
 
 /// Wrapper for `glfwGetVersionString`.
 pub fn get_version_string() -> ~str {
-    unsafe { str::raw::from_c_str(ll::glfwGetVersionString()) }
+    unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
 
 /// Wrapper for `glfwSetErrorCallback`.
 pub fn set_error_callback(cbfun: ErrorFun) {
     do private::set_error_fun(cbfun) |ext_cb| {
-        unsafe { ll::glfwSetErrorCallback(ext_cb); }
+        unsafe { ffi::glfwSetErrorCallback(ext_cb); }
     }
 }
 
 impl Monitor {
     /// Wrapper for `glfwGetPrimaryMonitor`.
-    pub fn get_primary() -> Option<Monitor> {
+    pub fn get_primary() -> Result<Monitor,()> {
         unsafe {
-            ll::glfwGetPrimaryMonitor().to_option().map(|&ptr| Monitor { ptr: ptr })
+            do ffi::glfwGetPrimaryMonitor()
+                .to_option()
+                .map_default(Err(())) |&ptr| {
+                Ok(Monitor { ptr: ptr })
+            }
         }
     }
 
@@ -181,7 +182,7 @@ impl Monitor {
     pub fn get_connected() -> ~[Monitor] {
         unsafe {
             let count = 0;
-            let ptr = ll::glfwGetMonitors(&count);
+            let ptr = ffi::glfwGetMonitors(&count);
             vec::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
         }
     }
@@ -190,7 +191,7 @@ impl Monitor {
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
             let (xpos, ypos) = (0, 0);
-            ll::glfwGetMonitorPos(self.ptr, &xpos, &ypos);
+            ffi::glfwGetMonitorPos(self.ptr, &xpos, &ypos);
             (xpos as int, ypos as int)
         }
     }
@@ -199,20 +200,20 @@ impl Monitor {
     pub fn get_physical_size(&self) -> (int, int) {
         unsafe {
             let (width, height) = (0, 0);
-            ll::glfwGetMonitorPhysicalSize(self.ptr, &width, &height);
+            ffi::glfwGetMonitorPhysicalSize(self.ptr, &width, &height);
             (width as int, height as int)
         }
     }
 
     /// Wrapper for `glfwGetMonitorName`.
     pub fn get_name(&self) -> ~str {
-        unsafe { str::raw::from_c_str(ll::glfwGetMonitorName(self.ptr)) }
+        unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
     }
 
     /// Wrapper for `glfwSetMonitorCallback`.
     pub fn set_callback(cbfun: MonitorFun) {
         do private::set_monitor_fun(cbfun) |ext_cb| {
-            unsafe { ll::glfwSetMonitorCallback(ext_cb); }
+            unsafe { ffi::glfwSetMonitorCallback(ext_cb); }
         }
     }
 
@@ -220,7 +221,7 @@ impl Monitor {
     pub fn get_video_modes(&self) -> ~[VidMode] {
         unsafe {
             let count = 0;
-            let ptr = ll::glfwGetVideoModes(self.ptr, &count);
+            let ptr = ffi::glfwGetVideoModes(self.ptr, &count);
             vec::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
         }
     }
@@ -228,19 +229,19 @@ impl Monitor {
     /// Wrapper for `glfwGetVideoMode`.
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
-            ll::glfwGetVideoMode(self.ptr).to_option().map(|&v| VidMode::from_glfw_vid_mode(v))
+            ffi::glfwGetVideoMode(self.ptr).to_option().map(|&v| VidMode::from_glfw_vid_mode(v))
         }
     }
 
     /// Wrapper for `glfwSetGamma`.
     pub fn set_gamma(&self, gamma: float) {
-        unsafe { ll::glfwSetGamma(self.ptr, gamma as c_float); }
+        unsafe { ffi::glfwSetGamma(self.ptr, gamma as c_float); }
     }
 
     /// Wrapper for `glfwGetGammaRamp`.
     pub fn get_gamma_ramp(&self) -> GammaRamp {
         unsafe {
-            let llramp = *ll::glfwGetGammaRamp(self.ptr);
+            let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
                 red:    vec::from_buf(llramp.red,   llramp.size as uint),
                 green:  vec::from_buf(llramp.green, llramp.size as uint),
@@ -252,9 +253,9 @@ impl Monitor {
     /// Wrapper for `glfwSetGammaRamp`.
     pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
         unsafe {
-            ll::glfwSetGammaRamp(
+            ffi::glfwSetGammaRamp(
                 self.ptr,
-                &ll::GLFWgammaramp {
+                &ffi::GLFWgammaramp {
                     red:    vec::raw::to_ptr(ramp.red),
                     green:  vec::raw::to_ptr(ramp.green),
                     blue:   vec::raw::to_ptr(ramp.blue),
@@ -266,7 +267,7 @@ impl Monitor {
 }
 
 impl VidMode {
-    fn from_glfw_vid_mode(mode: &ll::GLFWvidmode) -> VidMode {
+    fn from_glfw_vid_mode(mode: &ffi::GLFWvidmode) -> VidMode {
         VidMode {
             width:        mode.width as uint,
             height:       mode.height as uint,
@@ -299,145 +300,145 @@ impl ToStr for VidMode {
 
 pub mod window_hint {
     use std::libc::c_int;
-    use ll;
+    use super::*;
 
     /// Wrapper for `glfwDefaultWindowHints`.
     pub fn default() {
-        unsafe { ll::glfwDefaultWindowHints(); }
+        unsafe { ffi::glfwDefaultWindowHints(); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `RED_BITS`.
     pub fn red_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::RED_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `GREEN_BITS`.
     pub fn green_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::GREEN_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `BLUE_BITS`.
     pub fn blue_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::BLUE_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ALPHA_BITS`.
     pub fn alpha_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::ALPHA_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `DEPTH_BITS`.
     pub fn depth_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::DEPTH_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(DEPTH_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `STENCIL_BITS`.
     pub fn stencil_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::STENCIL_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(STENCIL_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_RED_BITS`.
     pub fn accum_red_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::ACCUM_RED_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ACCUM_RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_GREEN_BITS`.
     pub fn accum_green_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::ACCUM_GREEN_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ACCUM_GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_BLUE_BITS`.
     pub fn accum_blue_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::ACCUM_BLUE_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ACCUM_BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_ALPHA_BITS`.
     pub fn accum_alpha_bits(bits: uint) {
-        unsafe { ll::glfwWindowHint(ll::ACCUM_ALPHA_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ACCUM_ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `AUX_BUFFERS`.
     pub fn aux_buffers(buffers: uint) {
-        unsafe { ll::glfwWindowHint(ll::AUX_BUFFERS, buffers as c_int); }
+        unsafe { ffi::glfwWindowHint(AUX_BUFFERS, buffers as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `STEREO`.
     pub fn stereo(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::STEREO, value as c_int); }
+        unsafe { ffi::glfwWindowHint(STEREO, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `SAMPLES`.
     pub fn samples(samples: uint) {
-        unsafe { ll::glfwWindowHint(ll::SAMPLES, samples as c_int); }
+        unsafe { ffi::glfwWindowHint(SAMPLES, samples as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `SRGB_CAPABLE`.
     pub fn srgb_capable(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::SRGB_CAPABLE, value as c_int); }
+        unsafe { ffi::glfwWindowHint(SRGB_CAPABLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `REFRESH_RATE`.
     pub fn refresh_rate(rate: int) {
-        unsafe { ll::glfwWindowHint(ll::REFRESH_RATE, rate as c_int); }
+        unsafe { ffi::glfwWindowHint(REFRESH_RATE, rate as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CLIENT_API`.
     pub fn client_api(api: c_int) {
-        unsafe { ll::glfwWindowHint(ll::CLIENT_API, api); }
+        unsafe { ffi::glfwWindowHint(CLIENT_API, api); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR`.
     pub fn context_version_major(major: uint) {
-        unsafe { ll::glfwWindowHint(ll::CONTEXT_VERSION_MAJOR, major as c_int); }
+        unsafe { ffi::glfwWindowHint(CONTEXT_VERSION_MAJOR, major as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MINOR`.
     pub fn context_version_minor(minor: uint) {
-        unsafe { ll::glfwWindowHint(ll::CONTEXT_VERSION_MINOR, minor as c_int); }
+        unsafe { ffi::glfwWindowHint(CONTEXT_VERSION_MINOR, minor as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR` and
     /// `CONTEXT_VERSION_MINOR`.
     pub fn context_version(major: uint, minor: uint) {
         unsafe {
-            ll::glfwWindowHint(ll::CONTEXT_VERSION_MAJOR, major as c_int);
-            ll::glfwWindowHint(ll::CONTEXT_VERSION_MINOR, minor as c_int);
+            ffi::glfwWindowHint(CONTEXT_VERSION_MAJOR, major as c_int);
+            ffi::glfwWindowHint(CONTEXT_VERSION_MINOR, minor as c_int);
         }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_ROBUSTNESS`.
     pub fn context_robustness(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::CONTEXT_ROBUSTNESS, value as c_int); }
+        unsafe { ffi::glfwWindowHint(CONTEXT_ROBUSTNESS, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_FORWARD_COMPAT`.
     pub fn opengl_forward_compat(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::OPENGL_FORWARD_COMPAT, value as c_int); }
+        unsafe { ffi::glfwWindowHint(OPENGL_FORWARD_COMPAT, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_DEBUG_CONTEXT`.
     pub fn opengl_debug_context(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::OPENGL_DEBUG_CONTEXT, value as c_int); }
+        unsafe { ffi::glfwWindowHint(OPENGL_DEBUG_CONTEXT, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_PROFILE`.
     pub fn opengl_profile(profile: c_int) {
-        unsafe { ll::glfwWindowHint(ll::OPENGL_PROFILE, profile); }
+        unsafe { ffi::glfwWindowHint(OPENGL_PROFILE, profile); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `RESIZABLE`.
     pub fn resizable(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::RESIZABLE, value as c_int); }
+        unsafe { ffi::glfwWindowHint(RESIZABLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `VISIBLE`.
     pub fn visible(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::VISIBLE, value as c_int); }
+        unsafe { ffi::glfwWindowHint(VISIBLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `DECORATED`.
     pub fn decorated(value: bool) {
-        unsafe { ll::glfwWindowHint(ll::DECORATED, value as c_int); }
+        unsafe { ffi::glfwWindowHint(DECORATED, value as c_int); }
     }
 }
 
@@ -455,7 +456,7 @@ impl WindowMode {
     /// Extract the window mode from a low-level monitor pointer. If the pointer
     /// is null it assumes the window is in windowed mode and returns `Windowed`,
     /// otherwise it returns the pointer wrapped in `glfw::FullScreen`.
-    priv fn from_ptr(ptr: *ll::GLFWmonitor) -> WindowMode {
+    priv fn from_ptr(ptr: *ffi::GLFWmonitor) -> WindowMode {
         if ptr.is_null() {
             Windowed
         } else {
@@ -465,7 +466,7 @@ impl WindowMode {
 
     /// Returns a pointer to a monitor if the window is fullscreen, otherwise
     /// it returns a null pointer (if it is in windowed mode).
-    priv fn to_ptr(&self) -> *ll::GLFWmonitor {
+    priv fn to_ptr(&self) -> *ffi::GLFWmonitor {
         match *self {
             FullScreen(monitor) => monitor.ptr,
             Windowed => ptr::null()
@@ -479,8 +480,8 @@ macro_rules! set_window_callback(
         callback: $ext_fn:ident,
         field:    $data_field:ident
     ) => ({
-        self.get_local_data().$data_field = Some(cbfun);
-        unsafe { ll::$ll_fn(self.ptr, private::$ext_fn); }
+        private::WindowDataMap::find_or_insert(self.ptr).$data_field = Some(cbfun);
+        unsafe { ffi::$ll_fn(self.ptr, private::$ext_fn); }
     })
 )
 
@@ -490,103 +491,90 @@ impl Window {
     /// # Returns
     ///
     /// The created window wrapped in `Some`, or `None` if an error occurred.
-    pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
-        unsafe {
-            do ll::glfwCreateWindow(
+    pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
+        do unsafe {
+            ffi::glfwCreateWindow(
                 width as c_int,
                 height as c_int,
                 title.as_c_str(|a| a),
                 mode.to_ptr(),
                 ptr::null()
-            ).to_option().map |&ptr| {
-                // Initialize the local data for this window in TLS
-                private::WindowDataMap::get().insert(
-                    cast::transmute(ptr), @mut private::WindowData::new()
-                );
-                Window { ptr: cast::transmute(ptr) }
-            }
-        }
-    }
-
-    /// Returns a mutable pointer to the window's local data stored in task-
-    /// local storage. Fails if no data is found.
-    priv fn get_local_data(&self) -> @mut private::WindowData {
-        match private::WindowDataMap::get().find_mut(&self.ptr) {
-            Some(&data) => data,
-            None => fail!("Could not find local data for this window."),
+            ).to_option()
+        }.map_default(Err(())) |&ptr| {
+            Ok(Window { ptr: ptr::to_unsafe_ptr(ptr) })
         }
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
     pub fn should_close(&self) -> bool {
-        unsafe { ll::glfwWindowShouldClose(self.ptr) as bool }
+        unsafe { ffi::glfwWindowShouldClose(self.ptr) as bool }
     }
 
     /// Wrapper for `glfwSetWindowShouldClose`.
     pub fn set_should_close(&self, value: bool) {
-        unsafe { ll::glfwSetWindowShouldClose(self.ptr, value as c_int) }
+        unsafe { ffi::glfwSetWindowShouldClose(self.ptr, value as c_int) }
     }
 
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
-        unsafe { ll::glfwSetWindowTitle(self.ptr, title.as_c_str(|a| a)); }
+        unsafe { ffi::glfwSetWindowTitle(self.ptr, title.as_c_str(|a| a)); }
     }
 
     /// Wrapper for `glfwGetWindowPos`.
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
             let (xpos, ypos) = (0, 0);
-            ll::glfwGetWindowPos(self.ptr, &xpos, &ypos);
+            ffi::glfwGetWindowPos(self.ptr, &xpos, &ypos);
             (xpos as int, ypos as int)
         }
     }
 
     /// Wrapper for `glfwSetWindowPos`.
     pub fn set_pos(&self, xpos: int, ypos: int) {
-        unsafe { ll::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
+        unsafe { ffi::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
     }
 
     /// Wrapper for `glfwGetWindowSize`.
     pub fn get_size(&self) -> (int, int) {
         unsafe {
             let (width, height) = (0, 0);
-            ll::glfwGetWindowSize(self.ptr, &width, &height);
+            ffi::glfwGetWindowSize(self.ptr, &width, &height);
             (width as int, height as int)
         }
     }
 
     /// Wrapper for `glfwSetWindowSize`.
     pub fn set_size(&self, width: int, height: int) {
-        unsafe { ll::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
+        unsafe { ffi::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
     }
 
     /// Wrapper for `glfwGetFramebufferSize`.
     pub fn get_framebuffer_size(&self) -> (int, int) {
         unsafe {
             let (width, height) = (0, 0);
-            ll::glfwGetFramebufferSize(self.ptr, &width, &height);
+            ffi::glfwGetFramebufferSize(self.ptr, &width, &height);
             (width as int, height as int)
         }
     }
 
     /// Wrapper for `glfwIconifyWindow`.
     pub fn iconify(&self) {
-        unsafe { ll::glfwIconifyWindow(self.ptr); }
+        unsafe { ffi::glfwIconifyWindow(self.ptr); }
     }
 
     /// Wrapper for `glfwRestoreWindow`.
     pub fn restore(&self) {
-        unsafe { ll::glfwRestoreWindow(self.ptr); }
+        unsafe { ffi::glfwRestoreWindow(self.ptr); }
     }
 
     /// Wrapper for `glfwShowWindow`.
     pub fn show(&self) {
-        unsafe { ll::glfwShowWindow(self.ptr); }
+        unsafe { ffi::glfwShowWindow(self.ptr); }
     }
 
     /// Wrapper for `glfwHideWindow`.
     pub fn hide(&self) {
-        unsafe { ll::glfwHideWindow(self.ptr); }
+        unsafe { ffi::glfwHideWindow(self.ptr); }
     }
 
     /// Wrapper for `glfwGetWindowMonitor`.
@@ -596,26 +584,26 @@ impl Window {
     /// The window mode; either glfw::FullScreen or glfw::Windowed
     pub fn get_window_mode(&self) -> WindowMode {
         WindowMode::from_ptr(
-            unsafe { ll::glfwGetWindowMonitor(self.ptr) }
+            unsafe { ffi::glfwGetWindowMonitor(self.ptr) }
         )
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
     pub fn is_focused(&self) -> bool {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, FOCUSED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, FOCUSED) as bool }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `ICONIFIED`.
     pub fn is_iconified(&self) -> bool {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, ICONIFIED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ICONIFIED) as bool }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CLIENT_API`.
     pub fn get_client_api(&self) -> c_int {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, CLIENT_API) }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, CLIENT_API) }
     }
 
-    /// Wrapper for `glfw::ll::glfwGetWindowAttrib` called with
+    /// Wrapper for `glfw::ffi::glfwGetWindowAttrib` called with
     /// `CONTEXT_VERSION_MAJOR`, `CONTEXT_VERSION_MINOR` and `CONTEXT_REVISION`.
     ///
     /// # Returns
@@ -625,46 +613,46 @@ impl Window {
     pub fn get_context_version(&self) -> Version {
         unsafe {
             Version {
-                major:  ll::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
-                minor:  ll::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MINOR) as uint,
-                rev:    ll::glfwGetWindowAttrib(self.ptr, CONTEXT_REVISION) as uint,
+                major:  ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
+                minor:  ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MINOR) as uint,
+                rev:    ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_REVISION) as uint,
             }
         }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CONTEXT_ROBUSTNESS`.
     pub fn get_context_robustness(&self) -> c_int {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, CONTEXT_ROBUSTNESS) }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_ROBUSTNESS) }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_FORWARD_COMPAT`.
     pub fn is_opengl_forward_compat(&self) -> bool {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) as bool }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_DEBUG_CONTEXT`.
     pub fn is_opengl_debug_context(&self) -> bool {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) as bool }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_PROFILE`.
     pub fn get_opengl_profile(&self) -> c_int {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, OPENGL_PROFILE) }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_PROFILE) }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `RESIZABLE`.
     pub fn is_resizable(&self) -> bool {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, RESIZABLE) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, RESIZABLE) as bool }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
     pub fn is_visible(&self) -> bool {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, VISIBLE) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, VISIBLE) as bool }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
     pub fn is_decorated(&self) -> bool {
-        unsafe { ll::glfwGetWindowAttrib(self.ptr, DECORATED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, DECORATED) as bool }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
@@ -718,56 +706,56 @@ impl Window {
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
     pub fn get_cursor_mode(&self) -> c_int {
-        unsafe { ll::glfwGetInputMode(self.ptr, CURSOR) }
+        unsafe { ffi::glfwGetInputMode(self.ptr, CURSOR) }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `CURSOR`.
     pub fn set_cursor_mode(&self, mode: c_int) {
-        unsafe { ll::glfwSetInputMode(self.ptr, CURSOR, mode); }
+        unsafe { ffi::glfwSetInputMode(self.ptr, CURSOR, mode); }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_KEYS`.
     pub fn has_sticky_keys(&self) -> bool {
-        unsafe { ll::glfwGetInputMode(self.ptr, STICKY_KEYS) as bool }
+        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_KEYS) as bool }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_KEYS`.
     pub fn set_sticky_keys(&self, value: bool) {
-        unsafe { ll::glfwSetInputMode(self.ptr, STICKY_KEYS, value as c_int); }
+        unsafe { ffi::glfwSetInputMode(self.ptr, STICKY_KEYS, value as c_int); }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     pub fn has_sticky_mouse_buttons(&self) -> bool {
-        unsafe { ll::glfwGetInputMode(self.ptr, STICKY_MOUSE_BUTTONS) as bool }
+        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_MOUSE_BUTTONS) as bool }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     pub fn set_sticky_mouse_buttons(&self, value: bool) {
-        unsafe { ll::glfwSetInputMode(self.ptr, STICKY_MOUSE_BUTTONS, value as c_int); }
+        unsafe { ffi::glfwSetInputMode(self.ptr, STICKY_MOUSE_BUTTONS, value as c_int); }
     }
 
     /// Wrapper for `glfwGetKey`.
     pub fn get_key(&self, key: c_int) -> c_int {
-        unsafe { ll::glfwGetKey(self.ptr, key) }
+        unsafe { ffi::glfwGetKey(self.ptr, key) }
     }
 
     /// Wrapper for `glfwGetMouseButton`.
     pub fn get_mouse_button(&self, button: c_int) -> c_int {
-        unsafe { ll::glfwGetMouseButton(self.ptr, button) }
+        unsafe { ffi::glfwGetMouseButton(self.ptr, button) }
     }
 
     /// Wrapper for `glfwGetCursorPos`.
     pub fn get_cursor_pos(&self) -> (float, float) {
         unsafe {
             let (xpos, ypos) = (0.0, 0.0);
-            ll::glfwGetCursorPos(self.ptr, &xpos, &ypos);
+            ffi::glfwGetCursorPos(self.ptr, &xpos, &ypos);
             (xpos as float, ypos as float)
         }
     }
 
     /// Wrapper for `glfwSetCursorPos`.
     pub fn set_cursor_pos(&self, xpos: float, ypos: float) {
-        unsafe { ll::glfwSetCursorPos(self.ptr, xpos as c_double, ypos as c_double); }
+        unsafe { ffi::glfwSetCursorPos(self.ptr, xpos as c_double, ypos as c_double); }
     }
 
     /// Wrapper for `glfwSetKeyCallback`.
@@ -814,75 +802,78 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
-        unsafe { ll::glfwSetClipboardString(self.ptr, string.as_c_str(|a| a)); }
+        unsafe { ffi::glfwSetClipboardString(self.ptr, string.as_c_str(|a| a)); }
     }
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn get_clipboard_string(&self) -> ~str {
-        unsafe { str::raw::from_c_str(ll::glfwGetClipboardString(self.ptr)) }
+        unsafe { str::raw::from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
 
     /// Wrapper for `glfwMakeContextCurrent`.
     pub fn make_context_current(&self) {
-        unsafe { ll::glfwMakeContextCurrent(self.ptr); }
+        make_context_current(Some(self));
     }
 
     /// Wrapper for `glfwGetCurrentContext`
     pub fn is_current_context(&self) -> bool {
-        self.ptr == unsafe { ll::glfwGetCurrentContext() }
+        self.ptr == unsafe { ffi::glfwGetCurrentContext() }
     }
 
     /// Wrapper for `glfwSwapBuffers`.
     pub fn swap_buffers(&self) {
-        unsafe { ll::glfwSwapBuffers(self.ptr); }
+        unsafe { ffi::glfwSwapBuffers(self.ptr); }
     }
 
     /// Wrapper for `glfwGetWin32Window`
     #[cfg(target_os="win32")]
     pub fn get_win32_window(&self) -> *c_void {
-        unsafe { ll::glfwGetWin32Window(self.ptr) }
+        unsafe { ffi::glfwGetWin32Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWGLContext`
     #[cfg(target_os="win32")]
     pub fn get_wgl_context(&self) -> *c_void {
-        unsafe { ll::glfwGetWGLContext(self.ptr) }
+        unsafe { ffi::glfwGetWGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetCocoaWindow`
     #[cfg(target_os="macos")]
     pub fn get_cocoa_window(&self) -> *c_void {
-        unsafe { ll::glfwGetCocoaWindow(self.ptr) }
+        unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetNSGLContext`
     #[cfg(target_os="macos")]
     pub fn get_nsgl_context(&self) -> *c_void {
-        unsafe { ll::glfwGetNSGLContext(self.ptr) }
+        unsafe { ffi::glfwGetNSGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetX11Window`
     #[cfg(target_os="linux")]
     pub fn get_x11_window(&self) -> *c_void {
-        unsafe { ll::glfwGetX11Window(self.ptr) }
+        unsafe { ffi::glfwGetX11Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetGLXContext`
     #[cfg(target_os="linux")]
     pub fn get_glx_context(&self) -> *c_void {
-        unsafe { ll::glfwGetGLXContext(self.ptr) }
+        unsafe { ffi::glfwGetGLXContext(self.ptr) }
     }
 }
 
-/// Wrapper for `glfwMakeContextCurrent` called with `null`.
-pub fn detach_current_context() {
-    unsafe { ll::glfwMakeContextCurrent(ptr::null()); }
+/// Wrapper for `glfwMakeContextCurrent`.
+pub fn make_context_current(context: Option<&Window>) {
+    match context {
+        Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
+        None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
+    }
 }
 
 /// Wrapper for `glfwGetX11Display`
 #[cfg(target_os="linux")]
 pub fn get_x11_display() -> *c_void {
-    unsafe { ll::glfwGetX11Display() }
+    unsafe { ffi::glfwGetX11Display() }
 }
 
 impl Drop for Window {
@@ -890,20 +881,20 @@ impl Drop for Window {
     ///
     /// Wrapper for `glfwDestroyWindow`.
     pub fn drop(&self) {
-        unsafe { ll::glfwDestroyWindow(self.ptr); }
+        unsafe { ffi::glfwDestroyWindow(self.ptr); }
         // Remove data from task-local storage
-        private::WindowDataMap::get().remove(&self.ptr);
+        private::WindowDataMap::remove(self.ptr);
     }
 }
 
 /// Wrapper for `glfwPollEvents`.
 pub fn poll_events() {
-    unsafe { ll::glfwPollEvents(); }
+    unsafe { ffi::glfwPollEvents(); }
 }
 
 /// Wrapper for `glfwWaitEvents`.
 pub fn wait_events() {
-    unsafe { ll::glfwWaitEvents(); }
+    unsafe { ffi::glfwWaitEvents(); }
 }
 
 pub mod joystick {
@@ -911,18 +902,18 @@ pub mod joystick {
     use std::str;
     use std::vec;
 
-    use ll;
+    use ffi;
 
     /// Wrapper for `glfwJoystickPresent`.
     pub fn is_present(joy: c_int) -> bool {
-        unsafe { ll::glfwJoystickPresent(joy) as bool }
+        unsafe { ffi::glfwJoystickPresent(joy) as bool }
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
     pub fn get_axes(joy: c_int) -> ~[float] {
         unsafe {
             let count = 0;
-            let ptr = ll::glfwGetJoystickAxes(joy, &count);
+            let ptr = ffi::glfwGetJoystickAxes(joy, &count);
             vec::from_buf(ptr, count as uint).map(|&a| a as float)
         }
     }
@@ -931,38 +922,38 @@ pub mod joystick {
     pub fn get_buttons(joy: c_int) -> ~[c_int] {
         unsafe {
             let count = 0;
-            let ptr = ll::glfwGetJoystickButtons(joy, &count);
+            let ptr = ffi::glfwGetJoystickButtons(joy, &count);
             vec::from_buf(ptr, count as uint).map(|&b| b as c_int)
         }
     }
 
     /// Wrapper for `glfwGetJoystickName`.
     pub fn get_name(joy: c_int) -> ~str {
-        unsafe { str::raw::from_c_str(ll::glfwGetJoystickName(joy)) }
+        unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(joy)) }
     }
 }
 
 /// Wrapper for `glfwGetTime`.
 pub fn get_time() -> float {
-    unsafe { ll::glfwGetTime() as float }
+    unsafe { ffi::glfwGetTime() as float }
 }
 
 /// Wrapper for `glfwSetTime`.
 pub fn set_time(time: float) {
-    unsafe { ll::glfwSetTime(time as c_double); }
+    unsafe { ffi::glfwSetTime(time as c_double); }
 }
 
 /// Wrapper for `glfwSwapInterval`.
 pub fn set_swap_interval(interval: int) {
-    unsafe { ll::glfwSwapInterval(interval as c_int); }
+    unsafe { ffi::glfwSwapInterval(interval as c_int); }
 }
 
 /// Wrapper for `glfwExtensionSupported`.
 pub fn extension_supported(extension: &str) -> bool {
-    unsafe { ll::glfwExtensionSupported(extension.as_c_str(|a| a)) as bool }
+    unsafe { ffi::glfwExtensionSupported(extension.as_c_str(|a| a)) as bool }
 }
 
 /// Wrapper for `glfwGetProcAddress`.
 pub fn get_proc_address(procname: &str) -> GLProc {
-    unsafe { ll::glfwGetProcAddress(procname.as_c_str(|a| a)) }
+    unsafe { ffi::glfwGetProcAddress(procname.as_c_str(|a| a)) }
 }

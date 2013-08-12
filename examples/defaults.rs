@@ -16,55 +16,58 @@
 extern mod glfw;
 
 use std::libc;
+use std::rt;
 
 fn error_callback(_: libc::c_int, description: ~str) {
     println(fmt!("GLFW Error: %s", description));
 }
 
-fn main() {
-    glfw::set_error_callback(error_callback);
+#[start]
+fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
+    do rt::start_on_main_thread(argc, argv, crate_map) {
+        glfw::set_error_callback(error_callback);
 
-    do glfw::spawn {
+        do glfw::start {
+            glfw::window_hint::visible(true);
 
-        glfw::window_hint::visible(true);
+            let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
 
-        let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
+            window.make_context_current();
 
-        window.make_context_current();
+            let (width, height) = window.get_size();
+            println(fmt!("window size: %? x %?", width, height));
 
-        let (width, height) = window.get_size();
-        println(fmt!("window size: %? x %?", width, height));
+            println(fmt!("Context version: %s",           window.get_context_version().to_str()));
+            println(fmt!("OpenGL forward compatible: %?", window.is_opengl_forward_compat()));
+            println(fmt!("OpenGL debug context: %?",      window.is_opengl_debug_context()));
+            println(fmt!("OpenGL profile: %?",            window.get_opengl_profile()));
 
-        println(fmt!("Context version: %s",           window.get_context_version().to_str()));
-        println(fmt!("OpenGL forward compatible: %?", window.is_opengl_forward_compat()));
-        println(fmt!("OpenGL debug context: %?",      window.is_opengl_debug_context()));
-        println(fmt!("OpenGL profile: %?",            window.get_opengl_profile()));
+            let gl_params = [
+                (gl::RED_BITS,          None,   "red bits"          ),
+                (gl::GREEN_BITS,        None,   "green bits"        ),
+                (gl::BLUE_BITS,         None,   "blue bits"         ),
+                (gl::ALPHA_BITS,        None,   "alpha bits"        ),
+                (gl::DEPTH_BITS,        None,   "depth bits"        ),
+                (gl::STENCIL_BITS,      None,   "stencil bits"      ),
+                (gl::ACCUM_RED_BITS,    None,   "accum red bits"    ),
+                (gl::ACCUM_GREEN_BITS,  None,   "accum green bits"  ),
+                (gl::ACCUM_BLUE_BITS,   None,   "accum blue bits"   ),
+                (gl::ACCUM_ALPHA_BITS,  None,   "accum alpha bits"  ),
+                (gl::STEREO,            None,   "stereo"            ),
+                (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
+            ];
 
-        let gl_params = [
-            (gl::RED_BITS,          None,   "red bits"          ),
-            (gl::GREEN_BITS,        None,   "green bits"        ),
-            (gl::BLUE_BITS,         None,   "blue bits"         ),
-            (gl::ALPHA_BITS,        None,   "alpha bits"        ),
-            (gl::DEPTH_BITS,        None,   "depth bits"        ),
-            (gl::STENCIL_BITS,      None,   "stencil bits"      ),
-            (gl::ACCUM_RED_BITS,    None,   "accum red bits"    ),
-            (gl::ACCUM_GREEN_BITS,  None,   "accum green bits"  ),
-            (gl::ACCUM_BLUE_BITS,   None,   "accum blue bits"   ),
-            (gl::ACCUM_ALPHA_BITS,  None,   "accum alpha bits"  ),
-            (gl::STEREO,            None,   "stereo"            ),
-            (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
-        ];
-
-        for gl_params.each |&(param, ext, name)| {
-            if do ext.map_default(true) |&s| {
-                glfw::extension_supported(s)
-            } {
-                unsafe {
-                    let value = 0;
-                    gl::GetIntegerv(param, &value);
-                    println(fmt!("OpenGL %s: %?", name, value));
-                }
-            };
+            for &(param, ext, name) in gl_params.iter() {
+                if do ext.map_default(true) |&s| {
+                    glfw::extension_supported(s)
+                } {
+                    unsafe {
+                        let value = 0;
+                        gl::GetIntegerv(param, &value);
+                        println(fmt!("OpenGL %s: %?", name, value));
+                    }
+                };
+            }
         }
     }
 }
@@ -75,12 +78,12 @@ mod gl {
     #[nolink]
     #[link_args="-framework OpenGL"]
     #[cfg(target_os = "macos")]
-    pub extern { }
+    extern { }
 
     #[nolink]
     #[link_args="-lGL"]
     #[cfg(target_os = "linux")]
-    pub extern { }
+    extern { }
 
     pub type GLenum = libc::c_uint;
     pub type GLint  = libc::c_int;
@@ -98,7 +101,7 @@ mod gl {
     pub static STEREO                : GLenum = 0x0C33;
     pub static SAMPLES_ARB           : GLenum = 0x80A9;
 
-    pub extern "C" {
+    extern "C" {
         #[link_name="glGetIntegerv"]
         pub fn GetIntegerv(pname: GLenum, params: *GLint);
     }

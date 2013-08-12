@@ -4,28 +4,36 @@ GLFW bindings and wrapper for The Rust Programming Language.
 
 ## Example code
 
-GLFW is extremely easy to set up. More complex examples can be found in the `examples` directory.
-
 ~~~rust
 extern mod glfw;
 
-fn main() {
-    // Initialize the library on the main platform thread
-    do glfw::spawn {
-        // Create a windowed mode window and its OpenGL context
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+use std::rt;
 
-        // Make the window's context current
-        window.make_context_current();
+#[start]
+fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
+    do rt::start_on_main_thread(argc, argv, crate_map) {
+        // Set an error callback
+        do glfw::set_error_callback |_, description| {
+            println(fmt!("GLFW Error: %s", description));
+        }
 
-        // Loop until the user closes the window
-        while !window.should_close() {
+        // Initialize the library
+        do glfw::run {
+            // Create a windowed mode window and its OpenGL context
+            let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
 
-            // Swap front and back buffers
-            window.swap_buffers();
+            // Make the window's context current
+            window.make_context_current();
 
-            // Poll for and process events
-            glfw::poll_events();
+            // Loop until the user closes the window
+            while !window.should_close() {
+
+                // Swap front and back buffers
+                window.swap_buffers();
+
+                // Poll for and process events
+                glfw::poll_events();
+            }
         }
     }
 }
@@ -47,6 +55,7 @@ fn main() {
 
 ## glfw-rs in use
 
+- [sebcrozet/kiss3d](https://github.com/sebcrozet/kiss3d)
 - [Jeaye/q3](https://github.com/Jeaye/q3)
 - [cyndis/rsmc](https://github.com/cyndis/rsmc/)
-- [bjz/open.gl-tutorials](https://github.com/bjz/open.gl-tutorials)
+- [mozilla/servo](https://github.com/mozilla/servo)
