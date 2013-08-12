@@ -170,11 +170,10 @@ impl Monitor {
     /// Wrapper for `glfwGetPrimaryMonitor`.
     pub fn get_primary() -> Result<Monitor,()> {
         unsafe {
-            do ffi::glfwGetPrimaryMonitor()
-                .to_option()
-                .map_default(Err(())) |&ptr| {
-                Ok(Monitor { ptr: ptr })
-            }
+            ffi::glfwGetPrimaryMonitor()
+             .to_option()
+             .map_default(Err(()),
+                |&ptr| Ok(Monitor { ptr: ptr }))
         }
     }
 
@@ -492,16 +491,16 @@ impl Window {
     ///
     /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
-        do unsafe {
-            ffi::glfwCreateWindow(
-                width as c_int,
-                height as c_int,
-                title.to_c_str().with_ref(|a| a),
-                mode.to_ptr(),
-                ptr::null()
-            ).to_option()
-        }.map_default(Err(())) |&ptr| {
-            Ok(Window { ptr: ptr::to_unsafe_ptr(ptr) })
+        unsafe {
+            do title.to_c_str().with_ref |title| {
+                ffi::glfwCreateWindow(
+                    width as c_int,
+                    height as c_int,
+                    title,
+                    mode.to_ptr(),
+                    ptr::null())
+            }.to_option().map_default(Err(()),
+                |&ptr| Ok(Window { ptr: ptr::to_unsafe_ptr(ptr) }))
         }
     }
 
@@ -517,7 +516,11 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
-        unsafe { ffi::glfwSetWindowTitle(self.ptr, title.to_c_str().with_ref(|a| a)); }
+        unsafe {
+            do title.to_c_str().with_ref |title| {
+                ffi::glfwSetWindowTitle(self.ptr, title);
+            }
+        }
     }
 
     /// Wrapper for `glfwGetWindowPos`.
@@ -802,7 +805,11 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
-        unsafe { ffi::glfwSetClipboardString(self.ptr, string.to_c_str().with_ref(|a| a)); }
+        unsafe {
+            do string.to_c_str().with_ref |string| {
+                ffi::glfwSetClipboardString(self.ptr, string);
+            }
+        }
     }
 
     /// Wrapper for `glfwGetClipboardString`.
@@ -950,10 +957,18 @@ pub fn set_swap_interval(interval: int) {
 
 /// Wrapper for `glfwExtensionSupported`.
 pub fn extension_supported(extension: &str) -> bool {
-    unsafe { ffi::glfwExtensionSupported(extension.to_c_str().with_ref(|a| a)) as bool }
+    unsafe {
+        do extension.to_c_str().with_ref |extension| {
+            ffi::glfwExtensionSupported(extension) as bool
+        }
+    }
 }
 
 /// Wrapper for `glfwGetProcAddress`.
 pub fn get_proc_address(procname: &str) -> GLProc {
-    unsafe { ffi::glfwGetProcAddress(procname.to_c_str().with_ref(|a| a)) }
+    unsafe {
+        do procname.to_c_str().with_ref |procname| {
+            ffi::glfwGetProcAddress(procname)
+        }
+    }
 }
