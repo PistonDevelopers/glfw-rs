@@ -23,7 +23,7 @@ fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
         do glfw::start() {
             do glfw::Monitor::get_primary().map |monitor| {
                     println(fmt!("%s:", monitor.get_name()));
-                    println(fmt!("    %s\n", monitor.get_video_mode().get().to_str()));
+                    println(fmt!("    %s\n", monitor.get_video_mode().unwrap().to_str()));
             };
 
             println("Available monitors\n\
