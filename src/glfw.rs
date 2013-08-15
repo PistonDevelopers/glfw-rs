@@ -880,7 +880,7 @@ impl Drop for Window {
     /// Closes the window and removes all associated callbacks.
     ///
     /// Wrapper for `glfwDestroyWindow`.
-    pub fn drop(&self) {
+    fn drop(&self) {
         unsafe { ffi::glfwDestroyWindow(self.ptr); }
         // Remove data from task-local storage
         private::WindowDataMap::remove(self.ptr);
