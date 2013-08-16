@@ -13,7 +13,7 @@ RUST_SRC = \
 all: libglfwrs.dummy
 
 libglfwrs.dummy: src/glfw.rs $(RUST_SRC)
-	$(RUSTC) $(RUSTFLAGS) -L ../glfw $< -o $@
+	$(RUSTC) $(RUSTFLAGS) -L ../glfw $< --out-dir .
 	touch $@
 
 .PHONY: check
