@@ -21,11 +21,15 @@ fn error_callback(_: libc::c_int, description: ~str) {
     println(fmt!("GLFW Error: %s", description));
 }
 
+#[start]
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
+
 fn main() {
     glfw::set_error_callback(error_callback);
 
-    do glfw::spawn {
-
+    do glfw::start {
         glfw::window_hint::visible(true);
 
         let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
@@ -55,7 +59,7 @@ fn main() {
             (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
         ];
 
-        for gl_params.iter().advance |&(param, ext, name)| {
+        for &(param, ext, name) in gl_params.iter() {
             if do ext.map_default(true) |&s| {
                 glfw::extension_supported(s)
             } {

@@ -44,10 +44,15 @@ impl GL {
     }
 }
 
+#[start]
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
+
 fn main() {
     glfw::set_error_callback(error_callback);
 
-    do glfw::spawn {
+    do glfw::start {
         let window = glfw::Window::create(640, 480, "Resize the window to call glViewport", glfw::Windowed).unwrap();
 
         window.make_context_current();

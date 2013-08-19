@@ -27,7 +27,6 @@
 use std::libc::*;
 use std::ptr;
 use std::str;
-use std::task;
 use std::vec;
 
 // re-export constants
@@ -35,7 +34,7 @@ pub use consts::*;
 
 pub mod ffi;
 pub mod consts;
-priv mod private;
+mod private;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
@@ -106,21 +105,18 @@ pub fn terminate() {
     }
 }
 
-/// Initialises GLFW on the main platform thread. Fails if the initialisation
-/// was unsuccessful.
+/// Initialises GLFW, automatically calling `glfw::terminate` on exit or
+/// failure. Fails if the initialisation was unsuccessful.
 ///
 /// # Parameters
 ///
 /// - `f`: A closure to be called after the GLFW is initialised.
-pub fn spawn(f: ~fn()) {
-    do task::spawn_sched(task::PlatformThread) {
-        use std::unstable::finally::Finally;
-
-        if init().is_ok() {
-            f.finally(terminate);
-        } else {
-            fail!(~"Failed to initialize GLFW");
-        }
+pub fn start(f: ~fn()) {
+    use std::unstable::finally::Finally;
+    if init().is_ok() {
+        f.finally(terminate);
+    } else {
+        fail!(~"Failed to initialize GLFW");
     }
 }
 
@@ -175,11 +171,10 @@ impl Monitor {
     /// Wrapper for `glfwGetPrimaryMonitor`.
     pub fn get_primary() -> Result<Monitor,()> {
         unsafe {
-            do ffi::glfwGetPrimaryMonitor()
-                .to_option()
-                .map_default(Err(())) |&ptr| {
-                Ok(Monitor { ptr: ptr })
-            }
+            ffi::glfwGetPrimaryMonitor()
+             .to_option()
+             .map_default(Err(()),
+                |&ptr| Ok(Monitor { ptr: ptr }))
         }
     }
 
@@ -461,7 +456,7 @@ impl WindowMode {
     /// Extract the window mode from a low-level monitor pointer. If the pointer
     /// is null it assumes the window is in windowed mode and returns `Windowed`,
     /// otherwise it returns the pointer wrapped in `glfw::FullScreen`.
-    priv fn from_ptr(ptr: *ffi::GLFWmonitor) -> WindowMode {
+    fn from_ptr(ptr: *ffi::GLFWmonitor) -> WindowMode {
         if ptr.is_null() {
             Windowed
         } else {
@@ -471,7 +466,7 @@ impl WindowMode {
 
     /// Returns a pointer to a monitor if the window is fullscreen, otherwise
     /// it returns a null pointer (if it is in windowed mode).
-    priv fn to_ptr(&self) -> *ffi::GLFWmonitor {
+    fn to_ptr(&self) -> *ffi::GLFWmonitor {
         match *self {
             FullScreen(monitor) => monitor.ptr,
             Windowed => ptr::null()
@@ -502,16 +497,16 @@ impl Window {
 
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Result<Window,()> {
-        do unsafe {
-            ffi::glfwCreateWindow(
-              width as c_int,
-              height as c_int,
-              title.as_c_str(|a| a),
-              mode.to_ptr(),
-              share.ptr
-              ).to_option()
-        }.map_default(Err(())) |&ptr| {
-            Ok(Window { ptr: ptr::to_unsafe_ptr(ptr), shared: true })
+        unsafe {
+            do title.to_c_str().with_ref |title| {
+                ffi::glfwCreateWindow(
+                    width as c_int,
+                    height as c_int,
+                    title,
+                    mode.to_ptr(),
+                    share.ptr)
+            }.to_option().map_default(Err(()),
+                |&ptr| Ok(Window { ptr: ptr::to_unsafe_ptr(ptr), shared: true }))
         }
     }
 
@@ -527,7 +522,11 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
-        unsafe { ffi::glfwSetWindowTitle(self.ptr, title.as_c_str(|a| a)); }
+        unsafe {
+            do title.to_c_str().with_ref |title| {
+                ffi::glfwSetWindowTitle(self.ptr, title);
+            }
+        }
     }
 
     /// Wrapper for `glfwGetWindowPos`.
@@ -812,7 +811,11 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
-        unsafe { ffi::glfwSetClipboardString(self.ptr, string.as_c_str(|a| a)); }
+        unsafe {
+            do string.to_c_str().with_ref |string| {
+                ffi::glfwSetClipboardString(self.ptr, string);
+            }
+        }
     }
 
     /// Wrapper for `glfwGetClipboardString`.
@@ -822,7 +825,7 @@ impl Window {
 
     /// Wrapper for `glfwMakeContextCurrent`.
     pub fn make_context_current(&self) {
-        unsafe { ffi::glfwMakeContextCurrent(self.ptr); }
+        make_context_current(Some(self));
     }
 
     /// Wrapper for `glfwGetCurrentContext`
@@ -872,9 +875,12 @@ impl Window {
     }
 }
 
-/// Wrapper for `glfwMakeContextCurrent` called with `null`.
-pub fn detach_current_context() {
-    unsafe { ffi::glfwMakeContextCurrent(ptr::null()); }
+/// Wrapper for `glfwMakeContextCurrent`.
+pub fn make_context_current(context: Option<&Window>) {
+    match context {
+        Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
+        None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
+    }
 }
 
 /// Wrapper for `glfwGetX11Display`
@@ -887,11 +893,12 @@ impl Drop for Window {
     /// Closes the window and removes all associated callbacks.
     ///
     /// Wrapper for `glfwDestroyWindow`.
-    pub fn drop(&self) {
+    fn drop(&self) {
         if !self.shared {
           unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
 
+        unsafe { ffi::glfwDestroyWindow(self.ptr); }
         // Remove data from task-local storage
         private::WindowDataMap::remove(self.ptr);
     }
@@ -960,10 +967,18 @@ pub fn set_swap_interval(interval: int) {
 
 /// Wrapper for `glfwExtensionSupported`.
 pub fn extension_supported(extension: &str) -> bool {
-    unsafe { ffi::glfwExtensionSupported(extension.as_c_str(|a| a)) as bool }
+    unsafe {
+        do extension.to_c_str().with_ref |extension| {
+            ffi::glfwExtensionSupported(extension) as bool
+        }
+    }
 }
 
 /// Wrapper for `glfwGetProcAddress`.
 pub fn get_proc_address(procname: &str) -> GLProc {
-    unsafe { ffi::glfwGetProcAddress(procname.as_c_str(|a| a)) }
+    unsafe {
+        do procname.to_c_str().with_ref |procname| {
+            ffi::glfwGetProcAddress(procname)
+        }
+    }
 }

@@ -15,12 +15,17 @@
 
 extern mod glfw;
 
+#[start]
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
+
 fn main() {
     do glfw::set_error_callback |_, description| {
         println(fmt!("GLFW Error: %s", description));
     }
 
-    do glfw::spawn {
+    do glfw::start {
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
 
         window.set_cursor_mode(glfw::CURSOR_DISABLED);

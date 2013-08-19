@@ -17,11 +17,15 @@ extern mod glfw;
 
 use std::libc;
 
+#[start]
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
+
 fn main() {
     glfw::set_error_callback(error_callback);
 
-    do glfw::spawn {
-
+    do glfw::start {
         glfw::window_hint::resizable(true);
 
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
@@ -33,7 +37,7 @@ fn main() {
         window.set_pos_callback(window_pos_callback);
         window.set_size_callback(window_size_callback);
         window.set_close_callback(window_close_callback);
-        window.set_refresh_callback(window_refresh_callback);  
+        window.set_refresh_callback(window_refresh_callback);
         window.set_focus_callback(window_focus_callback);
         window.set_iconify_callback(window_iconify_callback);
         window.set_framebuffer_size_callback(framebuffer_size_callback);
@@ -43,7 +47,7 @@ fn main() {
         window.set_mouse_button_callback(mouse_button_callback);
         window.set_cursor_pos_callback(cursor_pos_callback);
         window.set_cursor_enter_callback(cursor_enter_callback);
-        window.set_scroll_callback(scroll_callback);  
+        window.set_scroll_callback(scroll_callback);
 
         window.make_context_current();
 

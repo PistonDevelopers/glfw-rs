@@ -17,10 +17,15 @@ extern mod glfw;
 
 use std::libc;
 
+#[start]
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
+
 fn main() {
     glfw::set_error_callback(error_callback);
 
-    do glfw::spawn {
+    do glfw::start {
         let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).unwrap();
 
         window.make_context_current();
