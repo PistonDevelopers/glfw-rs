@@ -46,7 +46,7 @@ pub struct Monitor {
 #[deriving(Eq, IterBytes)]
 pub struct Window {
     ptr: *ffi::GLFWwindow,
-    shared: bool
+    shared: bool,
 }
 
 pub type ErrorFun = @fn(error: c_int, description: ~str);
