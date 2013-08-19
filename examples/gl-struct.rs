@@ -19,7 +19,6 @@
 extern mod glfw;
 
 use std::libc;
-use std::rt;
 
 type GLint = i32;
 
@@ -46,27 +45,29 @@ impl GL {
 }
 
 #[start]
-fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
-    do rt::start_on_main_thread(argc, argv, crate_map) {
-        glfw::set_error_callback(error_callback);
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
 
-        do glfw::start {
-            let window = glfw::Window::create(640, 480, "Resize the window to call glViewport", glfw::Windowed).unwrap();
+fn main() {
+    glfw::set_error_callback(error_callback);
 
-            window.make_context_current();
+    do glfw::start {
+        let window = glfw::Window::create(640, 480, "Resize the window to call glViewport", glfw::Windowed).unwrap();
 
-            let gl = GL::init();
+        window.make_context_current();
 
-            do window.set_size_callback |_, width, height| {
-                // Rust doesn't have global state, so we use a borrowed pointer
-                // to the gl struct in order to perform rendering operations
-                // in other functions
-                render_resize(&gl, width, height);
-            }
+        let gl = GL::init();
 
-            while !window.should_close() {
-                glfw::poll_events();
-            }
+        do window.set_size_callback |_, width, height| {
+            // Rust doesn't have global state, so we use a borrowed pointer
+            // to the gl struct in order to perform rendering operations
+            // in other functions
+            render_resize(&gl, width, height);
+        }
+
+        while !window.should_close() {
+            glfw::poll_events();
         }
     }
 }

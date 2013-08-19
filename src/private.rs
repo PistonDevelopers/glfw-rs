@@ -73,12 +73,12 @@ pub struct WindowDataMap {
 
 /// Key used for retrieving the map of window data from
 /// task-local storage.
-priv static data_map_tls_key: local_data::Key<@mut WindowDataMap> = &local_data::Key;
+static data_map_tls_key: local_data::Key<@mut WindowDataMap> = &local_data::Key;
 
 impl WindowDataMap {
     /// Gets the window data map from task-local storage wrapped in `Some`. If
     /// no data map is found, `None` is returned.
-    priv fn get() -> Option<@mut WindowDataMap> {
+    fn get() -> Option<@mut WindowDataMap> {
         do local_data::get(data_map_tls_key) |opt| {
             opt.map(|&data_map| *data_map)
         }
@@ -86,7 +86,7 @@ impl WindowDataMap {
 
     /// Gets the window data map from task-local storage. If no data map is
     /// found, a new one is initialised.
-    priv fn get_or_init() -> @mut WindowDataMap {
+    fn get_or_init() -> @mut WindowDataMap {
         match WindowDataMap::get() {
             Some(data_map) => data_map,
             None => {
