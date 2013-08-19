@@ -105,6 +105,7 @@ impl WindowDataMap {
 
     /// Clears all external callbacks and removes the window data from the map.
     /// Returns `true` if the window was present in the map, otherwise `false`.
+    #[fixed_stack_segment] #[inline(never)]
     pub fn remove(window: *ffi::GLFWwindow) -> bool {
         do WindowDataMap::get().map |&data_map| {
             do data_map.data_map.pop(&window).map |&data| {

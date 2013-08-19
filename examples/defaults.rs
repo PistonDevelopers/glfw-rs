@@ -102,8 +102,12 @@ mod gl {
     pub static STEREO                : GLenum = 0x0C33;
     pub static SAMPLES_ARB           : GLenum = 0x80A9;
 
+    #[fixed_stack_segment] #[inline(never)]
+    pub unsafe fn GetIntegerv(pname: GLenum, params: *GLint) {
+        glGetIntegerv(pname, params)
+    }
+
     extern "C" {
-        #[link_name="glGetIntegerv"]
-        pub fn GetIntegerv(pname: GLenum, params: *GLint);
+        fn glGetIntegerv(pname: GLenum, params: *GLint);
     }
 }
