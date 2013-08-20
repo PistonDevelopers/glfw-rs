@@ -996,10 +996,8 @@ impl Drop for Window {
     #[fixed_stack_segment] #[inline(never)]
     fn drop(&self) {
         if !self.shared {
-          unsafe { ffi::glfwDestroyWindow(self.ptr); }
+            unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
-
-        unsafe { ffi::glfwDestroyWindow(self.ptr); }
         // Remove data from task-local storage
         private::WindowDataMap::remove(self.ptr);
     }
