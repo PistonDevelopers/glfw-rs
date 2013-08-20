@@ -16,42 +16,43 @@
 extern mod glfw;
 
 use std::libc;
-use std::rt;
 
 #[start]
-fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
-    do rt::start_on_main_thread(argc, argv, crate_map) {
-        glfw::set_error_callback(error_callback);
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
 
-        do glfw::start {
-            glfw::window_hint::resizable(true);
+fn main() {
+    glfw::set_error_callback(error_callback);
 
-            let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
+    do glfw::start {
+        glfw::window_hint::resizable(true);
 
-            window.set_sticky_keys(true);
+        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
 
-            // Register event callbacks
+        window.set_sticky_keys(true);
 
-            window.set_pos_callback(window_pos_callback);
-            window.set_size_callback(window_size_callback);
-            window.set_close_callback(window_close_callback);
-            window.set_refresh_callback(window_refresh_callback);
-            window.set_focus_callback(window_focus_callback);
-            window.set_iconify_callback(window_iconify_callback);
-            window.set_framebuffer_size_callback(framebuffer_size_callback);
+        // Register event callbacks
 
-            window.set_key_callback(key_callback);
-            window.set_char_callback(char_callback);
-            window.set_mouse_button_callback(mouse_button_callback);
-            window.set_cursor_pos_callback(cursor_pos_callback);
-            window.set_cursor_enter_callback(cursor_enter_callback);
-            window.set_scroll_callback(scroll_callback);
+        window.set_pos_callback(window_pos_callback);
+        window.set_size_callback(window_size_callback);
+        window.set_close_callback(window_close_callback);
+        window.set_refresh_callback(window_refresh_callback);
+        window.set_focus_callback(window_focus_callback);
+        window.set_iconify_callback(window_iconify_callback);
+        window.set_framebuffer_size_callback(framebuffer_size_callback);
 
-            window.make_context_current();
+        window.set_key_callback(key_callback);
+        window.set_char_callback(char_callback);
+        window.set_mouse_button_callback(mouse_button_callback);
+        window.set_cursor_pos_callback(cursor_pos_callback);
+        window.set_cursor_enter_callback(cursor_enter_callback);
+        window.set_scroll_callback(scroll_callback);
 
-            while !window.should_close() {
-                glfw::poll_events();
-            }
+        window.make_context_current();
+
+        while !window.should_close() {
+            glfw::poll_events();
         }
     }
 }

@@ -16,23 +16,24 @@
 extern mod glfw;
 
 use std::libc;
-use std::rt;
 
 #[start]
-fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
-    do rt::start_on_main_thread(argc, argv, crate_map) {
-        glfw::set_error_callback(error_callback);
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
 
-        do glfw::start {
-            let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).unwrap();
+fn main() {
+    glfw::set_error_callback(error_callback);
 
-            window.make_context_current();
-            window.set_key_callback(key_callback);
-            glfw::set_swap_interval(1);
+    do glfw::start {
+        let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).unwrap();
 
-            while !window.should_close() {
-                glfw::wait_events();
-            }
+        window.make_context_current();
+        window.set_key_callback(key_callback);
+        glfw::set_swap_interval(1);
+
+        while !window.should_close() {
+            glfw::wait_events();
         }
     }
 }

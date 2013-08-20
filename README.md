@@ -7,33 +7,34 @@ GLFW bindings and wrapper for The Rust Programming Language.
 ~~~rust
 extern mod glfw;
 
-use std::rt;
-
 #[start]
-fn main(argc: int, argv: **u8, crate_map: *u8) -> int {
-    do rt::start_on_main_thread(argc, argv, crate_map) {
-        // Set an error callback
-        do glfw::set_error_callback |_, description| {
-            println(fmt!("GLFW Error: %s", description));
-        }
+fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+    // Run GLFW on the main thread
+    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+}
 
-        // Initialize the library
-        do glfw::run {
-            // Create a windowed mode window and its OpenGL context
-            let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+fn main() {
+    // Set an error callback
+    do glfw::set_error_callback |_, description| {
+        println(fmt!("GLFW Error: %s", description));
+    }
 
-            // Make the window's context current
-            window.make_context_current();
+    // Initialize the library
+    do glfw::start {
+        // Create a windowed mode window and its OpenGL context
+        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
 
-            // Loop until the user closes the window
-            while !window.should_close() {
+        // Make the window's context current
+        window.make_context_current();
 
-                // Swap front and back buffers
-                window.swap_buffers();
+        // Loop until the user closes the window
+        while !window.should_close() {
 
-                // Poll for and process events
-                glfw::poll_events();
-            }
+            // Swap front and back buffers
+            window.swap_buffers();
+
+            // Poll for and process events
+            glfw::poll_events();
         }
     }
 }

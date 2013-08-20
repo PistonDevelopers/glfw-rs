@@ -105,6 +105,7 @@ impl WindowDataMap {
 
     /// Clears all external callbacks and removes the window data from the map.
     /// Returns `true` if the window was present in the map, otherwise `false`.
+    #[fixed_stack_segment] #[inline(never)]
     pub fn remove(window: *ffi::GLFWwindow) -> bool {
         do WindowDataMap::get().map |&data_map| {
             do data_map.data_map.pop(&window).map |&data| {
@@ -170,7 +171,7 @@ macro_rules! window_callback(
     (fn $name:ident () => $field:ident()) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow) {
             do WindowDataMap::find_or_insert(window).$field.map |&cb| {
-                let window_ = Window { ptr: window };
+                let window_ = Window { ptr: window, shared: false };
                 cb(&window_);
                 unsafe { cast::forget(window_); }
             };
@@ -179,7 +180,7 @@ macro_rules! window_callback(
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $field:ident($($arg_conv:expr),*)) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
             do WindowDataMap::find_or_insert(window).$field.map |&cb| {
-                let window_ = Window { ptr: window };
+                let window_ = Window { ptr: window, shared: false };
                 cb(&window_ $(, $arg_conv)*);
                 unsafe { cast::forget(window_); }
             };
