@@ -111,19 +111,19 @@ impl WindowDataMap {
             do data_map.data_map.pop(&window).map |&data| {
                 unsafe {
                     // Clear all external callbacks
-                    data.pos_fun.map                (|_| ffi::glfwSetWindowPosCallback(window, ptr::null()));
-                    data.size_fun.map               (|_| ffi::glfwSetWindowSizeCallback(window, ptr::null()));
-                    data.close_fun.map              (|_| ffi::glfwSetWindowCloseCallback(window, ptr::null()));
-                    data.refresh_fun.map            (|_| ffi::glfwSetWindowRefreshCallback(window, ptr::null()));
-                    data.focus_fun.map              (|_| ffi::glfwSetWindowFocusCallback(window, ptr::null()));
-                    data.iconify_fun.map            (|_| ffi::glfwSetWindowIconifyCallback(window, ptr::null()));
-                    data.framebuffer_size_fun.map   (|_| ffi::glfwSetFramebufferSizeCallback(window, ptr::null()));
-                    data.mouse_button_fun.map       (|_| ffi::glfwSetMouseButtonCallback(window, ptr::null()));
-                    data.cursor_pos_fun.map         (|_| ffi::glfwSetCursorPosCallback(window, ptr::null()));
-                    data.cursor_enter_fun.map       (|_| ffi::glfwSetCursorEnterCallback(window, ptr::null()));
-                    data.scroll_fun.map             (|_| ffi::glfwSetScrollCallback(window, ptr::null()));
-                    data.key_fun.map                (|_| ffi::glfwSetKeyCallback(window, ptr::null()));
-                    data.char_fun.map               (|_| ffi::glfwSetCharCallback(window, ptr::null()));
+                    data.pos_fun.map                (|_| ffi::glfwSetWindowPosCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.size_fun.map               (|_| ffi::glfwSetWindowSizeCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.close_fun.map              (|_| ffi::glfwSetWindowCloseCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.refresh_fun.map            (|_| ffi::glfwSetWindowRefreshCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.focus_fun.map              (|_| ffi::glfwSetWindowFocusCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.iconify_fun.map            (|_| ffi::glfwSetWindowIconifyCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.framebuffer_size_fun.map   (|_| ffi::glfwSetFramebufferSizeCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.mouse_button_fun.map       (|_| ffi::glfwSetMouseButtonCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.cursor_pos_fun.map         (|_| ffi::glfwSetCursorPosCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.cursor_enter_fun.map       (|_| ffi::glfwSetCursorEnterCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.scroll_fun.map             (|_| ffi::glfwSetScrollCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.key_fun.map                (|_| ffi::glfwSetKeyCallback(window, cast::transmute(ptr::null::<()>())));
+                    data.char_fun.map               (|_| ffi::glfwSetCharCallback(window, cast::transmute(ptr::null::<()>())));
                 }
             }
         }.is_some()
