@@ -166,7 +166,7 @@ pub fn get_version_string() -> ~str {
 #[fixed_stack_segment] #[inline(never)]
 pub fn set_error_callback(cbfun: ErrorFun) {
     do private::set_error_fun(cbfun) |ext_cb| {
-        unsafe { ffi::glfwSetErrorCallback(ext_cb); }
+        unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
     }
 }
 
@@ -222,7 +222,7 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_callback(cbfun: MonitorFun) {
         do private::set_monitor_fun(cbfun) |ext_cb| {
-            unsafe { ffi::glfwSetMonitorCallback(ext_cb); }
+            unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
         }
     }
 
@@ -522,7 +522,7 @@ macro_rules! set_window_callback(
         field:    $data_field:ident
     ) => ({
         private::WindowDataMap::find_or_insert(self.ptr).$data_field = Some(cbfun);
-        unsafe { ffi::$ll_fn(self.ptr, private::$ext_fn); }
+        unsafe { ffi::$ll_fn(self.ptr, Some(private::$ext_fn)); }
     })
 )
 
@@ -1085,7 +1085,7 @@ pub fn extension_supported(extension: &str) -> bool {
 
 /// Wrapper for `glfwGetProcAddress`.
 #[fixed_stack_segment] #[inline(never)]
-pub fn get_proc_address(procname: &str) -> GLProc {
+pub fn get_proc_address(procname: &str) -> Option<GLProc> {
     unsafe {
         do procname.to_c_str().with_ref |procname| {
             ffi::glfwGetProcAddress(procname)
