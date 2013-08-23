@@ -540,7 +540,7 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Result<Window,()> {
         unsafe {
-            do title.to_c_str().with_ref |title| {
+            do title.with_c_str |title| {
                 ffi::glfwCreateWindow(
                     width as c_int,
                     height as c_int,
@@ -568,7 +568,7 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_title(&self, title: &str) {
         unsafe {
-            do title.to_c_str().with_ref |title| {
+            do title.with_c_str |title| {
                 ffi::glfwSetWindowTitle(self.ptr, title);
             }
         }
@@ -901,7 +901,7 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_clipboard_string(&self, string: &str) {
         unsafe {
-            do string.to_c_str().with_ref |string| {
+            do string.with_c_str |string| {
                 ffi::glfwSetClipboardString(self.ptr, string);
             }
         }
@@ -1077,7 +1077,7 @@ pub fn set_swap_interval(interval: int) {
 #[fixed_stack_segment] #[inline(never)]
 pub fn extension_supported(extension: &str) -> bool {
     unsafe {
-        do extension.to_c_str().with_ref |extension| {
+        do extension.with_c_str |extension| {
             ffi::glfwExtensionSupported(extension) as bool
         }
     }
@@ -1087,7 +1087,7 @@ pub fn extension_supported(extension: &str) -> bool {
 #[fixed_stack_segment] #[inline(never)]
 pub fn get_proc_address(procname: &str) -> Option<GLProc> {
     unsafe {
-        do procname.to_c_str().with_ref |procname| {
+        do procname.with_c_str |procname| {
             ffi::glfwGetProcAddress(procname)
         }
     }
