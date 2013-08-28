@@ -16,7 +16,7 @@ fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
 fn main() {
     // Set an error callback
     do glfw::set_error_callback |_, description| {
-        println(fmt!("GLFW Error: %s", description));
+        printfln!("GLFW Error: %s", description);
     }
 
     // Initialize the library

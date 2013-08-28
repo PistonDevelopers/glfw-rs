@@ -22,23 +22,23 @@ pub use consts::*;
 
 // TODO: Will have to be changed once we can do external C callbacks nicely
 
-pub type GLFWglproc             = *u8;  // typedef void (*GLFWglproc)(void);
+pub type GLFWglproc             = extern "C" fn();
 
-pub type GLFWerrorfun           = *u8;  // typedef void (* GLFWerrorfun)(int,const char*);
-pub type GLFWwindowposfun       = *u8;  // typedef void (* GLFWwindowposfun)(*GLFWwindow,int,int);
-pub type GLFWwindowsizefun      = *u8;  // typedef void (* GLFWwindowsizefun)(*GLFWwindow,int,int);
-pub type GLFWwindowclosefun     = *u8;  // typedef void (* GLFWwindowclosefun)(*GLFWwindow);
-pub type GLFWwindowrefreshfun   = *u8;  // typedef void (* GLFWwindowrefreshfun)(*GLFWwindow);
-pub type GLFWwindowfocusfun     = *u8;  // typedef void (* GLFWwindowfocusfun)(*GLFWwindow,int);
-pub type GLFWwindowiconifyfun   = *u8;  // typedef void (* GLFWwindowiconifyfun)(*GLFWwindow,int);
-pub type GLFWframebuffersizefun = *u8;  // typedef void (* GLFWframebuffersizefun)(GLFWwindow*,int,int);
-pub type GLFWmousebuttonfun     = *u8;  // typedef void (* GLFWmousebuttonfun)(*GLFWwindow,int,int,int);
-pub type GLFWcursorposfun       = *u8;  // typedef void (* GLFWcursorposfun)(*GLFWwindow,double,double);
-pub type GLFWcursorenterfun     = *u8;  // typedef void (* GLFWcursorenterfun)(*GLFWwindow,int);
-pub type GLFWscrollfun          = *u8;  // typedef void (* GLFWscrollfun)(*GLFWwindow,double,double);
-pub type GLFWkeyfun             = *u8;  // typedef void (* GLFWkeyfun)(*GLFWwindow,int,int,int);
-pub type GLFWcharfun            = *u8;  // typedef void (* GLFWcharfun)(*GLFWwindow,unsigned int);
-pub type GLFWmonitorfun         = *u8;  // typedef void (* GLFWmonitorfun)(*GLFWmonitor,int);
+pub type GLFWerrorfun           = extern "C" fn(c_int,*c_char);
+pub type GLFWwindowposfun       = extern "C" fn(*GLFWwindow,c_int,c_int);
+pub type GLFWwindowsizefun      = extern "C" fn(*GLFWwindow,c_int,c_int);
+pub type GLFWwindowclosefun     = extern "C" fn(*GLFWwindow);
+pub type GLFWwindowrefreshfun   = extern "C" fn(*GLFWwindow);
+pub type GLFWwindowfocusfun     = extern "C" fn(*GLFWwindow,c_int);
+pub type GLFWwindowiconifyfun   = extern "C" fn(*GLFWwindow,c_int);
+pub type GLFWframebuffersizefun = extern "C" fn(*GLFWwindow,c_int,c_int);
+pub type GLFWmousebuttonfun     = extern "C" fn(*GLFWwindow,c_int,c_int,c_int);
+pub type GLFWcursorposfun       = extern "C" fn(*GLFWwindow,c_double,c_double);
+pub type GLFWcursorenterfun     = extern "C" fn(*GLFWwindow,c_int);
+pub type GLFWscrollfun          = extern "C" fn(*GLFWwindow,c_double,c_double);
+pub type GLFWkeyfun             = extern "C" fn(*GLFWwindow,c_int,c_int,c_int,c_int);
+pub type GLFWcharfun            = extern "C" fn(*GLFWwindow,c_uint);
+pub type GLFWmonitorfun         = extern "C" fn(*GLFWmonitor,c_int);
 
 pub struct GLFWmonitor;
 
@@ -80,14 +80,14 @@ extern "C" {
     pub fn glfwGetVersion(major: *c_int, minor: *c_int, rev: *c_int);
     pub fn glfwGetVersionString() -> *c_char;
 
-    pub fn glfwSetErrorCallback(cbfun: GLFWerrorfun) -> GLFWerrorfun;
+    pub fn glfwSetErrorCallback(cbfun: Option<GLFWerrorfun>) -> Option<GLFWerrorfun>;
 
     pub fn glfwGetMonitors(count: *c_int) -> **GLFWmonitor;
     pub fn glfwGetPrimaryMonitor() -> *GLFWmonitor;
     pub fn glfwGetMonitorPos(monitor: *GLFWmonitor, xpos: *c_int, ypos: *c_int);
     pub fn glfwGetMonitorPhysicalSize(monitor: *GLFWmonitor, width: *c_int, height: *c_int);
     pub fn glfwGetMonitorName(monitor: *GLFWmonitor) -> *c_char;
-    pub fn glfwSetMonitorCallback(cbfun: GLFWmonitorfun) -> GLFWmonitorfun;
+    pub fn glfwSetMonitorCallback(cbfun: Option<GLFWmonitorfun>) -> Option<GLFWmonitorfun>;
     pub fn glfwGetVideoModes(monitor: *GLFWmonitor, count: *c_int) -> *GLFWvidmode;
     pub fn glfwGetVideoMode(monitor: *GLFWmonitor) -> *GLFWvidmode;
     pub fn glfwSetGamma(monitor: *GLFWmonitor, gamma: c_float);
@@ -114,13 +114,13 @@ extern "C" {
     pub fn glfwGetWindowAttrib(window: *GLFWwindow, attrib: c_int) -> c_int;
     pub fn glfwSetWindowUserPointer(window: *GLFWwindow, pointer: *c_void);
     pub fn glfwGetWindowUserPointer(window: *GLFWwindow) -> *c_void;
-    pub fn glfwSetWindowPosCallback(window: *GLFWwindow, cbfun: GLFWwindowposfun) -> GLFWwindowposfun;
-    pub fn glfwSetWindowSizeCallback(window: *GLFWwindow, cbfun: GLFWwindowsizefun) -> GLFWwindowsizefun;
-    pub fn glfwSetWindowCloseCallback(window: *GLFWwindow, cbfun: GLFWwindowclosefun) -> GLFWwindowclosefun;
-    pub fn glfwSetWindowRefreshCallback(window: *GLFWwindow, cbfun: GLFWwindowrefreshfun) -> GLFWwindowrefreshfun;
-    pub fn glfwSetWindowFocusCallback(window: *GLFWwindow, cbfun: GLFWwindowfocusfun) -> GLFWwindowfocusfun;
-    pub fn glfwSetWindowIconifyCallback(window: *GLFWwindow, cbfun: GLFWwindowiconifyfun) -> GLFWwindowiconifyfun;
-    pub fn glfwSetFramebufferSizeCallback(window: *GLFWwindow, cbfun: GLFWframebuffersizefun) -> GLFWframebuffersizefun;
+    pub fn glfwSetWindowPosCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowposfun>) -> Option<GLFWwindowposfun>;
+    pub fn glfwSetWindowSizeCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowsizefun>) -> Option<GLFWwindowsizefun>;
+    pub fn glfwSetWindowCloseCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowclosefun>) -> Option<GLFWwindowclosefun>;
+    pub fn glfwSetWindowRefreshCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowrefreshfun>) -> Option<GLFWwindowrefreshfun>;
+    pub fn glfwSetWindowFocusCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowfocusfun>) -> Option<GLFWwindowfocusfun>;
+    pub fn glfwSetWindowIconifyCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowiconifyfun>) -> Option<GLFWwindowiconifyfun>;
+    pub fn glfwSetFramebufferSizeCallback(window: *GLFWwindow, cbfun: Option<GLFWframebuffersizefun>) -> Option<GLFWframebuffersizefun>;
 
     pub fn glfwPollEvents();
     pub fn glfwWaitEvents();
@@ -131,12 +131,12 @@ extern "C" {
     pub fn glfwGetMouseButton(window: *GLFWwindow, button: c_int) -> c_int;
     pub fn glfwGetCursorPos(window: *GLFWwindow, xpos: *c_double, ypos: *c_double);
     pub fn glfwSetCursorPos(window: *GLFWwindow, xpos: c_double, ypos: c_double);
-    pub fn glfwSetKeyCallback(window: *GLFWwindow, cbfun: GLFWkeyfun) -> GLFWkeyfun;
-    pub fn glfwSetCharCallback(window: *GLFWwindow, cbfun: GLFWcharfun) -> GLFWcharfun;
-    pub fn glfwSetMouseButtonCallback(window: *GLFWwindow, cbfun: GLFWmousebuttonfun) -> GLFWmousebuttonfun;
-    pub fn glfwSetCursorPosCallback(window: *GLFWwindow, cbfun: GLFWcursorposfun) -> GLFWcursorposfun;
-    pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: GLFWcursorenterfun) -> GLFWcursorenterfun;
-    pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: GLFWscrollfun) -> GLFWscrollfun;
+    pub fn glfwSetKeyCallback(window: *GLFWwindow, cbfun: Option<GLFWkeyfun>) -> Option<GLFWkeyfun>;
+    pub fn glfwSetCharCallback(window: *GLFWwindow, cbfun: Option<GLFWcharfun>) -> Option<GLFWcharfun>;
+    pub fn glfwSetMouseButtonCallback(window: *GLFWwindow, cbfun: Option<GLFWmousebuttonfun>) -> Option<GLFWmousebuttonfun>;
+    pub fn glfwSetCursorPosCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorposfun>) -> Option<GLFWcursorposfun>;
+    pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorenterfun>) -> Option<GLFWcursorenterfun>;
+    pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: Option<GLFWscrollfun>) -> Option<GLFWscrollfun>;
 
     pub fn glfwJoystickPresent(joy: c_int) -> c_int;
     pub fn glfwGetJoystickAxes(joy: c_int, count: *c_int) -> *c_float;
@@ -154,7 +154,7 @@ extern "C" {
     pub fn glfwSwapBuffers(window: *GLFWwindow);
     pub fn glfwSwapInterval(interval: c_int);
     pub fn glfwExtensionSupported(extension: *c_char) -> c_int;
-    pub fn glfwGetProcAddress(procname: *c_char) -> GLFWglproc;
+    pub fn glfwGetProcAddress(procname: *c_char) -> Option<GLFWglproc>;
 
     // native APIs
 

@@ -166,7 +166,7 @@ pub fn get_version_string() -> ~str {
 #[fixed_stack_segment] #[inline(never)]
 pub fn set_error_callback(cbfun: ErrorFun) {
     do private::set_error_fun(cbfun) |ext_cb| {
-        unsafe { ffi::glfwSetErrorCallback(ext_cb); }
+        unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
     }
 }
 
@@ -222,7 +222,7 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_callback(cbfun: MonitorFun) {
         do private::set_monitor_fun(cbfun) |ext_cb| {
-            unsafe { ffi::glfwSetMonitorCallback(ext_cb); }
+            unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
         }
     }
 
@@ -522,7 +522,7 @@ macro_rules! set_window_callback(
         field:    $data_field:ident
     ) => ({
         private::WindowDataMap::find_or_insert(self.ptr).$data_field = Some(cbfun);
-        unsafe { ffi::$ll_fn(self.ptr, private::$ext_fn); }
+        unsafe { ffi::$ll_fn(self.ptr, Some(private::$ext_fn)); }
     })
 )
 
@@ -540,7 +540,7 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Result<Window,()> {
         unsafe {
-            do title.to_c_str().with_ref |title| {
+            do title.with_c_str |title| {
                 ffi::glfwCreateWindow(
                     width as c_int,
                     height as c_int,
@@ -568,7 +568,7 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_title(&self, title: &str) {
         unsafe {
-            do title.to_c_str().with_ref |title| {
+            do title.with_c_str |title| {
                 ffi::glfwSetWindowTitle(self.ptr, title);
             }
         }
@@ -901,7 +901,7 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_clipboard_string(&self, string: &str) {
         unsafe {
-            do string.to_c_str().with_ref |string| {
+            do string.with_c_str |string| {
                 ffi::glfwSetClipboardString(self.ptr, string);
             }
         }
@@ -1077,7 +1077,7 @@ pub fn set_swap_interval(interval: int) {
 #[fixed_stack_segment] #[inline(never)]
 pub fn extension_supported(extension: &str) -> bool {
     unsafe {
-        do extension.to_c_str().with_ref |extension| {
+        do extension.with_c_str |extension| {
             ffi::glfwExtensionSupported(extension) as bool
         }
     }
@@ -1085,9 +1085,9 @@ pub fn extension_supported(extension: &str) -> bool {
 
 /// Wrapper for `glfwGetProcAddress`.
 #[fixed_stack_segment] #[inline(never)]
-pub fn get_proc_address(procname: &str) -> GLProc {
+pub fn get_proc_address(procname: &str) -> Option<GLProc> {
     unsafe {
-        do procname.to_c_str().with_ref |procname| {
+        do procname.with_c_str |procname| {
             ffi::glfwGetProcAddress(procname)
         }
     }

@@ -19,7 +19,6 @@ use std::cast;
 use std::hashmap::*;
 use std::libc::*;
 use std::local_data;
-use std::ptr;
 use std::str;
 
 use super::*;
@@ -111,19 +110,19 @@ impl WindowDataMap {
             do data_map.data_map.pop(&window).map |&data| {
                 unsafe {
                     // Clear all external callbacks
-                    data.pos_fun.map                (|_| ffi::glfwSetWindowPosCallback(window, ptr::null()));
-                    data.size_fun.map               (|_| ffi::glfwSetWindowSizeCallback(window, ptr::null()));
-                    data.close_fun.map              (|_| ffi::glfwSetWindowCloseCallback(window, ptr::null()));
-                    data.refresh_fun.map            (|_| ffi::glfwSetWindowRefreshCallback(window, ptr::null()));
-                    data.focus_fun.map              (|_| ffi::glfwSetWindowFocusCallback(window, ptr::null()));
-                    data.iconify_fun.map            (|_| ffi::glfwSetWindowIconifyCallback(window, ptr::null()));
-                    data.framebuffer_size_fun.map   (|_| ffi::glfwSetFramebufferSizeCallback(window, ptr::null()));
-                    data.mouse_button_fun.map       (|_| ffi::glfwSetMouseButtonCallback(window, ptr::null()));
-                    data.cursor_pos_fun.map         (|_| ffi::glfwSetCursorPosCallback(window, ptr::null()));
-                    data.cursor_enter_fun.map       (|_| ffi::glfwSetCursorEnterCallback(window, ptr::null()));
-                    data.scroll_fun.map             (|_| ffi::glfwSetScrollCallback(window, ptr::null()));
-                    data.key_fun.map                (|_| ffi::glfwSetKeyCallback(window, ptr::null()));
-                    data.char_fun.map               (|_| ffi::glfwSetCharCallback(window, ptr::null()));
+                    data.pos_fun.map                (|_| ffi::glfwSetWindowPosCallback(window, None));
+                    data.size_fun.map               (|_| ffi::glfwSetWindowSizeCallback(window, None));
+                    data.close_fun.map              (|_| ffi::glfwSetWindowCloseCallback(window, None));
+                    data.refresh_fun.map            (|_| ffi::glfwSetWindowRefreshCallback(window, None));
+                    data.focus_fun.map              (|_| ffi::glfwSetWindowFocusCallback(window, None));
+                    data.iconify_fun.map            (|_| ffi::glfwSetWindowIconifyCallback(window, None));
+                    data.framebuffer_size_fun.map   (|_| ffi::glfwSetFramebufferSizeCallback(window, None));
+                    data.mouse_button_fun.map       (|_| ffi::glfwSetMouseButtonCallback(window, None));
+                    data.cursor_pos_fun.map         (|_| ffi::glfwSetCursorPosCallback(window, None));
+                    data.cursor_enter_fun.map       (|_| ffi::glfwSetCursorEnterCallback(window, None));
+                    data.scroll_fun.map             (|_| ffi::glfwSetScrollCallback(window, None));
+                    data.key_fun.map                (|_| ffi::glfwSetKeyCallback(window, None));
+                    data.char_fun.map               (|_| ffi::glfwSetCharCallback(window, None));
                 }
             }
         }.is_some()
