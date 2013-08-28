@@ -1,48 +1,59 @@
-// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
-// refer to the AUTHORS file at the top-level directory of this distribution.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 extern mod glfw;
-
-use std::libc;
 
 #[start]
 fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
     std::rt::start_on_main_thread(argc, argv, crate_map, main)
 }
 
-fn main() {
-    glfw::set_error_callback(error_callback);
+pub struct Wrapper {
+    glfw_window: glfw::Window
+}
 
-    do glfw::start {
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+impl Wrapper {
+    /// Creates a new window.
+    fn new() -> @mut Wrapper {
+        // Create the GLFW window.
+        let glfw_window = glfw::Window::create(800, 600, "Servo", glfw::Windowed).unwrap();
+        glfw_window.make_context_current();
 
-        window.set_key_callback(key_callback);
-        window.make_context_current();
+        // Create our window object.
+        let window = @mut Wrapper {
+            glfw_window:glfw_window,
+        };
 
-        while !window.should_close() {
-            glfw::poll_events();
+        // BUG: If the captured use of window is changed to instead use the provided win argument,
+        // then there is no crash during the destructor. However, the change in servo is not that
+        // simple. as the Wrapper struct has significantly more data and functionality, which are
+        // used in the event handlers.
+        do window.glfw_window.set_key_callback |_win, key, _scancode, action, _mods| {
+            println("Handler");
+            if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
+                window.glfw_window.set_should_close(true);
+            }
+        };
+
+        window
+    }
+
+    fn recv(&self) -> bool {
+        self.glfw_window.poll_events();
+        glfw::poll_events();
+        if self.glfw_window.should_close() {
+            true
+        } else {
+            false
         }
     }
+
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, _: libc::c_int) {
-    if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
-        window.set_should_close(true);
+fn main() {
+    glfw::init();
+    
+    let window: @mut Wrapper = Wrapper::new();
+
+    // Enter the main event loop.
+    while !window.recv() {
     }
-}
-
-fn error_callback(_: libc::c_int, description: ~str) {
-    println(fmt!("GLFW Error: %s", description));
+    glfw::terminate();
 }

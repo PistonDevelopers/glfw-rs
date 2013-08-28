@@ -50,6 +50,7 @@ fn main() {
         }
 
         while !window.should_close() {
+            window.poll_events();
             glfw::poll_events();
         }
     }
