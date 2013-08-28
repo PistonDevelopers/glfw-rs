@@ -114,18 +114,24 @@ macro_rules! window_callback(
             chan.send($event( $( $arg_conv),* ));
         }
     );
+    (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident{$($fname:ident : $arg_conv:expr),*}) => (
+        pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
+            let chan : &Chan<WindowEvent> = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
+            chan.send($event{ $( $fname : $arg_conv),* });
+        }
+    );
 )
 
-window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                           => Pos(xpos as int, ypos as int))
-window_callback!(fn window_size_callback(width: c_int, height: c_int)                       => Size(width as int, height as int))
+window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                           => Pos{xpos:xpos as int, ypos:ypos as int})
+window_callback!(fn window_size_callback(width: c_int, height: c_int)                       => Size{width:width as int, height:height as int})
 window_callback!(fn window_close_callback()                                                 => Close())
 window_callback!(fn window_refresh_callback()                                               => Refresh())
 window_callback!(fn window_focus_callback(focused: c_int)                                   => Focus(focused as bool))
 window_callback!(fn window_iconify_callback(iconified: c_int)                               => Iconify(iconified as bool))
-window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => FrameBufferSize(width as int, height as int))
-window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton(button, action, mods))
-window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => CursorPos(xpos as float, ypos as float))
+window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => FrameBufferSize{width:width as int, height:height as int})
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton{button:button, action:action, mods:mods})
+window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => CursorPos{xpos:xpos as float, ypos:ypos as float})
 window_callback!(fn cursor_enter_callback(entered: c_int)                                   => CursorEnter(entered as bool))
-window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => Scroll(xpos as float, ypos as float))
-window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key(key, scancode, action, mods))
+window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => Scroll{xpos:xpos as float, ypos:ypos as float})
+window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key{key:key, scancode:scancode, action:action, mods:mods})
 window_callback!(fn char_callback(character: c_uint)                                        => Char(character as char))

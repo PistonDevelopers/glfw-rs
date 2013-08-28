@@ -56,19 +56,19 @@ pub struct Window {
 /// Events sent for registered window callback functions
 #[deriving(Eq, Clone)]
 pub enum WindowEvent {
-    Pos(int, int),
-    Size(int, int),
-    Close(),
-    Refresh(),
-    Focus(bool),
-    Iconify(bool),
-    FrameBufferSize(int, int),
-    MouseButton(c_int, c_int, c_int),
-    CursorPos(float, float),
-    CursorEnter(bool),
-    Scroll(float, float),
-    Key(c_int, c_int, c_int, c_int),
-    Char(char),
+    Pos {xpos:int, ypos:int},
+    Size {width:int, height:int},
+    Close (),
+    Refresh (),
+    Focus (bool),
+    Iconify (bool),
+    FrameBufferSize {width:int, height:int},
+    MouseButton {button:c_int, action:c_int, mods:c_int},
+    CursorPos {xpos:float, ypos:float},
+    CursorEnter (bool),
+    Scroll {xpos:float, ypos:float},
+    Key {key:c_int, scancode:c_int, action:c_int, mods:c_int},
+    Char (char),
 }
 
 pub type ErrorFun = @fn(error: c_int, description: ~str);
@@ -586,18 +586,18 @@ impl Window {
         do self.port.map |port| {
             if port.peek() {
                 match port.recv() {
-                    Pos(xpos, ypos) => do self.data_map.pos_fun.map |&cb| { cb(self, xpos, ypos); },
-                    Size(width, height) => do self.data_map.size_fun.map |&cb| { cb(self, width, height); },
+                    Pos{xpos, ypos} => do self.data_map.pos_fun.map |&cb| { cb(self, xpos, ypos); },
+                    Size{width, height} => do self.data_map.size_fun.map |&cb| { cb(self, width, height); },
                     Close() => do self.data_map.close_fun.map |&cb| { cb(self); },
                     Refresh() => do self.data_map.refresh_fun.map |&cb| { cb(self); },
                     Focus(focused) => do self.data_map.focus_fun.map |&cb| { cb(self, focused); },
                     Iconify(iconified) => do self.data_map.iconify_fun.map |&cb| { cb(self, iconified); },
-                    FrameBufferSize(width, height) => do self.data_map.framebuffer_size_fun.map |&cb| { cb(self, width, height); },
-                    MouseButton(button, action, mods)=> do self.data_map.mouse_button_fun.map |&cb| { cb(self, button, action, mods); },
-                    CursorPos(xpos, ypos) => do self.data_map.cursor_pos_fun.map |&cb| { cb(self, xpos, ypos); },
+                    FrameBufferSize{width, height} => do self.data_map.framebuffer_size_fun.map |&cb| { cb(self, width, height); },
+                    MouseButton{button, action, mods}=> do self.data_map.mouse_button_fun.map |&cb| { cb(self, button, action, mods); },
+                    CursorPos{xpos, ypos} => do self.data_map.cursor_pos_fun.map |&cb| { cb(self, xpos, ypos); },
                     CursorEnter(entered) => do self.data_map.cursor_enter_fun.map |&cb| { cb(self, entered); },
-                    Scroll(xpos, ypos) => do self.data_map.scroll_fun.map |&cb| { cb(self, xpos, ypos); },
-                    Key(key, scancode, action, mods) => do self.data_map.key_fun.map |&cb| { cb(self, key, scancode, action, mods); },
+                    Scroll{xpos, ypos} => do self.data_map.scroll_fun.map |&cb| { cb(self, xpos, ypos); },
+                    Key{key, scancode, action, mods} => do self.data_map.key_fun.map |&cb| { cb(self, key, scancode, action, mods); },
                     Char(character) => do self.data_map.char_fun.map |&cb| { cb(self, character); },
                 };
             }
