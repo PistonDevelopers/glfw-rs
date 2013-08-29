@@ -33,7 +33,8 @@ fn main() {
         glfw::set_swap_interval(1);
 
         while !window.should_close() {
-            glfw::wait_events();
+            window.poll_events();
+            glfw::poll_events();
         }
     }
 }
