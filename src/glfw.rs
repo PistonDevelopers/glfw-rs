@@ -498,7 +498,7 @@ impl WindowMode {
 pub struct Window {
     ptr: *ffi::GLFWwindow,
     shared: bool,
-    priv port: Option<Port<WindowEvent>>,
+    priv port: Port<WindowEvent>,
     priv data_map: @mut WindowFns,
 }
 
@@ -592,20 +592,17 @@ impl Window {
     ///
     /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
-        Window::create_shared(
-            width, height, title, mode,
-            &Window {
-                ptr: ptr::null(),
-                shared: false,
-                port : None,
-                data_map : @mut WindowFns::new()
-            }
-        )
+        Window::create_intern(width, height, title, mode, None)
     }
 
     /// Wrapper for `glfwCreateWindow`.
+    pub fn create_shared(&self, width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
+        Window::create_intern(width, height, title, mode, Some(self))
+    }
+
+    /// Internal wrapper for `glfwCreateWindow`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Result<Window,()> {
+    pub fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Result<Window,()> {
         unsafe {
             do title.with_c_str |title| {
                 ffi::glfwCreateWindow(
@@ -613,16 +610,17 @@ impl Window {
                     height as c_int,
                     title,
                     mode.to_ptr(),
-                    share.ptr)
+                    match share { Some(w) => w.ptr, None => ptr::null() }
+                )
             }.to_option().map_default(Err(()),
                 |&ptr| {
-                    let (port , chan) = stream();
+                    let (port, chan) = stream();
                     let chan = ~chan;
                     ffi::glfwSetWindowUserPointer(ptr, cast::transmute(chan));
                     let window = Window {
                         ptr: ptr::to_unsafe_ptr(ptr),
                         shared: true,
-                        port: Some(port),
+                        port: port,
                         data_map: @mut WindowFns::new()
                     };
                     Ok(window)
@@ -631,26 +629,25 @@ impl Window {
         }
     }
 
+    /// Updates all window callbacks if they have been triggered.
     pub fn poll_events(&self) {
-        do self.port.map |port| {
-            if port.peek() {
-                match port.recv() {
-                    Pos { xpos, ypos }                      => self.data_map.pos_fun.map(|&cb| cb(self, xpos, ypos)),
-                    Size { width, height }                  => self.data_map.size_fun.map(|&cb| cb(self, width, height)),
-                    Close                                   => self.data_map.close_fun.map(|&cb| cb(self)),
-                    Refresh                                 => self.data_map.refresh_fun.map(|&cb| cb(self)),
-                    Focus(focused)                          => self.data_map.focus_fun.map(|&cb| cb(self, focused)),
-                    Iconify(iconified)                      => self.data_map.iconify_fun.map(|&cb| cb(self, iconified)),
-                    FrameBufferSize { width, height }       => self.data_map.framebuffer_size_fun.map(|&cb| cb(self, width, height)),
-                    MouseButton { button, action, mods }    => self.data_map.mouse_button_fun.map(|&cb| cb(self, button, action, mods)),
-                    CursorPos { xpos, ypos }                => self.data_map.cursor_pos_fun.map(|&cb| cb(self, xpos, ypos)),
-                    CursorEnter(entered)                    => self.data_map.cursor_enter_fun.map(|&cb| cb(self, entered)),
-                    Scroll { xpos, ypos }                   => self.data_map.scroll_fun.map(|&cb| cb(self, xpos, ypos)),
-                    Key { key, scancode, action, mods }     => self.data_map.key_fun.map(|&cb| cb(self, key, scancode, action, mods)),
-                    Char(character)                         => self.data_map.char_fun.map(|&cb| cb(self, character)),
-                };
-            }
-        };
+        if self.port.peek() {
+            match self.port.recv() {
+                Pos { xpos, ypos }                      => self.data_map.pos_fun.map(|&cb| cb(self, xpos, ypos)),
+                Size { width, height }                  => self.data_map.size_fun.map(|&cb| cb(self, width, height)),
+                Close                                   => self.data_map.close_fun.map(|&cb| cb(self)),
+                Refresh                                 => self.data_map.refresh_fun.map(|&cb| cb(self)),
+                Focus(focused)                          => self.data_map.focus_fun.map(|&cb| cb(self, focused)),
+                Iconify(iconified)                      => self.data_map.iconify_fun.map(|&cb| cb(self, iconified)),
+                FrameBufferSize { width, height }       => self.data_map.framebuffer_size_fun.map(|&cb| cb(self, width, height)),
+                MouseButton { button, action, mods }    => self.data_map.mouse_button_fun.map(|&cb| cb(self, button, action, mods)),
+                CursorPos { xpos, ypos }                => self.data_map.cursor_pos_fun.map(|&cb| cb(self, xpos, ypos)),
+                CursorEnter(entered)                    => self.data_map.cursor_enter_fun.map(|&cb| cb(self, entered)),
+                Scroll { xpos, ypos }                   => self.data_map.scroll_fun.map(|&cb| cb(self, xpos, ypos)),
+                Key { key, scancode, action, mods }     => self.data_map.key_fun.map(|&cb| cb(self, key, scancode, action, mods)),
+                Char(character)                         => self.data_map.char_fun.map(|&cb| cb(self, character)),
+            };
+        }
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
