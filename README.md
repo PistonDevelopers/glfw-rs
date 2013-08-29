@@ -34,25 +34,29 @@ fn main() {
             window.swap_buffers();
 
             // Poll for and process events
+            window.poll_events()    // This will not be necessary in future versions
             glfw::poll_events();
         }
     }
 }
 ~~~
 
-## Instructions
+## Compilation
 
-### Building glfw-rs
+Building the library
+~~~
+rustpkg build glfw
+~~~
 
-1. Make sure you have the latest version of the GLFW 3 development version (not 2.7, which is on most package managers) built and installed on your system. This can be cloned from the project's [Github repository](https://github.com/glfw/glfw). GLFW builds as a static library by default which doesn't work well with Rust, so you'll have to set the `BUILD_SHARED_LIBS` CMake option to true _before_ you build and install it.
-2. Make sure you have the latest [version of Rust](https://github.com/mozilla/rust) built and installed from the `incoming` branch.
-3. Clone this repository: `$ git clone https://github.com/bjz/glfw-rs.git`, then `$ cd glfw-rs`.
-4. Run `$ make`. This will build the library to the `./lib` directory.
+Building the examples
+~~~
+rustpkg build examples
+~~~
 
-### Building the examples
-
-1. `$ cd glfw/examples`
-2. `$ make` or for a specific example `$ make <example name>` (eg. `$ make window`)
+Building a specific example
+~~~
+rustpkg build examples/callbacks
+~~~
 
 ## glfw-rs in use
 
