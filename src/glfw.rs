@@ -497,7 +497,7 @@ impl WindowMode {
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
     ptr: *ffi::GLFWwindow,
-    shared: bool,
+    is_shared: bool,
     priv port: Port<WindowEvent>,
     priv data_map: @mut WindowFns,
 }
@@ -615,15 +615,13 @@ impl Window {
             }.to_option().map_default(Err(()),
                 |&ptr| {
                     let (port, chan) = stream();
-                    let chan = ~chan;
-                    ffi::glfwSetWindowUserPointer(ptr, cast::transmute(chan));
-                    let window = Window {
+                    ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~chan));
+                    Ok(Window {
                         ptr: ptr::to_unsafe_ptr(ptr),
-                        shared: true,
+                        is_shared: share.is_none(),
                         port: port,
                         data_map: @mut WindowFns::new()
-                    };
-                    Ok(window)
+                    })
                 }
             )
         }
@@ -1094,7 +1092,7 @@ impl Drop for Window {
     /// Wrapper for `glfwDestroyWindow`.
     #[fixed_stack_segment] #[inline(never)]
     fn drop(&self) {
-        if !self.shared {
+        if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
 
