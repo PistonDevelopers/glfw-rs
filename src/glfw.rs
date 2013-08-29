@@ -36,7 +36,7 @@ pub use consts::*;
 
 pub mod ffi;
 pub mod consts;
-mod private;
+mod extfn;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
@@ -45,12 +45,11 @@ pub struct Monitor {
 }
 
 /// A struct that wraps a `*GLFWwindow` handle.
-//TODO: #[deriving(Eq, IterBytes)]
 pub struct Window {
     ptr: *ffi::GLFWwindow,
     shared: bool,
     port: Option<Port<WindowEvent>>,
-    data_map: @mut private::WindowData,
+    data_map: @mut extfn::WindowData,
 }
 
 /// Events sent for registered window callback functions
@@ -58,8 +57,8 @@ pub struct Window {
 pub enum WindowEvent {
     Pos {xpos:int, ypos:int},
     Size {width:int, height:int},
-    Close (),
-    Refresh (),
+    Close,
+    Refresh,
     Focus (bool),
     Iconify (bool),
     FrameBufferSize {width:int, height:int},
@@ -187,7 +186,7 @@ pub fn get_version_string() -> ~str {
 /// Wrapper for `glfwSetErrorCallback`.
 #[fixed_stack_segment] #[inline(never)]
 pub fn set_error_callback(cbfun: ErrorFun) {
-    do private::set_error_fun(cbfun) |ext_cb| {
+    do extfn::set_error_fun(cbfun) |ext_cb| {
         unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
     }
 }
@@ -243,7 +242,7 @@ impl Monitor {
     /// Wrapper for `glfwSetMonitorCallback`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_callback(cbfun: MonitorFun) {
-        do private::set_monitor_fun(cbfun) |ext_cb| {
+        do extfn::set_monitor_fun(cbfun) |ext_cb| {
             unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
         }
     }
@@ -544,7 +543,7 @@ macro_rules! set_window_callback(
         field:    $data_field:ident
     ) => ({
         self.data_map.$data_field = Some(cbfun);
-        unsafe { ffi::$ll_fn(self.ptr, Some(private::$ext_fn)); }
+        unsafe { ffi::$ll_fn(self.ptr, Some(extfn::$ext_fn)); }
     })
 )
 
@@ -556,7 +555,7 @@ impl Window {
     /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
         Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null(), shared: false,
-                port : None, data_map : @mut private::WindowData::new() })
+                port : None, data_map : @mut extfn::WindowData::new() })
     }
 
     /// Wrapper for `glfwCreateWindow`.
@@ -576,7 +575,7 @@ impl Window {
                     let chan = ~chan;
                     ffi::glfwSetWindowUserPointer(ptr, cast::transmute(chan));
                     let window = Window { ptr: ptr::to_unsafe_ptr(ptr), shared: true,
-                        port : Some(port), data_map : @mut private::WindowData::new()};
+                        port : Some(port), data_map : @mut extfn::WindowData::new()};
                     Ok(window)
                 })
         }
@@ -588,8 +587,8 @@ impl Window {
                 match port.recv() {
                     Pos{xpos, ypos} => do self.data_map.pos_fun.map |&cb| { cb(self, xpos, ypos); },
                     Size{width, height} => do self.data_map.size_fun.map |&cb| { cb(self, width, height); },
-                    Close() => do self.data_map.close_fun.map |&cb| { cb(self); },
-                    Refresh() => do self.data_map.refresh_fun.map |&cb| { cb(self); },
+                    Close => do self.data_map.close_fun.map |&cb| { cb(self); },
+                    Refresh => do self.data_map.refresh_fun.map |&cb| { cb(self); },
                     Focus(focused) => do self.data_map.focus_fun.map |&cb| { cb(self, focused); },
                     Iconify(iconified) => do self.data_map.iconify_fun.map |&cb| { cb(self, iconified); },
                     FrameBufferSize{width, height} => do self.data_map.framebuffer_size_fun.map |&cb| { cb(self, width, height); },
@@ -1055,23 +1054,6 @@ impl Drop for Window {
         if !self.ptr.is_null() {
             // Free the boxed channel
             let _chan: ~Chan<WindowEvent> = unsafe { cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))};
-        }
-
-        // Clear all external callbacks
-        unsafe {
-            self.data_map.pos_fun.map                (|_| ffi::glfwSetWindowPosCallback(self.ptr, None));
-            self.data_map.size_fun.map               (|_| ffi::glfwSetWindowSizeCallback(self.ptr, None));
-            self.data_map.close_fun.map              (|_| ffi::glfwSetWindowCloseCallback(self.ptr, None));
-            self.data_map.refresh_fun.map            (|_| ffi::glfwSetWindowRefreshCallback(self.ptr, None));
-            self.data_map.focus_fun.map              (|_| ffi::glfwSetWindowFocusCallback(self.ptr, None));
-            self.data_map.iconify_fun.map            (|_| ffi::glfwSetWindowIconifyCallback(self.ptr, None));
-            self.data_map.framebuffer_size_fun.map   (|_| ffi::glfwSetFramebufferSizeCallback(self.ptr, None));
-            self.data_map.mouse_button_fun.map       (|_| ffi::glfwSetMouseButtonCallback(self.ptr, None));
-            self.data_map.cursor_pos_fun.map         (|_| ffi::glfwSetCursorPosCallback(self.ptr, None));
-            self.data_map.cursor_enter_fun.map       (|_| ffi::glfwSetCursorEnterCallback(self.ptr, None));
-            self.data_map.scroll_fun.map             (|_| ffi::glfwSetScrollCallback(self.ptr, None));
-            self.data_map.key_fun.map                (|_| ffi::glfwSetKeyCallback(self.ptr, None));
-            self.data_map.char_fun.map               (|_| ffi::glfwSetCharCallback(self.ptr, None));
         }
     }
 }
