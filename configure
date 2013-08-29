@@ -1,0 +1,4 @@
+#!/bin/bash
+
+SRCDIR="$(cd $(dirname $0) && pwd)"
+sed -e "s#%VPATH%#${SRCDIR}#" ${SRCDIR}/Makefile.in > Makefile
