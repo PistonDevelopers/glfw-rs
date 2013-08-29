@@ -7,7 +7,7 @@ RUST_SRC = \
 	$(addprefix src/,\
 		consts.rs \
 		ffi.rs \
-		private.rs)
+		extfn.rs)
 
 .PHONY: all
 all: libglfwrs.dummy

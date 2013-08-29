@@ -52,6 +52,7 @@ fn main() {
         window.make_context_current();
 
         while !window.should_close() {
+            window.poll_events();
             glfw::poll_events();
         }
     }
