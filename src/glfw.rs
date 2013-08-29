@@ -24,6 +24,8 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
+use std::cast;
+use std::comm::{Port, stream};
 use std::libc::*;
 use std::ptr;
 use std::str;
@@ -34,7 +36,7 @@ pub use consts::*;
 
 pub mod ffi;
 pub mod consts;
-mod private;
+mod extfn;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
@@ -43,10 +45,29 @@ pub struct Monitor {
 }
 
 /// A struct that wraps a `*GLFWwindow` handle.
-#[deriving(Eq, IterBytes)]
 pub struct Window {
     ptr: *ffi::GLFWwindow,
     shared: bool,
+    port: Option<Port<WindowEvent>>,
+    data_map: @mut extfn::WindowData,
+}
+
+/// Events sent for registered window callback functions
+#[deriving(Eq, Clone)]
+pub enum WindowEvent {
+    Pos {xpos:int, ypos:int},
+    Size {width:int, height:int},
+    Close,
+    Refresh,
+    Focus (bool),
+    Iconify (bool),
+    FrameBufferSize {width:int, height:int},
+    MouseButton {button:c_int, action:c_int, mods:c_int},
+    CursorPos {xpos:float, ypos:float},
+    CursorEnter (bool),
+    Scroll {xpos:float, ypos:float},
+    Key {key:c_int, scancode:c_int, action:c_int, mods:c_int},
+    Char (char),
 }
 
 pub type ErrorFun = @fn(error: c_int, description: ~str);
@@ -165,7 +186,7 @@ pub fn get_version_string() -> ~str {
 /// Wrapper for `glfwSetErrorCallback`.
 #[fixed_stack_segment] #[inline(never)]
 pub fn set_error_callback(cbfun: ErrorFun) {
-    do private::set_error_fun(cbfun) |ext_cb| {
+    do extfn::set_error_fun(cbfun) |ext_cb| {
         unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
     }
 }
@@ -221,7 +242,7 @@ impl Monitor {
     /// Wrapper for `glfwSetMonitorCallback`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_callback(cbfun: MonitorFun) {
-        do private::set_monitor_fun(cbfun) |ext_cb| {
+        do extfn::set_monitor_fun(cbfun) |ext_cb| {
             unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
         }
     }
@@ -521,8 +542,8 @@ macro_rules! set_window_callback(
         callback: $ext_fn:ident,
         field:    $data_field:ident
     ) => ({
-        private::WindowDataMap::find_or_insert(self.ptr).$data_field = Some(cbfun);
-        unsafe { ffi::$ll_fn(self.ptr, Some(private::$ext_fn)); }
+        self.data_map.$data_field = Some(cbfun);
+        unsafe { ffi::$ll_fn(self.ptr, Some(extfn::$ext_fn)); }
     })
 )
 
@@ -533,7 +554,8 @@ impl Window {
     ///
     /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
-        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null(), shared: false })
+        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null(), shared: false,
+                port : None, data_map : @mut extfn::WindowData::new() })
     }
 
     /// Wrapper for `glfwCreateWindow`.
@@ -548,8 +570,37 @@ impl Window {
                     mode.to_ptr(),
                     share.ptr)
             }.to_option().map_default(Err(()),
-                |&ptr| Ok(Window { ptr: ptr::to_unsafe_ptr(ptr), shared: true }))
+                |&ptr| {
+                    let (port , chan) = stream();
+                    let chan = ~chan;
+                    ffi::glfwSetWindowUserPointer(ptr, cast::transmute(chan));
+                    let window = Window { ptr: ptr::to_unsafe_ptr(ptr), shared: true,
+                        port : Some(port), data_map : @mut extfn::WindowData::new()};
+                    Ok(window)
+                })
         }
+    }
+
+    pub fn poll_events(&self) {
+        do self.port.map |port| {
+            if port.peek() {
+                match port.recv() {
+                    Pos{xpos, ypos} => do self.data_map.pos_fun.map |&cb| { cb(self, xpos, ypos); },
+                    Size{width, height} => do self.data_map.size_fun.map |&cb| { cb(self, width, height); },
+                    Close => do self.data_map.close_fun.map |&cb| { cb(self); },
+                    Refresh => do self.data_map.refresh_fun.map |&cb| { cb(self); },
+                    Focus(focused) => do self.data_map.focus_fun.map |&cb| { cb(self, focused); },
+                    Iconify(iconified) => do self.data_map.iconify_fun.map |&cb| { cb(self, iconified); },
+                    FrameBufferSize{width, height} => do self.data_map.framebuffer_size_fun.map |&cb| { cb(self, width, height); },
+                    MouseButton{button, action, mods}=> do self.data_map.mouse_button_fun.map |&cb| { cb(self, button, action, mods); },
+                    CursorPos{xpos, ypos} => do self.data_map.cursor_pos_fun.map |&cb| { cb(self, xpos, ypos); },
+                    CursorEnter(entered) => do self.data_map.cursor_enter_fun.map |&cb| { cb(self, entered); },
+                    Scroll{xpos, ypos} => do self.data_map.scroll_fun.map |&cb| { cb(self, xpos, ypos); },
+                    Key{key, scancode, action, mods} => do self.data_map.key_fun.map |&cb| { cb(self, key, scancode, action, mods); },
+                    Char(character) => do self.data_map.char_fun.map |&cb| { cb(self, character); },
+                };
+            }
+        };
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
@@ -989,6 +1040,7 @@ pub fn get_x11_display() -> *c_void {
     unsafe { ffi::glfwGetX11Display() }
 }
 
+#[unsafe_destructor]
 impl Drop for Window {
     /// Closes the window and removes all associated callbacks.
     ///
@@ -998,8 +1050,11 @@ impl Drop for Window {
         if !self.shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
-        // Remove data from task-local storage
-        private::WindowDataMap::remove(self.ptr);
+
+        if !self.ptr.is_null() {
+            // Free the boxed channel
+            let _chan: ~Chan<WindowEvent> = unsafe { cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))};
+        }
     }
 }
 
