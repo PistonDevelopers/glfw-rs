@@ -22,46 +22,6 @@ use std::str;
 
 use super::*;
 
-///
-/// Holds the callback functions associated with a window
-///
-pub struct WindowData {
-    pos_fun:                Option<WindowPosFun>,
-    size_fun:               Option<WindowSizeFun>,
-    close_fun:              Option<WindowCloseFun>,
-    refresh_fun:            Option<WindowRefreshFun>,
-    focus_fun:              Option<WindowFocusFun>,
-    iconify_fun:            Option<WindowIconifyFun>,
-    framebuffer_size_fun:   Option<FramebufferSizeFun>,
-    mouse_button_fun:       Option<MouseButtonFun>,
-    cursor_pos_fun:         Option<CursorPosFun>,
-    cursor_enter_fun:       Option<CursorEnterFun>,
-    scroll_fun:             Option<ScrollFun>,
-    key_fun:                Option<KeyFun>,
-    char_fun:               Option<CharFun>,
-}
-
-impl WindowData {
-    /// Initialize the struct with all callbacks set to `None`.
-    pub fn new() -> WindowData {
-        WindowData {
-            pos_fun:                None,
-            size_fun:               None,
-            close_fun:              None,
-            refresh_fun:            None,
-            focus_fun:              None,
-            iconify_fun:            None,
-            framebuffer_size_fun:   None,
-            mouse_button_fun:       None,
-            cursor_pos_fun:         None,
-            cursor_enter_fun:       None,
-            scroll_fun:             None,
-            key_fun:                None,
-            char_fun:               None,
-        }
-    }
-}
-
 // Global callbacks
 
 static error_fun_tls_key: local_data::Key<ErrorFun> = &local_data::Key;
@@ -102,36 +62,36 @@ pub fn set_monitor_fun(cbfun: MonitorFun, f: &fn(ffi::GLFWmonitorfun) ) {
 unsafe fn chan_from_ptr(ptr: *c_void) -> &Chan<WindowEvent> { cast::transmute(ptr) }
 
 macro_rules! window_callback(
-    (fn $name:ident () => $event:ident()) => (
+    (fn $name:ident () => $event:ident) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow) {
-            let chan : &Chan<WindowEvent> = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
+            let chan = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
             chan.send($event);
         }
     );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            let chan : &Chan<WindowEvent> = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
+            let chan = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
             chan.send($event( $( $arg_conv),* ));
         }
     );
-    (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident{$($fname:ident : $arg_conv:expr),*}) => (
+    (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident { $($fname:ident : $arg_conv:expr),* }) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            let chan : &Chan<WindowEvent> = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
+            let chan = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
             chan.send($event{ $( $fname : $arg_conv),* });
         }
     );
 )
 
-window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                           => Pos{xpos:xpos as int, ypos:ypos as int})
-window_callback!(fn window_size_callback(width: c_int, height: c_int)                       => Size{width:width as int, height:height as int})
-window_callback!(fn window_close_callback()                                                 => Close())
-window_callback!(fn window_refresh_callback()                                               => Refresh())
+window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                           => Pos { xpos: xpos as int, ypos: ypos as int })
+window_callback!(fn window_size_callback(width: c_int, height: c_int)                       => Size { width: width as int, height: height as int })
+window_callback!(fn window_close_callback()                                                 => Close)
+window_callback!(fn window_refresh_callback()                                               => Refresh)
 window_callback!(fn window_focus_callback(focused: c_int)                                   => Focus(focused as bool))
 window_callback!(fn window_iconify_callback(iconified: c_int)                               => Iconify(iconified as bool))
-window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => FrameBufferSize{width:width as int, height:height as int})
-window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton{button:button, action:action, mods:mods})
-window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => CursorPos{xpos:xpos as float, ypos:ypos as float})
+window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => FrameBufferSize { width: width as int, height: height as int })
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton{ button: button, action: action, mods: mods })
+window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => CursorPos { xpos: xpos as float, ypos: ypos as float })
 window_callback!(fn cursor_enter_callback(entered: c_int)                                   => CursorEnter(entered as bool))
-window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => Scroll{xpos:xpos as float, ypos:ypos as float})
-window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key{key:key, scancode:scancode, action:action, mods:mods})
+window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => Scroll { xpos: xpos as float, ypos: ypos as float })
+window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key { key: key, scancode: scancode, action: action, mods: mods })
 window_callback!(fn char_callback(character: c_uint)                                        => Char(character as char))
