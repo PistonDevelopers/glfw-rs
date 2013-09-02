@@ -517,6 +517,16 @@ pub enum KeyMod {
 
 impl KeyMods {
     /// Check to see if a specific key modifier is present
+    ///
+    /// # Example
+    ///
+    /// ~~~rust
+    /// do window.set_key_callback |_, _, _, _, mods| {
+    ///     if mods.contains(glfw::Shift) {
+    ///         println("Shift detected!")
+    ///     }
+    /// }
+    /// ~~~
     pub fn contains(&self, key_mod: KeyMod) -> bool {
         match key_mod {
             Shift   => (**self & MOD_SHIFT)   as bool,
