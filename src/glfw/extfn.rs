@@ -56,28 +56,26 @@ pub fn set_monitor_fun(cbfun: MonitorFun, f: &fn(ffi::GLFWmonitorfun) ) {
     f(monitor_callback);
 }
 
-
 // External window callbacks
-
-unsafe fn chan_from_ptr(ptr: *c_void) -> &Chan<WindowEvent> { cast::transmute(ptr) }
+#[fixed_stack_segment]
+unsafe fn get_chan(window: *ffi::GLFWwindow) -> &Chan<WindowEvent> {
+    cast::transmute(ffi::glfwGetWindowUserPointer(window))
+}
 
 macro_rules! window_callback(
     (fn $name:ident () => $event:ident) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow) {
-            let chan = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
-            chan.send($event);
+            unsafe { get_chan(window).send($event); }
         }
     );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            let chan = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
-            chan.send($event( $( $arg_conv),* ));
+            unsafe { get_chan(window).send($event( $( $arg_conv),* )); }
         }
     );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident { $($fname:ident : $arg_conv:expr),* }) => (
         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            let chan = unsafe { chan_from_ptr(ffi::glfwGetWindowUserPointer(window)) };
-            chan.send($event{ $( $fname : $arg_conv),* });
+            unsafe { get_chan(window).send($event{ $( $fname : $arg_conv),* }); }
         }
     );
 )
