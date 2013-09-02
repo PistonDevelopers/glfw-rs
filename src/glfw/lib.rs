@@ -602,7 +602,7 @@ impl Window {
 
     /// Internal wrapper for `glfwCreateWindow`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Result<Window,()> {
+    fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Result<Window,()> {
         unsafe {
             do title.with_c_str |title| {
                 ffi::glfwCreateWindow(
