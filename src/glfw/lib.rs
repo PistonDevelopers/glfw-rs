@@ -502,6 +502,31 @@ pub struct Window {
     priv data_map: @mut WindowFns,
 }
 
+/// A group of key modifiers
+#[deriving(Eq, Clone)]
+pub struct KeyMods(c_int);
+
+/// A key modifier token
+#[deriving(Eq, Clone)]
+pub enum KeyMod {
+    Shift,
+    Control,
+    Alt,
+    Super,
+}
+
+impl KeyMods {
+    /// Check to see if a specific key modifier is present
+    pub fn contains(&self, key_mod: KeyMod) -> bool {
+        match key_mod {
+            Shift   => (**self & MOD_SHIFT)   as bool,
+            Control => (**self & MOD_CONTROL) as bool,
+            Alt     => (**self & MOD_ALT)     as bool,
+            Super   => (**self & MOD_SUPER)   as bool,
+        }
+    }
+}
+
 /// Events sent for registered window callback functions
 #[deriving(Eq, Clone)]
 pub enum WindowEvent {
@@ -512,11 +537,11 @@ pub enum WindowEvent {
     Focus(bool),
     Iconify(bool),
     FrameBufferSize { width: int, height: int },
-    MouseButton { button:c_int, action: c_int, mods: c_int },
+    MouseButton { button:c_int, action: c_int, mods: KeyMods },
     CursorPos { xpos: float, ypos: float },
     CursorEnter(bool),
     Scroll { xpos: float, ypos: float },
-    Key { key: c_int, scancode: c_int, action: c_int, mods: c_int },
+    Key { key: c_int, scancode: c_int, action: c_int, mods: KeyMods },
     Char(char),
 }
 
@@ -528,11 +553,11 @@ pub type WindowRefreshFun = @fn(window: &Window);
 pub type WindowFocusFun = @fn(window: &Window, focused: bool);
 pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
 pub type FramebufferSizeFun = @fn(window: &Window, width: int, height: int);
-pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: c_int);
+pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
 pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
 pub type CursorEnterFun = @fn(window: &Window, entered: bool);
 pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun = @fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: c_int);
+pub type KeyFun = @fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
 pub type CharFun = @fn(window: &Window, character: char);
 pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
 

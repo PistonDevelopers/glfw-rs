@@ -39,7 +39,7 @@ fn main() {
     }
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, _: libc::c_int) {
+fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, _: glfw::KeyMods) {
     if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
         window.set_should_close(true);
     }

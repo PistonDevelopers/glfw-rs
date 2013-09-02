@@ -92,7 +92,7 @@ fn framebuffer_size_callback(_: &glfw::Window, width: int, height: int) {
     println(fmt!("Framebuffer size: %? %?", width, height));
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, scancode: libc::c_int, action: libc::c_int, mods: libc::c_int) {
+fn key_callback(window: &glfw::Window, key: libc::c_int, scancode: libc::c_int, action: libc::c_int, mods: glfw::KeyMods) {
     println(fmt!("Key %s: %s%s (scan code : %?)",
                  key_to_str(key),
                  action_to_str(action),
@@ -120,7 +120,7 @@ fn char_callback(_: &glfw::Window, character: char) {
     println(fmt!("Character: %?", character));
 }
 
-fn mouse_button_callback(_: &glfw::Window, button: libc::c_int, action: libc::c_int, mods: libc::c_int) {
+fn mouse_button_callback(_: &glfw::Window, button: libc::c_int, action: libc::c_int, mods: glfw::KeyMods) {
     println(fmt!("Mouse Button %s: %s%s",
                  mouse_button_to_str(button),
                  action_to_str(action),
@@ -290,11 +290,11 @@ fn mouse_button_to_str(btn: libc::c_int) -> ~str {
     }
 }
 
-fn modifiers_to_str(mods: libc::c_int) -> ~str {
+fn modifiers_to_str(mods: glfw::KeyMods) -> ~str {
     let mut ss = ~[];
-    if (mods & glfw::MOD_SHIFT)   as bool { ss.push(~"shift")   }
-    if (mods & glfw::MOD_CONTROL) as bool { ss.push(~"control") }
-    if (mods & glfw::MOD_ALT)     as bool { ss.push(~"alt")     }
-    if (mods & glfw::MOD_SUPER)   as bool { ss.push(~"super")   }
+    if mods.contains(glfw::Shift)   { ss.push(~"shift")   }
+    if mods.contains(glfw::Control) { ss.push(~"control") }
+    if mods.contains(glfw::Alt)     { ss.push(~"alt")     }
+    if mods.contains(glfw::Super)   { ss.push(~"super")   }
     ss.connect(", ")
 }
