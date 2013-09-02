@@ -29,12 +29,11 @@ fn main() {
 
         // Loop until the user closes the window
         while !window.should_close() {
-
             // Swap front and back buffers
             window.swap_buffers();
 
             // Poll for and process events
-            window.poll_events()    // This will not be necessary in future versions
+            window.poll_events();   // This will not be necessary in future versions
             glfw::poll_events();
         }
     }
