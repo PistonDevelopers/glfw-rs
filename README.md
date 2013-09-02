@@ -58,6 +58,12 @@ Building a specific example
 rustpkg build examples/callbacks
 ~~~
 
+### Note
+
+glfw-rs wraps [glfw v3](http://www.glfw.org/). If you encounter lots of errors
+like: `undefined reference to 'glfwSetScrollCallback'`, make sure you version
+of glfw is up to date.
+
 ## glfw-rs in use
 
 - [sebcrozet/kiss3d](https://github.com/sebcrozet/kiss3d)
