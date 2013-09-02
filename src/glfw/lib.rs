@@ -587,10 +587,6 @@ macro_rules! set_window_callback(
 
 impl Window {
     /// Wrapper for `glfwCreateWindow`.
-    ///
-    /// # Returns
-    ///
-    /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
         Window::create_intern(width, height, title, mode, None)
     }
