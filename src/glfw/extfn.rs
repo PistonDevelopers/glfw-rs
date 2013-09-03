@@ -65,22 +65,22 @@ unsafe fn get_fns(window: *ffi::GLFWwindow) -> &WindowFns {
 macro_rules! window_callback(
     (fn $name:ident () => $field:ident()) => (
          pub extern "C" fn $name(window: *ffi::GLFWwindow) {
-            do unsafe {get_fns(window)}.$field.map |&ref cb| {
-                let window_ = Window { ptr: window, is_shared: false };
-                (*cb)(&window_);
-                unsafe { cast::forget(window_); }
-            };
+            unsafe {
+                let window = Window { ptr: window, is_shared: false };
+                window.get_fns().$field.map(|cb| (*cb)(&window));
+                cast::forget(window);
+            }
          }
      );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $field:ident($($arg_conv:expr),*)) => (
          pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            do unsafe {get_fns(window)}.$field.map |&ref cb| {
-                let window_ = Window { ptr: window, is_shared: false };
-                (*cb)(&window_ $(, $arg_conv)*);
-                unsafe { cast::forget(window_); }
-            };
+            unsafe {
+                let window = Window { ptr: window, is_shared: false };
+                window.get_fns().$field.map(|cb| (*cb)(&window $(, $arg_conv)*));
+                cast::forget(window);
+            }
          }
-     ); 
+     );
 )
 
 window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                           => pos_fun(xpos as int, ypos as int))

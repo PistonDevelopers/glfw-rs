@@ -590,20 +590,16 @@ impl WindowFns {
     }
 }
 
-#[fixed_stack_segment]
-unsafe fn get_fns(window: *ffi::GLFWwindow) -> &mut WindowFns {
-    cast::transmute(ffi::glfwGetWindowUserPointer(window))
-}
-
 macro_rules! set_window_callback(
     (
         setter:   $ll_fn:ident,
         callback: $ext_fn:ident,
         field:    $data_field:ident
     ) => ({
-        let map = unsafe { get_fns(self.ptr) };
-        map.$data_field = Some(cbfun);
-        unsafe { ffi::$ll_fn(self.ptr, Some(extfn::$ext_fn)); }
+        unsafe {
+            self.get_fns().$data_field = Some(cbfun);
+            ffi::$ll_fn(self.ptr, Some(extfn::$ext_fn));
+        }
     })
 )
 
@@ -642,6 +638,11 @@ impl Window {
                 }
             )
         }
+    }
+
+    #[fixed_stack_segment]
+    unsafe fn get_fns(&self) -> &mut WindowFns {
+        cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
