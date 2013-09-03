@@ -1096,7 +1096,7 @@ impl Drop for Window {
             // Free the windowfns
             let _: ~WindowFns = unsafe {
                 cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
-            }; 
+            };
         }
     }
 }
