@@ -62,6 +62,11 @@ glfw-rs wraps [glfw v3](http://www.glfw.org/). If you encounter lots of errors
 like: `undefined reference to 'glfwSetScrollCallback'`, make sure you version
 of glfw is up to date.
 
+## Ok, so I have windowing sorted, now where do I find OpenGL?
+
+You can use the function pointer loader, [gl-rs](https://github.com/bjz/gl-rs),
+or the [OpenGL-ES bindings](https://github.com/mozilla-servo/rust-opengles).
+
 ## glfw-rs in use
 
 - [sebcrozet/kiss3d](https://github.com/sebcrozet/kiss3d)
