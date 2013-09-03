@@ -25,7 +25,6 @@
 // TODO: Document differences between GLFW and glfw-rs
 
 use std::cast;
-use std::comm::{Port, stream};
 use std::libc::*;
 use std::ptr;
 use std::str;
@@ -498,8 +497,6 @@ impl WindowMode {
 pub struct Window {
     ptr: *ffi::GLFWwindow,
     is_shared: bool,
-    priv port: Port<WindowEvent>,
-    priv data_map: @mut WindowFns,
 }
 
 /// A group of key modifiers
@@ -537,39 +534,23 @@ impl KeyMods {
     }
 }
 
-/// Events sent for registered window callback functions
-#[deriving(Eq, Clone)]
-pub enum WindowEvent {
-    Pos { xpos: int, ypos: int },
-    Size { width: int, height: int },
-    Close,
-    Refresh,
-    Focus(bool),
-    Iconify(bool),
-    FrameBufferSize { width: int, height: int },
-    MouseButton { button:c_int, action: c_int, mods: KeyMods },
-    CursorPos { xpos: float, ypos: float },
-    CursorEnter(bool),
-    Scroll { xpos: float, ypos: float },
-    Key { key: c_int, scancode: c_int, action: c_int, mods: KeyMods },
-    Char(char),
-}
-
-pub type ErrorFun = @fn(error: c_int, description: ~str);
-pub type WindowPosFun = @fn(window: &Window, xpos: int, ypos: int);
-pub type WindowSizeFun = @fn(window: &Window, width: int, height: int);
-pub type WindowCloseFun = @fn(window: &Window);
-pub type WindowRefreshFun = @fn(window: &Window);
-pub type WindowFocusFun = @fn(window: &Window, focused: bool);
-pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
-pub type FramebufferSizeFun = @fn(window: &Window, width: int, height: int);
-pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
-pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
-pub type CursorEnterFun = @fn(window: &Window, entered: bool);
-pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun = @fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
-pub type CharFun = @fn(window: &Window, character: char);
-pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
+/// The global callbacks are simple managed closures.
+/// 
+pub type ErrorFun = ~fn(error: c_int, description: ~str);
+pub type WindowPosFun = ~fn(window: &Window, xpos: int, ypos: int);
+pub type WindowSizeFun = ~fn(window: &Window, width: int, height: int);
+pub type WindowCloseFun = ~fn(window: &Window);
+pub type WindowRefreshFun = ~fn(window: &Window);
+pub type WindowFocusFun = ~fn(window: &Window, focused: bool);
+pub type WindowIconifyFun = ~fn(window: &Window, iconified: bool);
+pub type FramebufferSizeFun = ~fn(window: &Window, width: int, height: int);
+pub type MouseButtonFun = ~fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
+pub type CursorPosFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type CursorEnterFun = ~fn(window: &Window, entered: bool);
+pub type ScrollFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type KeyFun = ~fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
+pub type CharFun = ~fn(window: &Window, character: char);
+pub type MonitorFun = ~fn(monitor: &Monitor, event: c_int);
 
 /// Holds the callback functions associated with a window
 struct WindowFns {
@@ -609,13 +590,19 @@ impl WindowFns {
     }
 }
 
+#[fixed_stack_segment]
+unsafe fn get_fns(window: *ffi::GLFWwindow) -> &mut WindowFns {
+    cast::transmute(ffi::glfwGetWindowUserPointer(window))
+}
+
 macro_rules! set_window_callback(
     (
         setter:   $ll_fn:ident,
         callback: $ext_fn:ident,
         field:    $data_field:ident
     ) => ({
-        self.data_map.$data_field = Some(cbfun);
+        let map = unsafe { get_fns(self.ptr) };
+        map.$data_field = Some(cbfun);
         unsafe { ffi::$ll_fn(self.ptr, Some(extfn::$ext_fn)); }
     })
 )
@@ -645,37 +632,15 @@ impl Window {
                 )
             }.to_option().map_default(Err(()),
                 |&ptr| {
-                    let (port, chan) = stream();
-                    ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~chan));
-                    Ok(Window {
+                    let windowfns = WindowFns::new();
+                    ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~windowfns));
+                    let window = ~Window {
                         ptr: ptr::to_unsafe_ptr(ptr),
                         is_shared: share.is_none(),
-                        port: port,
-                        data_map: @mut WindowFns::new()
-                    })
+                    };
+                    Ok(*window)
                 }
             )
-        }
-    }
-
-    /// Updates all window callbacks if they have been triggered.
-    pub fn poll_events(&self) {
-        if self.port.peek() {
-            match self.port.recv() {
-                Pos { xpos, ypos }                      => self.data_map.pos_fun.map(|&cb| cb(self, xpos, ypos)),
-                Size { width, height }                  => self.data_map.size_fun.map(|&cb| cb(self, width, height)),
-                Close                                   => self.data_map.close_fun.map(|&cb| cb(self)),
-                Refresh                                 => self.data_map.refresh_fun.map(|&cb| cb(self)),
-                Focus(focused)                          => self.data_map.focus_fun.map(|&cb| cb(self, focused)),
-                Iconify(iconified)                      => self.data_map.iconify_fun.map(|&cb| cb(self, iconified)),
-                FrameBufferSize { width, height }       => self.data_map.framebuffer_size_fun.map(|&cb| cb(self, width, height)),
-                MouseButton { button, action, mods }    => self.data_map.mouse_button_fun.map(|&cb| cb(self, button, action, mods)),
-                CursorPos { xpos, ypos }                => self.data_map.cursor_pos_fun.map(|&cb| cb(self, xpos, ypos)),
-                CursorEnter(entered)                    => self.data_map.cursor_enter_fun.map(|&cb| cb(self, entered)),
-                Scroll { xpos, ypos }                   => self.data_map.scroll_fun.map(|&cb| cb(self, xpos, ypos)),
-                Key { key, scancode, action, mods }     => self.data_map.key_fun.map(|&cb| cb(self, key, scancode, action, mods)),
-                Char(character)                         => self.data_map.char_fun.map(|&cb| cb(self, character)),
-            };
         }
     }
 
@@ -1128,10 +1093,10 @@ impl Drop for Window {
         }
 
         if !self.ptr.is_null() {
-            // Free the boxed channel
-            let _: ~Chan<WindowEvent> = unsafe {
+            // Free the windowfns
+            let _: ~WindowFns = unsafe {
                 cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
-            };
+            }; 
         }
     }
 }
