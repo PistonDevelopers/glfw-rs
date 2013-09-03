@@ -56,13 +56,15 @@ Building a specific example
 rustpkg build examples/callbacks
 ~~~
 
-### Note
+## FAQ
 
-glfw-rs wraps [glfw v3](http://www.glfw.org/). If you encounter lots of errors
-like: `undefined reference to 'glfwSetScrollCallback'`, make sure you version
-of glfw is up to date.
+_I get lots of errors like: `undefined reference to 'glfwSetScrollCallback'`_
 
-## Ok, so I have windowing sorted, now where do I find OpenGL?
+glfw-rs wraps [glfw 3.0](http://www.glfw.org/). Version 2.7 was out for a
+_long_ time, and may still be hanging around on package managers. If you
+encounter these kinds of errors, make sure you version of glfw is up to date.
+
+_Ok, so I have windowing sorted, now where do I find OpenGL?_
 
 You can use the function pointer loader, [gl-rs](https://github.com/bjz/gl-rs),
 or the [OpenGL-ES bindings](https://github.com/mozilla-servo/rust-opengles).
