@@ -526,10 +526,10 @@ impl KeyMods {
     /// ~~~
     pub fn contains(&self, key_mod: KeyMod) -> bool {
         match key_mod {
-            Shift   => (**self & MOD_SHIFT)   as bool,
-            Control => (**self & MOD_CONTROL) as bool,
-            Alt     => (**self & MOD_ALT)     as bool,
-            Super   => (**self & MOD_SUPER)   as bool,
+            Shift   => (**self & MOD_SHIFT)   != 0,
+            Control => (**self & MOD_CONTROL) != 0,
+            Alt     => (**self & MOD_ALT)     != 0,
+            Super   => (**self & MOD_SUPER)   != 0,
         }
     }
 }
@@ -648,7 +648,7 @@ impl Window {
     /// Wrapper for `glfwWindowShouldClose`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn should_close(&self) -> bool {
-        unsafe { ffi::glfwWindowShouldClose(self.ptr) as bool }
+        unsafe { ffi::glfwWindowShouldClose(self.ptr) != 0 }
     }
 
     /// Wrapper for `glfwSetWindowShouldClose`.
@@ -748,13 +748,13 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_focused(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, FOCUSED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, FOCUSED) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `ICONIFIED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_iconified(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ICONIFIED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ICONIFIED) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CLIENT_API`.
@@ -789,13 +789,13 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_FORWARD_COMPAT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_forward_compat(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_DEBUG_CONTEXT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_debug_context(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_PROFILE`.
@@ -807,19 +807,19 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `RESIZABLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_resizable(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, RESIZABLE) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, RESIZABLE) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_visible(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, VISIBLE) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, VISIBLE) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_decorated(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, DECORATED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, DECORATED) != 0 }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
@@ -893,7 +893,7 @@ impl Window {
     /// Wrapper for `glfwGetInputMode` called with `STICKY_KEYS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_keys(&self) -> bool {
-        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_KEYS) as bool }
+        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_KEYS) != 0 }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_KEYS`.
@@ -905,7 +905,7 @@ impl Window {
     /// Wrapper for `glfwGetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_mouse_buttons(&self) -> bool {
-        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_MOUSE_BUTTONS) as bool }
+        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_MOUSE_BUTTONS) != 0 }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_MOUSE_BUTTONS`.
@@ -1124,7 +1124,7 @@ pub mod joystick {
     /// Wrapper for `glfwJoystickPresent`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_present(joy: c_int) -> bool {
-        unsafe { ffi::glfwJoystickPresent(joy) as bool }
+        unsafe { ffi::glfwJoystickPresent(joy) != 0 }
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
@@ -1177,7 +1177,7 @@ pub fn set_swap_interval(interval: int) {
 pub fn extension_supported(extension: &str) -> bool {
     unsafe {
         do extension.with_c_str |extension| {
-            ffi::glfwExtensionSupported(extension) as bool
+            ffi::glfwExtensionSupported(extension) != 0
         }
     }
 }
