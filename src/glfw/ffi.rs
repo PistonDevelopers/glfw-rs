@@ -20,8 +20,6 @@ use std::libc::*;
 // re-export constants
 pub use consts::*;
 
-// TODO: Will have to be changed once we can do external C callbacks nicely
-
 pub type GLFWglproc             = extern "C" fn();
 
 pub type GLFWerrorfun           = extern "C" fn(c_int,*c_char);

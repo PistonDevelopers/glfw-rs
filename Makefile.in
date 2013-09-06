@@ -4,7 +4,7 @@ RUSTC ?= rustc
 RUSTFLAGS ?=
 
 RUST_SRC = \
-	$(addprefix src/,\
+	$(addprefix src/glfw/,\
 		consts.rs \
 		ffi.rs \
 		extfn.rs)
@@ -12,7 +12,7 @@ RUST_SRC = \
 .PHONY: all
 all: libglfwrs.dummy
 
-libglfwrs.dummy: src/glfw.rs $(RUST_SRC)
+libglfwrs.dummy: src/glfw/lib.rs $(RUST_SRC)
 	$(RUSTC) $(RUSTFLAGS) -L ../glfw $< --out-dir .
 	touch $@
 

@@ -26,20 +26,18 @@ fn main() {
     glfw::set_error_callback(error_callback);
 
     do glfw::start {
-        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
 
-        window.make_context_current();
         window.set_key_callback(key_callback);
-        glfw::set_swap_interval(1);
+        window.make_context_current();
 
         while !window.should_close() {
-            window.poll_events();
             glfw::poll_events();
         }
     }
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, _: libc::c_int) {
+fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, _: glfw::KeyMods) {
     if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
         window.set_should_close(true);
     }
