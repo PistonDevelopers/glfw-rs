@@ -24,6 +24,7 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
+use std::cast;
 use std::libc::*;
 use std::ptr;
 use std::str;
@@ -34,36 +35,7 @@ pub use consts::*;
 
 pub mod ffi;
 pub mod consts;
-mod private;
-
-/// A struct that wraps a `*GLFWmonitor` handle.
-#[deriving(Eq)]
-pub struct Monitor {
-    ptr: *ffi::GLFWmonitor
-}
-
-/// A struct that wraps a `*GLFWwindow` handle.
-#[deriving(Eq, IterBytes)]
-pub struct Window {
-    ptr: *ffi::GLFWwindow,
-    shared: bool,
-}
-
-pub type ErrorFun = @fn(error: c_int, description: ~str);
-pub type WindowPosFun = @fn(window: &Window, xpos: int, ypos: int);
-pub type WindowSizeFun = @fn(window: &Window, width: int, height: int);
-pub type WindowCloseFun = @fn(window: &Window);
-pub type WindowRefreshFun = @fn(window: &Window);
-pub type WindowFocusFun = @fn(window: &Window, focused: bool);
-pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
-pub type FramebufferSizeFun = @fn(window: &Window, width: int, height: int);
-pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: c_int);
-pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
-pub type CursorEnterFun = @fn(window: &Window, entered: bool);
-pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun = @fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: c_int);
-pub type CharFun = @fn(window: &Window, character: char);
-pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
+mod extfn;
 
 /// Describes a single video mode.
 pub struct VidMode {
@@ -165,9 +137,15 @@ pub fn get_version_string() -> ~str {
 /// Wrapper for `glfwSetErrorCallback`.
 #[fixed_stack_segment] #[inline(never)]
 pub fn set_error_callback(cbfun: ErrorFun) {
-    do private::set_error_fun(cbfun) |ext_cb| {
+    do extfn::set_error_fun(cbfun) |ext_cb| {
         unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
     }
+}
+
+/// A struct that wraps a `*GLFWmonitor` handle.
+#[deriving(Eq)]
+pub struct Monitor {
+    ptr: *ffi::GLFWmonitor
 }
 
 impl Monitor {
@@ -221,7 +199,7 @@ impl Monitor {
     /// Wrapper for `glfwSetMonitorCallback`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_callback(cbfun: MonitorFun) {
-        do private::set_monitor_fun(cbfun) |ext_cb| {
+        do extfn::set_monitor_fun(cbfun) |ext_cb| {
             unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
         }
     }
@@ -515,30 +493,130 @@ impl WindowMode {
     }
 }
 
+/// A struct that wraps a `*GLFWwindow` handle.
+pub struct Window {
+    ptr: *ffi::GLFWwindow,
+    is_shared: bool,
+}
+
+/// A group of key modifiers
+#[deriving(Eq, Clone)]
+pub struct KeyMods(c_int);
+
+/// A key modifier token
+#[deriving(Eq, Clone)]
+pub enum KeyMod {
+    Shift,
+    Control,
+    Alt,
+    Super,
+}
+
+impl KeyMods {
+    /// Check to see if a specific key modifier is present
+    ///
+    /// # Example
+    ///
+    /// ~~~rust
+    /// do window.set_key_callback |_, _, _, _, mods| {
+    ///     if mods.contains(glfw::Shift) {
+    ///         println("Shift detected!")
+    ///     }
+    /// }
+    /// ~~~
+    pub fn contains(&self, key_mod: KeyMod) -> bool {
+        match key_mod {
+            Shift   => (**self & MOD_SHIFT)   != 0,
+            Control => (**self & MOD_CONTROL) != 0,
+            Alt     => (**self & MOD_ALT)     != 0,
+            Super   => (**self & MOD_SUPER)   != 0,
+        }
+    }
+}
+
+/// The global callbacks are simple managed closures.
+/// 
+pub type ErrorFun = ~fn(error: c_int, description: ~str);
+pub type WindowPosFun = ~fn(window: &Window, xpos: int, ypos: int);
+pub type WindowSizeFun = ~fn(window: &Window, width: int, height: int);
+pub type WindowCloseFun = ~fn(window: &Window);
+pub type WindowRefreshFun = ~fn(window: &Window);
+pub type WindowFocusFun = ~fn(window: &Window, focused: bool);
+pub type WindowIconifyFun = ~fn(window: &Window, iconified: bool);
+pub type FramebufferSizeFun = ~fn(window: &Window, width: int, height: int);
+pub type MouseButtonFun = ~fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
+pub type CursorPosFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type CursorEnterFun = ~fn(window: &Window, entered: bool);
+pub type ScrollFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type KeyFun = ~fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
+pub type CharFun = ~fn(window: &Window, character: char);
+pub type MonitorFun = ~fn(monitor: &Monitor, event: c_int);
+
+/// Holds the callback functions associated with a window
+struct WindowFns {
+    pos_fun:                Option<WindowPosFun>,
+    size_fun:               Option<WindowSizeFun>,
+    close_fun:              Option<WindowCloseFun>,
+    refresh_fun:            Option<WindowRefreshFun>,
+    focus_fun:              Option<WindowFocusFun>,
+    iconify_fun:            Option<WindowIconifyFun>,
+    framebuffer_size_fun:   Option<FramebufferSizeFun>,
+    mouse_button_fun:       Option<MouseButtonFun>,
+    cursor_pos_fun:         Option<CursorPosFun>,
+    cursor_enter_fun:       Option<CursorEnterFun>,
+    scroll_fun:             Option<ScrollFun>,
+    key_fun:                Option<KeyFun>,
+    char_fun:               Option<CharFun>,
+}
+
+impl WindowFns {
+    /// Initialize the struct with all callbacks set to `None`.
+    fn new() -> WindowFns {
+        WindowFns {
+            pos_fun:                None,
+            size_fun:               None,
+            close_fun:              None,
+            refresh_fun:            None,
+            focus_fun:              None,
+            iconify_fun:            None,
+            framebuffer_size_fun:   None,
+            mouse_button_fun:       None,
+            cursor_pos_fun:         None,
+            cursor_enter_fun:       None,
+            scroll_fun:             None,
+            key_fun:                None,
+            char_fun:               None,
+        }
+    }
+}
+
 macro_rules! set_window_callback(
     (
         setter:   $ll_fn:ident,
         callback: $ext_fn:ident,
         field:    $data_field:ident
     ) => ({
-        private::WindowDataMap::find_or_insert(self.ptr).$data_field = Some(cbfun);
-        unsafe { ffi::$ll_fn(self.ptr, Some(private::$ext_fn)); }
+        unsafe {
+            self.get_fns().$data_field = Some(cbfun);
+            ffi::$ll_fn(self.ptr, Some(extfn::$ext_fn));
+        }
     })
 )
 
 impl Window {
     /// Wrapper for `glfwCreateWindow`.
-    ///
-    /// # Returns
-    ///
-    /// The created window wrapped in `Some`, or `None` if an error occurred.
     pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
-        Window::create_shared(width, height, title, mode, &Window { ptr: ptr::null(), shared: false })
+        Window::create_intern(width, height, title, mode, None)
     }
 
     /// Wrapper for `glfwCreateWindow`.
+    pub fn create_shared(&self, width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
+        Window::create_intern(width, height, title, mode, Some(self))
+    }
+
+    /// Internal wrapper for `glfwCreateWindow`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn create_shared(width: uint, height: uint, title: &str, mode: WindowMode, share: &Window) -> Result<Window,()> {
+    fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Result<Window,()> {
         unsafe {
             do title.with_c_str |title| {
                 ffi::glfwCreateWindow(
@@ -546,16 +624,31 @@ impl Window {
                     height as c_int,
                     title,
                     mode.to_ptr(),
-                    share.ptr)
+                    match share { Some(w) => w.ptr, None => ptr::null() }
+                )
             }.to_option().map_default(Err(()),
-                |&ptr| Ok(Window { ptr: ptr::to_unsafe_ptr(ptr), shared: true }))
+                |&ptr| {
+                    let windowfns = WindowFns::new();
+                    ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~windowfns));
+                    let window = ~Window {
+                        ptr: ptr::to_unsafe_ptr(ptr),
+                        is_shared: share.is_none(),
+                    };
+                    Ok(*window)
+                }
+            )
         }
+    }
+
+    #[fixed_stack_segment]
+    unsafe fn get_fns(&self) -> &mut WindowFns {
+        cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn should_close(&self) -> bool {
-        unsafe { ffi::glfwWindowShouldClose(self.ptr) as bool }
+        unsafe { ffi::glfwWindowShouldClose(self.ptr) != 0 }
     }
 
     /// Wrapper for `glfwSetWindowShouldClose`.
@@ -655,13 +748,13 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_focused(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, FOCUSED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, FOCUSED) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `ICONIFIED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_iconified(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ICONIFIED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ICONIFIED) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CLIENT_API`.
@@ -696,13 +789,13 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_FORWARD_COMPAT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_forward_compat(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_DEBUG_CONTEXT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_debug_context(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_PROFILE`.
@@ -714,19 +807,19 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `RESIZABLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_resizable(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, RESIZABLE) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, RESIZABLE) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_visible(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, VISIBLE) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, VISIBLE) != 0 }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_decorated(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, DECORATED) as bool }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, DECORATED) != 0 }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
@@ -800,7 +893,7 @@ impl Window {
     /// Wrapper for `glfwGetInputMode` called with `STICKY_KEYS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_keys(&self) -> bool {
-        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_KEYS) as bool }
+        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_KEYS) != 0 }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_KEYS`.
@@ -812,7 +905,7 @@ impl Window {
     /// Wrapper for `glfwGetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_mouse_buttons(&self) -> bool {
-        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_MOUSE_BUTTONS) as bool }
+        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_MOUSE_BUTTONS) != 0 }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_MOUSE_BUTTONS`.
@@ -989,18 +1082,23 @@ pub fn get_x11_display() -> *c_void {
     unsafe { ffi::glfwGetX11Display() }
 }
 
+#[unsafe_destructor]
 impl Drop for Window {
     /// Closes the window and removes all associated callbacks.
     ///
     /// Wrapper for `glfwDestroyWindow`.
     #[fixed_stack_segment] #[inline(never)]
     fn drop(&self) {
-        if !self.shared {
-        unsafe { ffi::glfwDestroyWindow(self.ptr); }
+        if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
-        // Remove data from task-local storage
-        private::WindowDataMap::remove(self.ptr);
+
+        if !self.ptr.is_null() {
+            // Free the windowfns
+            let _: ~WindowFns = unsafe {
+                cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
+            };
+        }
     }
 }
 
@@ -1026,7 +1124,7 @@ pub mod joystick {
     /// Wrapper for `glfwJoystickPresent`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_present(joy: c_int) -> bool {
-        unsafe { ffi::glfwJoystickPresent(joy) as bool }
+        unsafe { ffi::glfwJoystickPresent(joy) != 0 }
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
@@ -1079,7 +1177,7 @@ pub fn set_swap_interval(interval: int) {
 pub fn extension_supported(extension: &str) -> bool {
     unsafe {
         do extension.with_c_str |extension| {
-            ffi::glfwExtensionSupported(extension) as bool
+            ffi::glfwExtensionSupported(extension) != 0
         }
     }
 }

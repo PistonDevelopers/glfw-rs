@@ -29,7 +29,6 @@ fn main() {
 
         // Loop until the user closes the window
         while !window.should_close() {
-
             // Swap front and back buffers
             window.swap_buffers();
 
@@ -40,19 +39,35 @@ fn main() {
 }
 ~~~
 
-## Instructions
+## Compilation
 
-### Building glfw-rs
+Building the library
+~~~
+rustpkg build glfw
+~~~
 
-1. Make sure you have the latest version of the GLFW 3 development version (not 2.7, which is on most package managers) built and installed on your system. This can be cloned from the project's [Github repository](https://github.com/glfw/glfw). GLFW builds as a static library by default which doesn't work well with Rust, so you'll have to set the `BUILD_SHARED_LIBS` CMake option to true _before_ you build and install it.
-2. Make sure you have the latest [version of Rust](https://github.com/mozilla/rust) built and installed from the `incoming` branch.
-3. Clone this repository: `$ git clone https://github.com/bjz/glfw-rs.git`, then `$ cd glfw-rs`.
-4. Run `$ make`. This will build the library to the `./lib` directory.
+Building the examples
+~~~
+rustpkg build examples
+~~~
 
-### Building the examples
+Building a specific example
+~~~
+rustpkg build examples/callbacks
+~~~
 
-1. `$ cd glfw/examples`
-2. `$ make` or for a specific example `$ make <example name>` (eg. `$ make window`)
+## FAQ
+
+_I get lots of errors like: `undefined reference to 'glfwSetScrollCallback'`_
+
+glfw-rs wraps [glfw 3.0](http://www.glfw.org/). Version 2.7 was out for a
+_long_ time, and may still be hanging around on package managers. If you
+encounter these kinds of errors, make sure you version of glfw is up to date.
+
+_Ok, so I have windowing sorted, now where do I find OpenGL?_
+
+You can use the function pointer loader, [gl-rs](https://github.com/bjz/gl-rs),
+or the [OpenGL-ES bindings](https://github.com/mozilla-servo/rust-opengles).
 
 ## glfw-rs in use
 
