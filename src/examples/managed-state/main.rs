@@ -50,7 +50,7 @@ fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
 
 fn main() {
     do glfw::set_error_callback |_, msg| {
-        printfln!("GLFW Error: %s", msg);
+        println!("GLFW Error: {:s}", msg);
     }
 
     do glfw::start {
@@ -70,7 +70,8 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
-            window.set_title(format!("{:?}", State::get_pos()));
+            let (x, y) = State::get_pos();
+            window.set_title(format!("({}, {})", x, y));
         }
     }
 }

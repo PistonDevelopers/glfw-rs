@@ -22,7 +22,7 @@ fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
 
 fn main() {
     do glfw::set_error_callback |_, description| {
-        println(fmt!("GLFW Error: %s", description));
+        println!("GLFW Error: {:s}", description);
     }
 
     do glfw::start {
@@ -32,7 +32,7 @@ fn main() {
         window.make_context_current();
 
         do window.set_cursor_pos_callback |_, xpos, ypos| {
-            println(fmt!("Cursor position: [ %f, %f ]", xpos, ypos));
+            println!("Cursor position: ({}, {})", xpos, ypos);
         }
 
         do window.set_key_callback |window, key, _, action, _| {

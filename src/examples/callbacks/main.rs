@@ -58,15 +58,15 @@ fn main() {
 }
 
 fn error_callback(_error: libc::c_int, description: ~str) {
-    println(fmt!("GLFW Error: %s", description));
+    println!("GLFW Error: {:s}", description);
 }
 
 fn window_pos_callback(window: &glfw::Window, x: int, y: int) {
-    window.set_title(fmt!("Window pos: [%d, %d]", x, y));
+    window.set_title(format!("Window pos: ({}, {})", x, y));
 }
 
 fn window_size_callback(window: &glfw::Window, width: int, height: int) {
-    window.set_title(fmt!("Window size: %d x %d", width, height));
+    window.set_title(format!("Window size: ({}, {})", width, height));
 }
 
 fn window_close_callback(_: &glfw::Window) {
@@ -88,18 +88,18 @@ fn window_iconify_callback(_: &glfw::Window, iconified: bool) {
 }
 
 fn framebuffer_size_callback(_: &glfw::Window, width: int, height: int) {
-    println(fmt!("Framebuffer size: %? %?", width, height));
+    println!("Framebuffer size: {} {}", width, height);
 }
 
 fn key_callback(window: &glfw::Window, key: libc::c_int, scancode: libc::c_int, action: libc::c_int, mods: glfw::KeyMods) {
-    println(fmt!("Key %s: %s%s (scan code : %?)",
-                 key_to_str(key),
-                 action_to_str(action),
-                 match modifiers_to_str(mods) {
-                    ~"" => ~"",
-                    s => fmt!(" with: %s", s),
-                 },
-                 scancode));
+    println!("Key {}: {:s}{:s} (scan code : {})",
+             key_to_str(key),
+             action_to_str(action),
+             match modifiers_to_str(mods) {
+                ~"" => ~"",
+                s => format!(" with: {:s}", s),
+             },
+             scancode);
 
     if action == glfw::PRESS {
         if key == glfw::KEY_ESCAPE {
@@ -116,21 +116,21 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, scancode: libc::c_int, 
 }
 
 fn char_callback(_: &glfw::Window, character: char) {
-    println(fmt!("Character: %?", character));
+    println!("Character: {}", character);
 }
 
 fn mouse_button_callback(_: &glfw::Window, button: libc::c_int, action: libc::c_int, mods: glfw::KeyMods) {
-    println(fmt!("Mouse Button %s: %s%s",
-                 mouse_button_to_str(button),
-                 action_to_str(action),
-                 match modifiers_to_str(mods) {
-                    ~"" => ~"",
-                    s => fmt!(" with: %s", s),
-                 }));
+    println!("Mouse Button {}: {:s}{:s}",
+             mouse_button_to_str(button),
+             action_to_str(action),
+             match modifiers_to_str(mods) {
+                ~"" => ~"",
+                s => format!(" with: {:s}", s),
+             });
 }
 
 fn cursor_pos_callback(window: &glfw::Window, xpos: float, ypos: float) {
-    window.set_title(fmt!("Cursor position: [ %f, %f ]", xpos, ypos));
+    window.set_title(format!("Cursor position: ({}, {})", xpos, ypos));
 }
 
 fn cursor_enter_callback(_: &glfw::Window, entered: bool) {
@@ -138,8 +138,8 @@ fn cursor_enter_callback(_: &glfw::Window, entered: bool) {
     else       { println("Cursor left window.");    }
 }
 
-fn scroll_callback(window: &glfw::Window, xoff: float, yoff: float) {
-    window.set_title(fmt!("Scroll offset: [%f, %f]", xoff, yoff));
+fn scroll_callback(window: &glfw::Window, x: float, y: float) {
+    window.set_title(format!("Scroll offset: ({}, {})", x, y));
 }
 
 fn action_to_str(state: libc::c_int) -> ~str {

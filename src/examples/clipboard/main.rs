@@ -45,7 +45,7 @@ static NATIVE_MOD: glfw::KeyMod = glfw::Super;
 static NATIVE_MOD: glfw::KeyMod = glfw::Control;
 
 fn error_callback(_: libc::c_int, description: ~str) {
-    println(fmt!("GLFW Error: %s", description));
+    println!("GLFW Error: {:s}", description);
 }
 
 fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, mods: glfw::KeyMods) {
@@ -55,14 +55,14 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action:
         }
         if (key == glfw::KEY_V) && mods.contains(NATIVE_MOD) {
             match window.get_clipboard_string() {
-                ref s if !s.is_empty() => println(fmt!("Clipboard contains %?", s)),
+                ref s if !s.is_empty() => println!("Clipboard contains \"{:s}\"", *s),
                 _                      => println("Clipboard does not contain a string"),
             }
         }
         if (key == glfw::KEY_C) && mods.contains(NATIVE_MOD) {
             let s = "Hello GLFW World!";
             window.set_clipboard_string(s);
-            println(fmt!("Setting clipboard to %?", s));
+            println!("Setting clipboard to {:s}", s);
         }
     }
 }
