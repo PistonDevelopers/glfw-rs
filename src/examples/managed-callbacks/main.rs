@@ -19,28 +19,26 @@ extern mod glfw;
 
 use std::local_data;
 
-static tls_key: local_data::Key<@mut TitleUpdater> = &local_data::Key;
+static tls_key: local_data::Key<@mut State> = &local_data::Key;
 
-struct TitleUpdater {
-    window: @mut glfw::Window,
+struct State {
+    priv pos: (float, float),
 }
 
-impl TitleUpdater {
-    pub fn update(&self, title: &str) {
-        self.window.set_title(title);
+impl State {
+    pub fn init(x: float, y: float) {
+        local_data::set(tls_key, @mut State { pos: (x, y) });
     }
 
-    /* TLS management. */
-    pub fn set(tu: @mut TitleUpdater) {
-        local_data::set(tls_key, tu);
-    }
-
-    pub fn get() -> @mut TitleUpdater {
+    pub fn update(x: float, y: float) {
         do local_data::get(tls_key) |opt| {
-            match opt {
-                Some(x) => *x,
-                None => fail!("Invalid TitleUpdater"),
-            }
+            opt.expect("Task-local state not initialized.").pos = (x, y);
+        }
+    }
+
+    pub fn get_pos() -> (float, float) {
+        do local_data::get(tls_key) |opt| {
+            opt.expect("Task-local state not initialized.").pos
         }
     }
 }
@@ -56,13 +54,11 @@ fn main() {
     }
 
     do glfw::start {
-        let window = @mut glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed).unwrap();
-        let title_updater = @mut TitleUpdater { window: window };
-        TitleUpdater::set(title_updater); // Store in TLS.
+        let window = glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed).unwrap();
+        State::init(0f, 0f);
 
-        // Title updater must be in TLS and cannot be captured in the callback.
         do window.set_cursor_pos_callback |_, x, y| {
-            TitleUpdater::get().update(fmt!("(%f %f)", x, y));
+            State::update(x, y);
         }
 
         do window.set_key_callback |win, key, _, action, _mods| {
@@ -74,6 +70,7 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
+            window.set_title(format!("{:?}", State::get_pos()));
         }
     }
 }
