@@ -536,21 +536,21 @@ impl KeyMods {
 
 /// The global callbacks are simple managed closures.
 /// 
-pub type ErrorFun = ~fn(error: c_int, description: ~str);
-pub type WindowPosFun = ~fn(window: &Window, xpos: int, ypos: int);
-pub type WindowSizeFun = ~fn(window: &Window, width: int, height: int);
-pub type WindowCloseFun = ~fn(window: &Window);
-pub type WindowRefreshFun = ~fn(window: &Window);
-pub type WindowFocusFun = ~fn(window: &Window, focused: bool);
-pub type WindowIconifyFun = ~fn(window: &Window, iconified: bool);
-pub type FramebufferSizeFun = ~fn(window: &Window, width: int, height: int);
-pub type MouseButtonFun = ~fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
-pub type CursorPosFun = ~fn(window: &Window, xpos: float, ypos: float);
-pub type CursorEnterFun = ~fn(window: &Window, entered: bool);
-pub type ScrollFun = ~fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun = ~fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
-pub type CharFun = ~fn(window: &Window, character: char);
-pub type MonitorFun = ~fn(monitor: &Monitor, event: c_int);
+pub type ErrorFun = @fn(error: c_int, description: ~str);
+pub type WindowPosFun = @fn(window: &Window, xpos: int, ypos: int);
+pub type WindowSizeFun = @fn(window: &Window, width: int, height: int);
+pub type WindowCloseFun = @fn(window: &Window);
+pub type WindowRefreshFun = @fn(window: &Window);
+pub type WindowFocusFun = @fn(window: &Window, focused: bool);
+pub type WindowIconifyFun = @fn(window: &Window, iconified: bool);
+pub type FramebufferSizeFun = @fn(window: &Window, width: int, height: int);
+pub type MouseButtonFun = @fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
+pub type CursorPosFun = @fn(window: &Window, xpos: float, ypos: float);
+pub type CursorEnterFun = @fn(window: &Window, entered: bool);
+pub type ScrollFun = @fn(window: &Window, xpos: float, ypos: float);
+pub type KeyFun = @fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
+pub type CharFun = @fn(window: &Window, character: char);
+pub type MonitorFun = @fn(monitor: &Monitor, event: c_int);
 
 /// Holds the callback functions associated with a window
 struct WindowFns {
