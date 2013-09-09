@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! This example shows how managed objects can be accessed from callbacks
+
 extern mod glfw;
 
 use std::local_data;
@@ -20,26 +22,27 @@ use std::local_data;
 static tls_key: local_data::Key<@mut TitleUpdater> = &local_data::Key;
 
 struct TitleUpdater {
-  window: @mut glfw::Window,
+    window: @mut glfw::Window,
 }
 
 impl TitleUpdater {
-  pub fn update(&self, title: &str) {
-    self.window.set_title(title);
-  }
-
-  /* TLS management. */
-  pub fn set(tu: @mut TitleUpdater) {
-    local_data::set(tls_key, tu);
-  }
-  pub fn get() -> @mut TitleUpdater {
-    do local_data::get(tls_key) |opt| {
-      match opt {
-        Some(x) => *x,
-        None => fail!("Invalid TitleUpdater"),
-      }
+    pub fn update(&self, title: &str) {
+        self.window.set_title(title);
     }
-  }
+
+    /* TLS management. */
+    pub fn set(tu: @mut TitleUpdater) {
+        local_data::set(tls_key, tu);
+    }
+
+    pub fn get() -> @mut TitleUpdater {
+        do local_data::get(tls_key) |opt| {
+            match opt {
+                Some(x) => *x,
+                None => fail!("Invalid TitleUpdater"),
+            }
+        }
+    }
 }
 
 #[start]
@@ -48,22 +51,23 @@ fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
 }
 
 fn main() {
-    do glfw::set_error_callback |_err, msg| {
-      printfln!("GLFW Error: %s", msg);
+    do glfw::set_error_callback |_, msg| {
+        printfln!("GLFW Error: %s", msg);
     }
 
     do glfw::start {
         let window = @mut glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed).unwrap();
         let title_updater = @mut TitleUpdater { window: window };
-        TitleUpdater::set(title_updater); /* Store in TLS. */
+        TitleUpdater::set(title_updater); // Store in TLS.
 
-        /* Title updater must be in TLS and cannot be captured in the callback. */
-        do window.set_cursor_pos_callback |_, x, y| 
-        { TitleUpdater::get().update(fmt!("(%f %f)", x, y)); }
+        // Title updater must be in TLS and cannot be captured in the callback.
+        do window.set_cursor_pos_callback |_, x, y| {
+            TitleUpdater::get().update(fmt!("(%f %f)", x, y));
+        }
 
         do window.set_key_callback |win, key, _, action, _mods| {
             if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
-              win.set_should_close(true);
+                win.set_should_close(true);
             }
         }
         window.make_context_current();
