@@ -34,6 +34,7 @@ pub type GLFWmousebuttonfun     = extern "C" fn(*GLFWwindow,c_int,c_int,c_int);
 pub type GLFWcursorposfun       = extern "C" fn(*GLFWwindow,c_double,c_double);
 pub type GLFWcursorenterfun     = extern "C" fn(*GLFWwindow,c_int);
 pub type GLFWscrollfun          = extern "C" fn(*GLFWwindow,c_double,c_double);
+pub type GLFWzoomfun            = extern "C" fn(*GLFWwindow,c_double);
 pub type GLFWkeyfun             = extern "C" fn(*GLFWwindow,c_int,c_int,c_int,c_int);
 pub type GLFWcharfun            = extern "C" fn(*GLFWwindow,c_uint);
 pub type GLFWmonitorfun         = extern "C" fn(*GLFWmonitor,c_int);
@@ -135,6 +136,7 @@ extern "C" {
     pub fn glfwSetCursorPosCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorposfun>) -> Option<GLFWcursorposfun>;
     pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorenterfun>) -> Option<GLFWcursorenterfun>;
     pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: Option<GLFWscrollfun>) -> Option<GLFWscrollfun>;
+    pub fn glfwSetZoomCallback(window: *GLFWwindow, cbfun: Option<GLFWzoomfun>) -> Option<GLFWzoomfun>;
 
     pub fn glfwJoystickPresent(joy: c_int) -> c_int;
     pub fn glfwGetJoystickAxes(joy: c_int, count: *c_int) -> *c_float;

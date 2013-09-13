@@ -548,6 +548,7 @@ pub type MouseButtonFun = ~fn(window: &Window, button: c_int, action: c_int, mod
 pub type CursorPosFun = ~fn(window: &Window, xpos: float, ypos: float);
 pub type CursorEnterFun = ~fn(window: &Window, entered: bool);
 pub type ScrollFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type ZoomFun = ~fn(window: &Window, factor: float);
 pub type KeyFun = ~fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
 pub type CharFun = ~fn(window: &Window, character: char);
 pub type MonitorFun = ~fn(monitor: &Monitor, event: c_int);
@@ -565,6 +566,7 @@ struct WindowFns {
     cursor_pos_fun:         Option<CursorPosFun>,
     cursor_enter_fun:       Option<CursorEnterFun>,
     scroll_fun:             Option<ScrollFun>,
+    zoom_fun:               Option<ZoomFun>,
     key_fun:                Option<KeyFun>,
     char_fun:               Option<CharFun>,
 }
@@ -584,6 +586,7 @@ impl WindowFns {
             cursor_pos_fun:         None,
             cursor_enter_fun:       None,
             scroll_fun:             None,
+            zoom_fun:               None,
             key_fun:                None,
             char_fun:               None,
         }
@@ -988,6 +991,14 @@ impl Window {
         set_window_callback!(setter:   glfwSetScrollCallback,
                              callback: scroll_callback,
                              field:    scroll_fun);
+    }
+
+    /// Wrapper for `glfwSetZoomCallback`.
+    #[fixed_stack_segment] #[inline(never)]
+    pub fn set_zoom_callback(&self, cbfun: ZoomFun) {
+        set_window_callback!(setter:   glfwSetZoomCallback,
+                             callback: zoom_callback,
+                             field:    zoom_fun);
     }
 
     /// Wrapper for `glfwGetClipboardString`.
