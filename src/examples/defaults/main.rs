@@ -18,7 +18,7 @@ extern mod glfw;
 use std::libc;
 
 fn error_callback(_: libc::c_int, description: ~str) {
-    println(fmt!("GLFW Error: %s", description));
+    println!("GLFW Error: {:s}", description);
 }
 
 #[start]
@@ -37,12 +37,12 @@ fn main() {
         window.make_context_current();
 
         let (width, height) = window.get_size();
-        println(fmt!("window size: %? x %?", width, height));
+        println!("window size: ({}, {})", width, height);
 
-        println(fmt!("Context version: %s",           window.get_context_version().to_str()));
-        println(fmt!("OpenGL forward compatible: %?", window.is_opengl_forward_compat()));
-        println(fmt!("OpenGL debug context: %?",      window.is_opengl_debug_context()));
-        println(fmt!("OpenGL profile: %?",            window.get_opengl_profile()));
+        println!("Context version: {:s}",         window.get_context_version().to_str());
+        println!("OpenGL forward compatible: {}", window.is_opengl_forward_compat());
+        println!("OpenGL debug context: {}",      window.is_opengl_debug_context());
+        println!("OpenGL profile: {}",            window.get_opengl_profile());
 
         let gl_params = [
             (gl::RED_BITS,          None,   "red bits"          ),
@@ -63,11 +63,9 @@ fn main() {
             if do ext.map_default(true) |&s| {
                 glfw::extension_supported(s)
             } {
-                unsafe {
-                    let value = 0;
-                    gl::GetIntegerv(param, &value);
-                    println(fmt!("OpenGL %s: %?", name, value));
-                }
+                let value = 0;
+                unsafe { gl::GetIntegerv(param, &value) };
+                println!("OpenGL {:s}: {}", name, value);
             };
         }
     }

@@ -110,7 +110,7 @@ impl ToStr for Version {
     /// ~"[major].[minor].[rev]"
     /// ~~~
     fn to_str(&self) -> ~str {
-        fmt!("%?.%?.%?", self.major, self.minor, self.rev)
+        format!("{}.{}.{}", self.major, self.minor, self.rev)
     }
 }
 
@@ -282,11 +282,11 @@ impl ToStr for VidMode {
     /// ~"[width] x [height], [total_bits] ([red_bits] [green_bits] [blue_bits]) [refresh_rate] Hz"
     /// ~~~
     fn to_str(&self) -> ~str {
-        fmt!("%? x %?, %? (%? %? %?) %? Hz",
-             self.width, self.height,
-             self.red_bits + self.green_bits + self.blue_bits,
-             self.red_bits, self.green_bits, self.blue_bits,
-             self.refresh_rate)
+        format!("{} x {}, {} ({} {} {}) {} Hz",
+                self.width, self.height,
+                self.red_bits + self.green_bits + self.blue_bits,
+                self.red_bits, self.green_bits, self.blue_bits,
+                self.refresh_rate)
     }
 }
 
@@ -1088,7 +1088,7 @@ impl Drop for Window {
     ///
     /// Wrapper for `glfwDestroyWindow`.
     #[fixed_stack_segment] #[inline(never)]
-    fn drop(&self) {
+    fn drop(&mut self) {
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }

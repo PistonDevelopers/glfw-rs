@@ -45,5 +45,5 @@ fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action:
 }
 
 fn error_callback(_: libc::c_int, description: ~str) {
-    println(fmt!("GLFW Error: %s", description));
+    println!("GLFW Error: {:s}", description);
 }
