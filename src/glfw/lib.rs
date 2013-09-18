@@ -1088,7 +1088,7 @@ impl Drop for Window {
     ///
     /// Wrapper for `glfwDestroyWindow`.
     #[fixed_stack_segment] #[inline(never)]
-    fn drop(&self) {
+    fn drop(&mut self) {
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
