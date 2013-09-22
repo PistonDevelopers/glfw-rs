@@ -44,12 +44,12 @@ fn main() {
     }
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, _: glfw::KeyMods) {
-    if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
+fn key_callback(window: &glfw::Window, key: glfw::Key, _: libc::c_int, action: glfw::Action, _: glfw::Modifiers) {
+    if action == glfw::Press && key == glfw::KeyEscape {
         window.set_should_close(true);
     }
 }
 
-fn error_callback(_: libc::c_int, description: ~str) {
+fn error_callback(_: glfw::Error, description: ~str) {
     println!("GLFW Error: {:s}", description);
 }

@@ -39,27 +39,27 @@ fn main() {
 }
 
 #[cfg(target_os = "macos")]
-static NATIVE_MOD: glfw::KeyMod = glfw::Super;
+static NATIVE_MOD: glfw::Modifier = glfw::Super;
 
 #[cfg(not(target_os = "macos"))]
-static NATIVE_MOD: glfw::KeyMod = glfw::Control;
+static NATIVE_MOD: glfw::Modifier = glfw::Control;
 
-fn error_callback(_: libc::c_int, description: ~str) {
+fn error_callback(_: glfw::Error, description: ~str) {
     println!("GLFW Error: {:s}", description);
 }
 
-fn key_callback(window: &glfw::Window, key: libc::c_int, _: libc::c_int, action: libc::c_int, mods: glfw::KeyMods) {
-    if action == glfw::PRESS {
-        if key == glfw::KEY_ESCAPE {
+fn key_callback(window: &glfw::Window, key: glfw::Key, _: libc::c_int, action: glfw::Action, mods: glfw::Modifiers) {
+    if action == glfw::Press {
+        if key == glfw::KeyEscape {
             window.set_should_close(true);
         }
-        if (key == glfw::KEY_V) && mods.contains(NATIVE_MOD) {
+        if (key == glfw::KeyV) && mods.contains(NATIVE_MOD) {
             match window.get_clipboard_string() {
                 ref s if !s.is_empty() => println!("Clipboard contains \"{:s}\"", *s),
                 _                      => println("Clipboard does not contain a string"),
             }
         }
-        if (key == glfw::KEY_C) && mods.contains(NATIVE_MOD) {
+        if (key == glfw::KeyC) && mods.contains(NATIVE_MOD) {
             let s = "Hello GLFW World!";
             window.set_clipboard_string(s);
             println!("Setting clipboard to {:s}", s);
