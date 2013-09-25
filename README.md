@@ -8,9 +8,9 @@ GLFW bindings and wrapper for The Rust Programming Language.
 extern mod glfw;
 
 #[start]
-fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+fn start(argc: int, argv: **u8) -> int {
     // Run GLFW on the main thread
-    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+    std::rt::start_on_main_thread(argc, argv, main)
 }
 
 fn main() {
