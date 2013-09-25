@@ -301,18 +301,18 @@ extern { }
 extern "C" {
     pub fn glfwInit() -> c_int;
     pub fn glfwTerminate();
-    pub fn glfwGetVersion(major: *c_int, minor: *c_int, rev: *c_int);
+    pub fn glfwGetVersion(major: *mut c_int, minor: *mut c_int, rev: *mut c_int);
     pub fn glfwGetVersionString() -> *c_char;
 
     pub fn glfwSetErrorCallback(cbfun: Option<GLFWerrorfun>) -> Option<GLFWerrorfun>;
 
-    pub fn glfwGetMonitors(count: *c_int) -> **GLFWmonitor;
+    pub fn glfwGetMonitors(count: *mut c_int) -> **GLFWmonitor;
     pub fn glfwGetPrimaryMonitor() -> *GLFWmonitor;
-    pub fn glfwGetMonitorPos(monitor: *GLFWmonitor, xpos: *c_int, ypos: *c_int);
-    pub fn glfwGetMonitorPhysicalSize(monitor: *GLFWmonitor, width: *c_int, height: *c_int);
+    pub fn glfwGetMonitorPos(monitor: *GLFWmonitor, xpos: *mut c_int, ypos: *mut c_int);
+    pub fn glfwGetMonitorPhysicalSize(monitor: *GLFWmonitor, width: *mut c_int, height: *mut c_int);
     pub fn glfwGetMonitorName(monitor: *GLFWmonitor) -> *c_char;
     pub fn glfwSetMonitorCallback(cbfun: Option<GLFWmonitorfun>) -> Option<GLFWmonitorfun>;
-    pub fn glfwGetVideoModes(monitor: *GLFWmonitor, count: *c_int) -> *GLFWvidmode;
+    pub fn glfwGetVideoModes(monitor: *GLFWmonitor, count: *mut c_int) -> *GLFWvidmode;
     pub fn glfwGetVideoMode(monitor: *GLFWmonitor) -> *GLFWvidmode;
     pub fn glfwSetGamma(monitor: *GLFWmonitor, gamma: c_float);
     pub fn glfwGetGammaRamp(monitor: *GLFWmonitor) -> *GLFWgammaramp;
@@ -325,11 +325,11 @@ extern "C" {
     pub fn glfwWindowShouldClose(window: *GLFWwindow) -> c_int;
     pub fn glfwSetWindowShouldClose(window: *GLFWwindow, value: c_int);
     pub fn glfwSetWindowTitle(window: *GLFWwindow, title: *c_char);
-    pub fn glfwGetWindowPos(window: *GLFWwindow, xpos: *c_int, ypos: *c_int);
+    pub fn glfwGetWindowPos(window: *GLFWwindow, xpos: *mut c_int, ypos: *mut c_int);
     pub fn glfwSetWindowPos(window: *GLFWwindow, xpos: c_int, ypos: c_int);
-    pub fn glfwGetWindowSize(window: *GLFWwindow, width: *c_int, height: *c_int);
+    pub fn glfwGetWindowSize(window: *GLFWwindow, width: *mut c_int, height: *mut c_int);
     pub fn glfwSetWindowSize(window: *GLFWwindow, width: c_int, height: c_int);
-    pub fn glfwGetFramebufferSize(window: *GLFWwindow, width: *c_int, height: *c_int);
+    pub fn glfwGetFramebufferSize(window: *GLFWwindow, width: *mut c_int, height: *mut c_int);
     pub fn glfwIconifyWindow(window: *GLFWwindow);
     pub fn glfwRestoreWindow(window: *GLFWwindow);
     pub fn glfwShowWindow(window: *GLFWwindow);
@@ -353,7 +353,7 @@ extern "C" {
     pub fn glfwSetInputMode(window: *GLFWwindow, mode: c_int, value: c_int);
     pub fn glfwGetKey(window: *GLFWwindow, key: c_int) -> c_int;
     pub fn glfwGetMouseButton(window: *GLFWwindow, button: c_int) -> c_int;
-    pub fn glfwGetCursorPos(window: *GLFWwindow, xpos: *c_double, ypos: *c_double);
+    pub fn glfwGetCursorPos(window: *GLFWwindow, xpos: *mut c_double, ypos: *mut c_double);
     pub fn glfwSetCursorPos(window: *GLFWwindow, xpos: c_double, ypos: c_double);
     pub fn glfwSetKeyCallback(window: *GLFWwindow, cbfun: Option<GLFWkeyfun>) -> Option<GLFWkeyfun>;
     pub fn glfwSetCharCallback(window: *GLFWwindow, cbfun: Option<GLFWcharfun>) -> Option<GLFWcharfun>;
@@ -363,8 +363,8 @@ extern "C" {
     pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: Option<GLFWscrollfun>) -> Option<GLFWscrollfun>;
 
     pub fn glfwJoystickPresent(joy: c_int) -> c_int;
-    pub fn glfwGetJoystickAxes(joy: c_int, count: *c_int) -> *c_float;
-    pub fn glfwGetJoystickButtons(joy: c_int, count: *c_int) -> *c_uchar;
+    pub fn glfwGetJoystickAxes(joy: c_int, count: *mut c_int) -> *c_float;
+    pub fn glfwGetJoystickButtons(joy: c_int, count: *mut c_int) -> *c_uchar;
     pub fn glfwGetJoystickName(joy: c_int) -> *c_char;
 
     pub fn glfwSetClipboardString(window: *GLFWwindow, string: *c_char);

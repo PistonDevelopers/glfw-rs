@@ -307,8 +307,10 @@ impl ToStr for Version {
 #[fixed_stack_segment] #[inline(never)]
 pub fn get_version() -> Version {
     unsafe {
-        let (major, minor, rev) = (0, 0, 0);
-        ffi::glfwGetVersion(&major, &minor, &rev);
+        let mut major = 0;
+        let mut minor = 0;
+        let mut rev = 0;
+        ffi::glfwGetVersion(&mut major, &mut minor, &mut rev);
         Version {
             major: major as uint,
             minor: minor as uint,
@@ -353,8 +355,8 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_connected() -> ~[Monitor] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetMonitors(&count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetMonitors(&mut count);
             vec::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
         }
     }
@@ -363,8 +365,9 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let (xpos, ypos) = (0, 0);
-            ffi::glfwGetMonitorPos(self.ptr, &xpos, &ypos);
+            let mut xpos = 0;
+            let mut ypos = 0;
+            ffi::glfwGetMonitorPos(self.ptr, &mut xpos, &mut ypos);
             (xpos as int, ypos as int)
         }
     }
@@ -373,8 +376,9 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_physical_size(&self) -> (int, int) {
         unsafe {
-            let (width, height) = (0, 0);
-            ffi::glfwGetMonitorPhysicalSize(self.ptr, &width, &height);
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetMonitorPhysicalSize(self.ptr, &mut width, &mut height);
             (width as int, height as int)
         }
     }
@@ -397,8 +401,8 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_video_modes(&self) -> ~[VidMode] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetVideoModes(self.ptr, &count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
             vec::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
         }
     }
@@ -850,6 +854,10 @@ impl Window {
         }
     }
 
+    pub fn close(self) {
+        // Calling this method forces the destructor to be called, closing the window
+    }
+
     /// Wrapper for `glfwWindowShouldClose`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn should_close(&self) -> bool {
@@ -876,8 +884,9 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let (xpos, ypos) = (0, 0);
-            ffi::glfwGetWindowPos(self.ptr, &xpos, &ypos);
+            let mut xpos = 0;
+            let mut ypos = 0;
+            ffi::glfwGetWindowPos(self.ptr, &mut xpos, &mut ypos);
             (xpos as int, ypos as int)
         }
     }
@@ -892,8 +901,9 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_size(&self) -> (int, int) {
         unsafe {
-            let (width, height) = (0, 0);
-            ffi::glfwGetWindowSize(self.ptr, &width, &height);
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetWindowSize(self.ptr, &mut width, &mut height);
             (width as int, height as int)
         }
     }
@@ -908,8 +918,9 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_framebuffer_size(&self) -> (int, int) {
         unsafe {
-            let (width, height) = (0, 0);
-            ffi::glfwGetFramebufferSize(self.ptr, &width, &height);
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetFramebufferSize(self.ptr, &mut width, &mut height);
             (width as int, height as int)
         }
     }
@@ -1135,8 +1146,9 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_cursor_pos(&self) -> (float, float) {
         unsafe {
-            let (xpos, ypos) = (0.0, 0.0);
-            ffi::glfwGetCursorPos(self.ptr, &xpos, &ypos);
+            let mut xpos = 0.0;
+            let mut ypos = 0.0;
+            ffi::glfwGetCursorPos(self.ptr, &mut xpos, &mut ypos);
             (xpos as float, ypos as float)
         }
     }
@@ -1345,8 +1357,8 @@ impl Joystick {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_axes(&self) -> ~[float] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetJoystickAxes(*self as c_int, &count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetJoystickAxes(*self as c_int, &mut count);
             vec::from_buf(ptr, count as uint).map(|&a| a as float)
         }
     }
@@ -1355,8 +1367,8 @@ impl Joystick {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_buttons(&self) -> ~[c_int] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetJoystickButtons(*self as c_int, &count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetJoystickButtons(*self as c_int, &mut count);
             vec::from_buf(ptr, count as uint).map(|&b| b as c_int)
         }
     }
