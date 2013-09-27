@@ -700,7 +700,9 @@ pub struct Window {
 }
 
 /// A group of key modifiers
-pub struct Modifiers(c_int);
+pub struct Modifiers {
+    values: c_int,
+}
 
 /// Key modifier tokens
 #[deriving(Clone, Eq, IterBytes, ToStr)]
@@ -724,7 +726,7 @@ impl Modifiers {
     /// }
     /// ~~~
     pub fn contains(&self, modifier: Modifier) -> bool {
-        **self & (modifier as c_int) != ffi::FALSE
+        self.values & (modifier as c_int) != ffi::FALSE
     }
 }
 
