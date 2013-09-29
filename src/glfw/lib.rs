@@ -30,12 +30,201 @@ use std::ptr;
 use std::str;
 use std::vec;
 
-// re-export constants
-pub use consts::*;
-
 pub mod ffi;
-pub mod consts;
 mod extfn;
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum Action {
+    Release                      = ffi::RELEASE                     as int,
+    Press                        = ffi::PRESS                       as int,
+    Repeat                       = ffi::REPEAT                      as int,
+}
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum Key {
+    KeySpace                    = ffi::KEY_SPACE                    as int,
+    KeyApostrophe               = ffi::KEY_APOSTROPHE               as int,
+    KeyComma                    = ffi::KEY_COMMA                    as int,
+    KeyMinus                    = ffi::KEY_MINUS                    as int,
+    KeyPeriod                   = ffi::KEY_PERIOD                   as int,
+    KeySlash                    = ffi::KEY_SLASH                    as int,
+    Key0                        = ffi::KEY_0                        as int,
+    Key1                        = ffi::KEY_1                        as int,
+    Key2                        = ffi::KEY_2                        as int,
+    Key3                        = ffi::KEY_3                        as int,
+    Key4                        = ffi::KEY_4                        as int,
+    Key5                        = ffi::KEY_5                        as int,
+    Key6                        = ffi::KEY_6                        as int,
+    Key7                        = ffi::KEY_7                        as int,
+    Key8                        = ffi::KEY_8                        as int,
+    Key9                        = ffi::KEY_9                        as int,
+    KeySemicolon                = ffi::KEY_SEMICOLON                as int,
+    KeyEqual                    = ffi::KEY_EQUAL                    as int,
+    KeyA                        = ffi::KEY_A                        as int,
+    KeyB                        = ffi::KEY_B                        as int,
+    KeyC                        = ffi::KEY_C                        as int,
+    KeyD                        = ffi::KEY_D                        as int,
+    KeyE                        = ffi::KEY_E                        as int,
+    KeyF                        = ffi::KEY_F                        as int,
+    KeyG                        = ffi::KEY_G                        as int,
+    KeyH                        = ffi::KEY_H                        as int,
+    KeyI                        = ffi::KEY_I                        as int,
+    KeyJ                        = ffi::KEY_J                        as int,
+    KeyK                        = ffi::KEY_K                        as int,
+    KeyL                        = ffi::KEY_L                        as int,
+    KeyM                        = ffi::KEY_M                        as int,
+    KeyN                        = ffi::KEY_N                        as int,
+    KeyO                        = ffi::KEY_O                        as int,
+    KeyP                        = ffi::KEY_P                        as int,
+    KeyQ                        = ffi::KEY_Q                        as int,
+    KeyR                        = ffi::KEY_R                        as int,
+    KeyS                        = ffi::KEY_S                        as int,
+    KeyT                        = ffi::KEY_T                        as int,
+    KeyU                        = ffi::KEY_U                        as int,
+    KeyV                        = ffi::KEY_V                        as int,
+    KeyW                        = ffi::KEY_W                        as int,
+    KeyX                        = ffi::KEY_X                        as int,
+    KeyY                        = ffi::KEY_Y                        as int,
+    KeyZ                        = ffi::KEY_Z                        as int,
+    KeyLeftBracket              = ffi::KEY_LEFT_BRACKET             as int,
+    KeyBackslash                = ffi::KEY_BACKSLASH                as int,
+    KeyRightBracket             = ffi::KEY_RIGHT_BRACKET            as int,
+    KeyGraveAccent              = ffi::KEY_GRAVE_ACCENT             as int,
+    KeyWorld1                   = ffi::KEY_WORLD_1                  as int,
+    KeyWorld2                   = ffi::KEY_WORLD_2                  as int,
+
+    KeyEscape                   = ffi::KEY_ESCAPE                   as int,
+    KeyEnter                    = ffi::KEY_ENTER                    as int,
+    KeyTab                      = ffi::KEY_TAB                      as int,
+    KeyBackspace                = ffi::KEY_BACKSPACE                as int,
+    KeyInsert                   = ffi::KEY_INSERT                   as int,
+    KeyDelete                   = ffi::KEY_DELETE                   as int,
+    KeyRight                    = ffi::KEY_RIGHT                    as int,
+    KeyLeft                     = ffi::KEY_LEFT                     as int,
+    KeyDown                     = ffi::KEY_DOWN                     as int,
+    KeyUp                       = ffi::KEY_UP                       as int,
+    KeyPageUp                   = ffi::KEY_PAGE_UP                  as int,
+    KeyPageDown                 = ffi::KEY_PAGE_DOWN                as int,
+    KeyHome                     = ffi::KEY_HOME                     as int,
+    KeyEnd                      = ffi::KEY_END                      as int,
+    KeyCapsLock                 = ffi::KEY_CAPS_LOCK                as int,
+    KeyScrollLock               = ffi::KEY_SCROLL_LOCK              as int,
+    KeyNumLock                  = ffi::KEY_NUM_LOCK                 as int,
+    KeyPrintScreen              = ffi::KEY_PRINT_SCREEN             as int,
+    KeyPause                    = ffi::KEY_PAUSE                    as int,
+    KeyF1                       = ffi::KEY_F1                       as int,
+    KeyF2                       = ffi::KEY_F2                       as int,
+    KeyF3                       = ffi::KEY_F3                       as int,
+    KeyF4                       = ffi::KEY_F4                       as int,
+    KeyF5                       = ffi::KEY_F5                       as int,
+    KeyF6                       = ffi::KEY_F6                       as int,
+    KeyF7                       = ffi::KEY_F7                       as int,
+    KeyF8                       = ffi::KEY_F8                       as int,
+    KeyF9                       = ffi::KEY_F9                       as int,
+    KeyF10                      = ffi::KEY_F10                      as int,
+    KeyF11                      = ffi::KEY_F11                      as int,
+    KeyF12                      = ffi::KEY_F12                      as int,
+    KeyF13                      = ffi::KEY_F13                      as int,
+    KeyF14                      = ffi::KEY_F14                      as int,
+    KeyF15                      = ffi::KEY_F15                      as int,
+    KeyF16                      = ffi::KEY_F16                      as int,
+    KeyF17                      = ffi::KEY_F17                      as int,
+    KeyF18                      = ffi::KEY_F18                      as int,
+    KeyF19                      = ffi::KEY_F19                      as int,
+    KeyF20                      = ffi::KEY_F20                      as int,
+    KeyF21                      = ffi::KEY_F21                      as int,
+    KeyF22                      = ffi::KEY_F22                      as int,
+    KeyF23                      = ffi::KEY_F23                      as int,
+    KeyF24                      = ffi::KEY_F24                      as int,
+    KeyF25                      = ffi::KEY_F25                      as int,
+    KeyKp0                      = ffi::KEY_KP_0                     as int,
+    KeyKp1                      = ffi::KEY_KP_1                     as int,
+    KeyKp2                      = ffi::KEY_KP_2                     as int,
+    KeyKp3                      = ffi::KEY_KP_3                     as int,
+    KeyKp4                      = ffi::KEY_KP_4                     as int,
+    KeyKp5                      = ffi::KEY_KP_5                     as int,
+    KeyKp6                      = ffi::KEY_KP_6                     as int,
+    KeyKp7                      = ffi::KEY_KP_7                     as int,
+    KeyKp8                      = ffi::KEY_KP_8                     as int,
+    KeyKp9                      = ffi::KEY_KP_9                     as int,
+    KeyKpDecimal                = ffi::KEY_KP_DECIMAL               as int,
+    KeyKpDivide                 = ffi::KEY_KP_DIVIDE                as int,
+    KeyKpMultiply               = ffi::KEY_KP_MULTIPLY              as int,
+    KeyKpSubtract               = ffi::KEY_KP_SUBTRACT              as int,
+    KeyKpAdd                    = ffi::KEY_KP_ADD                   as int,
+    KeyKpEnter                  = ffi::KEY_KP_ENTER                 as int,
+    KeyKpEqual                  = ffi::KEY_KP_EQUAL                 as int,
+    KeyLeftShift                = ffi::KEY_LEFT_SHIFT               as int,
+    KeyLeftControl              = ffi::KEY_LEFT_CONTROL             as int,
+    KeyLeftAlt                  = ffi::KEY_LEFT_ALT                 as int,
+    KeyLeftSuper                = ffi::KEY_LEFT_SUPER               as int,
+    KeyRightShift               = ffi::KEY_RIGHT_SHIFT              as int,
+    KeyRightControl             = ffi::KEY_RIGHT_CONTROL            as int,
+    KeyRightAlt                 = ffi::KEY_RIGHT_ALT                as int,
+    KeyRightSuper               = ffi::KEY_RIGHT_SUPER              as int,
+    KeyMenu                     = ffi::KEY_MENU                     as int,
+}
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum MouseButton {
+    MouseButtonLeft             = ffi::MOUSE_BUTTON_LEFT            as int,
+    MouseButtonRight            = ffi::MOUSE_BUTTON_RIGHT           as int,
+    MouseButtonMiddle           = ffi::MOUSE_BUTTON_MIDDLE          as int,
+    // MouseButton1                = ffi::MOUSE_BUTTON_1               as int,
+    // MouseButton2                = ffi::MOUSE_BUTTON_2               as int,
+    // MouseButton3                = ffi::MOUSE_BUTTON_3               as int,
+    MouseButton4                = ffi::MOUSE_BUTTON_4               as int,
+    MouseButton5                = ffi::MOUSE_BUTTON_5               as int,
+    MouseButton6                = ffi::MOUSE_BUTTON_6               as int,
+    MouseButton7                = ffi::MOUSE_BUTTON_7               as int,
+    MouseButton8                = ffi::MOUSE_BUTTON_8               as int,
+}
+
+// pub static MouseButtonLeft           : MouseButton = MouseButton1;
+// pub static MouseButtonRight          : MouseButton = MouseButton2;
+// pub static MouseButtonMiddle         : MouseButton = MouseButton3;
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum Error {
+    NotInitialized              = ffi::NOT_INITIALIZED              as int,
+    NoCurrentContext            = ffi::NO_CURRENT_CONTEXT           as int,
+    InvalidEnum                 = ffi::INVALID_ENUM                 as int,
+    InvalidValue                = ffi::INVALID_VALUE                as int,
+    OutOfMemory                 = ffi::OUT_OF_MEMORY                as int,
+    ApiUnavailable              = ffi::API_UNAVAILABLE              as int,
+    VersionUnavailable          = ffi::VERSION_UNAVAILABLE          as int,
+    PlatformError               = ffi::PLATFORM_ERROR               as int,
+    FormatUnavailable           = ffi::FORMAT_UNAVAILABLE           as int,
+}
+
+pub type ErrorFun = ~fn(error: Error, description: ~str);
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum ClientApi {
+    OpenGlApi                   = ffi::OPENGL_API                   as int,
+    OpenGlEsApi                 = ffi::OPENGL_ES_API                as int,
+}
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum ContextRobustness {
+    NoRobustness                = ffi::NO_ROBUSTNESS                as int,
+    NoResetNotification         = ffi::NO_RESET_NOTIFICATION        as int,
+    LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET        as int,
+}
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum OpenGlProfile {
+    OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE           as int,
+    OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE          as int,
+    OpenGlCompatProfile         = ffi::OPENGL_COMPAT_PROFILE        as int,
+}
+
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum CursorMode {
+    CursorNormal                = ffi::CURSOR_NORMAL                as int,
+    CursorHidden                = ffi::CURSOR_HIDDEN                as int,
+    CursorDisabled              = ffi::CURSOR_DISABLED              as int,
+}
 
 /// Describes a single video mode.
 pub struct VidMode {
@@ -64,8 +253,8 @@ pub type GLProc = ffi::GLFWglproc;
 #[fixed_stack_segment] #[inline(never)]
 pub fn init() -> Result<(),()> {
     match unsafe { ffi::glfwInit() } {
-        TRUE => Ok(()),
-        _    => Err(()),
+        ffi::TRUE => Ok(()),
+        _         => Err(()),
     }
 }
 
@@ -118,8 +307,10 @@ impl ToStr for Version {
 #[fixed_stack_segment] #[inline(never)]
 pub fn get_version() -> Version {
     unsafe {
-        let (major, minor, rev) = (0, 0, 0);
-        ffi::glfwGetVersion(&major, &minor, &rev);
+        let mut major = 0;
+        let mut minor = 0;
+        let mut rev = 0;
+        ffi::glfwGetVersion(&mut major, &mut minor, &mut rev);
         Version {
             major: major as uint,
             minor: minor as uint,
@@ -164,8 +355,8 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_connected() -> ~[Monitor] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetMonitors(&count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetMonitors(&mut count);
             vec::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
         }
     }
@@ -174,8 +365,9 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let (xpos, ypos) = (0, 0);
-            ffi::glfwGetMonitorPos(self.ptr, &xpos, &ypos);
+            let mut xpos = 0;
+            let mut ypos = 0;
+            ffi::glfwGetMonitorPos(self.ptr, &mut xpos, &mut ypos);
             (xpos as int, ypos as int)
         }
     }
@@ -184,8 +376,9 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_physical_size(&self) -> (int, int) {
         unsafe {
-            let (width, height) = (0, 0);
-            ffi::glfwGetMonitorPhysicalSize(self.ptr, &width, &height);
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetMonitorPhysicalSize(self.ptr, &mut width, &mut height);
             (width as int, height as int)
         }
     }
@@ -208,8 +401,8 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_video_modes(&self) -> ~[VidMode] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetVideoModes(self.ptr, &count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
             vec::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
         }
     }
@@ -258,6 +451,13 @@ impl Monitor {
     }
 }
 
+pub type MonitorFun = ~fn(monitor: &Monitor, event: MonitorEvent);
+
+pub enum MonitorEvent {
+    Connected                   = ffi::CONNECTED                    as int,
+    Disconnected                = ffi::DISCONNECTED                 as int,
+}
+
 impl VidMode {
     fn from_glfw_vid_mode(mode: &ffi::GLFWvidmode) -> VidMode {
         VidMode {
@@ -303,109 +503,109 @@ pub mod window_hint {
     /// Wrapper for `glfwWindowHint` called with `RED_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn red_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(RED_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `GREEN_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn green_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(GREEN_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `BLUE_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn blue_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(BLUE_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ALPHA_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn alpha_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(ALPHA_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `DEPTH_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn depth_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(DEPTH_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `STENCIL_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn stencil_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(STENCIL_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_RED_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn accum_red_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(ACCUM_RED_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_GREEN_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn accum_green_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(ACCUM_GREEN_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_BLUE_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn accum_blue_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(ACCUM_BLUE_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_ALPHA_BITS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn accum_alpha_bits(bits: uint) {
-        unsafe { ffi::glfwWindowHint(ACCUM_ALPHA_BITS, bits as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `AUX_BUFFERS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn aux_buffers(buffers: uint) {
-        unsafe { ffi::glfwWindowHint(AUX_BUFFERS, buffers as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS, buffers as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `STEREO`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn stereo(value: bool) {
-        unsafe { ffi::glfwWindowHint(STEREO, value as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::STEREO, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `SAMPLES`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn samples(samples: uint) {
-        unsafe { ffi::glfwWindowHint(SAMPLES, samples as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::SAMPLES, samples as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `SRGB_CAPABLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn srgb_capable(value: bool) {
-        unsafe { ffi::glfwWindowHint(SRGB_CAPABLE, value as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `REFRESH_RATE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn refresh_rate(rate: int) {
-        unsafe { ffi::glfwWindowHint(REFRESH_RATE, rate as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE, rate as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CLIENT_API`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn client_api(api: c_int) {
-        unsafe { ffi::glfwWindowHint(CLIENT_API, api); }
+    pub fn client_api(api: ClientApi) {
+        unsafe { ffi::glfwWindowHint(ffi::CLIENT_API, api as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn context_version_major(major: uint) {
-        unsafe { ffi::glfwWindowHint(CONTEXT_VERSION_MAJOR, major as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MINOR`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn context_version_minor(minor: uint) {
-        unsafe { ffi::glfwWindowHint(CONTEXT_VERSION_MINOR, minor as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR` and
@@ -413,51 +613,51 @@ pub mod window_hint {
     #[fixed_stack_segment] #[inline(never)]
     pub fn context_version(major: uint, minor: uint) {
         unsafe {
-            ffi::glfwWindowHint(CONTEXT_VERSION_MAJOR, major as c_int);
-            ffi::glfwWindowHint(CONTEXT_VERSION_MINOR, minor as c_int);
+            ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
+            ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int);
         }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_ROBUSTNESS`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn context_robustness(value: bool) {
-        unsafe { ffi::glfwWindowHint(CONTEXT_ROBUSTNESS, value as c_int); }
+    pub fn context_robustness(value: ContextRobustness) {
+        unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_FORWARD_COMPAT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn opengl_forward_compat(value: bool) {
-        unsafe { ffi::glfwWindowHint(OPENGL_FORWARD_COMPAT, value as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_DEBUG_CONTEXT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn opengl_debug_context(value: bool) {
-        unsafe { ffi::glfwWindowHint(OPENGL_DEBUG_CONTEXT, value as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_PROFILE`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn opengl_profile(profile: c_int) {
-        unsafe { ffi::glfwWindowHint(OPENGL_PROFILE, profile); }
+    pub fn opengl_profile(profile: OpenGlProfile) {
+        unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE, profile as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `RESIZABLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn resizable(value: bool) {
-        unsafe { ffi::glfwWindowHint(RESIZABLE, value as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::RESIZABLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `VISIBLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn visible(value: bool) {
-        unsafe { ffi::glfwWindowHint(VISIBLE, value as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::VISIBLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `DECORATED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn decorated(value: bool) {
-        unsafe { ffi::glfwWindowHint(DECORATED, value as c_int); }
+        unsafe { ffi::glfwWindowHint(ffi::DECORATED, value as c_int); }
     }
 }
 
@@ -500,19 +700,20 @@ pub struct Window {
 }
 
 /// A group of key modifiers
-#[deriving(Eq, Clone)]
-pub struct KeyMods(c_int);
-
-/// A key modifier token
-#[deriving(Eq, Clone)]
-pub enum KeyMod {
-    Shift,
-    Control,
-    Alt,
-    Super,
+pub struct Modifiers {
+    values: c_int,
 }
 
-impl KeyMods {
+/// Key modifier tokens
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum Modifier {
+    Shift       = ffi::MOD_SHIFT        as int,
+    Control     = ffi::MOD_CONTROL      as int,
+    Alt         = ffi::MOD_ALT          as int,
+    Super       = ffi::MOD_SUPER        as int,
+}
+
+impl Modifiers {
     /// Check to see if a specific key modifier is present
     ///
     /// # Example
@@ -524,19 +725,22 @@ impl KeyMods {
     ///     }
     /// }
     /// ~~~
-    pub fn contains(&self, key_mod: KeyMod) -> bool {
-        match key_mod {
-            Shift   => (**self & MOD_SHIFT)   != 0,
-            Control => (**self & MOD_CONTROL) != 0,
-            Alt     => (**self & MOD_ALT)     != 0,
-            Super   => (**self & MOD_SUPER)   != 0,
-        }
+    pub fn contains(&self, modifier: Modifier) -> bool {
+        self.values & (modifier as c_int) != ffi::FALSE
     }
 }
 
-/// The global callbacks are simple managed closures.
-/// 
-pub type ErrorFun = ~fn(error: c_int, description: ~str);
+impl ToStr for Modifiers {
+    fn to_str(&self) -> ~str {
+        let mut ss = ~[];
+        if self.contains(Shift)   { ss.push(Shift.to_str())   }
+        if self.contains(Control) { ss.push(Control.to_str()) }
+        if self.contains(Alt)     { ss.push(Alt.to_str())     }
+        if self.contains(Super)   { ss.push(Super.to_str())   }
+        ss.connect(", ")
+    }
+}
+
 pub type WindowPosFun = ~fn(window: &Window, xpos: int, ypos: int);
 pub type WindowSizeFun = ~fn(window: &Window, width: int, height: int);
 pub type WindowCloseFun = ~fn(window: &Window);
@@ -544,13 +748,12 @@ pub type WindowRefreshFun = ~fn(window: &Window);
 pub type WindowFocusFun = ~fn(window: &Window, focused: bool);
 pub type WindowIconifyFun = ~fn(window: &Window, iconified: bool);
 pub type FramebufferSizeFun = ~fn(window: &Window, width: int, height: int);
-pub type MouseButtonFun = ~fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
+pub type MouseButtonFun = ~fn(window: &Window, button: MouseButton, action: Action, modifiers: Modifiers);
 pub type CursorPosFun = ~fn(window: &Window, xpos: float, ypos: float);
 pub type CursorEnterFun = ~fn(window: &Window, entered: bool);
 pub type ScrollFun = ~fn(window: &Window, xpos: float, ypos: float);
-pub type KeyFun = ~fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
+pub type KeyFun = ~fn(window: &Window, key: Key, scancode: c_int, action: Action, modifiers: Modifiers);
 pub type CharFun = ~fn(window: &Window, character: char);
-pub type MonitorFun = ~fn(monitor: &Monitor, event: c_int);
 
 /// Holds the callback functions associated with a window
 struct WindowFns {
@@ -645,10 +848,22 @@ impl Window {
         cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
     }
 
+    #[fixed_stack_segment]
+    unsafe fn free_fns(&self) {
+        if !self.ptr.is_null() {
+            let _: ~WindowFns =
+                cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+        }
+    }
+
+    pub fn close(self) {
+        // Calling this method forces the destructor to be called, closing the window
+    }
+
     /// Wrapper for `glfwWindowShouldClose`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn should_close(&self) -> bool {
-        unsafe { ffi::glfwWindowShouldClose(self.ptr) != 0 }
+        unsafe { ffi::glfwWindowShouldClose(self.ptr) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetWindowShouldClose`.
@@ -671,8 +886,9 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
-            let (xpos, ypos) = (0, 0);
-            ffi::glfwGetWindowPos(self.ptr, &xpos, &ypos);
+            let mut xpos = 0;
+            let mut ypos = 0;
+            ffi::glfwGetWindowPos(self.ptr, &mut xpos, &mut ypos);
             (xpos as int, ypos as int)
         }
     }
@@ -687,8 +903,9 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_size(&self) -> (int, int) {
         unsafe {
-            let (width, height) = (0, 0);
-            ffi::glfwGetWindowSize(self.ptr, &width, &height);
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetWindowSize(self.ptr, &mut width, &mut height);
             (width as int, height as int)
         }
     }
@@ -703,8 +920,9 @@ impl Window {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_framebuffer_size(&self) -> (int, int) {
         unsafe {
-            let (width, height) = (0, 0);
-            ffi::glfwGetFramebufferSize(self.ptr, &width, &height);
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetFramebufferSize(self.ptr, &mut width, &mut height);
             (width as int, height as int)
         }
     }
@@ -748,22 +966,22 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_focused(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, FOCUSED) != 0 }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::FOCUSED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `ICONIFIED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_iconified(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ICONIFIED) != 0 }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::ICONIFIED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CLIENT_API`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_client_api(&self) -> c_int {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, CLIENT_API) }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::CLIENT_API) }
     }
 
-    /// Wrapper for `glfw::ffi::glfwGetWindowAttrib` called with
+    /// Wrapper for `glfwGetWindowAttrib` called with
     /// `CONTEXT_VERSION_MAJOR`, `CONTEXT_VERSION_MINOR` and `CONTEXT_REVISION`.
     ///
     /// # Returns
@@ -773,9 +991,9 @@ impl Window {
     pub fn get_context_version(&self) -> Version {
         unsafe {
             Version {
-                major:  ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MAJOR) as uint,
-                minor:  ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_VERSION_MINOR) as uint,
-                rev:    ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_REVISION) as uint,
+                major:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
+                minor:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
+                rev:    ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
             }
         }
     }
@@ -783,43 +1001,43 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `CONTEXT_ROBUSTNESS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_context_robustness(&self) -> c_int {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, CONTEXT_ROBUSTNESS) }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_ROBUSTNESS) }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_FORWARD_COMPAT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_forward_compat(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_FORWARD_COMPAT) != 0 }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::OPENGL_FORWARD_COMPAT) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_DEBUG_CONTEXT`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_debug_context(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_DEBUG_CONTEXT) != 0 }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::OPENGL_DEBUG_CONTEXT) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_PROFILE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_opengl_profile(&self) -> c_int {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, OPENGL_PROFILE) }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::OPENGL_PROFILE) }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `RESIZABLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_resizable(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, RESIZABLE) != 0 }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::RESIZABLE) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_visible(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, VISIBLE) != 0 }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::VISIBLE) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn is_decorated(&self) -> bool {
-        unsafe { ffi::glfwGetWindowAttrib(self.ptr, DECORATED) != 0 }
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::DECORATED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
@@ -880,58 +1098,59 @@ impl Window {
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_cursor_mode(&self) -> c_int {
-        unsafe { ffi::glfwGetInputMode(self.ptr, CURSOR) }
+    pub fn get_cursor_mode(&self) -> CursorMode {
+        unsafe { cast::transmute(ffi::glfwGetInputMode(self.ptr, ffi::CURSOR) as int) }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `CURSOR`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn set_cursor_mode(&self, mode: c_int) {
-        unsafe { ffi::glfwSetInputMode(self.ptr, CURSOR, mode); }
+    pub fn set_cursor_mode(&self, mode: CursorMode) {
+        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::CURSOR, mode as c_int); }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_KEYS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_keys(&self) -> bool {
-        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_KEYS) != 0 }
+        unsafe { ffi::glfwGetInputMode(self.ptr, ffi::STICKY_KEYS) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_KEYS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_sticky_keys(&self, value: bool) {
-        unsafe { ffi::glfwSetInputMode(self.ptr, STICKY_KEYS, value as c_int); }
+        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_KEYS, value as c_int); }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_mouse_buttons(&self) -> bool {
-        unsafe { ffi::glfwGetInputMode(self.ptr, STICKY_MOUSE_BUTTONS) != 0 }
+        unsafe { ffi::glfwGetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn set_sticky_mouse_buttons(&self, value: bool) {
-        unsafe { ffi::glfwSetInputMode(self.ptr, STICKY_MOUSE_BUTTONS, value as c_int); }
+        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS, value as c_int); }
     }
 
     /// Wrapper for `glfwGetKey`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_key(&self, key: c_int) -> c_int {
-        unsafe { ffi::glfwGetKey(self.ptr, key) }
+    pub fn get_key(&self, key: Key) -> Action {
+        unsafe { cast::transmute(ffi::glfwGetKey(self.ptr, key as c_int) as int) }
     }
 
     /// Wrapper for `glfwGetMouseButton`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_mouse_button(&self, button: c_int) -> c_int {
-        unsafe { ffi::glfwGetMouseButton(self.ptr, button) }
+    pub fn get_mouse_button(&self, button: MouseButton) -> Action {
+        unsafe { cast::transmute(ffi::glfwGetMouseButton(self.ptr, button as c_int) as int) }
     }
 
     /// Wrapper for `glfwGetCursorPos`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_cursor_pos(&self) -> (float, float) {
         unsafe {
-            let (xpos, ypos) = (0.0, 0.0);
-            ffi::glfwGetCursorPos(self.ptr, &xpos, &ypos);
+            let mut xpos = 0.0;
+            let mut ypos = 0.0;
+            ffi::glfwGetCursorPos(self.ptr, &mut xpos, &mut ypos);
             (xpos as float, ypos as float)
         }
     }
@@ -1093,12 +1312,7 @@ impl Drop for Window {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
 
-        if !self.ptr.is_null() {
-            // Free the windowfns
-            let _: ~WindowFns = unsafe {
-                cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
-            };
-        }
+        unsafe { self.free_fns() }
     }
 }
 
@@ -1114,43 +1328,57 @@ pub fn wait_events() {
     unsafe { ffi::glfwWaitEvents(); }
 }
 
-pub mod joystick {
-    use std::libc::*;
-    use std::str;
-    use std::vec;
+#[deriving(Clone, Eq, IterBytes, ToStr)]
+pub enum Joystick {
+    Joystick1       = ffi::JOYSTICK_1       as int,
+    Joystick2       = ffi::JOYSTICK_2       as int,
+    Joystick3       = ffi::JOYSTICK_3       as int,
+    Joystick4       = ffi::JOYSTICK_4       as int,
+    Joystick5       = ffi::JOYSTICK_5       as int,
+    Joystick6       = ffi::JOYSTICK_6       as int,
+    Joystick7       = ffi::JOYSTICK_7       as int,
+    Joystick8       = ffi::JOYSTICK_8       as int,
+    Joystick9       = ffi::JOYSTICK_9       as int,
+    Joystick10      = ffi::JOYSTICK_10      as int,
+    Joystick11      = ffi::JOYSTICK_11      as int,
+    Joystick12      = ffi::JOYSTICK_12      as int,
+    Joystick13      = ffi::JOYSTICK_13      as int,
+    Joystick14      = ffi::JOYSTICK_14      as int,
+    Joystick15      = ffi::JOYSTICK_15      as int,
+    Joystick16      = ffi::JOYSTICK_16      as int,
+}
 
-    use ffi;
-
+impl Joystick {
     /// Wrapper for `glfwJoystickPresent`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn is_present(joy: c_int) -> bool {
-        unsafe { ffi::glfwJoystickPresent(joy) != 0 }
+    pub fn is_present(&self) -> bool {
+        unsafe { ffi::glfwJoystickPresent(*self as c_int) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_axes(joy: c_int) -> ~[float] {
+    pub fn get_axes(&self) -> ~[float] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetJoystickAxes(joy, &count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetJoystickAxes(*self as c_int, &mut count);
             vec::from_buf(ptr, count as uint).map(|&a| a as float)
         }
     }
 
     /// Wrapper for `glfwGetJoystickButtons`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_buttons(joy: c_int) -> ~[c_int] {
+    pub fn get_buttons(&self) -> ~[c_int] {
         unsafe {
-            let count = 0;
-            let ptr = ffi::glfwGetJoystickButtons(joy, &count);
+            let mut count = 0;
+            let ptr = ffi::glfwGetJoystickButtons(*self as c_int, &mut count);
             vec::from_buf(ptr, count as uint).map(|&b| b as c_int)
         }
     }
 
     /// Wrapper for `glfwGetJoystickName`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_name(joy: c_int) -> ~str {
-        unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(joy)) }
+    pub fn get_name(&self) -> ~str {
+        unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(*self as c_int)) }
     }
 }
 
@@ -1177,7 +1405,7 @@ pub fn set_swap_interval(interval: int) {
 pub fn extension_supported(extension: &str) -> bool {
     unsafe {
         do extension.with_c_str |extension| {
-            ffi::glfwExtensionSupported(extension) != 0
+            ffi::glfwExtensionSupported(extension) == ffi::TRUE
         }
     }
 }

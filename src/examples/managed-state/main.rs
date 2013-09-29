@@ -26,26 +26,25 @@ struct State {
 }
 
 impl State {
-    pub fn init(x: float, y: float) {
-        local_data::set(tls_key, @mut State { pos: (x, y) });
-    }
-
     pub fn update(x: float, y: float) {
         do local_data::get(tls_key) |opt| {
-            opt.expect("Task-local state not initialized.").pos = (x, y);
+            match opt {
+                Some(state) => state.pos = (x, y),
+                None => local_data::set(tls_key, @mut State { pos: (x, y) }),
+            }
         }
     }
 
-    pub fn get_pos() -> (float, float) {
+    pub fn get_pos() -> Option<(float, float)> {
         do local_data::get(tls_key) |opt| {
-            opt.expect("Task-local state not initialized.").pos
+            opt.map(|state| state.pos)
         }
     }
 }
 
 #[start]
-fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
-    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+fn start(argc: int, argv: **u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, main)
 }
 
 fn main() {
@@ -55,14 +54,13 @@ fn main() {
 
     do glfw::start {
         let window = glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed).unwrap();
-        State::init(0f, 0f);
 
         do window.set_cursor_pos_callback |_, x, y| {
             State::update(x, y);
         }
 
         do window.set_key_callback |win, key, _, action, _mods| {
-            if action == glfw::PRESS && key == glfw::KEY_ESCAPE {
+            if action == glfw::Press && key == glfw::KeyEscape {
                 win.set_should_close(true);
             }
         }
@@ -70,8 +68,10 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
-            let (x, y) = State::get_pos();
-            window.set_title(format!("({}, {})", x, y));
+
+            do State::get_pos().map |&(x, y)| {
+                window.set_title(format!("({}, {})", x, y));
+            };
         }
     }
 }

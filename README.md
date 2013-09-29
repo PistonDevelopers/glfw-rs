@@ -8,9 +8,9 @@ GLFW bindings and wrapper for The Rust Programming Language.
 extern mod glfw;
 
 #[start]
-fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
+fn start(argc: int, argv: **u8) -> int {
     // Run GLFW on the main thread
-    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+    std::rt::start_on_main_thread(argc, argv, main)
 }
 
 fn main() {
@@ -75,3 +75,9 @@ or the [OpenGL-ES bindings](https://github.com/mozilla-servo/rust-opengles).
 - [Jeaye/q3](https://github.com/Jeaye/q3)
 - [cyndis/rsmc](https://github.com/cyndis/rsmc/)
 - [mozilla/servo](https://github.com/mozilla/servo)
+
+## Support
+
+Contact `bjz` on irc.mozilla.org [#rust](http://mibbit.com/?server=irc.mozilla.org&channel=%23rust)
+and [#rust-gamedev](http://mibbit.com/?server=irc.mozilla.org&channel=%23rust-gamedev),
+or [post an issue](https://github.com/bjz/glfw-rs/issues/new) on Github.

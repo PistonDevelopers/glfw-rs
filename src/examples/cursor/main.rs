@@ -16,8 +16,8 @@
 extern mod glfw;
 
 #[start]
-fn start(argc: int, argv: **u8, crate_map: *u8) -> int {
-    std::rt::start_on_main_thread(argc, argv, crate_map, main)
+fn start(argc: int, argv: **u8) -> int {
+    std::rt::start_on_main_thread(argc, argv, main)
 }
 
 fn main() {
@@ -28,7 +28,7 @@ fn main() {
     do glfw::start {
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
 
-        window.set_cursor_mode(glfw::CURSOR_DISABLED);
+        window.set_cursor_mode(glfw::CursorDisabled);
         window.make_context_current();
 
         do window.set_cursor_pos_callback |_, xpos, ypos| {
@@ -37,11 +37,11 @@ fn main() {
 
         do window.set_key_callback |window, key, _, action, _| {
             match (action, key) {
-                (glfw::PRESS, glfw::KEY_ESCAPE) => window.set_should_close(true),
-                (glfw::PRESS, glfw::KEY_SPACE) => {
+                (glfw::Press, glfw::KeyEscape) => window.set_should_close(true),
+                (glfw::Press, glfw::KeySpace) => {
                     match window.get_cursor_mode() {
-                        glfw::CURSOR_DISABLED => window.set_cursor_mode(glfw::CURSOR_NORMAL),
-                        glfw::CURSOR_NORMAL   => window.set_cursor_mode(glfw::CURSOR_DISABLED),
+                        glfw::CursorDisabled => window.set_cursor_mode(glfw::CursorNormal),
+                        glfw::CursorNormal   => window.set_cursor_mode(glfw::CursorDisabled),
                         _ => {}
                     }
                 }
