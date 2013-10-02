@@ -22,11 +22,11 @@ use std::local_data;
 static tls_key: local_data::Key<@mut State> = &local_data::Key;
 
 struct State {
-    priv pos: (float, float),
+    priv pos: (f64, f64),
 }
 
 impl State {
-    pub fn update(x: float, y: float) {
+    pub fn update(x: f64, y: f64) {
         do local_data::get(tls_key) |opt| {
             match opt {
                 Some(state) => state.pos = (x, y),
@@ -35,7 +35,7 @@ impl State {
         }
     }
 
-    pub fn get_pos() -> Option<(float, float)> {
+    pub fn get_pos() -> Option<(f64, f64)> {
         do local_data::get(tls_key) |opt| {
             opt.map(|state| state.pos)
         }
