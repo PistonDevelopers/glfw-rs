@@ -417,7 +417,7 @@ impl Monitor {
 
     /// Wrapper for `glfwSetGamma`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn set_gamma(&self, gamma: float) {
+    pub fn set_gamma(&self, gamma: f32) {
         unsafe { ffi::glfwSetGamma(self.ptr, gamma as c_float); }
     }
 
@@ -749,9 +749,9 @@ pub type WindowFocusFun = ~fn(window: &Window, focused: bool);
 pub type WindowIconifyFun = ~fn(window: &Window, iconified: bool);
 pub type FramebufferSizeFun = ~fn(window: &Window, width: int, height: int);
 pub type MouseButtonFun = ~fn(window: &Window, button: MouseButton, action: Action, modifiers: Modifiers);
-pub type CursorPosFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type CursorPosFun = ~fn(window: &Window, xpos: f64, ypos: f64);
 pub type CursorEnterFun = ~fn(window: &Window, entered: bool);
-pub type ScrollFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type ScrollFun = ~fn(window: &Window, xpos: f64, ypos: f64);
 pub type KeyFun = ~fn(window: &Window, key: Key, scancode: c_int, action: Action, modifiers: Modifiers);
 pub type CharFun = ~fn(window: &Window, character: char);
 
@@ -1146,18 +1146,18 @@ impl Window {
 
     /// Wrapper for `glfwGetCursorPos`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_cursor_pos(&self) -> (float, float) {
+    pub fn get_cursor_pos(&self) -> (f64, f64) {
         unsafe {
             let mut xpos = 0.0;
             let mut ypos = 0.0;
             ffi::glfwGetCursorPos(self.ptr, &mut xpos, &mut ypos);
-            (xpos as float, ypos as float)
+            (xpos as f64, ypos as f64)
         }
     }
 
     /// Wrapper for `glfwSetCursorPos`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn set_cursor_pos(&self, xpos: float, ypos: float) {
+    pub fn set_cursor_pos(&self, xpos: f64, ypos: f64) {
         unsafe { ffi::glfwSetCursorPos(self.ptr, xpos as c_double, ypos as c_double); }
     }
 
@@ -1357,11 +1357,11 @@ impl Joystick {
 
     /// Wrapper for `glfwGetJoystickAxes`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_axes(&self) -> ~[float] {
+    pub fn get_axes(&self) -> ~[f32] {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(*self as c_int, &mut count);
-            vec::from_buf(ptr, count as uint).map(|&a| a as float)
+            vec::from_buf(ptr, count as uint).map(|&a| a as f32)
         }
     }
 
@@ -1384,13 +1384,13 @@ impl Joystick {
 
 /// Wrapper for `glfwGetTime`.
 #[fixed_stack_segment] #[inline(never)]
-pub fn get_time() -> float {
-    unsafe { ffi::glfwGetTime() as float }
+pub fn get_time() -> f64 {
+    unsafe { ffi::glfwGetTime() as f64 }
 }
 
 /// Wrapper for `glfwSetTime`.
 #[fixed_stack_segment] #[inline(never)]
-pub fn set_time(time: float) {
+pub fn set_time(time: f64) {
     unsafe { ffi::glfwSetTime(time as c_double); }
 }
 
