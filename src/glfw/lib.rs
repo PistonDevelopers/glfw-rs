@@ -224,7 +224,7 @@ impl Monitor {
 
     /// Wrapper for `glfwSetGamma`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn set_gamma(&self, gamma: float) {
+    pub fn set_gamma(&self, gamma: f64) {
         unsafe { ffi::glfwSetGamma(self.ptr, gamma as c_float); }
     }
 
@@ -545,10 +545,10 @@ pub type WindowFocusFun = ~fn(window: &Window, focused: bool);
 pub type WindowIconifyFun = ~fn(window: &Window, iconified: bool);
 pub type FramebufferSizeFun = ~fn(window: &Window, width: int, height: int);
 pub type MouseButtonFun = ~fn(window: &Window, button: c_int, action: c_int, mods: KeyMods);
-pub type CursorPosFun = ~fn(window: &Window, xpos: float, ypos: float);
+pub type CursorPosFun = ~fn(window: &Window, xpos: f64, ypos: f64);
 pub type CursorEnterFun = ~fn(window: &Window, entered: bool);
-pub type ScrollFun = ~fn(window: &Window, xpos: float, ypos: float);
-pub type ZoomFun = ~fn(window: &Window, factor: float);
+pub type ScrollFun = ~fn(window: &Window, xpos: f64, ypos: f64);
+pub type ZoomFun = ~fn(window: &Window, factor: f64);
 pub type KeyFun = ~fn(window: &Window, key: c_int, scancode: c_int, action: c_int, mods: KeyMods);
 pub type CharFun = ~fn(window: &Window, character: char);
 pub type MonitorFun = ~fn(monitor: &Monitor, event: c_int);
@@ -931,17 +931,17 @@ impl Window {
 
     /// Wrapper for `glfwGetCursorPos`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_cursor_pos(&self) -> (float, float) {
+    pub fn get_cursor_pos(&self) -> (f64, f64) {
         unsafe {
             let (xpos, ypos) = (0.0, 0.0);
             ffi::glfwGetCursorPos(self.ptr, &xpos, &ypos);
-            (xpos as float, ypos as float)
+            (xpos as f64, ypos as f64)
         }
     }
 
     /// Wrapper for `glfwSetCursorPos`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn set_cursor_pos(&self, xpos: float, ypos: float) {
+    pub fn set_cursor_pos(&self, xpos: f64, ypos: f64) {
         unsafe { ffi::glfwSetCursorPos(self.ptr, xpos as c_double, ypos as c_double); }
     }
 
@@ -1099,7 +1099,7 @@ impl Drop for Window {
     ///
     /// Wrapper for `glfwDestroyWindow`.
     #[fixed_stack_segment] #[inline(never)]
-    fn drop(&self) {
+    fn drop(&mut self) {
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
@@ -1140,11 +1140,11 @@ pub mod joystick {
 
     /// Wrapper for `glfwGetJoystickAxes`.
     #[fixed_stack_segment] #[inline(never)]
-    pub fn get_axes(joy: c_int) -> ~[float] {
+    pub fn get_axes(joy: c_int) -> ~[f64] {
         unsafe {
             let count = 0;
             let ptr = ffi::glfwGetJoystickAxes(joy, &count);
-            vec::from_buf(ptr, count as uint).map(|&a| a as float)
+            vec::from_buf(ptr, count as uint).map(|&a| a as f64)
         }
     }
 
@@ -1167,13 +1167,13 @@ pub mod joystick {
 
 /// Wrapper for `glfwGetTime`.
 #[fixed_stack_segment] #[inline(never)]
-pub fn get_time() -> float {
-    unsafe { ffi::glfwGetTime() as float }
+pub fn get_time() -> f64 {
+    unsafe { ffi::glfwGetTime() as f64 }
 }
 
 /// Wrapper for `glfwSetTime`.
 #[fixed_stack_segment] #[inline(never)]
-pub fn set_time(time: float) {
+pub fn set_time(time: f64) {
     unsafe { ffi::glfwSetTime(time as c_double); }
 }
 
