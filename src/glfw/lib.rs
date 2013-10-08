@@ -22,6 +22,9 @@
 #[comment = "Bindings and wrapper functions for glfw3."];
 #[crate_type = "lib"];
 
+#[feature(globs)];
+#[feature(macro_rules)];
+
 // TODO: Document differences between GLFW and glfw-rs
 
 use std::cast;
