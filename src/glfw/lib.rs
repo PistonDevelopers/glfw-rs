@@ -350,7 +350,7 @@ impl Monitor {
             ffi::glfwGetPrimaryMonitor()
              .to_option()
              .map_default(Err(()),
-                |&ptr| Ok(Monitor { ptr: ptr }))
+                |ptr| Ok(Monitor { ptr: ptr }))
         }
     }
 
@@ -414,7 +414,7 @@ impl Monitor {
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
-            ffi::glfwGetVideoMode(self.ptr).to_option().map(|&v| VidMode::from_glfw_vid_mode(v))
+            ffi::glfwGetVideoMode(self.ptr).to_option().map(|v| VidMode::from_glfw_vid_mode(v))
         }
     }
 
@@ -833,7 +833,7 @@ impl Window {
                     match share { Some(w) => w.ptr, None => ptr::null() }
                 )
             }.to_option().map_default(Err(()),
-                |&ptr| {
+                |ptr| {
                     let windowfns = WindowFns::new();
                     ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~windowfns));
                     let window = ~Window {

@@ -28,7 +28,7 @@ static error_fun_tls_key: local_data::Key<ErrorFun> = &local_data::Key;
 
 pub extern "C" fn error_callback(error: c_int, description: *c_char) {
     do local_data::get(error_fun_tls_key) |data| {
-        do data.map |&ref cb| {
+        do data.as_ref().map |&ref cb| {
             unsafe { (**cb)(cast::transmute(error as int), str::raw::from_c_str(description)) }
         };
     }
@@ -43,7 +43,7 @@ static monitor_fun_tls_key: local_data::Key<MonitorFun> = &local_data::Key;
 
 pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
     do local_data::get(monitor_fun_tls_key) |data| {
-        do data.map |&ref cb| {
+        do data.as_ref().map |&ref cb| {
             unsafe { (**cb)(&Monitor { ptr: monitor }, cast::transmute(event as int)) }
         };
     }
@@ -65,7 +65,7 @@ macro_rules! window_callback(
          pub extern "C" fn $name(window: *ffi::GLFWwindow) {
             unsafe {
                 let window = Window { ptr: window, is_shared: false };
-                window.get_fns().$field.map(|cb| (*cb)(&window));
+                window.get_fns().$field.as_ref().map(|cb| (*cb)(&window));
                 cast::forget(window);
             }
          }
@@ -74,7 +74,7 @@ macro_rules! window_callback(
          pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
             unsafe {
                 let window = Window { ptr: window, is_shared: false };
-                window.get_fns().$field.map(|cb| (*cb)(&window $(, $arg_conv)*));
+                window.get_fns().$field.as_ref().map(|cb| (*cb)(&window $(, $arg_conv)*));
                 cast::forget(window);
             }
          }
