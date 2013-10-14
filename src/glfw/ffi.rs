@@ -296,6 +296,11 @@ extern { }
 #[link_args="-lglfw -lX11 -lXrandr -lXi -lXxf86vm"]
 extern { }
 
+#[nolink]
+#[cfg(target_os = "win32")]
+#[link_args="-lglfw3"]
+extern { }
+
 // C function bindings
 
 extern "C" {
