@@ -811,19 +811,19 @@ macro_rules! set_window_callback(
 
 impl Window {
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
+    pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
         Window::create_intern(width, height, title, mode, None)
     }
 
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_shared(&self, width: uint, height: uint, title: &str, mode: WindowMode) -> Result<Window,()> {
+    pub fn create_shared(&self, width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
         Window::create_intern(width, height, title, mode, Some(self))
     }
 
     /// Internal wrapper for `glfwCreateWindow`.
     #[fixed_stack_segment] #[inline(never)]
-    fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Result<Window,()> {
-        unsafe {
+    fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<Window> {
+        let ptr = unsafe {
             do title.with_c_str |title| {
                 ffi::glfwCreateWindow(
                     width as c_int,
@@ -832,17 +832,20 @@ impl Window {
                     mode.to_ptr(),
                     match share { Some(w) => w.ptr, None => ptr::null() }
                 )
-            }.to_option().map_default(Err(()),
-                |ptr| {
-                    let windowfns = WindowFns::new();
-                    ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~windowfns));
-                    let window = ~Window {
-                        ptr: ptr::to_unsafe_ptr(ptr),
-                        is_shared: share.is_none(),
-                    };
-                    Ok(*window)
-                }
-            )
+            }
+        };
+
+        if ptr.is_null() {
+            None
+        } else {
+            unsafe {
+                ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~WindowFns::new()));
+            }
+            let window = Window {
+                ptr: ptr,
+                is_shared: share.is_none(),
+            };
+            Some(window)
         }
     }
 
