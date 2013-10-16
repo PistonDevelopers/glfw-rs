@@ -288,7 +288,7 @@ pub struct GLFWvidmode {
 
 #[nolink]
 #[cfg(target_os = "macos")]
-#[link_args="-lglfw3 -framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
+#[link_args="-lglfw -framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation"]
 extern { }
 
 #[nolink]

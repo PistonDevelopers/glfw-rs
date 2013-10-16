@@ -41,22 +41,38 @@ fn main() {
 
 ## Compilation
 
-Building the library
+### Building the library
+
 ~~~
 rustpkg build glfw
 ~~~
 
-Building the examples
+#### Homebrew Users
+
+Homebrew installs `libglfw.dylib` under the name `libglfw3.dylib`. In order for
+compilation to work, you'll need to create a symlink to the library _before_
+you build glfw-rs:
+
+~~~
+ln -s /usr/local/lib/libglfw3.dylib /usr/local/lib/libglfw.dylib
+~~~
+
+### Building the examples
 ~~~
 rustpkg build examples
 ~~~
 
-Building a specific example
+### Building a specific example
 ~~~
 rustpkg build examples/callbacks
 ~~~
 
 ## FAQ
+
+_I get `ld: library not found for -lglfw` when building on OSX, with glfw installed via Homebrew_
+
+Homebrew installs glfw under a non-standard name. When you compile you'll have
+to [create a symlink to the library](#homebrew-users) first.
 
 _I get lots of errors like: `undefined reference to 'glfwSetScrollCallback'`_
 
