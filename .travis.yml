@@ -3,5 +3,13 @@ before_install:
   - sudo apt-get update
 install:
   - sudo apt-get install rust-nightly
+  - sudo apt-get install libXxf86vm-dev
 script:
+  - git clone https://github.com/glfw/glfw.git
+  - cd glfw
+  - git checkout 3.0.3
+  - cmake -DBUILD_SHARED_LIBS=ON
+  - make
+  - sudo make install
+  - cd ..
   - rustpkg build glfw
