@@ -31,7 +31,8 @@ fn main() {
         fail!(~"Failed to initialize GLFW");
     } else {
         (||{
-            let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+            let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
+                .expect("Failed to create GLFW window.");
 
             window.set_key_callback(key_callback);
             window.make_context_current();

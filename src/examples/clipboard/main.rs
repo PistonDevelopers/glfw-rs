@@ -26,7 +26,8 @@ fn main() {
     glfw::set_error_callback(error_callback);
 
     do glfw::start {
-        let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed)
+            .expect("Failed to create GLFW window.");
 
         window.make_context_current();
         window.set_key_callback(key_callback);

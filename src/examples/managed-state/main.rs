@@ -53,7 +53,8 @@ fn main() {
     }
 
     do glfw::start {
-        let window = glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed)
+            .expect("Failed to create GLFW window.");
 
         do window.set_cursor_pos_callback |_, x, y| {
             State::update(x, y);
@@ -69,7 +70,7 @@ fn main() {
         while !window.should_close() {
             glfw::poll_events();
 
-            do State::get_pos().map |&(x, y)| {
+            do State::get_pos().map |(x, y)| {
                 window.set_title(format!("({}, {})", x, y));
             };
         }

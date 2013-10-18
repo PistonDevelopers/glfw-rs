@@ -26,7 +26,8 @@ fn main() {
     }
 
     do glfw::start {
-        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
+            .expect("Failed to create GLFW window.");
 
         window.set_cursor_mode(glfw::CursorDisabled);
         window.make_context_current();

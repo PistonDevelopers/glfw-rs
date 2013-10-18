@@ -30,7 +30,8 @@ fn main() {
     do glfw::start {
         glfw::window_hint::visible(true);
 
-        let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed)
+            .expect("Failed to create GLFW window.");
 
         window.make_context_current();
 
@@ -58,7 +59,7 @@ fn main() {
         ];
 
         for &(param, ext, name) in gl_params.iter() {
-            if do ext.map_default(true) |&s| {
+            if do ext.map_default(true) |s| {
                 glfw::extension_supported(s)
             } {
                 let value = 0;

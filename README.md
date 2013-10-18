@@ -22,7 +22,8 @@ fn main() {
     // Initialize the library
     do glfw::start {
         // Create a windowed mode window and its OpenGL context
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
+            .expect("Failed to create GLFW window.");
 
         // Make the window's context current
         window.make_context_current();

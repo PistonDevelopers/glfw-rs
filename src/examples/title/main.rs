@@ -26,7 +26,8 @@ fn main() {
     glfw::set_error_callback(error_callback);
 
     do glfw::start {
-        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed).unwrap();
+        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed)
+            .expect("Failed to create GLFW window.");
 
         window.make_context_current();
         window.set_key_callback(key_callback);
