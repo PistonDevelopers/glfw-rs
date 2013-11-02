@@ -15,6 +15,8 @@
 
 //! This example shows how managed objects can be accessed from callbacks
 
+#[feature(managed_boxes)];
+
 extern mod glfw;
 
 use std::local_data;

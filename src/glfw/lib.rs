@@ -37,6 +37,7 @@ pub mod ffi;
 mod extfn;
 
 #[deriving(Clone, Eq, IterBytes, ToStr)]
+#[repr(int)]
 pub enum Action {
     Release                      = ffi::RELEASE                     as int,
     Press                        = ffi::PRESS                       as int,
@@ -44,6 +45,7 @@ pub enum Action {
 }
 
 #[deriving(Clone, Eq, IterBytes, ToStr)]
+#[repr(int)]
 pub enum Key {
     KeySpace                    = ffi::KEY_SPACE                    as int,
     KeyApostrophe               = ffi::KEY_APOSTROPHE               as int,
@@ -169,6 +171,7 @@ pub enum Key {
 }
 
 #[deriving(Clone, Eq, IterBytes, ToStr)]
+#[repr(int)]
 pub enum MouseButton {
     MouseButtonLeft             = ffi::MOUSE_BUTTON_LEFT            as int,
     MouseButtonRight            = ffi::MOUSE_BUTTON_RIGHT           as int,
@@ -188,6 +191,7 @@ pub enum MouseButton {
 // pub static MouseButtonMiddle         : MouseButton = MouseButton3;
 
 #[deriving(Clone, Eq, IterBytes, ToStr)]
+#[repr(int)]
 pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED              as int,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT           as int,
@@ -223,6 +227,7 @@ pub enum OpenGlProfile {
 }
 
 #[deriving(Clone, Eq, IterBytes, ToStr)]
+#[repr(int)]
 pub enum CursorMode {
     CursorNormal                = ffi::CURSOR_NORMAL                as int,
     CursorHidden                = ffi::CURSOR_HIDDEN                as int,
@@ -456,6 +461,7 @@ impl Monitor {
 
 pub type MonitorFun = ~fn(monitor: &Monitor, event: MonitorEvent);
 
+#[repr(int)]
 pub enum MonitorEvent {
     Connected                   = ffi::CONNECTED                    as int,
     Disconnected                = ffi::DISCONNECTED                 as int,
