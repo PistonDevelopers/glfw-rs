@@ -29,7 +29,7 @@ static error_fun_tls_key: local_data::Key<ErrorFun> = &local_data::Key;
 pub extern "C" fn error_callback(error: c_int, description: *c_char) {
     do local_data::get(error_fun_tls_key) |data| {
         do data.as_ref().map |&ref cb| {
-            unsafe { (**cb)(cast::transmute(error as int), str::raw::from_c_str(description)) }
+            unsafe { (**cb)(cast::transmute(error), str::raw::from_c_str(description)) }
         };
     }
 }
@@ -44,7 +44,7 @@ static monitor_fun_tls_key: local_data::Key<MonitorFun> = &local_data::Key;
 pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
     do local_data::get(monitor_fun_tls_key) |data| {
         do data.as_ref().map |&ref cb| {
-            unsafe { (**cb)(&Monitor { ptr: monitor }, cast::transmute(event as int)) }
+            unsafe { (**cb)(&Monitor { ptr: monitor }, cast::transmute(event)) }
         };
     }
 }
@@ -88,9 +88,9 @@ window_callback!(fn window_refresh_callback()                                   
 window_callback!(fn window_focus_callback(focused: c_int)                                   => focus_fun(focused == ffi::TRUE))
 window_callback!(fn window_iconify_callback(iconified: c_int)                               => iconify_fun(iconified == ffi::TRUE))
 window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => framebuffer_size_fun(width as int, height as int))
-window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => mouse_button_fun(cast::transmute(button as int), cast::transmute(action as int), Modifiers { values: mods }))
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => mouse_button_fun(cast::transmute(button), cast::transmute(action), Modifiers { values: mods }))
 window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => cursor_pos_fun(xpos as f64, ypos as f64))
 window_callback!(fn cursor_enter_callback(entered: c_int)                                   => cursor_enter_fun(entered == ffi::TRUE))
 window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => scroll_fun(xpos as f64, ypos as f64))
-window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => key_fun(cast::transmute(key as int), scancode, cast::transmute(action as int), Modifiers { values: mods }))
+window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => key_fun(cast::transmute(key), scancode, cast::transmute(action), Modifiers { values: mods }))
 window_callback!(fn char_callback(character: c_uint)                                        => char_fun(::std::char::from_u32(character).unwrap()))

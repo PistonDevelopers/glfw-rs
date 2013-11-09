@@ -36,202 +36,205 @@ use std::vec;
 pub mod ffi;
 mod extfn;
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
-#[repr(int)]
 pub enum Action {
-    Release                      = ffi::RELEASE                     as int,
-    Press                        = ffi::PRESS                       as int,
-    Repeat                       = ffi::REPEAT                      as int,
+    Release                      = ffi::RELEASE,
+    Press                        = ffi::PRESS,
+    Repeat                       = ffi::REPEAT,
 }
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
-#[repr(int)]
 pub enum Key {
-    KeySpace                    = ffi::KEY_SPACE                    as int,
-    KeyApostrophe               = ffi::KEY_APOSTROPHE               as int,
-    KeyComma                    = ffi::KEY_COMMA                    as int,
-    KeyMinus                    = ffi::KEY_MINUS                    as int,
-    KeyPeriod                   = ffi::KEY_PERIOD                   as int,
-    KeySlash                    = ffi::KEY_SLASH                    as int,
-    Key0                        = ffi::KEY_0                        as int,
-    Key1                        = ffi::KEY_1                        as int,
-    Key2                        = ffi::KEY_2                        as int,
-    Key3                        = ffi::KEY_3                        as int,
-    Key4                        = ffi::KEY_4                        as int,
-    Key5                        = ffi::KEY_5                        as int,
-    Key6                        = ffi::KEY_6                        as int,
-    Key7                        = ffi::KEY_7                        as int,
-    Key8                        = ffi::KEY_8                        as int,
-    Key9                        = ffi::KEY_9                        as int,
-    KeySemicolon                = ffi::KEY_SEMICOLON                as int,
-    KeyEqual                    = ffi::KEY_EQUAL                    as int,
-    KeyA                        = ffi::KEY_A                        as int,
-    KeyB                        = ffi::KEY_B                        as int,
-    KeyC                        = ffi::KEY_C                        as int,
-    KeyD                        = ffi::KEY_D                        as int,
-    KeyE                        = ffi::KEY_E                        as int,
-    KeyF                        = ffi::KEY_F                        as int,
-    KeyG                        = ffi::KEY_G                        as int,
-    KeyH                        = ffi::KEY_H                        as int,
-    KeyI                        = ffi::KEY_I                        as int,
-    KeyJ                        = ffi::KEY_J                        as int,
-    KeyK                        = ffi::KEY_K                        as int,
-    KeyL                        = ffi::KEY_L                        as int,
-    KeyM                        = ffi::KEY_M                        as int,
-    KeyN                        = ffi::KEY_N                        as int,
-    KeyO                        = ffi::KEY_O                        as int,
-    KeyP                        = ffi::KEY_P                        as int,
-    KeyQ                        = ffi::KEY_Q                        as int,
-    KeyR                        = ffi::KEY_R                        as int,
-    KeyS                        = ffi::KEY_S                        as int,
-    KeyT                        = ffi::KEY_T                        as int,
-    KeyU                        = ffi::KEY_U                        as int,
-    KeyV                        = ffi::KEY_V                        as int,
-    KeyW                        = ffi::KEY_W                        as int,
-    KeyX                        = ffi::KEY_X                        as int,
-    KeyY                        = ffi::KEY_Y                        as int,
-    KeyZ                        = ffi::KEY_Z                        as int,
-    KeyLeftBracket              = ffi::KEY_LEFT_BRACKET             as int,
-    KeyBackslash                = ffi::KEY_BACKSLASH                as int,
-    KeyRightBracket             = ffi::KEY_RIGHT_BRACKET            as int,
-    KeyGraveAccent              = ffi::KEY_GRAVE_ACCENT             as int,
-    KeyWorld1                   = ffi::KEY_WORLD_1                  as int,
-    KeyWorld2                   = ffi::KEY_WORLD_2                  as int,
+    KeySpace                    = ffi::KEY_SPACE,
+    KeyApostrophe               = ffi::KEY_APOSTROPHE,
+    KeyComma                    = ffi::KEY_COMMA,
+    KeyMinus                    = ffi::KEY_MINUS,
+    KeyPeriod                   = ffi::KEY_PERIOD,
+    KeySlash                    = ffi::KEY_SLASH,
+    Key0                        = ffi::KEY_0,
+    Key1                        = ffi::KEY_1,
+    Key2                        = ffi::KEY_2,
+    Key3                        = ffi::KEY_3,
+    Key4                        = ffi::KEY_4,
+    Key5                        = ffi::KEY_5,
+    Key6                        = ffi::KEY_6,
+    Key7                        = ffi::KEY_7,
+    Key8                        = ffi::KEY_8,
+    Key9                        = ffi::KEY_9,
+    KeySemicolon                = ffi::KEY_SEMICOLON,
+    KeyEqual                    = ffi::KEY_EQUAL,
+    KeyA                        = ffi::KEY_A,
+    KeyB                        = ffi::KEY_B,
+    KeyC                        = ffi::KEY_C,
+    KeyD                        = ffi::KEY_D,
+    KeyE                        = ffi::KEY_E,
+    KeyF                        = ffi::KEY_F,
+    KeyG                        = ffi::KEY_G,
+    KeyH                        = ffi::KEY_H,
+    KeyI                        = ffi::KEY_I,
+    KeyJ                        = ffi::KEY_J,
+    KeyK                        = ffi::KEY_K,
+    KeyL                        = ffi::KEY_L,
+    KeyM                        = ffi::KEY_M,
+    KeyN                        = ffi::KEY_N,
+    KeyO                        = ffi::KEY_O,
+    KeyP                        = ffi::KEY_P,
+    KeyQ                        = ffi::KEY_Q,
+    KeyR                        = ffi::KEY_R,
+    KeyS                        = ffi::KEY_S,
+    KeyT                        = ffi::KEY_T,
+    KeyU                        = ffi::KEY_U,
+    KeyV                        = ffi::KEY_V,
+    KeyW                        = ffi::KEY_W,
+    KeyX                        = ffi::KEY_X,
+    KeyY                        = ffi::KEY_Y,
+    KeyZ                        = ffi::KEY_Z,
+    KeyLeftBracket              = ffi::KEY_LEFT_BRACKET,
+    KeyBackslash                = ffi::KEY_BACKSLASH,
+    KeyRightBracket             = ffi::KEY_RIGHT_BRACKET,
+    KeyGraveAccent              = ffi::KEY_GRAVE_ACCENT,
+    KeyWorld1                   = ffi::KEY_WORLD_1,
+    KeyWorld2                   = ffi::KEY_WORLD_2,
 
-    KeyEscape                   = ffi::KEY_ESCAPE                   as int,
-    KeyEnter                    = ffi::KEY_ENTER                    as int,
-    KeyTab                      = ffi::KEY_TAB                      as int,
-    KeyBackspace                = ffi::KEY_BACKSPACE                as int,
-    KeyInsert                   = ffi::KEY_INSERT                   as int,
-    KeyDelete                   = ffi::KEY_DELETE                   as int,
-    KeyRight                    = ffi::KEY_RIGHT                    as int,
-    KeyLeft                     = ffi::KEY_LEFT                     as int,
-    KeyDown                     = ffi::KEY_DOWN                     as int,
-    KeyUp                       = ffi::KEY_UP                       as int,
-    KeyPageUp                   = ffi::KEY_PAGE_UP                  as int,
-    KeyPageDown                 = ffi::KEY_PAGE_DOWN                as int,
-    KeyHome                     = ffi::KEY_HOME                     as int,
-    KeyEnd                      = ffi::KEY_END                      as int,
-    KeyCapsLock                 = ffi::KEY_CAPS_LOCK                as int,
-    KeyScrollLock               = ffi::KEY_SCROLL_LOCK              as int,
-    KeyNumLock                  = ffi::KEY_NUM_LOCK                 as int,
-    KeyPrintScreen              = ffi::KEY_PRINT_SCREEN             as int,
-    KeyPause                    = ffi::KEY_PAUSE                    as int,
-    KeyF1                       = ffi::KEY_F1                       as int,
-    KeyF2                       = ffi::KEY_F2                       as int,
-    KeyF3                       = ffi::KEY_F3                       as int,
-    KeyF4                       = ffi::KEY_F4                       as int,
-    KeyF5                       = ffi::KEY_F5                       as int,
-    KeyF6                       = ffi::KEY_F6                       as int,
-    KeyF7                       = ffi::KEY_F7                       as int,
-    KeyF8                       = ffi::KEY_F8                       as int,
-    KeyF9                       = ffi::KEY_F9                       as int,
-    KeyF10                      = ffi::KEY_F10                      as int,
-    KeyF11                      = ffi::KEY_F11                      as int,
-    KeyF12                      = ffi::KEY_F12                      as int,
-    KeyF13                      = ffi::KEY_F13                      as int,
-    KeyF14                      = ffi::KEY_F14                      as int,
-    KeyF15                      = ffi::KEY_F15                      as int,
-    KeyF16                      = ffi::KEY_F16                      as int,
-    KeyF17                      = ffi::KEY_F17                      as int,
-    KeyF18                      = ffi::KEY_F18                      as int,
-    KeyF19                      = ffi::KEY_F19                      as int,
-    KeyF20                      = ffi::KEY_F20                      as int,
-    KeyF21                      = ffi::KEY_F21                      as int,
-    KeyF22                      = ffi::KEY_F22                      as int,
-    KeyF23                      = ffi::KEY_F23                      as int,
-    KeyF24                      = ffi::KEY_F24                      as int,
-    KeyF25                      = ffi::KEY_F25                      as int,
-    KeyKp0                      = ffi::KEY_KP_0                     as int,
-    KeyKp1                      = ffi::KEY_KP_1                     as int,
-    KeyKp2                      = ffi::KEY_KP_2                     as int,
-    KeyKp3                      = ffi::KEY_KP_3                     as int,
-    KeyKp4                      = ffi::KEY_KP_4                     as int,
-    KeyKp5                      = ffi::KEY_KP_5                     as int,
-    KeyKp6                      = ffi::KEY_KP_6                     as int,
-    KeyKp7                      = ffi::KEY_KP_7                     as int,
-    KeyKp8                      = ffi::KEY_KP_8                     as int,
-    KeyKp9                      = ffi::KEY_KP_9                     as int,
-    KeyKpDecimal                = ffi::KEY_KP_DECIMAL               as int,
-    KeyKpDivide                 = ffi::KEY_KP_DIVIDE                as int,
-    KeyKpMultiply               = ffi::KEY_KP_MULTIPLY              as int,
-    KeyKpSubtract               = ffi::KEY_KP_SUBTRACT              as int,
-    KeyKpAdd                    = ffi::KEY_KP_ADD                   as int,
-    KeyKpEnter                  = ffi::KEY_KP_ENTER                 as int,
-    KeyKpEqual                  = ffi::KEY_KP_EQUAL                 as int,
-    KeyLeftShift                = ffi::KEY_LEFT_SHIFT               as int,
-    KeyLeftControl              = ffi::KEY_LEFT_CONTROL             as int,
-    KeyLeftAlt                  = ffi::KEY_LEFT_ALT                 as int,
-    KeyLeftSuper                = ffi::KEY_LEFT_SUPER               as int,
-    KeyRightShift               = ffi::KEY_RIGHT_SHIFT              as int,
-    KeyRightControl             = ffi::KEY_RIGHT_CONTROL            as int,
-    KeyRightAlt                 = ffi::KEY_RIGHT_ALT                as int,
-    KeyRightSuper               = ffi::KEY_RIGHT_SUPER              as int,
-    KeyMenu                     = ffi::KEY_MENU                     as int,
+    KeyEscape                   = ffi::KEY_ESCAPE,
+    KeyEnter                    = ffi::KEY_ENTER,
+    KeyTab                      = ffi::KEY_TAB,
+    KeyBackspace                = ffi::KEY_BACKSPACE,
+    KeyInsert                   = ffi::KEY_INSERT,
+    KeyDelete                   = ffi::KEY_DELETE,
+    KeyRight                    = ffi::KEY_RIGHT,
+    KeyLeft                     = ffi::KEY_LEFT,
+    KeyDown                     = ffi::KEY_DOWN,
+    KeyUp                       = ffi::KEY_UP,
+    KeyPageUp                   = ffi::KEY_PAGE_UP,
+    KeyPageDown                 = ffi::KEY_PAGE_DOWN,
+    KeyHome                     = ffi::KEY_HOME,
+    KeyEnd                      = ffi::KEY_END,
+    KeyCapsLock                 = ffi::KEY_CAPS_LOCK,
+    KeyScrollLock               = ffi::KEY_SCROLL_LOCK,
+    KeyNumLock                  = ffi::KEY_NUM_LOCK,
+    KeyPrintScreen              = ffi::KEY_PRINT_SCREEN,
+    KeyPause                    = ffi::KEY_PAUSE,
+    KeyF1                       = ffi::KEY_F1,
+    KeyF2                       = ffi::KEY_F2,
+    KeyF3                       = ffi::KEY_F3,
+    KeyF4                       = ffi::KEY_F4,
+    KeyF5                       = ffi::KEY_F5,
+    KeyF6                       = ffi::KEY_F6,
+    KeyF7                       = ffi::KEY_F7,
+    KeyF8                       = ffi::KEY_F8,
+    KeyF9                       = ffi::KEY_F9,
+    KeyF10                      = ffi::KEY_F10,
+    KeyF11                      = ffi::KEY_F11,
+    KeyF12                      = ffi::KEY_F12,
+    KeyF13                      = ffi::KEY_F13,
+    KeyF14                      = ffi::KEY_F14,
+    KeyF15                      = ffi::KEY_F15,
+    KeyF16                      = ffi::KEY_F16,
+    KeyF17                      = ffi::KEY_F17,
+    KeyF18                      = ffi::KEY_F18,
+    KeyF19                      = ffi::KEY_F19,
+    KeyF20                      = ffi::KEY_F20,
+    KeyF21                      = ffi::KEY_F21,
+    KeyF22                      = ffi::KEY_F22,
+    KeyF23                      = ffi::KEY_F23,
+    KeyF24                      = ffi::KEY_F24,
+    KeyF25                      = ffi::KEY_F25,
+    KeyKp0                      = ffi::KEY_KP_0,
+    KeyKp1                      = ffi::KEY_KP_1,
+    KeyKp2                      = ffi::KEY_KP_2,
+    KeyKp3                      = ffi::KEY_KP_3,
+    KeyKp4                      = ffi::KEY_KP_4,
+    KeyKp5                      = ffi::KEY_KP_5,
+    KeyKp6                      = ffi::KEY_KP_6,
+    KeyKp7                      = ffi::KEY_KP_7,
+    KeyKp8                      = ffi::KEY_KP_8,
+    KeyKp9                      = ffi::KEY_KP_9,
+    KeyKpDecimal                = ffi::KEY_KP_DECIMAL,
+    KeyKpDivide                 = ffi::KEY_KP_DIVIDE,
+    KeyKpMultiply               = ffi::KEY_KP_MULTIPLY,
+    KeyKpSubtract               = ffi::KEY_KP_SUBTRACT,
+    KeyKpAdd                    = ffi::KEY_KP_ADD,
+    KeyKpEnter                  = ffi::KEY_KP_ENTER,
+    KeyKpEqual                  = ffi::KEY_KP_EQUAL,
+    KeyLeftShift                = ffi::KEY_LEFT_SHIFT,
+    KeyLeftControl              = ffi::KEY_LEFT_CONTROL,
+    KeyLeftAlt                  = ffi::KEY_LEFT_ALT,
+    KeyLeftSuper                = ffi::KEY_LEFT_SUPER,
+    KeyRightShift               = ffi::KEY_RIGHT_SHIFT,
+    KeyRightControl             = ffi::KEY_RIGHT_CONTROL,
+    KeyRightAlt                 = ffi::KEY_RIGHT_ALT,
+    KeyRightSuper               = ffi::KEY_RIGHT_SUPER,
+    KeyMenu                     = ffi::KEY_MENU,
 }
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
-#[repr(int)]
 pub enum MouseButton {
-    MouseButtonLeft             = ffi::MOUSE_BUTTON_LEFT            as int,
-    MouseButtonRight            = ffi::MOUSE_BUTTON_RIGHT           as int,
-    MouseButtonMiddle           = ffi::MOUSE_BUTTON_MIDDLE          as int,
-    // MouseButton1                = ffi::MOUSE_BUTTON_1               as int,
-    // MouseButton2                = ffi::MOUSE_BUTTON_2               as int,
-    // MouseButton3                = ffi::MOUSE_BUTTON_3               as int,
-    MouseButton4                = ffi::MOUSE_BUTTON_4               as int,
-    MouseButton5                = ffi::MOUSE_BUTTON_5               as int,
-    MouseButton6                = ffi::MOUSE_BUTTON_6               as int,
-    MouseButton7                = ffi::MOUSE_BUTTON_7               as int,
-    MouseButton8                = ffi::MOUSE_BUTTON_8               as int,
+    MouseButtonLeft             = ffi::MOUSE_BUTTON_LEFT,
+    MouseButtonRight            = ffi::MOUSE_BUTTON_RIGHT,
+    MouseButtonMiddle           = ffi::MOUSE_BUTTON_MIDDLE,
+    // MouseButton1                = ffi::MOUSE_BUTTON_1,
+    // MouseButton2                = ffi::MOUSE_BUTTON_2,
+    // MouseButton3                = ffi::MOUSE_BUTTON_3,
+    MouseButton4                = ffi::MOUSE_BUTTON_4,
+    MouseButton5                = ffi::MOUSE_BUTTON_5,
+    MouseButton6                = ffi::MOUSE_BUTTON_6,
+    MouseButton7                = ffi::MOUSE_BUTTON_7,
+    MouseButton8                = ffi::MOUSE_BUTTON_8,
 }
 
 // pub static MouseButtonLeft           : MouseButton = MouseButton1;
 // pub static MouseButtonRight          : MouseButton = MouseButton2;
 // pub static MouseButtonMiddle         : MouseButton = MouseButton3;
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
-#[repr(int)]
 pub enum Error {
-    NotInitialized              = ffi::NOT_INITIALIZED              as int,
-    NoCurrentContext            = ffi::NO_CURRENT_CONTEXT           as int,
-    InvalidEnum                 = ffi::INVALID_ENUM                 as int,
-    InvalidValue                = ffi::INVALID_VALUE                as int,
-    OutOfMemory                 = ffi::OUT_OF_MEMORY                as int,
-    ApiUnavailable              = ffi::API_UNAVAILABLE              as int,
-    VersionUnavailable          = ffi::VERSION_UNAVAILABLE          as int,
-    PlatformError               = ffi::PLATFORM_ERROR               as int,
-    FormatUnavailable           = ffi::FORMAT_UNAVAILABLE           as int,
+    NotInitialized              = ffi::NOT_INITIALIZED,
+    NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
+    InvalidEnum                 = ffi::INVALID_ENUM,
+    InvalidValue                = ffi::INVALID_VALUE,
+    OutOfMemory                 = ffi::OUT_OF_MEMORY,
+    ApiUnavailable              = ffi::API_UNAVAILABLE,
+    VersionUnavailable          = ffi::VERSION_UNAVAILABLE,
+    PlatformError               = ffi::PLATFORM_ERROR,
+    FormatUnavailable           = ffi::FORMAT_UNAVAILABLE,
 }
 
 pub type ErrorFun = ~fn(error: Error, description: ~str);
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
 pub enum ClientApi {
-    OpenGlApi                   = ffi::OPENGL_API                   as int,
-    OpenGlEsApi                 = ffi::OPENGL_ES_API                as int,
+    OpenGlApi                   = ffi::OPENGL_API,
+    OpenGlEsApi                 = ffi::OPENGL_ES_API,
 }
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
 pub enum ContextRobustness {
-    NoRobustness                = ffi::NO_ROBUSTNESS                as int,
-    NoResetNotification         = ffi::NO_RESET_NOTIFICATION        as int,
-    LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET        as int,
+    NoRobustness                = ffi::NO_ROBUSTNESS,
+    NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
+    LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET,
 }
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
 pub enum OpenGlProfile {
-    OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE           as int,
-    OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE          as int,
-    OpenGlCompatProfile         = ffi::OPENGL_COMPAT_PROFILE        as int,
+    OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
+    OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
+    OpenGlCompatProfile         = ffi::OPENGL_COMPAT_PROFILE,
 }
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
-#[repr(int)]
 pub enum CursorMode {
-    CursorNormal                = ffi::CURSOR_NORMAL                as int,
-    CursorHidden                = ffi::CURSOR_HIDDEN                as int,
-    CursorDisabled              = ffi::CURSOR_DISABLED              as int,
+    CursorNormal                = ffi::CURSOR_NORMAL,
+    CursorHidden                = ffi::CURSOR_HIDDEN,
+    CursorDisabled              = ffi::CURSOR_DISABLED,
 }
 
 /// Describes a single video mode.
@@ -460,11 +463,11 @@ impl Monitor {
 }
 
 pub type MonitorFun = ~fn(monitor: &Monitor, event: MonitorEvent);
+#[repr(C)]
 
-#[repr(int)]
 pub enum MonitorEvent {
-    Connected                   = ffi::CONNECTED                    as int,
-    Disconnected                = ffi::DISCONNECTED                 as int,
+    Connected                   = ffi::CONNECTED,
+    Disconnected                = ffi::DISCONNECTED,
 }
 
 impl VidMode {
@@ -714,12 +717,13 @@ pub struct Modifiers {
 }
 
 /// Key modifier tokens
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
 pub enum Modifier {
-    Shift       = ffi::MOD_SHIFT        as int,
-    Control     = ffi::MOD_CONTROL      as int,
-    Alt         = ffi::MOD_ALT          as int,
-    Super       = ffi::MOD_SUPER        as int,
+    Shift       = ffi::MOD_SHIFT,
+    Control     = ffi::MOD_CONTROL,
+    Alt         = ffi::MOD_ALT,
+    Super       = ffi::MOD_SUPER,
 }
 
 impl Modifiers {
@@ -1111,7 +1115,7 @@ impl Window {
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_cursor_mode(&self) -> CursorMode {
-        unsafe { cast::transmute(ffi::glfwGetInputMode(self.ptr, ffi::CURSOR) as int) }
+        unsafe { cast::transmute(ffi::glfwGetInputMode(self.ptr, ffi::CURSOR)) }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `CURSOR`.
@@ -1147,13 +1151,13 @@ impl Window {
     /// Wrapper for `glfwGetKey`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_key(&self, key: Key) -> Action {
-        unsafe { cast::transmute(ffi::glfwGetKey(self.ptr, key as c_int) as int) }
+        unsafe { cast::transmute(ffi::glfwGetKey(self.ptr, key as c_int)) }
     }
 
     /// Wrapper for `glfwGetMouseButton`.
     #[fixed_stack_segment] #[inline(never)]
     pub fn get_mouse_button(&self, button: MouseButton) -> Action {
-        unsafe { cast::transmute(ffi::glfwGetMouseButton(self.ptr, button as c_int) as int) }
+        unsafe { cast::transmute(ffi::glfwGetMouseButton(self.ptr, button as c_int)) }
     }
 
     /// Wrapper for `glfwGetCursorPos`.
@@ -1340,24 +1344,25 @@ pub fn wait_events() {
     unsafe { ffi::glfwWaitEvents(); }
 }
 
+#[repr(C)]
 #[deriving(Clone, Eq, IterBytes, ToStr)]
 pub enum Joystick {
-    Joystick1       = ffi::JOYSTICK_1       as int,
-    Joystick2       = ffi::JOYSTICK_2       as int,
-    Joystick3       = ffi::JOYSTICK_3       as int,
-    Joystick4       = ffi::JOYSTICK_4       as int,
-    Joystick5       = ffi::JOYSTICK_5       as int,
-    Joystick6       = ffi::JOYSTICK_6       as int,
-    Joystick7       = ffi::JOYSTICK_7       as int,
-    Joystick8       = ffi::JOYSTICK_8       as int,
-    Joystick9       = ffi::JOYSTICK_9       as int,
-    Joystick10      = ffi::JOYSTICK_10      as int,
-    Joystick11      = ffi::JOYSTICK_11      as int,
-    Joystick12      = ffi::JOYSTICK_12      as int,
-    Joystick13      = ffi::JOYSTICK_13      as int,
-    Joystick14      = ffi::JOYSTICK_14      as int,
-    Joystick15      = ffi::JOYSTICK_15      as int,
-    Joystick16      = ffi::JOYSTICK_16      as int,
+    Joystick1       = ffi::JOYSTICK_1,
+    Joystick2       = ffi::JOYSTICK_2,
+    Joystick3       = ffi::JOYSTICK_3,
+    Joystick4       = ffi::JOYSTICK_4,
+    Joystick5       = ffi::JOYSTICK_5,
+    Joystick6       = ffi::JOYSTICK_6,
+    Joystick7       = ffi::JOYSTICK_7,
+    Joystick8       = ffi::JOYSTICK_8,
+    Joystick9       = ffi::JOYSTICK_9,
+    Joystick10      = ffi::JOYSTICK_10,
+    Joystick11      = ffi::JOYSTICK_11,
+    Joystick12      = ffi::JOYSTICK_12,
+    Joystick13      = ffi::JOYSTICK_13,
+    Joystick14      = ffi::JOYSTICK_14,
+    Joystick15      = ffi::JOYSTICK_15,
+    Joystick16      = ffi::JOYSTICK_16,
 }
 
 impl Joystick {
