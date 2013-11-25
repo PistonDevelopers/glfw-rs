@@ -25,7 +25,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(error_callback);
+    glfw::set_error_callback(~ErrorContext);
 
     if glfw::init().is_err() {
         fail!(~"Failed to initialize GLFW");
@@ -34,7 +34,7 @@ fn main() {
             let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
                 .expect("Failed to create GLFW window.");
 
-            window.set_key_callback(key_callback);
+            window.set_key_callback(~KeyContext);
             window.make_context_current();
 
             while !window.should_close() {
@@ -45,12 +45,18 @@ fn main() {
     }
 }
 
-fn key_callback(window: &glfw::Window, key: glfw::Key, _: libc::c_int, action: glfw::Action, _: glfw::Modifiers) {
-    if action == glfw::Press && key == glfw::KeyEscape {
-        window.set_should_close(true);
+struct ErrorContext;
+impl glfw::ErrorCallback for ErrorContext {
+    fn call(&self, _: glfw::Error, description: ~str) {
+        println!("GLFW Error: {:s}", description);
     }
 }
 
-fn error_callback(_: glfw::Error, description: ~str) {
-    println!("GLFW Error: {:s}", description);
+struct KeyContext;
+impl glfw::KeyCallback for KeyContext {
+    fn call(&self, window: &glfw::Window, key: glfw::Key, _: libc::c_int, action: glfw::Action, _: glfw::Modifiers) {
+        if action == glfw::Press && key == glfw::KeyEscape {
+            window.set_should_close(true);
+        }
+    }
 }

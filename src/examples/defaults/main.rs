@@ -15,17 +15,13 @@
 
 extern mod glfw;
 
-fn error_callback(_: glfw::Error, description: ~str) {
-    println!("GLFW Error: {:s}", description);
-}
-
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
 fn main() {
-    glfw::set_error_callback(error_callback);
+    glfw::set_error_callback(~ErrorContext);
 
     do glfw::start {
         glfw::window_hint::visible(true);
@@ -67,6 +63,13 @@ fn main() {
                 println!("OpenGL {:s}: {}", name, value);
             };
         }
+    }
+}
+
+struct ErrorContext;
+impl glfw::ErrorCallback for ErrorContext {
+    fn call(&self, _: glfw::Error, description: ~str) {
+        println!("GLFW Error: {:s}", description);
     }
 }
 
