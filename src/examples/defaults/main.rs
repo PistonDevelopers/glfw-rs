@@ -15,6 +15,8 @@
 
 extern mod glfw;
 
+#[link_args="-lglfw"] extern {}
+
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
