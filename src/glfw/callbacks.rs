@@ -55,7 +55,6 @@ pub fn set_monitor_callback<Cb: MonitorCallback + Send>(callback: ~Cb, f: &fn(ff
 }
 
 // External window callbacks
-#[fixed_stack_segment]
 unsafe fn get_callbacks(window: *ffi::GLFWwindow) -> &WindowCallbacks {
     cast::transmute(ffi::glfwGetWindowUserPointer(window))
 }

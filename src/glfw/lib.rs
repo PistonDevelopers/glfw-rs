@@ -260,7 +260,6 @@ pub type GLProc = ffi::GLFWglproc;
 /// Returns `true` if the initialisation was successful, otherwise `false`.
 ///
 /// Wrapper for `glfwInit`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn init() -> Result<(),()> {
     match unsafe { ffi::glfwInit() } {
         ffi::TRUE => Ok(()),
@@ -271,7 +270,6 @@ pub fn init() -> Result<(),()> {
 /// Terminate glfw. This must be called on the main platform thread.
 ///
 /// Wrapper for `glfwTerminate`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn terminate() {
     unsafe { ffi::glfwTerminate() }
 }
@@ -316,7 +314,6 @@ impl ToStr for Version {
 }
 
 /// Wrapper for `glfwGetVersion`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn get_version() -> Version {
     unsafe {
         let mut major = 0;
@@ -332,7 +329,6 @@ pub fn get_version() -> Version {
 }
 
 /// Wrapper for `glfwGetVersionString`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn get_version_string() -> ~str {
     unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
@@ -340,7 +336,6 @@ pub fn get_version_string() -> ~str {
 pub trait ErrorCallback { fn call(&self, error: Error, description: ~str); }
 
 /// Wrapper for `glfwSetErrorCallback`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn set_error_callback<Cb: ErrorCallback + Send>(callback: ~Cb) {
     do callbacks::set_error_callback(callback) |ext_cb| {
         unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
@@ -357,7 +352,6 @@ pub struct Monitor {
 
 impl Monitor {
     /// Wrapper for `glfwGetPrimaryMonitor`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_primary() -> Result<Monitor,()> {
         unsafe {
             ffi::glfwGetPrimaryMonitor()
@@ -368,7 +362,6 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitors`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_connected() -> ~[Monitor] {
         unsafe {
             let mut count = 0;
@@ -378,7 +371,6 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorPos`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
             let mut xpos = 0;
@@ -389,7 +381,6 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorPhysicalSize`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_physical_size(&self) -> (int, int) {
         unsafe {
             let mut width = 0;
@@ -400,13 +391,11 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorName`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_name(&self) -> ~str {
         unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
     }
 
     /// Wrapper for `glfwSetMonitorCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_callback<Cb: MonitorCallback + Send>(callback: ~Cb) {
         do callbacks::set_monitor_callback(callback) |ext_cb| {
             unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
@@ -414,7 +403,6 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetVideoModes`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_video_modes(&self) -> ~[VidMode] {
         unsafe {
             let mut count = 0;
@@ -424,7 +412,6 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetVideoMode`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
             ffi::glfwGetVideoMode(self.ptr).to_option().map(|v| VidMode::from_glfw_vid_mode(v))
@@ -432,13 +419,11 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwSetGamma`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_gamma(&self, gamma: f32) {
         unsafe { ffi::glfwSetGamma(self.ptr, gamma as c_float); }
     }
 
     /// Wrapper for `glfwGetGammaRamp`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_gamma_ramp(&self) -> GammaRamp {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
@@ -451,7 +436,6 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwSetGammaRamp`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
         unsafe {
             ffi::glfwSetGammaRamp(
@@ -510,122 +494,102 @@ pub mod window_hint {
     use super::*;
 
     /// Wrapper for `glfwDefaultWindowHints`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn default() {
         unsafe { ffi::glfwDefaultWindowHints(); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `RED_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn red_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `GREEN_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn green_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `BLUE_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn blue_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ALPHA_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn alpha_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `DEPTH_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn depth_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `STENCIL_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn stencil_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_RED_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn accum_red_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_GREEN_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn accum_green_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_BLUE_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn accum_blue_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_ALPHA_BITS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn accum_alpha_bits(bits: uint) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `AUX_BUFFERS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn aux_buffers(buffers: uint) {
         unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS, buffers as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `STEREO`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn stereo(value: bool) {
         unsafe { ffi::glfwWindowHint(ffi::STEREO, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `SAMPLES`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn samples(samples: uint) {
         unsafe { ffi::glfwWindowHint(ffi::SAMPLES, samples as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `SRGB_CAPABLE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn srgb_capable(value: bool) {
         unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `REFRESH_RATE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn refresh_rate(rate: int) {
         unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE, rate as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CLIENT_API`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn client_api(api: ClientApi) {
         unsafe { ffi::glfwWindowHint(ffi::CLIENT_API, api as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn context_version_major(major: uint) {
         unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MINOR`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn context_version_minor(minor: uint) {
         unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR` and
     /// `CONTEXT_VERSION_MINOR`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn context_version(major: uint, minor: uint) {
         unsafe {
             ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
@@ -634,43 +598,36 @@ pub mod window_hint {
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_ROBUSTNESS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn context_robustness(value: ContextRobustness) {
         unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_FORWARD_COMPAT`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn opengl_forward_compat(value: bool) {
         unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_DEBUG_CONTEXT`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn opengl_debug_context(value: bool) {
         unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `OPENGL_PROFILE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn opengl_profile(profile: OpenGlProfile) {
         unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE, profile as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `RESIZABLE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn resizable(value: bool) {
         unsafe { ffi::glfwWindowHint(ffi::RESIZABLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `VISIBLE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn visible(value: bool) {
         unsafe { ffi::glfwWindowHint(ffi::VISIBLE, value as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `DECORATED`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn decorated(value: bool) {
         unsafe { ffi::glfwWindowHint(ffi::DECORATED, value as c_int); }
     }
@@ -835,7 +792,6 @@ impl Window {
     }
 
     /// Internal wrapper for `glfwCreateWindow`.
-    #[fixed_stack_segment] #[inline(never)]
     fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<Window> {
         let ptr = unsafe {
             do title.with_c_str |title| {
@@ -881,19 +837,16 @@ impl Window {
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn should_close(&self) -> bool {
         unsafe { ffi::glfwWindowShouldClose(self.ptr) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetWindowShouldClose`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_should_close(&self, value: bool) {
         unsafe { ffi::glfwSetWindowShouldClose(self.ptr, value as c_int) }
     }
 
     /// Wrapper for `glfwSetWindowTitle`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_title(&self, title: &str) {
         unsafe {
             do title.with_c_str |title| {
@@ -903,7 +856,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetWindowPos`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_pos(&self) -> (int, int) {
         unsafe {
             let mut xpos = 0;
@@ -914,13 +866,11 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowPos`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_pos(&self, xpos: int, ypos: int) {
         unsafe { ffi::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
     }
 
     /// Wrapper for `glfwGetWindowSize`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_size(&self) -> (int, int) {
         unsafe {
             let mut width = 0;
@@ -931,13 +881,11 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowSize`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_size(&self, width: int, height: int) {
         unsafe { ffi::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
     }
 
     /// Wrapper for `glfwGetFramebufferSize`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_framebuffer_size(&self) -> (int, int) {
         unsafe {
             let mut width = 0;
@@ -948,25 +896,21 @@ impl Window {
     }
 
     /// Wrapper for `glfwIconifyWindow`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn iconify(&self) {
         unsafe { ffi::glfwIconifyWindow(self.ptr); }
     }
 
     /// Wrapper for `glfwRestoreWindow`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn restore(&self) {
         unsafe { ffi::glfwRestoreWindow(self.ptr); }
     }
 
     /// Wrapper for `glfwShowWindow`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn show(&self) {
         unsafe { ffi::glfwShowWindow(self.ptr); }
     }
 
     /// Wrapper for `glfwHideWindow`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn hide(&self) {
         unsafe { ffi::glfwHideWindow(self.ptr); }
     }
@@ -976,7 +920,6 @@ impl Window {
     /// # Returns
     ///
     /// The window mode; either glfw::FullScreen or glfw::Windowed
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_window_mode(&self) -> WindowMode {
         WindowMode::from_ptr(
             unsafe { ffi::glfwGetWindowMonitor(self.ptr) }
@@ -984,19 +927,16 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_focused(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::FOCUSED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `ICONIFIED`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_iconified(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::ICONIFIED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CLIENT_API`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_client_api(&self) -> c_int {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::CLIENT_API) }
     }
@@ -1007,7 +947,6 @@ impl Window {
     /// # Returns
     ///
     /// The client API version of the window's context in a version struct.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_context_version(&self) -> Version {
         unsafe {
             Version {
@@ -1019,49 +958,41 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CONTEXT_ROBUSTNESS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_context_robustness(&self) -> c_int {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_ROBUSTNESS) }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_FORWARD_COMPAT`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_forward_compat(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::OPENGL_FORWARD_COMPAT) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_DEBUG_CONTEXT`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_opengl_debug_context(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::OPENGL_DEBUG_CONTEXT) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `OPENGL_PROFILE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_opengl_profile(&self) -> c_int {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::OPENGL_PROFILE) }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `RESIZABLE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_resizable(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::RESIZABLE) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_visible(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::VISIBLE) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_decorated(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::DECORATED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_pos_callback<Cb: WindowPosCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetWindowPosCallback,
                              cb_trait: WindowPosCallback,
@@ -1070,7 +1001,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowSizeCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_size_callback<Cb: WindowSizeCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetWindowSizeCallback,
                              cb_trait: WindowSizeCallback,
@@ -1079,7 +1009,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowCloseCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_close_callback<Cb: WindowCloseCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetWindowCloseCallback,
                              cb_trait: WindowCloseCallback,
@@ -1088,7 +1017,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowRefreshCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_refresh_callback<Cb: WindowRefreshCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetWindowRefreshCallback,
                              cb_trait: WindowRefreshCallback,
@@ -1097,7 +1025,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowFocusCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_focus_callback<Cb: WindowFocusCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetWindowFocusCallback,
                              cb_trait: WindowFocusCallback,
@@ -1106,7 +1033,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowIconifyCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_iconify_callback<Cb: WindowIconifyCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetWindowIconifyCallback,
                              cb_trait: WindowIconifyCallback,
@@ -1115,7 +1041,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetFramebufferSizeCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_framebuffer_size_callback<Cb: FramebufferSizeCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetFramebufferSizeCallback,
                              cb_trait: FramebufferSizeCallback,
@@ -1124,55 +1049,46 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_cursor_mode(&self) -> CursorMode {
         unsafe { cast::transmute(ffi::glfwGetInputMode(self.ptr, ffi::CURSOR)) }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `CURSOR`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_cursor_mode(&self, mode: CursorMode) {
         unsafe { ffi::glfwSetInputMode(self.ptr, ffi::CURSOR, mode as c_int); }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_KEYS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_keys(&self) -> bool {
         unsafe { ffi::glfwGetInputMode(self.ptr, ffi::STICKY_KEYS) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_KEYS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_sticky_keys(&self, value: bool) {
         unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_KEYS, value as c_int); }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_MOUSE_BUTTONS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn has_sticky_mouse_buttons(&self) -> bool {
         unsafe { ffi::glfwGetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_MOUSE_BUTTONS`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_sticky_mouse_buttons(&self, value: bool) {
         unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS, value as c_int); }
     }
 
     /// Wrapper for `glfwGetKey`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_key(&self, key: Key) -> Action {
         unsafe { cast::transmute(ffi::glfwGetKey(self.ptr, key as c_int)) }
     }
 
     /// Wrapper for `glfwGetMouseButton`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_mouse_button(&self, button: MouseButton) -> Action {
         unsafe { cast::transmute(ffi::glfwGetMouseButton(self.ptr, button as c_int)) }
     }
 
     /// Wrapper for `glfwGetCursorPos`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_cursor_pos(&self) -> (f64, f64) {
         unsafe {
             let mut xpos = 0.0;
@@ -1183,13 +1099,11 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetCursorPos`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_cursor_pos(&self, xpos: f64, ypos: f64) {
         unsafe { ffi::glfwSetCursorPos(self.ptr, xpos as c_double, ypos as c_double); }
     }
 
     /// Wrapper for `glfwSetKeyCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_key_callback<Cb: KeyCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetKeyCallback,
                              cb_trait: KeyCallback,
@@ -1198,7 +1112,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetCharCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_char_callback<Cb: CharCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetCharCallback,
                              cb_trait: CharCallback,
@@ -1207,7 +1120,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetMouseButtonCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_mouse_button_callback<Cb: MouseButtonCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetMouseButtonCallback,
                              cb_trait: MouseButtonCallback,
@@ -1216,7 +1128,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetCursorPosCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_cursor_pos_callback<Cb: CursorPosCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetCursorPosCallback,
                              cb_trait: CursorPosCallback,
@@ -1225,7 +1136,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetCursorEnterCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_cursor_enter_callback<Cb: CursorEnterCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetCursorEnterCallback,
                              cb_trait: CursorEnterCallback,
@@ -1234,7 +1144,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetScrollCallback`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_scroll_callback<Cb: ScrollCallback + Send>(&self, callback: ~Cb) {
         set_window_callback!(setter:   glfwSetScrollCallback,
                              cb_trait: ScrollCallback,
@@ -1243,7 +1152,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetClipboardString`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn set_clipboard_string(&self, string: &str) {
         unsafe {
             do string.with_c_str |string| {
@@ -1253,7 +1161,6 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetClipboardString`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_clipboard_string(&self) -> ~str {
         unsafe { str::raw::from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
@@ -1264,62 +1171,53 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetCurrentContext`
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_current_context(&self) -> bool {
         self.ptr == unsafe { ffi::glfwGetCurrentContext() }
     }
 
     /// Wrapper for `glfwSwapBuffers`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn swap_buffers(&self) {
         unsafe { ffi::glfwSwapBuffers(self.ptr); }
     }
 
     /// Wrapper for `glfwGetWin32Window`
     #[cfg(target_os="win32")]
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_win32_window(&self) -> *c_void {
         unsafe { ffi::glfwGetWin32Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWGLContext`
     #[cfg(target_os="win32")]
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_wgl_context(&self) -> *c_void {
         unsafe { ffi::glfwGetWGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetCocoaWindow`
     #[cfg(target_os="macos")]
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_cocoa_window(&self) -> *c_void {
         unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetNSGLContext`
     #[cfg(target_os="macos")]
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_nsgl_context(&self) -> *c_void {
         unsafe { ffi::glfwGetNSGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetX11Window`
     #[cfg(target_os="linux")]
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_x11_window(&self) -> *c_void {
         unsafe { ffi::glfwGetX11Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetGLXContext`
     #[cfg(target_os="linux")]
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_glx_context(&self) -> *c_void {
         unsafe { ffi::glfwGetGLXContext(self.ptr) }
     }
 }
 
 /// Wrapper for `glfwMakeContextCurrent`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn make_context_current(context: Option<&Window>) {
     match context {
         Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
@@ -1329,7 +1227,6 @@ pub fn make_context_current(context: Option<&Window>) {
 
 /// Wrapper for `glfwGetX11Display`
 #[cfg(target_os="linux")]
-#[fixed_stack_segment] #[inline(never)]
 pub fn get_x11_display() -> *c_void {
     unsafe { ffi::glfwGetX11Display() }
 }
@@ -1339,7 +1236,6 @@ impl Drop for Window {
     /// Closes the window and removes all associated callbacks.
     ///
     /// Wrapper for `glfwDestroyWindow`.
-    #[fixed_stack_segment] #[inline(never)]
     fn drop(&mut self) {
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
@@ -1350,13 +1246,11 @@ impl Drop for Window {
 }
 
 /// Wrapper for `glfwPollEvents`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn poll_events() {
     unsafe { ffi::glfwPollEvents(); }
 }
 
 /// Wrapper for `glfwWaitEvents`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn wait_events() {
     unsafe { ffi::glfwWaitEvents(); }
 }
@@ -1384,13 +1278,11 @@ pub enum Joystick {
 
 impl Joystick {
     /// Wrapper for `glfwJoystickPresent`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn is_present(&self) -> bool {
         unsafe { ffi::glfwJoystickPresent(*self as c_int) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_axes(&self) -> ~[f32] {
         unsafe {
             let mut count = 0;
@@ -1400,7 +1292,6 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickButtons`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_buttons(&self) -> ~[c_int] {
         unsafe {
             let mut count = 0;
@@ -1410,32 +1301,27 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickName`.
-    #[fixed_stack_segment] #[inline(never)]
     pub fn get_name(&self) -> ~str {
         unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(*self as c_int)) }
     }
 }
 
 /// Wrapper for `glfwGetTime`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn get_time() -> f64 {
     unsafe { ffi::glfwGetTime() as f64 }
 }
 
 /// Wrapper for `glfwSetTime`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn set_time(time: f64) {
     unsafe { ffi::glfwSetTime(time as c_double); }
 }
 
 /// Wrapper for `glfwSwapInterval`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn set_swap_interval(interval: int) {
     unsafe { ffi::glfwSwapInterval(interval as c_int); }
 }
 
 /// Wrapper for `glfwExtensionSupported`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn extension_supported(extension: &str) -> bool {
     unsafe {
         do extension.with_c_str |extension| {
@@ -1445,7 +1331,6 @@ pub fn extension_supported(extension: &str) -> bool {
 }
 
 /// Wrapper for `glfwGetProcAddress`.
-#[fixed_stack_segment] #[inline(never)]
 pub fn get_proc_address(procname: &str) -> Option<GLProc> {
     unsafe {
         do procname.with_c_str |procname| {
