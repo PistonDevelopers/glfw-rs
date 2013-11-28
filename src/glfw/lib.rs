@@ -337,9 +337,9 @@ pub trait ErrorCallback { fn call(&self, error: Error, description: ~str); }
 
 /// Wrapper for `glfwSetErrorCallback`.
 pub fn set_error_callback<Cb: ErrorCallback + Send>(callback: ~Cb) {
-    do callbacks::set_error_callback(callback) |ext_cb| {
+    callbacks::set_error_callback(callback, (|ext_cb| {
         unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
-    }
+    }));
 }
 
 pub trait MonitorCallback { fn call(&self, monitor: &Monitor, event: MonitorEvent); }
@@ -397,9 +397,9 @@ impl Monitor {
 
     /// Wrapper for `glfwSetMonitorCallback`.
     pub fn set_callback<Cb: MonitorCallback + Send>(callback: ~Cb) {
-        do callbacks::set_monitor_callback(callback) |ext_cb| {
+        callbacks::set_monitor_callback(callback, (|ext_cb| {
             unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
-        }
+        }));
     }
 
     /// Wrapper for `glfwGetVideoModes`.
@@ -794,7 +794,7 @@ impl Window {
     /// Internal wrapper for `glfwCreateWindow`.
     fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<Window> {
         let ptr = unsafe {
-            do title.with_c_str |title| {
+            title.with_c_str(|title| {
                 ffi::glfwCreateWindow(
                     width as c_int,
                     height as c_int,
@@ -802,7 +802,7 @@ impl Window {
                     mode.to_ptr(),
                     match share { Some(w) => w.ptr, None => ptr::null() }
                 )
-            }
+            })
         };
 
         if ptr.is_null() {
@@ -819,12 +819,10 @@ impl Window {
         }
     }
 
-    #[fixed_stack_segment]
     unsafe fn get_callbacks(&self) -> &mut WindowCallbacks {
         cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
     }
 
-    #[fixed_stack_segment]
     unsafe fn free_callbacks(&self) {
         if !self.ptr.is_null() {
             let _: ~WindowCallbacks =
@@ -849,9 +847,9 @@ impl Window {
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
         unsafe {
-            do title.with_c_str |title| {
+            title.with_c_str(|title| {
                 ffi::glfwSetWindowTitle(self.ptr, title);
-            }
+            });
         }
     }
 
@@ -1154,9 +1152,9 @@ impl Window {
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
         unsafe {
-            do string.with_c_str |string| {
+            string.with_c_str(|string| {
                 ffi::glfwSetClipboardString(self.ptr, string);
-            }
+            });
         }
     }
 
@@ -1324,17 +1322,17 @@ pub fn set_swap_interval(interval: int) {
 /// Wrapper for `glfwExtensionSupported`.
 pub fn extension_supported(extension: &str) -> bool {
     unsafe {
-        do extension.with_c_str |extension| {
+        extension.with_c_str(|extension| {
             ffi::glfwExtensionSupported(extension) == ffi::TRUE
-        }
+        })
     }
 }
 
 /// Wrapper for `glfwGetProcAddress`.
 pub fn get_proc_address(procname: &str) -> Option<GLProc> {
     unsafe {
-        do procname.with_c_str |procname| {
+        procname.with_c_str(|procname| {
             ffi::glfwGetProcAddress(procname)
-        }
+        })
     }
 }

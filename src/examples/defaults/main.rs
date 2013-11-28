@@ -57,9 +57,9 @@ fn main() {
         ];
 
         for &(param, ext, name) in gl_params.iter() {
-            if do ext.map_default(true) |s| {
+            if ext.map_default(true, |s| {
                 glfw::extension_supported(s)
-            } {
+            }) {
                 let value = 0;
                 unsafe { gl::GetIntegerv(param, &value) };
                 println!("OpenGL {:s}: {}", name, value);
@@ -104,7 +104,7 @@ mod gl {
     pub static STEREO                : GLenum = 0x0C33;
     pub static SAMPLES_ARB           : GLenum = 0x80A9;
 
-    #[fixed_stack_segment] #[inline(never)]
+    #[inline(never)]
     pub unsafe fn GetIntegerv(pname: GLenum, params: *GLint) {
         glGetIntegerv(pname, params)
     }
