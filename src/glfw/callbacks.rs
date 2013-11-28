@@ -28,28 +28,28 @@ static error_callback_tls_key: local_data::Key<~ErrorCallback> = &local_data::Ke
 static monitor_callback_tls_key: local_data::Key<~MonitorCallback> = &local_data::Key;
 
 pub extern "C" fn error_callback(error: c_int, description: *c_char) {
-    do local_data::get(error_callback_tls_key) |data| {
-        do data.as_ref().map |&ref cb| {
+    local_data::get(error_callback_tls_key, (|data| {
+        data.as_ref().map(|&ref cb| {
             unsafe { cb.call(cast::transmute(error), str::raw::from_c_str(description)) }
-        };
-    }
+        });
+    }));
 }
 
-pub fn set_error_callback<Cb: ErrorCallback + Send>(callback: ~Cb, f: &fn(ffi::GLFWerrorfun) ) {
+pub fn set_error_callback<Cb: ErrorCallback + Send>(callback: ~Cb, f: |ffi::GLFWerrorfun| ) {
     local_data::set(error_callback_tls_key, callback as ~ErrorCallback);
     f(error_callback);
 }
 
 
 pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
-    do local_data::get(monitor_callback_tls_key) |data| {
-        do data.as_ref().map |&ref cb| {
+    local_data::get(monitor_callback_tls_key, (|data| {
+        data.as_ref().map(|&ref cb| {
             unsafe { cb.call(&Monitor { ptr: monitor }, cast::transmute(event)) }
-        };
-    }
+        });
+    }));
 }
 
-pub fn set_monitor_callback<Cb: MonitorCallback + Send>(callback: ~Cb, f: &fn(ffi::GLFWmonitorfun) ) {
+pub fn set_monitor_callback<Cb: MonitorCallback + Send>(callback: ~Cb, f: |ffi::GLFWmonitorfun| ) {
     local_data::set(monitor_callback_tls_key, callback as ~MonitorCallback);
     f(monitor_callback);
 }
