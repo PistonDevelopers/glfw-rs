@@ -311,21 +311,21 @@ extern "C" {
 
     pub fn glfwSetErrorCallback(cbfun: Option<GLFWerrorfun>) -> Option<GLFWerrorfun>;
 
-    pub fn glfwGetMonitors(count: *mut c_int) -> Option<**GLFWmonitor>;
-    pub fn glfwGetPrimaryMonitor() -> Option<*GLFWmonitor>;
+    pub fn glfwGetMonitors(count: *mut c_int) -> **GLFWmonitor;
+    pub fn glfwGetPrimaryMonitor() -> *GLFWmonitor;
     pub fn glfwGetMonitorPos(monitor: *GLFWmonitor, xpos: *mut c_int, ypos: *mut c_int);
     pub fn glfwGetMonitorPhysicalSize(monitor: *GLFWmonitor, width: *mut c_int, height: *mut c_int);
-    pub fn glfwGetMonitorName(monitor: *GLFWmonitor) -> Option<*c_char>;
+    pub fn glfwGetMonitorName(monitor: *GLFWmonitor) -> *c_char;
     pub fn glfwSetMonitorCallback(cbfun: Option<GLFWmonitorfun>) -> Option<GLFWmonitorfun>;
-    pub fn glfwGetVideoModes(monitor: *GLFWmonitor, count: *mut c_int) -> Option<*GLFWvidmode>;
-    pub fn glfwGetVideoMode(monitor: *GLFWmonitor) -> Option<*GLFWvidmode>;
+    pub fn glfwGetVideoModes(monitor: *GLFWmonitor, count: *mut c_int) -> *GLFWvidmode;
+    pub fn glfwGetVideoMode(monitor: *GLFWmonitor) -> *GLFWvidmode;
     pub fn glfwSetGamma(monitor: *GLFWmonitor, gamma: c_float);
-    pub fn glfwGetGammaRamp(monitor: *GLFWmonitor) -> Option<*GLFWgammaramp>;
+    pub fn glfwGetGammaRamp(monitor: *GLFWmonitor) -> *GLFWgammaramp;
     pub fn glfwSetGammaRamp(monitor: *GLFWmonitor, ramp: *GLFWgammaramp);
 
     pub fn glfwDefaultWindowHints();
     pub fn glfwWindowHint(target: c_int, hint: c_int);
-    pub fn glfwCreateWindow(width: c_int, height: c_int, title: *c_char, monitor: *GLFWmonitor, share: *GLFWwindow) -> Option<*GLFWwindow>;
+    pub fn glfwCreateWindow(width: c_int, height: c_int, title: *c_char, monitor: *GLFWmonitor, share: *GLFWwindow) -> *GLFWwindow;
     pub fn glfwDestroyWindow(window: *GLFWwindow);
     pub fn glfwWindowShouldClose(window: *GLFWwindow) -> c_int;
     pub fn glfwSetWindowShouldClose(window: *GLFWwindow, value: c_int);
@@ -368,9 +368,9 @@ extern "C" {
     pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: Option<GLFWscrollfun>) -> Option<GLFWscrollfun>;
 
     pub fn glfwJoystickPresent(joy: c_int) -> c_int;
-    pub fn glfwGetJoystickAxes(joy: c_int, count: *mut c_int) -> Option<*c_float>;
-    pub fn glfwGetJoystickButtons(joy: c_int, count: *mut c_int) -> Option<*c_uchar>;
-    pub fn glfwGetJoystickName(joy: c_int) -> Option<*c_char>;
+    pub fn glfwGetJoystickAxes(joy: c_int, count: *mut c_int) -> *c_float;
+    pub fn glfwGetJoystickButtons(joy: c_int, count: *mut c_int) -> *c_uchar;
+    pub fn glfwGetJoystickName(joy: c_int) -> *c_char;
 
     pub fn glfwSetClipboardString(window: *GLFWwindow, string: *c_char);
     pub fn glfwGetClipboardString(window: *GLFWwindow) -> *c_char;
@@ -379,7 +379,7 @@ extern "C" {
     pub fn glfwSetTime(time: c_double);
 
     pub fn glfwMakeContextCurrent(window: *GLFWwindow);
-    pub fn glfwGetCurrentContext() -> Option<*GLFWwindow>;
+    pub fn glfwGetCurrentContext() -> *GLFWwindow;
     pub fn glfwSwapBuffers(window: *GLFWwindow);
     pub fn glfwSwapInterval(interval: c_int);
     pub fn glfwExtensionSupported(extension: *c_char) -> c_int;

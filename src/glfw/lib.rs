@@ -355,6 +355,7 @@ impl Monitor {
     pub fn get_primary() -> Result<Monitor,()> {
         unsafe {
             ffi::glfwGetPrimaryMonitor()
+             .to_option()
              .map_default(Err(()),
                 |ptr| Ok(Monitor { ptr: ptr }))
         }
@@ -364,9 +365,8 @@ impl Monitor {
     pub fn get_connected() -> ~[Monitor] {
         unsafe {
             let mut count = 0;
-            ffi::glfwGetMonitors(&mut count).map_default(~[], |ptr| {
-                vec::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
-            })
+            let ptr = ffi::glfwGetMonitors(&mut count);
+            vec::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
         }
     }
 
@@ -391,8 +391,8 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorName`.
-    pub fn get_name(&self) -> Option<~str> {
-        unsafe { ffi::glfwGetMonitorName(self.ptr).map(|s| str::raw::from_c_str(s)) }
+    pub fn get_name(&self) -> ~str {
+        unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
     }
 
     /// Wrapper for `glfwSetMonitorCallback`.
@@ -406,16 +406,15 @@ impl Monitor {
     pub fn get_video_modes(&self) -> ~[VidMode] {
         unsafe {
             let mut count = 0;
-            ffi::glfwGetVideoModes(self.ptr, &mut count).map_default(~[], |ptr| {
-                vec::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
-            })
+            let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
+            vec::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
         }
     }
 
     /// Wrapper for `glfwGetVideoMode`.
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
-            ffi::glfwGetVideoMode(self.ptr).map(|v| VidMode::from_glfw_vid_mode(&*v))
+            ffi::glfwGetVideoMode(self.ptr).to_option().map(|v| VidMode::from_glfw_vid_mode(v))
         }
     }
 
@@ -425,16 +424,14 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetGammaRamp`.
-    pub fn get_gamma_ramp(&self) -> Option<GammaRamp> {
+    pub fn get_gamma_ramp(&self) -> GammaRamp {
         unsafe {
-            ffi::glfwGetGammaRamp(self.ptr).map(|ramp| {
-                let ramp = *ramp;
-                GammaRamp {
-                    red:    vec::from_buf(ramp.red,   ramp.size as uint),
-                    green:  vec::from_buf(ramp.green, ramp.size as uint),
-                    blue:   vec::from_buf(ramp.blue,  ramp.size as uint),
-                }
-            })
+            let llramp = *ffi::glfwGetGammaRamp(self.ptr);
+            GammaRamp {
+                red:    vec::from_buf(llramp.red,   llramp.size as uint),
+                green:  vec::from_buf(llramp.green, llramp.size as uint),
+                blue:   vec::from_buf(llramp.blue,  llramp.size as uint),
+            }
         }
     }
 
@@ -796,7 +793,7 @@ impl Window {
 
     /// Internal wrapper for `glfwCreateWindow`.
     fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<Window> {
-        unsafe {
+        let ptr = unsafe {
             title.with_c_str(|title| {
                 ffi::glfwCreateWindow(
                     width as c_int,
@@ -805,10 +802,20 @@ impl Window {
                     mode.to_ptr(),
                     match share { Some(w) => w.ptr, None => ptr::null() }
                 )
-            }).map(|ptr| {
-                ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~WindowCallbacks::new()));
-                Window { ptr: ptr, is_shared: share.is_none() }
             })
+        };
+
+        if ptr.is_null() {
+            None
+        } else {
+            unsafe {
+                ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~WindowCallbacks::new()));
+            }
+            let window = Window {
+                ptr: ptr,
+                is_shared: share.is_none(),
+            };
+            Some(window)
         }
     }
 
@@ -1163,7 +1170,7 @@ impl Window {
 
     /// Wrapper for `glfwGetCurrentContext`
     pub fn is_current_context(&self) -> bool {
-        self.ptr == unsafe { ffi::glfwGetCurrentContext().unwrap_or(ptr::null()) }
+        self.ptr == unsafe { ffi::glfwGetCurrentContext() }
     }
 
     /// Wrapper for `glfwSwapBuffers`.
@@ -1274,26 +1281,26 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
-    pub fn get_axes(&self) -> Option<~[f32]> {
+    pub fn get_axes(&self) -> ~[f32] {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(*self as c_int, &mut count);
-            ptr.map(|p| vec::from_buf(p, count as uint).map(|&a| a as f32))
+            vec::from_buf(ptr, count as uint).map(|&a| a as f32)
         }
     }
 
     /// Wrapper for `glfwGetJoystickButtons`.
-    pub fn get_buttons(&self) -> Option<~[c_int]> {
+    pub fn get_buttons(&self) -> ~[c_int] {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(*self as c_int, &mut count);
-            ptr.map(|p| vec::from_buf(p, count as uint).map(|&b| b as c_int))
+            vec::from_buf(ptr, count as uint).map(|&b| b as c_int)
         }
     }
 
     /// Wrapper for `glfwGetJoystickName`.
-    pub fn get_name(&self) -> Option<~str> {
-        unsafe { ffi::glfwGetJoystickName(*self as c_int).map(|s| str::raw::from_c_str(s)) }
+    pub fn get_name(&self) -> ~str {
+        unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(*self as c_int)) }
     }
 }
 
