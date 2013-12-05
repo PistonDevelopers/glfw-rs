@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[feature(link_args)];
+
 extern mod glfw;
 
-fn error_callback(_: glfw::Error, description: ~str) {
-    println!("GLFW Error: {:s}", description);
-}
+#[link_args="-lglfw"] extern {}
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
@@ -25,7 +25,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(error_callback);
+    glfw::set_error_callback(~ErrorContext);
 
     do glfw::start {
         glfw::window_hint::visible(true);
@@ -59,14 +59,21 @@ fn main() {
         ];
 
         for &(param, ext, name) in gl_params.iter() {
-            if do ext.map_default(true) |s| {
+            if ext.map_default(true, |s| {
                 glfw::extension_supported(s)
-            } {
+            }) {
                 let value = 0;
                 unsafe { gl::GetIntegerv(param, &value) };
                 println!("OpenGL {:s}: {}", name, value);
             };
         }
+    }
+}
+
+struct ErrorContext;
+impl glfw::ErrorCallback for ErrorContext {
+    fn call(&self, _: glfw::Error, description: ~str) {
+        println!("GLFW Error: {:s}", description);
     }
 }
 
@@ -99,7 +106,7 @@ mod gl {
     pub static STEREO                : GLenum = 0x0C33;
     pub static SAMPLES_ARB           : GLenum = 0x80A9;
 
-    #[fixed_stack_segment] #[inline(never)]
+    #[inline(never)]
     pub unsafe fn GetIntegerv(pname: GLenum, params: *GLint) {
         glGetIntegerv(pname, params)
     }
