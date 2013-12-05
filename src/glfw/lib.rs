@@ -24,6 +24,7 @@
 
 #[feature(globs)];
 #[feature(macro_rules)];
+#[feature(link_args)];
 
 // TODO: Document differences between GLFW and glfw-rs
 
