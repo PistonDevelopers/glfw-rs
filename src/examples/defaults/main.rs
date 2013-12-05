@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[feature(link_args)];
-
 extern mod glfw;
 
 #[link(name="glfw")]
@@ -81,14 +79,12 @@ impl glfw::ErrorCallback for ErrorContext {
 mod gl {
     use std::libc;
 
-    #[nolink]
-    #[link_args="-framework OpenGL"]
     #[cfg(target_os = "macos")]
+    #[link(name="OpenGL", kind="framework")]
     extern { }
 
-    #[nolink]
-    #[link_args="-lGL"]
     #[cfg(target_os = "linux")]
+    #[link(name="GL")]
     extern { }
 
     pub type GLenum = libc::c_uint;
