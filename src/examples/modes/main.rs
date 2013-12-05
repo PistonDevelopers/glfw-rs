@@ -17,7 +17,8 @@
 
 extern mod glfw;
 
-#[link_args="-lglfw"] extern {}
+#[link(name="glfw")]
+extern {}
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {

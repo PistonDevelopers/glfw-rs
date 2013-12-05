@@ -286,19 +286,26 @@ pub struct GLFWvidmode {
 
 // Linking
 
-#[nolink]
 #[cfg(target_os = "macos")]
-#[link_args="-lglfw -framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation -framework QuartzCore"]
+#[link(name="glfw")]
+#[link(name="Cocoa", kind="framework")]
+#[link(name="OpenGL", kind="framework")]
+#[link(name="IOKit", kind="framework")]
+#[link(name="CoreFoundation", kind="framework")]
+#[link(name="QuartzCore", kind="framework")]
 extern { }
 
-#[nolink]
 #[cfg(target_os = "linux")]
-#[link_args="-lglfw -lX11 -lXrandr -lXi -lXxf86vm -lGL"]
+#[link(name="glfw")]
+#[link(name="X11")]
+#[link(name="Xrandr")]
+#[link(name="Xi")]
+#[link(name="Xxf86vm")]
+#[link(name="GL")]
 extern { }
 
-#[nolink]
 #[cfg(target_os = "win32")]
-#[link_args="-lglfw3"]
+#[link(name="glfw3")]
 extern { }
 
 // C function bindings
