@@ -18,7 +18,8 @@ extern mod glfw;
 use std::libc;
 use std::unstable::finally::Finally;
 
-#[link_args="-lglfw"] extern {}
+#[link(name="glfw")]
+extern {}
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {

@@ -15,7 +15,8 @@
 
 extern mod glfw;
 
-#[link_args="-lglfw"] extern {}
+#[link(name="glfw")]
+extern {}
 
 fn main() {
     println(glfw::get_version().to_str());
