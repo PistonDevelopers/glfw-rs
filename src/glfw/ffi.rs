@@ -264,9 +264,9 @@ pub type GLFWkeyfun             = extern "C" fn(*GLFWwindow,c_int,c_int,c_int,c_
 pub type GLFWcharfun            = extern "C" fn(*GLFWwindow,c_uint);
 pub type GLFWmonitorfun         = extern "C" fn(*GLFWmonitor,c_int);
 
-pub struct GLFWmonitor;
+pub enum GLFWmonitor {}
 
-pub struct GLFWwindow;
+pub enum GLFWwindow {}
 
 pub struct GLFWgammaramp {
     red:    *c_ushort,
