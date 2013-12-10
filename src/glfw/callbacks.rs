@@ -80,13 +80,13 @@ macro_rules! window_callback(
      );
 )
 
-window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                           => pos_callback(xpos as int, ypos as int))
-window_callback!(fn window_size_callback(width: c_int, height: c_int)                       => size_callback(width as int, height as int))
+window_callback!(fn window_pos_callback(xpos: c_int, ypos: c_int)                           => pos_callback(xpos as i32, ypos as i32))
+window_callback!(fn window_size_callback(width: c_int, height: c_int)                       => size_callback(width as i32, height as i32))
 window_callback!(fn window_close_callback()                                                 => close_callback())
 window_callback!(fn window_refresh_callback()                                               => refresh_callback())
 window_callback!(fn window_focus_callback(focused: c_int)                                   => focus_callback(focused == ffi::TRUE))
 window_callback!(fn window_iconify_callback(iconified: c_int)                               => iconify_callback(iconified == ffi::TRUE))
-window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => framebuffer_size_callback(width as int, height as int))
+window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => framebuffer_size_callback(width as i32, height as i32))
 window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => mouse_button_callback(cast::transmute(button), cast::transmute(action), Modifiers { values: mods }))
 window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => cursor_pos_callback(xpos as f64, ypos as f64))
 window_callback!(fn cursor_enter_callback(entered: c_int)                                   => cursor_enter_callback(entered == ffi::TRUE))

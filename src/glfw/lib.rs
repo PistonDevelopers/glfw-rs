@@ -238,12 +238,12 @@ pub enum CursorMode {
 
 /// Describes a single video mode.
 pub struct VidMode {
-    width:        uint,
-    height:       uint,
-    red_bits:     uint,
-    green_bits:   uint,
-    blue_bits:    uint,
-    refresh_rate: uint,
+    width:        u32,
+    height:       u32,
+    red_bits:     u32,
+    green_bits:   u32,
+    blue_bits:    u32,
+    refresh_rate: u32,
 }
 
 /// Describes the gamma ramp of a monitor.
@@ -293,9 +293,9 @@ pub fn start(f: proc()) {
 
 /// Holds the version information of the underlying GLFW library
 pub struct Version {
-    major: uint,
-    minor: uint,
-    rev:   uint,
+    major: u32,
+    minor: u32,
+    rev:   u32,
 }
 
 impl ToStr for Version {
@@ -321,9 +321,9 @@ pub fn get_version() -> Version {
         let mut rev = 0;
         ffi::glfwGetVersion(&mut major, &mut minor, &mut rev);
         Version {
-            major: major as uint,
-            minor: minor as uint,
-            rev:   rev   as uint,
+            major: major as u32,
+            minor: minor as u32,
+            rev:   rev   as u32,
         }
     }
 }
@@ -371,22 +371,22 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorPos`.
-    pub fn get_pos(&self) -> (int, int) {
+    pub fn get_pos(&self) -> (i32, i32) {
         unsafe {
             let mut xpos = 0;
             let mut ypos = 0;
             ffi::glfwGetMonitorPos(self.ptr, &mut xpos, &mut ypos);
-            (xpos as int, ypos as int)
+            (xpos as i32, ypos as i32)
         }
     }
 
     /// Wrapper for `glfwGetMonitorPhysicalSize`.
-    pub fn get_physical_size(&self) -> (int, int) {
+    pub fn get_physical_size(&self) -> (i32, i32) {
         unsafe {
             let mut width = 0;
             let mut height = 0;
             ffi::glfwGetMonitorPhysicalSize(self.ptr, &mut width, &mut height);
-            (width as int, height as int)
+            (width as i32, height as i32)
         }
     }
 
@@ -460,12 +460,12 @@ pub enum MonitorEvent {
 impl VidMode {
     fn from_glfw_vid_mode(mode: &ffi::GLFWvidmode) -> VidMode {
         VidMode {
-            width:        mode.width as uint,
-            height:       mode.height as uint,
-            red_bits:     mode.redBits as uint,
-            green_bits:   mode.greenBits as uint,
-            blue_bits:    mode.blueBits as uint,
-            refresh_rate: mode.refreshRate as uint,
+            width:        mode.width as u32,
+            height:       mode.height as u32,
+            red_bits:     mode.redBits as u32,
+            green_bits:   mode.greenBits as u32,
+            blue_bits:    mode.blueBits as u32,
+            refresh_rate: mode.refreshRate as u32,
         }
     }
 }
@@ -499,57 +499,57 @@ pub mod window_hint {
     }
 
     /// Wrapper for `glfwWindowHint` called with `RED_BITS`.
-    pub fn red_bits(bits: uint) {
+    pub fn red_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `GREEN_BITS`.
-    pub fn green_bits(bits: uint) {
+    pub fn green_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `BLUE_BITS`.
-    pub fn blue_bits(bits: uint) {
+    pub fn blue_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ALPHA_BITS`.
-    pub fn alpha_bits(bits: uint) {
+    pub fn alpha_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `DEPTH_BITS`.
-    pub fn depth_bits(bits: uint) {
+    pub fn depth_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `STENCIL_BITS`.
-    pub fn stencil_bits(bits: uint) {
+    pub fn stencil_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_RED_BITS`.
-    pub fn accum_red_bits(bits: uint) {
+    pub fn accum_red_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_GREEN_BITS`.
-    pub fn accum_green_bits(bits: uint) {
+    pub fn accum_green_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_BLUE_BITS`.
-    pub fn accum_blue_bits(bits: uint) {
+    pub fn accum_blue_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `ACCUM_ALPHA_BITS`.
-    pub fn accum_alpha_bits(bits: uint) {
+    pub fn accum_alpha_bits(bits: u32) {
         unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS, bits as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `AUX_BUFFERS`.
-    pub fn aux_buffers(buffers: uint) {
+    pub fn aux_buffers(buffers: u32) {
         unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS, buffers as c_int); }
     }
 
@@ -559,7 +559,7 @@ pub mod window_hint {
     }
 
     /// Wrapper for `glfwWindowHint` called with `SAMPLES`.
-    pub fn samples(samples: uint) {
+    pub fn samples(samples: u32) {
         unsafe { ffi::glfwWindowHint(ffi::SAMPLES, samples as c_int); }
     }
 
@@ -569,7 +569,7 @@ pub mod window_hint {
     }
 
     /// Wrapper for `glfwWindowHint` called with `REFRESH_RATE`.
-    pub fn refresh_rate(rate: int) {
+    pub fn refresh_rate(rate: u32) {
         unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE, rate as c_int); }
     }
 
@@ -579,18 +579,18 @@ pub mod window_hint {
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR`.
-    pub fn context_version_major(major: uint) {
+    pub fn context_version_major(major: u32) {
         unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MINOR`.
-    pub fn context_version_minor(minor: uint) {
+    pub fn context_version_minor(minor: u32) {
         unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int); }
     }
 
     /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR` and
     /// `CONTEXT_VERSION_MINOR`.
-    pub fn context_version(major: uint, minor: uint) {
+    pub fn context_version(major: u32, minor: u32) {
         unsafe {
             ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
             ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int);
@@ -714,13 +714,13 @@ impl ToStr for Modifiers {
     }
 }
 
-pub trait WindowPosCallback { fn call(&self, window: &Window, xpos: int, ypos: int); }
-pub trait WindowSizeCallback { fn call(&self, window: &Window, width: int, height: int); }
+pub trait WindowPosCallback { fn call(&self, window: &Window, xpos: i32, ypos: i32); }
+pub trait WindowSizeCallback { fn call(&self, window: &Window, width: i32, height: i32); }
 pub trait WindowCloseCallback { fn call(&self, window: &Window); }
 pub trait WindowRefreshCallback { fn call(&self, window: &Window); }
 pub trait WindowFocusCallback { fn call(&self, window: &Window, focused: bool); }
 pub trait WindowIconifyCallback { fn call(&self, window: &Window, iconified: bool); }
-pub trait FramebufferSizeCallback { fn call(&self, window: &Window, width: int, height: int); }
+pub trait FramebufferSizeCallback { fn call(&self, window: &Window, width: i32, height: i32); }
 pub trait MouseButtonCallback { fn call(&self, window: &Window, button: MouseButton, action: Action, modifiers: Modifiers); }
 pub trait CursorPosCallback { fn call(&self, window: &Window, xpos: f64, ypos: f64); }
 pub trait CursorEnterCallback { fn call(&self, window: &Window, entered: bool); }
@@ -782,17 +782,17 @@ macro_rules! set_window_callback(
 
 impl Window {
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create(width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
+    pub fn create(width: u32, height: u32, title: &str, mode: WindowMode) -> Option<Window> {
         Window::create_intern(width, height, title, mode, None)
     }
 
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_shared(&self, width: uint, height: uint, title: &str, mode: WindowMode) -> Option<Window> {
+    pub fn create_shared(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<Window> {
         Window::create_intern(width, height, title, mode, Some(self))
     }
 
     /// Internal wrapper for `glfwCreateWindow`.
-    fn create_intern(width: uint, height: uint, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<Window> {
+    fn create_intern(width: u32, height: u32, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<Window> {
         let ptr = unsafe {
             title.with_c_str(|title| {
                 ffi::glfwCreateWindow(
@@ -854,42 +854,42 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetWindowPos`.
-    pub fn get_pos(&self) -> (int, int) {
+    pub fn get_pos(&self) -> (i32, i32) {
         unsafe {
             let mut xpos = 0;
             let mut ypos = 0;
             ffi::glfwGetWindowPos(self.ptr, &mut xpos, &mut ypos);
-            (xpos as int, ypos as int)
+            (xpos as i32, ypos as i32)
         }
     }
 
     /// Wrapper for `glfwSetWindowPos`.
-    pub fn set_pos(&self, xpos: int, ypos: int) {
+    pub fn set_pos(&self, xpos: i32, ypos: i32) {
         unsafe { ffi::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
     }
 
     /// Wrapper for `glfwGetWindowSize`.
-    pub fn get_size(&self) -> (int, int) {
+    pub fn get_size(&self) -> (i32, i32) {
         unsafe {
             let mut width = 0;
             let mut height = 0;
             ffi::glfwGetWindowSize(self.ptr, &mut width, &mut height);
-            (width as int, height as int)
+            (width as i32, height as i32)
         }
     }
 
     /// Wrapper for `glfwSetWindowSize`.
-    pub fn set_size(&self, width: int, height: int) {
+    pub fn set_size(&self, width: i32, height: i32) {
         unsafe { ffi::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
     }
 
     /// Wrapper for `glfwGetFramebufferSize`.
-    pub fn get_framebuffer_size(&self) -> (int, int) {
+    pub fn get_framebuffer_size(&self) -> (i32, i32) {
         unsafe {
             let mut width = 0;
             let mut height = 0;
             ffi::glfwGetFramebufferSize(self.ptr, &mut width, &mut height);
-            (width as int, height as int)
+            (width as i32, height as i32)
         }
     }
 
@@ -948,9 +948,9 @@ impl Window {
     pub fn get_context_version(&self) -> Version {
         unsafe {
             Version {
-                major:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
-                minor:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
-                rev:    ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
+                major:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as u32,
+                minor:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as u32,
+                rev:    ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as u32,
             }
         }
     }
@@ -1315,7 +1315,7 @@ pub fn set_time(time: f64) {
 }
 
 /// Wrapper for `glfwSwapInterval`.
-pub fn set_swap_interval(interval: int) {
+pub fn set_swap_interval(interval: u32) {
     unsafe { ffi::glfwSwapInterval(interval as c_int); }
 }
 

@@ -70,14 +70,14 @@ impl glfw::ErrorCallback for ErrorContext {
 
 struct WindowPosContext;
 impl glfw::WindowPosCallback for WindowPosContext {
-    fn call(&self, window: &glfw::Window, x: int, y: int) {
+    fn call(&self, window: &glfw::Window, x: i32, y: i32) {
         window.set_title(format!("Window pos: ({}, {})", x, y));
     }
 }
 
 struct WindowSizeContext;
 impl glfw::WindowSizeCallback for WindowSizeContext {
-    fn call(&self, window: &glfw::Window, width: int, height: int) {
+    fn call(&self, window: &glfw::Window, width: i32, height: i32) {
         window.set_title(format!("Window size: ({}, {})", width, height));
     }
 }
@@ -114,7 +114,7 @@ impl glfw::WindowIconifyCallback for WindowIconifyContext {
 
 struct FramebufferSizeContext;
 impl glfw::FramebufferSizeCallback for FramebufferSizeContext {
-    fn call(&self, _: &glfw::Window, width: int, height: int) {
+    fn call(&self, _: &glfw::Window, width: i32, height: i32) {
         println!("Framebuffer size: {} {}", width, height);
     }
 }
