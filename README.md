@@ -39,7 +39,7 @@ fn main() {
 
 struct ErrorContext;
 impl glfw::ErrorCallback for ErrorContext {
-    fn call(_: glfw::Error, description: ~str) {
+    fn call(&self, _: glfw::Error, description: ~str) {
         println!("GLFW Error: {:s}", description);
     }
 }
