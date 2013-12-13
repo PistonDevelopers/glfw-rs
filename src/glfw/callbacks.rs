@@ -54,11 +54,6 @@ pub fn set_monitor_callback<Cb: MonitorCallback + Send>(callback: ~Cb, f: |ffi::
     f(monitor_callback);
 }
 
-// External window callbacks
-unsafe fn get_callbacks(window: *ffi::GLFWwindow) -> &WindowCallbacks {
-    cast::transmute(ffi::glfwGetWindowUserPointer(window))
-}
-
 macro_rules! window_callback(
     (fn $name:ident () => $field:ident()) => (
          pub extern "C" fn $name(window: *ffi::GLFWwindow) {
