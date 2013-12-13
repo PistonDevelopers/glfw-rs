@@ -13,14 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[link(name = "glfw",
-       package_id = "glfw",
-       vers = "0.1",
-       author = "Brendan Zabarauskas",
-       url = "https://github.com/bjz/glfw3-rs")];
-
+#[pkgid = "github.com/bjz/glfw-rs/src/glfw#0.1"];
 #[comment = "Bindings and wrapper functions for glfw3."];
-#[crate_type = "lib"];
 
 #[feature(globs)];
 #[feature(macro_rules)];
