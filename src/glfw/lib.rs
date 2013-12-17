@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[pkgid = "github.com/bjz/glfw-rs/src/glfw#0.1"];
+#[pkgid = "github.com/bjz/glfw-rs#glfw:0.1"];
 #[comment = "Bindings and wrapper functions for glfw3."];
+#[crate_type = "lib"];
 
 #[feature(globs)];
 #[feature(macro_rules)];
@@ -334,6 +335,15 @@ pub fn set_error_callback<Cb: ErrorCallback + Send>(callback: ~Cb) {
     callbacks::set_error_callback(callback, (|ext_cb| {
         unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
     }));
+}
+
+/// An ErrorCallback implementation that uses the `error!` macro.
+pub struct LogErrorHandler;
+
+impl ErrorCallback for LogErrorHandler {
+    fn call(&self, error: Error, desc: ~str) {
+        error!("GLFW Error: {} ({})", error.to_str(), desc);
+    }
 }
 
 pub trait MonitorCallback { fn call(&self, monitor: &Monitor, event: MonitorEvent); }
