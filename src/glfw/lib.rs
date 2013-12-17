@@ -435,9 +435,9 @@ impl Monitor {
             ffi::glfwSetGammaRamp(
                 self.ptr,
                 &ffi::GLFWgammaramp {
-                    red:    vec::raw::to_ptr(ramp.red),
-                    green:  vec::raw::to_ptr(ramp.green),
-                    blue:   vec::raw::to_ptr(ramp.blue),
+                    red:    ramp.red.as_ptr(),
+                    green:  ramp.green.as_ptr(),
+                    blue:   ramp.blue.as_ptr(),
                     size:   ramp.red.len() as c_uint,
                 }
             );
