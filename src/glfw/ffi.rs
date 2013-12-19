@@ -246,7 +246,7 @@ pub static CURSOR_DISABLED              : c_int = 0x00034003;
 pub static CONNECTED                    : c_int = 0x00040001;
 pub static DISCONNECTED                 : c_int = 0x00040002;
 
-pub type GLFWglproc             = extern "C" fn();
+pub type GLFWglproc             = extern "system" fn();
 
 pub type GLFWerrorfun           = extern "C" fn(c_int,*c_char);
 pub type GLFWwindowposfun       = extern "C" fn(*GLFWwindow,c_int,c_int);
