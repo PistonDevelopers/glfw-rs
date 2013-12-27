@@ -306,6 +306,8 @@ extern { }
 
 #[cfg(target_os = "win32")]
 #[link(name="glfw3")]
+#[link(name="opengl32")]
+#[link(name="gdi32")]
 extern { }
 
 // C function bindings
