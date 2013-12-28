@@ -13,3 +13,13 @@ script:
   - sudo make install
   - cd ..
   - rustpkg build glfw
+  - rm -rf .rust; rustpkg build examples/callbacks
+  - rm -rf .rust; rustpkg build examples/clipboard
+  - rm -rf .rust; rustpkg build examples/cursor
+  - rm -rf .rust; rustpkg build examples/defaults
+  - rm -rf .rust; rustpkg build examples/managed-state
+  - rm -rf .rust; rustpkg build examples/manual-init
+  - rm -rf .rust; rustpkg build examples/modes
+  - rm -rf .rust; rustpkg build examples/title
+  - rm -rf .rust; rustpkg build examples/version
+  - rm -rf .rust; rustpkg build examples/window
