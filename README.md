@@ -5,12 +5,15 @@ GLFW bindings and wrapper for The Rust Programming Language.
 ## Example code
 
 ~~~rust
+extern mod native;
 extern mod glfw;
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     // Run GLFW on the main thread
-    std::rt::start_on_main_thread(argc, argv, main)
+    do native::start(argc, argv){
+        main();
+    }
 }
 
 fn main() {
@@ -65,13 +68,12 @@ ln -s /usr/local/lib/libglfw3.dylib /usr/local/lib/libglfw.dylib
 
 ### Building the examples
 ~~~
-rustpkg build examples
+mkdir bin
+rustc --opt-level 3  src/examples/title/main.rs -o bin/title
+rustc --opt-level 3  src/examples/window/main.rs -o bin/window
+etc.
 ~~~
 
-### Building a specific example
-~~~
-rustpkg build examples/callbacks
-~~~
 
 ## FAQ
 
