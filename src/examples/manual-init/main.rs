@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+extern mod native;
 extern mod glfw;
 
 use std::libc;
@@ -21,7 +22,9 @@ use std::unstable::finally::Finally;
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     // GLFW must run on the main platform thread
-    std::rt::start_on_main_thread(argc, argv, main)
+    do native::start(argc, argv){
+        main();
+    }
 }
 
 fn main() {
