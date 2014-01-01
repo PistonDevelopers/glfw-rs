@@ -20,16 +20,14 @@ use std::libc;
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
-    do native::start(argc, argv){
-        main();
-    }
+    native::start(argc, argv, main)
 }
 
 fn main() {
     glfw::set_error_callback(~ErrorContext);
 
     do glfw::start {
-        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed)
+        let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed)
             .expect("Failed to create GLFW window.");
 
         window.set_key_callback(~KeyContext);
@@ -42,6 +40,12 @@ fn main() {
     }
 }
 
+#[cfg(target_os = "macos")]
+static NATIVE_MOD: glfw::Modifier = glfw::Super;
+
+#[cfg(not(target_os = "macos"))]
+static NATIVE_MOD: glfw::Modifier = glfw::Control;
+
 struct ErrorContext;
 impl glfw::ErrorCallback for ErrorContext {
     fn call(&self, _: glfw::Error, description: ~str) {
@@ -51,9 +55,22 @@ impl glfw::ErrorCallback for ErrorContext {
 
 struct KeyContext;
 impl glfw::KeyCallback for KeyContext {
-    fn call(&self, window: &glfw::Window, key: glfw::Key, _: libc::c_int, action: glfw::Action, _: glfw::Modifiers) {
-        if action == glfw::Press && key == glfw::KeyEscape {
-            window.set_should_close(true);
+    fn call(&self, window: &glfw::Window, key: glfw::Key, _: libc::c_int, action: glfw::Action, mods: glfw::Modifiers) {
+        if action == glfw::Press {
+            if key == glfw::KeyEscape {
+                window.set_should_close(true);
+            }
+            if (key == glfw::KeyV) && mods.contains(NATIVE_MOD) {
+                match window.get_clipboard_string() {
+                    ref s if !s.is_empty() => println!("Clipboard contains \"{:s}\"", *s),
+                    _                      => println("Clipboard does not contain a string"),
+                }
+            }
+            if (key == glfw::KeyC) && mods.contains(NATIVE_MOD) {
+                let s = "Hello GLFW World!";
+                window.set_clipboard_string(s);
+                println!("Setting clipboard to {:s}", s);
+            }
         }
     }
 }
