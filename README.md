@@ -51,7 +51,8 @@ impl glfw::ErrorCallback for ErrorContext {
 ### Building the library
 
 ~~~
-rustpkg build glfw
+mkdir lib
+rustc --out-dir lib src/glfw/lib.rs
 ~~~
 
 #### Homebrew Users
@@ -64,12 +65,11 @@ you build glfw-rs:
 ln -s /usr/local/lib/libglfw3.dylib /usr/local/lib/libglfw.dylib
 ~~~
 
-### Building the examples
+### Building an example
+
 ~~~
 mkdir bin
-rustc --opt-level 3  src/examples/title/main.rs -o bin/title
-rustc --opt-level 3  src/examples/window/main.rs -o bin/window
-etc.
+rustc -L lib --out-dir bin src/examples/window.rs
 ~~~
 
 
