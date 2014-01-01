@@ -12,4 +12,15 @@ script:
   - make
   - sudo make install
   - cd ..
-  - rustpkg build glfw
+  - mkdir lib
+  - rustc --out-dir lib src/glfw/lib.rs
+  - mkdir bin
+  - rustc -L lib --out-dir bin src/examples/callbacks.rs
+  - rustc -L lib --out-dir bin src/examples/clipboard.rs
+  - rustc -L lib --out-dir bin src/examples/cursor.rs
+  - rustc -L lib --out-dir bin src/examples/defaults.rs
+  - rustc -L lib --out-dir bin src/examples/manual-init.rs
+  - rustc -L lib --out-dir bin src/examples/modes.rs
+  - rustc -L lib --out-dir bin src/examples/title.rs
+  - rustc -L lib --out-dir bin src/examples/version.rs
+  - rustc -L lib --out-dir bin src/examples/window.rs
