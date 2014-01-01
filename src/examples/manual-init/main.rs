@@ -22,9 +22,7 @@ use std::unstable::finally::Finally;
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     // GLFW must run on the main platform thread
-    do native::start(argc, argv){
-        main();
-    }
+    native::start(argc, argv, main)
 }
 
 fn main() {

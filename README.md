@@ -11,9 +11,7 @@ extern mod glfw;
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     // Run GLFW on the main thread
-    do native::start(argc, argv){
-        main();
-    }
+    native::start(argc, argv, main)
 }
 
 fn main() {
