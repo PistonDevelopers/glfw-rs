@@ -333,7 +333,7 @@ pub trait ErrorCallback { fn call(&self, error: Error, description: ~str); }
 /// Wrapper for `glfwSetErrorCallback`.
 pub fn set_error_callback<Cb: ErrorCallback + Send>(callback: ~Cb) {
     callbacks::set_error_callback(callback, (|ext_cb| {
-        unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
+        unsafe { ffi::glfwSetErrorCallback(ext_cb); }
     }));
 }
 
@@ -402,7 +402,7 @@ impl Monitor {
     /// Wrapper for `glfwSetMonitorCallback`.
     pub fn set_callback<Cb: MonitorCallback + Send>(callback: ~Cb) {
         callbacks::set_monitor_callback(callback, (|ext_cb| {
-            unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
+            unsafe { ffi::glfwSetMonitorCallback(ext_cb); }
         }));
     }
 
@@ -779,7 +779,7 @@ macro_rules! set_window_callback(
     ) => ({
         unsafe {
             self.get_callbacks().$data_field = Some(callback as ~$cb_trait);
-            ffi::$ll_fn(self.ptr, Some(callbacks::$ext_callback));
+            ffi::$ll_fn(self.ptr, callbacks::$ext_callback);
         }
     })
 )
@@ -1336,7 +1336,11 @@ pub fn extension_supported(extension: &str) -> bool {
 pub fn get_proc_address(procname: &str) -> Option<GLProc> {
     unsafe {
         procname.with_c_str(|procname| {
-            ffi::glfwGetProcAddress(procname)
+            let fnptr = ffi::glfwGetProcAddress(procname);
+            match fnptr as *() {
+                x if x.is_null() => None,
+                _ => Some(fnptr)
+            }
         })
     }
 }
