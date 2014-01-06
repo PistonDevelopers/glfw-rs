@@ -48,12 +48,25 @@ impl glfw::ErrorCallback for ErrorContext {
 
 ## Compilation
 
+### Building the library and examples
+
+~~~
+make
+~~~
+
 ### Building the library
 
 ~~~
-mkdir lib
+make .build_lib
+~~~
+
+Or
+
+~~~
+mkdir -p lib
 rustc --out-dir lib src/glfw/lib.rs
 ~~~
+
 
 #### Homebrew Users
 
@@ -65,10 +78,16 @@ you build glfw-rs:
 ln -s /usr/local/lib/libglfw3.dylib /usr/local/lib/libglfw.dylib
 ~~~
 
-### Building an example
+### Building the examples
 
 ~~~
-mkdir bin
+make .build_examples
+~~~
+
+Or
+
+~~~
+mkdir -p bin
 rustc -L lib --out-dir bin src/examples/window.rs
 ~~~
 
