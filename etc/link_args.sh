@@ -20,8 +20,14 @@
 OSNAME=`uname`
 
 case $OSNAME in
-    Darwin|Linux)
+    Linux)
         echo "`pkg-config --static --libs glfw3`";;
+    Darwin)
+        if ! type pkg-config > /dev/null ; then
+            echo "`pkg-config --static --libs glfw3`"
+        else
+            echo "-lglfw -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"
+        fi;;
     Cygwin|MinGW)
         echo "-lglfw3 -lopengl32";;
     *)
