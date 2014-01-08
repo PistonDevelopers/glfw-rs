@@ -13,25 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-before_install:
-  - yes | sudo add-apt-repository ppa:hansjorg/rust
-  - sudo apt-get update
-install:
-  - sudo apt-get install rust-nightly
-  - sudo apt-get install libXxf86vm-dev
-script:
-# Install glfw lib
-  - git clone https://github.com/glfw/glfw.git
-  - cd glfw
-  - git checkout 3.0.3
-  - cmake -DBUILD_SHARED_LIBS=ON
-  - make
-  - sudo make install
-  - cd ..
-# Build glfw-rs
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make
-# Test glfw-rs install target
-  - sudo make install
+set(GLFW_RS_EXAMPLES
+    callbacks
+    clipboard
+    cursor
+    defaults
+    manual_init
+    modes
+    title
+    version
+    window
+)
+
+foreach(example ${GLFW_RS_EXAMPLES})
+    add_custom_target(
+        ${example} DEPENDS lib
+        COMMAND mkdir -p ${GLFW_RS_EXAMPLE_DIR} && ${RUSTC_COMPILER} -L ${GLFW_RS_LIB_DIR}
+            --link-args="${GLFW_STATIC_LDFLAGS}" --out-dir ${GLFW_RS_EXAMPLE_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/${example}.rs
+    )
+endforeach()
+
+add_custom_target(
+    examples ALL
+    DEPENDS lib ${GLFW_RS_EXAMPLES}
+)
