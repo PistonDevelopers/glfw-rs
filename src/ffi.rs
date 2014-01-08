@@ -284,32 +284,6 @@ pub struct GLFWvidmode {
     refreshRate: c_int,
 }
 
-// Linking
-
-#[cfg(target_os = "macos")]
-#[link(name="glfw")]
-#[link(name="Cocoa", kind="framework")]
-#[link(name="OpenGL", kind="framework")]
-#[link(name="IOKit", kind="framework")]
-#[link(name="CoreFoundation", kind="framework")]
-#[link(name="QuartzCore", kind="framework")]
-extern { }
-
-#[cfg(target_os = "linux")]
-#[link(name="glfw")]
-#[link(name="X11")]
-#[link(name="Xrandr")]
-#[link(name="Xi")]
-#[link(name="Xxf86vm")]
-#[link(name="GL")]
-extern { }
-
-#[cfg(target_os = "win32")]
-#[link(name="glfw3")]
-#[link(name="opengl32")]
-#[link(name="gdi32")]
-extern { }
-
 // C function bindings
 
 extern "C" {

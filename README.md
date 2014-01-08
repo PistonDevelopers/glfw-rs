@@ -48,56 +48,44 @@ impl glfw::ErrorCallback for ErrorContext {
 
 ## Compilation
 
-### Building the library and examples
+You will need [CMake](http://www.cmake.org) to set up glfw-rs for building.
+
+First setup your build directory:
 
 ~~~
-make
+git clone https://github.com/bjz/glfw-rs.git
+cd glfw-rs
+mkdir build
+cd build
+cmake ..
+~~~
+
+### Building everything
+
+~~~
+make 
 ~~~
 
 ### Building the library
 
 ~~~
-make .build_lib
-~~~
-
-Or
-
-~~~
-mkdir -p lib
-rustc --out-dir lib src/glfw/lib.rs
-~~~
-
-
-#### Homebrew Users
-
-Homebrew installs `libglfw.dylib` under the name `libglfw3.dylib`. In order for
-compilation to work, you'll need to create a symlink to the library _before_
-you build glfw-rs:
-
-~~~
-ln -s /usr/local/lib/libglfw3.dylib /usr/local/lib/libglfw.dylib
+make lib
 ~~~
 
 ### Building the examples
 
 ~~~
-make .build_examples
+make examples
 ~~~
 
-Or
+Or to build a single example:
 
 ~~~
-mkdir -p bin
-rustc -L lib --out-dir bin src/examples/window.rs
+make <example-name>
 ~~~
 
 
 ## FAQ
-
-_I get `ld: library not found for -lglfw` when building on OSX, with glfw installed via Homebrew_
-
-Homebrew installs glfw under a non-standard name. When you compile you'll have
-to [create a symlink to the library](#homebrew-users) first.
 
 _I get lots of errors like: `undefined reference to 'glfwSetScrollCallback'`_
 
