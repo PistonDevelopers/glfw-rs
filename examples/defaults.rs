@@ -55,7 +55,7 @@ fn main() {
         ];
 
         for &(param, ext, name) in gl_params.iter() {
-            if ext.map_default(true, |s| {
+            if ext.map_or(true, |s| {
                 glfw::extension_supported(s)
             }) {
                 let value = 0;
