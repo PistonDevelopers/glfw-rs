@@ -50,3 +50,10 @@ add_subdirectory(src)
 if(GLFW_RS_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+#-------------------------------------------------------------------------------
+# Add install target
+#-------------------------------------------------------------------------------
+
+file(GLOB GLFW_RS_INSTALL_FILES "${GLFW_RS_LIB_DIR}/*")
+install(FILES ${GLFW_RS_INSTALL_FILES} DESTINATION lib)

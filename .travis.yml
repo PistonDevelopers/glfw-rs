@@ -20,6 +20,7 @@ install:
   - sudo apt-get install rust-nightly
   - sudo apt-get install libXxf86vm-dev
 script:
+# Install glfw lib
   - git clone https://github.com/glfw/glfw.git
   - cd glfw
   - git checkout 3.0.3
@@ -27,7 +28,10 @@ script:
   - make
   - sudo make install
   - cd ..
+# Build glfw-rs
   - mkdir build
   - cd build
   - cmake ..
   - make
+# Test glfw-rs install target
+  - sudo make install
