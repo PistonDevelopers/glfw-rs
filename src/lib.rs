@@ -360,7 +360,7 @@ impl Monitor {
         unsafe {
             ffi::glfwGetPrimaryMonitor()
              .to_option()
-             .map_default(Err(()),
+             .map_or(Err(()),
                 |ptr| Ok(Monitor { ptr: ptr }))
         }
     }
