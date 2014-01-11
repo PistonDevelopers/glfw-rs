@@ -83,30 +83,30 @@ impl glfw::WindowSizeCallback for WindowSizeContext {
 struct WindowCloseContext;
 impl glfw::WindowCloseCallback for WindowCloseContext {
     fn call(&self, _: &glfw::Window) {
-        println("Window close requested.");
+        println!("Window close requested.");
     }
 }
 
 struct WindowRefreshContext;
 impl glfw::WindowRefreshCallback for WindowRefreshContext {
     fn call(&self, _: &glfw::Window) {
-        println("Window refresh callback triggered.");
+        println!("Window refresh callback triggered.");
     }
 }
 
 struct WindowFocusContext;
 impl glfw::WindowFocusCallback for WindowFocusContext {
     fn call(&self, _: &glfw::Window, activated: bool) {
-        if activated { println("Window focus gained."); }
-        else         { println("Window focus lost.");   }
+        if activated { println!("Window focus gained."); }
+        else         { println!("Window focus lost.");   }
     }
 }
 
 struct WindowIconifyContext;
 impl glfw::WindowIconifyCallback for WindowIconifyContext {
     fn call(&self, _: &glfw::Window, iconified: bool) {
-        if iconified { println("Window was minimised");  }
-        else         { println("Window was maximised."); }
+        if iconified { println!("Window was minimised");  }
+        else         { println!("Window was maximised."); }
     }
 }
 
@@ -176,8 +176,8 @@ impl glfw::CursorPosCallback for CursorPosContext {
 struct CursorEnterContext;
 impl glfw::CursorEnterCallback for CursorEnterContext {
     fn call(&self, _: &glfw::Window, entered: bool) {
-        if entered { println("Cursor entered window."); }
-        else       { println("Cursor left window.");    }
+        if entered { println!("Cursor entered window."); }
+        else       { println!("Cursor left window.");    }
     }
 }
 

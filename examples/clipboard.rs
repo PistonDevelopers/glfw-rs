@@ -63,7 +63,7 @@ impl glfw::KeyCallback for KeyContext {
             if (key == glfw::KeyV) && mods.contains(NATIVE_MOD) {
                 match window.get_clipboard_string() {
                     ref s if !s.is_empty() => println!("Clipboard contains \"{:s}\"", *s),
-                    _                      => println("Clipboard does not contain a string"),
+                    _                      => println!("Clipboard does not contain a string"),
                 }
             }
             if (key == glfw::KeyC) && mods.contains(NATIVE_MOD) {

@@ -28,7 +28,7 @@ fn main() {
                 println!("    {:s}\n", monitor.get_video_mode().unwrap().to_str());
         });
 
-        println("Available monitors\n\
+        println!("Available monitors\n\
                      ------------------");
         glfw::Monitor::get_connected().map(|monitor| {
             println!("{:s}:", monitor.get_name());
