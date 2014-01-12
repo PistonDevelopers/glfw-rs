@@ -698,7 +698,7 @@ impl Modifiers {
     /// ~~~rust
     /// do window.set_key_callback |_, _, _, _, mods| {
     ///     if mods.contains(glfw::Shift) {
-    ///         println("Shift detected!")
+    ///         println!("Shift detected!")
     ///     }
     /// }
     /// ~~~
