@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[crate_type = "lib"];
+#[crate_type = "rlib"];
 #[crate_id = "github.com/bjz/glfw-rs#glfw:0.1"];
 #[comment = "Bindings and wrapper functions for glfw3."];
 
