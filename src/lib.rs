@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #[crate_type = "rlib"];
+#[crate_type = "dylib"];
 #[crate_id = "github.com/bjz/glfw-rs#glfw:0.1"];
 #[comment = "Bindings and wrapper functions for glfw3."];
 
