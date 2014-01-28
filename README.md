@@ -70,7 +70,7 @@ You will need [CMake](http://www.cmake.org) to set up glfw-rs for building.
 You can use [cargo-lite](https://github.com/cmr/cargo-lite):
 
 ~~~
-cargo-lite.py install
+cargo-lite.py install --git https://github.com/bjz/glfw-rs.git glfw-rs
 ~~~
 
 Or do it manually:
