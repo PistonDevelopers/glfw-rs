@@ -26,7 +26,7 @@ fn start(argc: int, argv: **u8) -> int {
 fn main() {
     glfw::set_error_callback(~ErrorContext);
 
-    do glfw::start {
+    glfw::start(proc() {
         let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
             .expect("Failed to create GLFW window.");
 
@@ -36,7 +36,7 @@ fn main() {
         while !window.should_close() {
             glfw::poll_events();
         }
-    }
+    });
 }
 
 struct ErrorContext;

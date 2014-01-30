@@ -26,7 +26,7 @@ fn start(argc: int, argv: **u8) -> int {
 fn main() {
     glfw::set_error_callback(~ErrorContext);
 
-    do glfw::start {
+    glfw::start(proc() {
         glfw::window_hint::resizable(true);
 
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
@@ -56,7 +56,7 @@ fn main() {
         while !window.should_close() {
             glfw::poll_events();
         }
-    }
+    });
 }
 
 struct ErrorContext;

@@ -36,7 +36,7 @@ fn main() {
     glfw::set_error_callback(~ErrorContext);
 
     // Initialize the library
-    do glfw::start {
+    glfw::start(proc() {
         // Create a windowed mode window and its OpenGL context
         let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
             .expect("Failed to create GLFW window.");
@@ -52,7 +52,7 @@ fn main() {
             // Poll for and process events
             glfw::poll_events();
         }
-    }
+    });
 }
 
 struct ErrorContext;

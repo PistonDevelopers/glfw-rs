@@ -22,7 +22,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    do glfw::start {
+    glfw::start(proc() {
         glfw::Monitor::get_primary().map(|monitor| {
                 println!("{:s}:", monitor.get_name());
                 println!("    {:s}\n", monitor.get_video_mode().unwrap().to_str());
@@ -37,5 +37,5 @@ fn main() {
                 println!("  {:s}", mode.to_str());
             });
         });
-    }
+    });
 }
