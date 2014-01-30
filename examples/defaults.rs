@@ -23,7 +23,7 @@ fn start(argc: int, argv: **u8) -> int {
 fn main() {
     glfw::set_error_callback(~ErrorContext);
 
-    do glfw::start {
+    glfw::start(proc() {
         glfw::window_hint::visible(true);
 
         let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed)
@@ -63,7 +63,7 @@ fn main() {
                 println!("OpenGL {:s}: {}", name, value);
             };
         }
-    }
+    });
 }
 
 struct ErrorContext;
