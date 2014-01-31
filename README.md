@@ -65,6 +65,14 @@ impl glfw::ErrorCallback for ErrorContext {
 
 ## Compilation
 
+You can use [cargo-lite](https://github.com/cmr/cargo-lite):
+
+~~~
+cargo-lite.py install --git https://github.com/bjz/glfw-rs.git glfw-rs
+~~~
+
+Or do it manually:
+
 ### Building everything
 
 ~~~
