@@ -65,25 +65,6 @@ impl glfw::ErrorCallback for ErrorContext {
 
 ## Compilation
 
-You will need [CMake](http://www.cmake.org) to set up glfw-rs for building.
-
-You can use [cargo-lite](https://github.com/cmr/cargo-lite):
-
-~~~
-cargo-lite.py install
-~~~
-
-Or do it manually:
-
-~~~
-git clone https://github.com/bjz/glfw-rs.git
-cd glfw-rs
-mkdir build
-cd build
-cmake ..
-~~~
-
-
 ### Building everything
 
 ~~~
@@ -101,13 +82,6 @@ make lib
 ~~~
 make examples
 ~~~
-
-Or to build a single example:
-
-~~~
-make <example-name>
-~~~
-
 
 ## FAQ
 
