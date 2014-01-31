@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+env:
+  global:
+    - secure: d0ai0sK6NFiz+822DaAKAGcJXjC6dBFLGOjqjACcsoqDtRH85HR9IVUnwCsNVPvH05frEutD5Ebd9SzrjqPriTNnzM0iwZZBxHgiHV+SAYcL/D+qyeEAB/IYU5jZxjYgq/6fHA2VhXI56rGqBRwoXe1sLsEAaTfDmo9gVi6xhQo=
 before_install:
   - yes | sudo add-apt-repository ppa:hansjorg/rust
   - sudo apt-get update
@@ -28,3 +31,5 @@ install:
   - cd ..
 script:
   - make
+after_script:
+  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh

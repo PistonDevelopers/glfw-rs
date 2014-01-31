@@ -13,15 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-all: examples
+all: examples doc
 
-tools:
+etc:
 	mkdir -p build build/etc
 	rustc --out-dir=build/etc src/etc/link-args.rs
 
-lib: tools
+lib: etc
 	mkdir -p build/lib
 	rustc --out-dir=build/lib --link-args="`./build/etc/link-args`" -O src/lib/lib.rs
+
+doc:
+	mkdir -p doc
+	rustdoc -o doc src/lib/lib.rs
 
 examples: lib
 	mkdir -p build/examples
@@ -36,4 +40,5 @@ examples: lib
 	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/window.rs
 
 clean:
-	rm -rfv ./build
+	rm -rf build
+	rm -rf doc
