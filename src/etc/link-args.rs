@@ -40,7 +40,7 @@ fn main() {
             e => fail!("Unexpected error when locating locate pkg-config: {}", e.to_str()),
         }
     }).inside(|| {
-        println!("{}", Process::new("pkg-config", [~"--static", ~"--libs-only-l", ~"--libs-only-other", ~"glfw3"], ProcessOptions::new())
+        println!("{}", Process::new("pkg-config", [~"--static", ~"--libs", ~"glfw3"], ProcessOptions::new())
             .expect("Failed to run pkg-config.")
             .output().read_to_str());
     });
