@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern mod glfw;
+extern mod glfw = "glfw-rs";
 
 fn main() {
     println!("{:s}", glfw::get_version().to_str());

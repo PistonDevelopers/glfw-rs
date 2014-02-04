@@ -23,7 +23,7 @@ GLFW bindings and wrapper for The Rust Programming Language.
 
 ~~~rust
 extern mod native;
-extern mod glfw;
+extern mod glfw = "glfw-rs";
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
