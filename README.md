@@ -71,24 +71,34 @@ You can use [cargo-lite](https://github.com/cmr/cargo-lite):
 cargo-lite.py install --git https://github.com/bjz/glfw-rs.git glfw-rs
 ~~~
 
-Or do it manually:
-
-### Building everything
+Or use make manually to build the library and docs:
 
 ~~~
 make
 ~~~
 
-### Building the library
-
-~~~
-make lib
-~~~
-
-### Building the examples
+To build the examples:
 
 ~~~
 make examples
+~~~
+
+Or a specific example:
+
+~~~
+make src/examples/window.rs
+~~~
+
+## Installing
+
+~~~
+make install
+~~~
+
+To install to a custom location, override the `INSTALL_DIR` variable:
+
+~~~
+make install INSTALL_DIR=custom/location
 ~~~
 
 ## FAQ

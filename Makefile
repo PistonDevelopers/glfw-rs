@@ -13,32 +13,66 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-all: examples doc
+RUSTC               = rustc
+RUSTDOC             = rustdoc
 
-etc:
-	mkdir -p build build/etc
-	rustc --out-dir=build/etc src/etc/link-args.rs
+LINK_ARGS           = $(shell sh etc/glfw-link-args.sh)
 
-lib: etc
-	mkdir -p build/lib
-	rustc --out-dir=build/lib --link-args="`./build/etc/link-args`" -O src/lib/lib.rs
+SRC_DIR             = src
+LIB_FILE            = $(SRC_DIR)/lib/lib.rs
+EXAMPLE_FILES       = $(SRC_DIR)/examples/*.rs
+
+CRATE_NAME          = $(shell $(RUSTC) --crate-name $(LIB_FILE))
+CRATE_FILES         = $(shell $(RUSTC) --crate-file-name $(LIB_FILE))
+
+DOC_DIR             = doc
+EXAMPLES_DIR        = examples
+LIB_DIR             = lib
+
+INSTALL_PREFIX      = /usr/local
+BIN_INSTALL_DIR     = $(INSTALL_PREFIX)/bin
+LIB_INSTALL_DIR     = $(INSTALL_PREFIX)/lib
+
+all: lib examples doc
+
+lib:
+	mkdir -p $(LIB_DIR)
+	$(RUSTC) --out-dir=$(LIB_DIR) --link-args="$(LINK_ARGS)" -O $(LIB_FILE)
 
 doc:
-	mkdir -p doc
-	rustdoc -o doc src/lib/lib.rs
+	mkdir -p $(DOC_DIR)
+	$(RUSTDOC) -o $(DOC_DIR) $(LIB_FILE)
 
-examples: lib
-	mkdir -p build/examples
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/callbacks.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/clipboard.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/cursor.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/defaults.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/manual_init.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/modes.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/title.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/version.rs
-	rustc --out-dir=build/examples -L ./build/lib --link-args="`./build/etc/link-args`" src/examples/window.rs
+examples-dir:
+	mkdir -p $(EXAMPLES_DIR)
+
+$(EXAMPLE_FILES): lib examples-dir
+	$(RUSTC) -L $(LIB_DIR) --link-args="$(LINK_ARGS)" --out-dir=$(EXAMPLES_DIR) $@
+
+examples: $(EXAMPLE_FILES)
+
+install: lib
+	@ $(foreach crate, $(CRATE_FILES), \
+		cp $(LIB_DIR)/$(crate) $(LIB_INSTALL_DIR)/$(crate) && \
+		echo "Installed $(crate) to $(LIB_INSTALL_DIR)" ; \
+	)
+
+uninstall:
+	@-rm $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.rlib ||:
+	@-rm $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.dylib ||:
 
 clean:
-	rm -rf build
-	rm -rf doc
+	rm -rf $(LIB_DIR)
+	rm -rf $(EXAMPLES_DIR)
+	rm -rf $(DOC_DIR)
+
+.PHONY: \
+	all \
+	lib \
+	doc \
+	examples \
+	examples-dir \
+	$(EXAMPLE_FILES) \
+	install \
+	uninstall \
+	clean
