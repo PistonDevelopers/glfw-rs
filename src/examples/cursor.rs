@@ -14,7 +14,7 @@
 // limitations under the License.
 
 extern mod native;
-extern mod glfw;
+extern mod glfw = "glfw-rs";
 
 use std::libc;
 

@@ -30,6 +30,11 @@ install:
   - sudo make install
   - cd ..
 script:
+# build examples and docs
   - make
+# test other targets
+  - sudo make install
+  - sudo make uninstall
+  - make clean
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
