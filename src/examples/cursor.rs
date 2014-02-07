@@ -16,8 +16,6 @@
 extern mod native;
 extern mod glfw = "glfw-rs";
 
-use std::libc;
-
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     native::start(argc, argv, main)
@@ -33,11 +31,14 @@ fn main() {
         window.set_cursor_mode(glfw::CursorDisabled);
         window.make_context_current();
 
-        window.set_cursor_pos_callback(~CursorPosContext);
-        window.set_key_callback(~KeyContext);
+        window.set_cursor_pos_polling(true);
+        window.set_key_polling(true);
 
         while !window.should_close() {
             glfw::poll_events();
+            for (_, event) in window.flush_events() {
+                handle_window_event(&window, event);
+            }
         }
     });
 }
@@ -49,26 +50,17 @@ impl glfw::ErrorCallback for ErrorContext {
     }
 }
 
-struct CursorPosContext;
-impl glfw::CursorPosCallback for CursorPosContext {
-    fn call(&self, _: &glfw::Window, xpos: f64, ypos: f64) {
-        println!("Cursor position: ({}, {})", xpos, ypos);
-    }
-}
-
-struct KeyContext;
-impl glfw::KeyCallback for KeyContext {
-    fn call(&self, window: &glfw::Window, key: glfw::Key, _: libc::c_int, action: glfw::Action, _: glfw::Modifiers) {
-        match (action, key) {
-            (glfw::Press, glfw::KeyEscape) => window.set_should_close(true),
-            (glfw::Press, glfw::KeySpace) => {
-                match window.get_cursor_mode() {
-                    glfw::CursorDisabled => window.set_cursor_mode(glfw::CursorNormal),
-                    glfw::CursorNormal   => window.set_cursor_mode(glfw::CursorDisabled),
-                    _ => {}
-                }
+fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
+    match event {
+        glfw::CursorPosEvent(xpos, ypos) => println!("Cursor position: ({}, {})", xpos, ypos),
+        glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => window.set_should_close(true),
+        glfw::KeyEvent(glfw::KeySpace, _, glfw::Press, _) => {
+            match window.get_cursor_mode() {
+                glfw::CursorDisabled => window.set_cursor_mode(glfw::CursorNormal),
+                glfw::CursorNormal   => window.set_cursor_mode(glfw::CursorDisabled),
+                _ => {}
             }
-            _ => {}
         }
+        _ => {}
     }
 }
