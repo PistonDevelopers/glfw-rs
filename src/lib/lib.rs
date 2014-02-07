@@ -25,6 +25,7 @@
 // TODO: Document differences between GLFW and glfw-rs
 
 use std::cast;
+use std::comm::{Port, Chan, Data};
 use std::libc::*;
 use std::ptr;
 use std::str;
@@ -671,12 +672,6 @@ impl WindowMode {
     }
 }
 
-/// A struct that wraps a `*GLFWwindow` handle.
-pub struct Window {
-    ptr: *ffi::GLFWwindow,
-    is_shared: bool,
-}
-
 /// A group of key modifiers
 pub struct Modifiers {
     values: c_int,
@@ -720,68 +715,60 @@ impl ToStr for Modifiers {
     }
 }
 
-pub trait WindowPosCallback { fn call(&self, window: &Window, xpos: i32, ypos: i32); }
-pub trait WindowSizeCallback { fn call(&self, window: &Window, width: i32, height: i32); }
-pub trait WindowCloseCallback { fn call(&self, window: &Window); }
-pub trait WindowRefreshCallback { fn call(&self, window: &Window); }
-pub trait WindowFocusCallback { fn call(&self, window: &Window, focused: bool); }
-pub trait WindowIconifyCallback { fn call(&self, window: &Window, iconified: bool); }
-pub trait FramebufferSizeCallback { fn call(&self, window: &Window, width: i32, height: i32); }
-pub trait MouseButtonCallback { fn call(&self, window: &Window, button: MouseButton, action: Action, modifiers: Modifiers); }
-pub trait CursorPosCallback { fn call(&self, window: &Window, xpos: f64, ypos: f64); }
-pub trait CursorEnterCallback { fn call(&self, window: &Window, entered: bool); }
-pub trait ScrollCallback { fn call(&self, window: &Window, xpos: f64, ypos: f64); }
-pub trait KeyCallback { fn call(&self, window: &Window, key: Key, scancode: c_int, action: Action, modifiers: Modifiers); }
-pub trait CharCallback { fn call(&self, window: &Window, character: char); }
+pub type Scancode = c_int;
 
-/// Holds the callbacks associated with a window
-struct WindowCallbacks {
-    pos_callback:                Option<~WindowPosCallback>,
-    size_callback:               Option<~WindowSizeCallback>,
-    close_callback:              Option<~WindowCloseCallback>,
-    refresh_callback:            Option<~WindowRefreshCallback>,
-    focus_callback:              Option<~WindowFocusCallback>,
-    iconify_callback:            Option<~WindowIconifyCallback>,
-    framebuffer_size_callback:   Option<~FramebufferSizeCallback>,
-    mouse_button_callback:       Option<~MouseButtonCallback>,
-    cursor_pos_callback:         Option<~CursorPosCallback>,
-    cursor_enter_callback:       Option<~CursorEnterCallback>,
-    scroll_callback:             Option<~ScrollCallback>,
-    key_callback:                Option<~KeyCallback>,
-    char_callback:               Option<~CharCallback>,
+pub enum WindowEvent {
+    PosEvent(i32, i32),
+    SizeEvent(i32, i32),
+    CloseEvent,
+    RefreshEvent,
+    FocusEvent(bool),
+    IconifyEvent(bool),
+    FramebufferSizeEvent(i32, i32),
+    MouseButtonEvent(MouseButton, Action, Modifiers),
+    CursorPosEvent(f64, f64),
+    CursorEnterEvent(bool),
+    ScrollEvent(f64, f64),
+    KeyEvent(Key, Scancode, Action, Modifiers),
+    CharEvent(char),
 }
 
-impl WindowCallbacks {
-    /// Initialize the struct with all callbacks set to `None`.
-    fn new() -> WindowCallbacks {
-        WindowCallbacks {
-            pos_callback:                None,
-            size_callback:               None,
-            close_callback:              None,
-            refresh_callback:            None,
-            focus_callback:              None,
-            iconify_callback:            None,
-            framebuffer_size_callback:   None,
-            mouse_button_callback:       None,
-            cursor_pos_callback:         None,
-            cursor_enter_callback:       None,
-            scroll_callback:             None,
-            key_callback:                None,
-            char_callback:               None,
+pub struct WindowEvents<'a> {
+    priv event_port: &'a Port<(f64, WindowEvent)>,
+}
+
+impl<'a> Iterator<(f64, WindowEvent)> for WindowEvents<'a> {
+    fn next(&mut self) -> Option<(f64, WindowEvent)> {
+        self.event_port.recv_opt()
+    }
+}
+
+pub struct FlushedWindowEvents<'a> {
+    priv event_port: &'a Port<(f64, WindowEvent)>,
+}
+
+impl<'a> Iterator<(f64, WindowEvent)> for FlushedWindowEvents<'a> {
+    fn next(&mut self) -> Option<(f64, WindowEvent)> {
+        match self.event_port.try_recv() {
+            Data(event) => Some(event),
+            _ => None,
         }
     }
 }
 
+/// A struct that wraps a `*GLFWwindow` handle.
+pub struct Window {
+    ptr: *ffi::GLFWwindow,
+    event_port: Port<(f64, WindowEvent)>,
+    is_shared: bool,
+}
+
 macro_rules! set_window_callback(
-    (
-        setter:   $ll_fn:ident,
-        cb_trait: $cb_trait:ident,
-        callback: $ext_callback:ident,
-        field:    $data_field:ident
-    ) => ({
-        unsafe {
-            self.get_callbacks().$data_field = Some(callback as ~$cb_trait);
-            ffi::$ll_fn(self.ptr, Some(callbacks::$ext_callback));
+    ($should_poll:expr, $ll_fn:ident, $callback:ident) => ({
+        if $should_poll {
+            unsafe { ffi::$ll_fn(self.ptr, Some(callbacks::$callback)); }
+        } else {
+            unsafe { ffi::$ll_fn(self.ptr, None); }
         }
     })
 )
@@ -810,34 +797,29 @@ impl Window {
                 )
             })
         };
-
         if ptr.is_null() {
             None
         } else {
-            unsafe {
-                ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~WindowCallbacks::new()));
-            }
-            let window = Window {
+            let (port, chan) = Chan::new();
+            unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~chan)); }
+            Some(Window {
                 ptr: ptr,
+                event_port: port,
                 is_shared: share.is_none(),
-            };
-            Some(window)
-        }
-    }
-
-    unsafe fn get_callbacks(&self) -> &mut WindowCallbacks {
-        cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr))
-    }
-
-    unsafe fn free_callbacks(&self) {
-        if !self.ptr.is_null() {
-            let _: ~WindowCallbacks =
-                cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+            })
         }
     }
 
     pub fn close(self) {
         // Calling this method forces the destructor to be called, closing the window
+    }
+
+    pub fn events<'a>(&'a self) -> WindowEvents<'a> {
+        WindowEvents { event_port: &'a self.event_port }
+    }
+
+    pub fn flush_events<'a>(&'a self) -> FlushedWindowEvents<'a> {
+        FlushedWindowEvents { event_port: &'a self.event_port }
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
@@ -997,59 +979,54 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
-    pub fn set_pos_callback<Cb: WindowPosCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetWindowPosCallback,
-                             cb_trait: WindowPosCallback,
-                             callback: window_pos_callback,
-                             field:    pos_callback);
+    pub fn set_pos_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetWindowPosCallback, window_pos_callback);
+    }
+
+    pub fn set_all_polling(&self, should_poll: bool) {
+        self.set_pos_polling(should_poll);
+        self.set_size_polling(should_poll);
+        self.set_close_polling(should_poll);
+        self.set_refresh_polling(should_poll);
+        self.set_focus_polling(should_poll);
+        self.set_iconify_polling(should_poll);
+        self.set_framebuffer_size_polling(should_poll);
+        self.set_key_polling(should_poll);
+        self.set_char_polling(should_poll);
+        self.set_mouse_button_polling(should_poll);
+        self.set_cursor_pos_polling(should_poll);
+        self.set_cursor_enter_polling(should_poll);
+        self.set_scroll_polling(should_poll);
     }
 
     /// Wrapper for `glfwSetWindowSizeCallback`.
-    pub fn set_size_callback<Cb: WindowSizeCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetWindowSizeCallback,
-                             cb_trait: WindowSizeCallback,
-                             callback: window_size_callback,
-                             field:    size_callback);
+    pub fn set_size_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetWindowSizeCallback, window_size_callback);
     }
 
     /// Wrapper for `glfwSetWindowCloseCallback`.
-    pub fn set_close_callback<Cb: WindowCloseCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetWindowCloseCallback,
-                             cb_trait: WindowCloseCallback,
-                             callback: window_close_callback,
-                             field:    close_callback);
+    pub fn set_close_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetWindowCloseCallback, window_close_callback);
     }
 
     /// Wrapper for `glfwSetWindowRefreshCallback`.
-    pub fn set_refresh_callback<Cb: WindowRefreshCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetWindowRefreshCallback,
-                             cb_trait: WindowRefreshCallback,
-                             callback: window_refresh_callback,
-                             field:    refresh_callback);
+    pub fn set_refresh_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetWindowRefreshCallback, window_refresh_callback);
     }
 
     /// Wrapper for `glfwSetWindowFocusCallback`.
-    pub fn set_focus_callback<Cb: WindowFocusCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetWindowFocusCallback,
-                             cb_trait: WindowFocusCallback,
-                             callback: window_focus_callback,
-                             field:    focus_callback);
+    pub fn set_focus_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetWindowFocusCallback, window_focus_callback);
     }
 
     /// Wrapper for `glfwSetWindowIconifyCallback`.
-    pub fn set_iconify_callback<Cb: WindowIconifyCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetWindowIconifyCallback,
-                             cb_trait: WindowIconifyCallback,
-                             callback: window_iconify_callback,
-                             field:    iconify_callback);
+    pub fn set_iconify_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetWindowIconifyCallback, window_iconify_callback);
     }
 
     /// Wrapper for `glfwSetFramebufferSizeCallback`.
-    pub fn set_framebuffer_size_callback<Cb: FramebufferSizeCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetFramebufferSizeCallback,
-                             cb_trait: FramebufferSizeCallback,
-                             callback: framebuffer_size_callback,
-                             field:    framebuffer_size_callback);
+    pub fn set_framebuffer_size_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetFramebufferSizeCallback, framebuffer_size_callback);
     }
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
@@ -1108,51 +1085,33 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetKeyCallback`.
-    pub fn set_key_callback<Cb: KeyCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetKeyCallback,
-                             cb_trait: KeyCallback,
-                             callback: key_callback,
-                             field:    key_callback);
+    pub fn set_key_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetKeyCallback, key_callback);
     }
 
     /// Wrapper for `glfwSetCharCallback`.
-    pub fn set_char_callback<Cb: CharCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetCharCallback,
-                             cb_trait: CharCallback,
-                             callback: char_callback,
-                             field:    char_callback);
+    pub fn set_char_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetCharCallback, char_callback);
     }
 
     /// Wrapper for `glfwSetMouseButtonCallback`.
-    pub fn set_mouse_button_callback<Cb: MouseButtonCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetMouseButtonCallback,
-                             cb_trait: MouseButtonCallback,
-                             callback: mouse_button_callback,
-                             field:    mouse_button_callback);
+    pub fn set_mouse_button_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetMouseButtonCallback, mouse_button_callback);
     }
 
     /// Wrapper for `glfwSetCursorPosCallback`.
-    pub fn set_cursor_pos_callback<Cb: CursorPosCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetCursorPosCallback,
-                             cb_trait: CursorPosCallback,
-                             callback: cursor_pos_callback,
-                             field:    cursor_pos_callback);
+    pub fn set_cursor_pos_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetCursorPosCallback, cursor_pos_callback);
     }
 
     /// Wrapper for `glfwSetCursorEnterCallback`.
-    pub fn set_cursor_enter_callback<Cb: CursorEnterCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetCursorEnterCallback,
-                             cb_trait: CursorEnterCallback,
-                             callback: cursor_enter_callback,
-                             field:    cursor_enter_callback);
+    pub fn set_cursor_enter_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetCursorEnterCallback, cursor_enter_callback);
     }
 
     /// Wrapper for `glfwSetScrollCallback`.
-    pub fn set_scroll_callback<Cb: ScrollCallback + Send>(&self, callback: ~Cb) {
-        set_window_callback!(setter:   glfwSetScrollCallback,
-                             cb_trait: ScrollCallback,
-                             callback: scroll_callback,
-                             field:    scroll_callback);
+    pub fn set_scroll_polling(&self, should_poll: bool) {
+        set_window_callback!(should_poll, glfwSetScrollCallback, scroll_callback);
     }
 
     /// Wrapper for `glfwGetClipboardString`.
@@ -1244,8 +1203,11 @@ impl Drop for Window {
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
-
-        unsafe { self.free_callbacks() }
+        if !self.ptr.is_null() {
+            unsafe {
+                let _: ~Chan<(f64, WindowEvent)> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+            }
+        }
     }
 }
 

@@ -36,5 +36,6 @@ script:
   - sudo make install
   - sudo make uninstall
   - make clean
+  - make doc
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
