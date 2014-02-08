@@ -59,7 +59,8 @@ install: lib
 
 uninstall:
 	@-rm $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.rlib ||:
-	@-rm $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.dylib ||:
+	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.so ||:
+	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.dylib ||:
 
 clean:
 	rm -rf $(LIB_DIR)
