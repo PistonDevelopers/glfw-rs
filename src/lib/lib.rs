@@ -28,6 +28,7 @@ extern mod semver;
 
 use std::cast;
 use std::comm::{Port, Chan, Data};
+use std::fmt;
 use std::libc::*;
 use std::ptr;
 use std::str;
@@ -38,7 +39,7 @@ pub mod ffi;
 mod callbacks;
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum Action {
     Release                      = ffi::RELEASE,
     Press                        = ffi::PRESS,
@@ -46,7 +47,7 @@ pub enum Action {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum Key {
     KeySpace                    = ffi::KEY_SPACE,
     KeyApostrophe               = ffi::KEY_APOSTROPHE,
@@ -172,7 +173,7 @@ pub enum Key {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum MouseButton {
     MouseButtonLeft             = ffi::MOUSE_BUTTON_LEFT,
     MouseButtonRight            = ffi::MOUSE_BUTTON_RIGHT,
@@ -192,7 +193,7 @@ pub enum MouseButton {
 // pub static MouseButtonMiddle         : MouseButton = MouseButton3;
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
@@ -207,14 +208,14 @@ pub enum Error {
 
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum ClientApi {
     OpenGlApi                   = ffi::OPENGL_API,
     OpenGlEsApi                 = ffi::OPENGL_ES_API,
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum ContextRobustness {
     NoRobustness                = ffi::NO_ROBUSTNESS,
     NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
@@ -222,7 +223,7 @@ pub enum ContextRobustness {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum OpenGlProfile {
     OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
     OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
@@ -230,7 +231,7 @@ pub enum OpenGlProfile {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum CursorMode {
     CursorNormal                = ffi::CURSOR_NORMAL,
     CursorHidden                = ffi::CURSOR_HIDDEN,
@@ -328,7 +329,7 @@ pub struct LogErrorHandler;
 
 impl ErrorCallback for LogErrorHandler {
     fn call(&self, error: Error, desc: ~str) {
-        error!("GLFW Error: {} ({})", error.to_str(), desc);
+        error!("GLFW Error: {} ({})", error, desc);
     }
 }
 
@@ -460,7 +461,7 @@ impl VidMode {
     }
 }
 
-impl ToStr for VidMode {
+impl fmt::Show for VidMode {
     /// Returns a string representation of the video mode.
     ///
     /// # Returns
@@ -470,12 +471,12 @@ impl ToStr for VidMode {
     /// ~~~
     /// ~"[width] x [height], [total_bits] ([red_bits] [green_bits] [blue_bits]) [refresh_rate] Hz"
     /// ~~~
-    fn to_str(&self) -> ~str {
-        format!("{} x {}, {} ({} {} {}) {} Hz",
-                self.width, self.height,
-                self.red_bits + self.green_bits + self.blue_bits,
-                self.red_bits, self.green_bits, self.blue_bits,
-                self.refresh_rate)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f.buf, "{} x {}, {} = {} + {} + {}, {} Hz",
+            self.width, self.height,
+            self.red_bits + self.green_bits + self.blue_bits,
+            self.red_bits, self.green_bits, self.blue_bits,
+            self.refresh_rate)
     }
 }
 
@@ -662,7 +663,7 @@ pub struct Modifiers {
 
 /// Key modifier tokens
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum Modifier {
     Shift       = ffi::MOD_SHIFT,
     Control     = ffi::MOD_CONTROL,
@@ -687,14 +688,13 @@ impl Modifiers {
     }
 }
 
-impl ToStr for Modifiers {
-    fn to_str(&self) -> ~str {
-        let mut ss = ~[];
-        if self.contains(Shift)   { ss.push(Shift.to_str())   }
-        if self.contains(Control) { ss.push(Control.to_str()) }
-        if self.contains(Alt)     { ss.push(Alt.to_str())     }
-        if self.contains(Super)   { ss.push(Super.to_str())   }
-        ss.connect(", ")
+impl fmt::Show for Modifiers {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (i, x) in [Shift, Control, Alt, Super].iter().filter(|x| self.contains(**x)).enumerate() {
+            if i != 0 { if_ok!(write!(f.buf, ", ")) };
+            if_ok!(write!(f.buf, "{}", *x));
+        }
+        Ok(())
     }
 }
 
@@ -1207,7 +1207,7 @@ pub fn wait_events() {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, ToStr)]
+#[deriving(Clone, Eq, IterBytes, Show)]
 pub enum Joystick {
     Joystick1       = ffi::JOYSTICK_1,
     Joystick2       = ffi::JOYSTICK_2,
