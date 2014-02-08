@@ -24,12 +24,15 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
+extern mod semver;
+
 use std::cast;
 use std::comm::{Port, Chan, Data};
 use std::libc::*;
 use std::ptr;
 use std::str;
 use std::vec;
+use semver::Version;
 
 pub mod ffi;
 mod callbacks;
@@ -289,39 +292,19 @@ pub fn start(f: proc()) {
     }
 }
 
-/// Holds the version information of the underlying GLFW library
-pub struct Version {
-    major: u32,
-    minor: u32,
-    rev:   u32,
-}
-
-impl ToStr for Version {
-    /// Returns a string representation of the version struct.
-    ///
-    /// # Returns
-    ///
-    /// A string in the form:
-    ///
-    /// ~~~
-    /// ~"[major].[minor].[rev]"
-    /// ~~~
-    fn to_str(&self) -> ~str {
-        format!("{}.{}.{}", self.major, self.minor, self.rev)
-    }
-}
-
 /// Wrapper for `glfwGetVersion`.
 pub fn get_version() -> Version {
     unsafe {
         let mut major = 0;
         let mut minor = 0;
-        let mut rev = 0;
-        ffi::glfwGetVersion(&mut major, &mut minor, &mut rev);
+        let mut patch = 0;
+        ffi::glfwGetVersion(&mut major, &mut minor, &mut patch);
         Version {
-            major: major as u32,
-            minor: minor as u32,
-            rev:   rev   as u32,
+            major: major as uint,
+            minor: minor as uint,
+            patch: patch as uint,
+            pre:   ~[],
+            build: ~[],
         }
     }
 }
@@ -936,9 +919,11 @@ impl Window {
     pub fn get_context_version(&self) -> Version {
         unsafe {
             Version {
-                major:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as u32,
-                minor:  ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as u32,
-                rev:    ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as u32,
+                major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
+                minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
+                patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
+                pre:   ~[],
+                build: ~[],
             }
         }
     }
