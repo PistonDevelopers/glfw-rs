@@ -16,8 +16,6 @@
 extern mod native;
 extern mod glfw = "glfw-rs";
 
-use std::unstable::finally::Finally;
-
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     // GLFW must run on the main platform thread
@@ -30,21 +28,18 @@ fn main() {
     if glfw::init().is_err() {
         fail!(~"Failed to initialize GLFW");
     } else {
-        (||{
-            let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
-                .expect("Failed to create GLFW window.");
+        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
+            .expect("Failed to create GLFW window.");
 
-            window.set_key_polling(true);
-            window.make_context_current();
+        window.set_key_polling(true);
+        window.make_context_current();
 
-            while !window.should_close() {
-                glfw::poll_events();
-                for (_, event) in window.flush_events() {
-                    handle_window_event(&window, event);
-                }
+        while !window.should_close() {
+            glfw::poll_events();
+            for (_, event) in window.flush_events() {
+                handle_window_event(&window, event);
             }
-        // Use `finally` to ensure that `glfw::terminate` is called even if a failure occurs
-        }).finally(glfw::terminate);
+        }
     }
 }
 
