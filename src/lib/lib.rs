@@ -25,6 +25,7 @@
 // TODO: Document differences between GLFW and glfw-rs
 
 extern mod semver;
+extern mod sync;
 
 use std::cast;
 use std::comm::{Port, Chan, Data};
@@ -258,38 +259,31 @@ pub type GLProc = ffi::GLFWglproc;
 
 /// Initialise glfw. This must be called on the main platform thread.
 ///
-/// Returns `true` if the initialisation was successful, otherwise `false`.
-///
 /// Wrapper for `glfwInit`.
 pub fn init() -> Result<(),()> {
-    match unsafe { ffi::glfwInit() } {
-        ffi::TRUE => Ok(()),
-        _         => Err(()),
+    use sync::one::{Once, ONCE_INIT};
+    static mut INIT: Once = ONCE_INIT;
+    let mut is_ok = false;
+    unsafe {
+        INIT.doit(|| {
+            is_ok = ffi::glfwInit() == ffi::TRUE;
+            std::rt::at_exit(proc() ffi::glfwTerminate());
+        })
+    }
+    match is_ok {
+        true => Ok(()),
+        false => Err(()),
     }
 }
 
-/// Terminate glfw. This must be called on the main platform thread.
-///
-/// Wrapper for `glfwTerminate`.
-pub fn terminate() {
-    unsafe { ffi::glfwTerminate() }
-}
-
-/// Initialises GLFW, automatically calling `glfw::terminate` on exit or
-/// failure. Fails if the initialisation was unsuccessful.
+/// Initialises GLFW, failing if the initialisation was unsuccessful.
 ///
 /// # Parameters
 ///
 /// - `f`: to be called after the GLFW is initialised.
 pub fn start(f: proc()) {
-    // use std::unstable::finally::Finally;
-    if init().is_ok() {
-        // f.finally(terminate);
-        f();
-        terminate();
-    } else {
-        fail!(~"Failed to initialize GLFW");
-    }
+    if init().is_ok() { f() }
+    else { fail!("Failed to initialize GLFW") }
 }
 
 /// Wrapper for `glfwGetVersion`.
