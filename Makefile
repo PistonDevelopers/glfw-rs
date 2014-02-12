@@ -37,7 +37,7 @@ all: lib examples doc
 
 lib:
 	mkdir -p $(LIB_DIR)
-	$(RUSTC) --out-dir=$(LIB_DIR) --link-args="$(LINK_ARGS)" -O $(LIB_FILE)
+	$(RUSTC) --out-dir=$(LIB_DIR) -C link-args="$(LINK_ARGS)" -O $(LIB_FILE)
 
 doc:
 	mkdir -p $(DOC_DIR)
@@ -47,7 +47,7 @@ examples-dir:
 	mkdir -p $(EXAMPLES_DIR)
 
 $(EXAMPLE_FILES): lib examples-dir
-	$(RUSTC) -L $(LIB_DIR) --link-args="$(LINK_ARGS)" --out-dir=$(EXAMPLES_DIR) $@
+	$(RUSTC) -L $(LIB_DIR) -C link-args="$(LINK_ARGS)" --out-dir=$(EXAMPLES_DIR) $@
 
 examples: $(EXAMPLE_FILES)
 
@@ -58,7 +58,7 @@ install: lib
 	)
 
 uninstall:
-	@-rm $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.rlib ||:
+	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.rlib ||:
 	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.so ||:
 	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.dylib ||:
 
