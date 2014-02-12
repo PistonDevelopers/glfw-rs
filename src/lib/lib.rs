@@ -264,17 +264,16 @@ pub type GLProc = ffi::GLFWglproc;
 pub fn init() -> Result<(),()> {
     use sync::one::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
-    let mut is_ok = false;
+    let mut is_ok = Err(());
     unsafe {
         INIT.doit(|| {
-            is_ok = ffi::glfwInit() == ffi::TRUE;
-            std::rt::at_exit(proc() ffi::glfwTerminate());
+            if ffi::glfwInit() == ffi::TRUE {
+                is_ok = Ok(());
+                std::rt::at_exit(proc() ffi::glfwTerminate());
+            }
         })
     }
-    match is_ok {
-        true => Ok(()),
-        false => Err(()),
-    }
+    is_ok
 }
 
 /// Initialises GLFW, failing if the initialisation was unsuccessful.
