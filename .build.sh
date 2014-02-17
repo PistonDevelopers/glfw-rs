@@ -1,5 +1,3 @@
 #!/bin/sh
 
-make lib 1>&2 # cargo-lite wants stdout
-echo "cargo-lite: artifacts"
-find lib -type f
+rustc --out-dir=$CARGO_OUT_DIR $CARGO_RUSTFLAGS -C link-args="$(sh etc/glfw-link-args.sh)" src/lib/lib.rs
