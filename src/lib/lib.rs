@@ -24,8 +24,8 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-extern mod semver;
-extern mod sync;
+extern crate semver;
+extern crate sync;
 
 use std::cast;
 use std::comm::{Port, Chan, Data};

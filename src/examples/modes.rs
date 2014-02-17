@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern mod native;
-extern mod glfw = "glfw-rs";
+extern crate native;
+extern crate glfw = "glfw-rs";
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
