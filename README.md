@@ -63,6 +63,16 @@ impl glfw::ErrorCallback for ErrorContext {
 }
 ~~~
 
+## Prerequisites
+
+To build glfw-rs you will need to [build glfw](http://www.glfw.org/docs/latest/compile.html) using the [BUILD_SHARED_LIBS](http://www.glfw.org/docs/latest/compile.html#compile_options) option.
+
+Once you have built glfw-rs you might encouter the following error when running the examples:
+'error while loading shared libraries: libglfw.so.3: ... '
+
+Read the last part of [this article](http://www.brandonfoltz.com/2012/12/compile-glfw-on-ubuntu-and-fix-libglfw-so-cannot-open-error/) for information on how to fix this.
+
+
 ## Compilation
 
 You can use [cargo-lite](https://github.com/cmr/cargo-lite):
