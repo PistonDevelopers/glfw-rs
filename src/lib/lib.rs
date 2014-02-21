@@ -684,8 +684,8 @@ impl Modifiers {
 impl fmt::Show for Modifiers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (i, x) in [Shift, Control, Alt, Super].iter().filter(|x| self.contains(**x)).enumerate() {
-            if i != 0 { if_ok!(write!(f.buf, ", ")) };
-            if_ok!(write!(f.buf, "{}", *x));
+            if i != 0 { try!(write!(f.buf, ", ")) };
+            try!(write!(f.buf, "{}", *x));
         }
         Ok(())
     }
