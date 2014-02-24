@@ -40,7 +40,7 @@ pub mod ffi;
 mod callbacks;
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum Action {
     Release                      = ffi::RELEASE,
     Press                        = ffi::PRESS,
@@ -48,7 +48,7 @@ pub enum Action {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum Key {
     KeySpace                    = ffi::KEY_SPACE,
     KeyApostrophe               = ffi::KEY_APOSTROPHE,
@@ -174,7 +174,7 @@ pub enum Key {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum MouseButton {
     MouseButtonLeft             = ffi::MOUSE_BUTTON_LEFT,
     MouseButtonRight            = ffi::MOUSE_BUTTON_RIGHT,
@@ -194,7 +194,7 @@ pub enum MouseButton {
 // pub static MouseButtonMiddle         : MouseButton = MouseButton3;
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
@@ -209,14 +209,14 @@ pub enum Error {
 
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum ClientApi {
     OpenGlApi                   = ffi::OPENGL_API,
     OpenGlEsApi                 = ffi::OPENGL_ES_API,
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum ContextRobustness {
     NoRobustness                = ffi::NO_ROBUSTNESS,
     NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
@@ -224,7 +224,7 @@ pub enum ContextRobustness {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum OpenGlProfile {
     OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
     OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
@@ -232,7 +232,7 @@ pub enum OpenGlProfile {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum CursorMode {
     CursorNormal                = ffi::CURSOR_NORMAL,
     CursorHidden                = ffi::CURSOR_HIDDEN,
@@ -656,7 +656,7 @@ pub struct Modifiers {
 
 /// Key modifier tokens
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum Modifier {
     Shift       = ffi::MOD_SHIFT,
     Control     = ffi::MOD_CONTROL,
@@ -1200,7 +1200,7 @@ pub fn wait_events() {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, IterBytes, Show)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum Joystick {
     Joystick1       = ffi::JOYSTICK_1,
     Joystick2       = ffi::JOYSTICK_2,
