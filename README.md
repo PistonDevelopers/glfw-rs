@@ -130,6 +130,7 @@ or the [OpenGL-ES bindings](https://github.com/mozilla-servo/rust-opengles).
 - [Jeaye/q3](https://github.com/Jeaye/q3)
 - [cyndis/rsmc](https://github.com/cyndis/rsmc/)
 - [mozilla/servo](https://github.com/mozilla/servo)
+- [ozkriff/marauder](https://github.com/ozkriff/marauder/)
 
 ## Support
 
