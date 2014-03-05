@@ -38,6 +38,7 @@ use semver::Version;
 
 pub mod ffi;
 mod callbacks;
+mod link;
 
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
