@@ -16,8 +16,6 @@
 RUSTC               = rustc
 RUSTDOC             = rustdoc
 
-LINK_ARGS           = $(shell sh etc/glfw-link-args.sh)
-
 SRC_DIR             = src
 LIB_FILE            = $(SRC_DIR)/lib/lib.rs
 EXAMPLE_FILES       = $(SRC_DIR)/examples/*.rs
@@ -33,13 +31,17 @@ INSTALL_PREFIX      = /usr/local
 BIN_INSTALL_DIR     = $(INSTALL_PREFIX)/bin
 LIB_INSTALL_DIR     = $(INSTALL_PREFIX)/lib
 
-all: lib examples doc
+all: link lib examples doc
 
-lib:
+link:
+	sh etc/glfw-link-args.sh > $(SRC_DIR)/lib/link.rs
+	cat $(SRC_DIR)/lib/link.rs
+
+lib: link
 	mkdir -p $(LIB_DIR)
-	$(RUSTC) --out-dir=$(LIB_DIR) -C link-args="$(LINK_ARGS)" -O $(LIB_FILE)
+	$(RUSTC) --out-dir=$(LIB_DIR) -O $(LIB_FILE)
 
-doc:
+doc: link
 	mkdir -p $(DOC_DIR)
 	$(RUSTDOC) -o $(DOC_DIR) $(LIB_FILE)
 
@@ -47,7 +49,7 @@ examples-dir:
 	mkdir -p $(EXAMPLES_DIR)
 
 $(EXAMPLE_FILES): lib examples-dir
-	$(RUSTC) -L $(LIB_DIR) -C link-args="$(LINK_ARGS)" --out-dir=$(EXAMPLES_DIR) $@
+	$(RUSTC) -L $(LIB_DIR) --out-dir=$(EXAMPLES_DIR) $@
 
 examples: $(EXAMPLE_FILES)
 
@@ -66,9 +68,11 @@ clean:
 	rm -rf $(LIB_DIR)
 	rm -rf $(EXAMPLES_DIR)
 	rm -rf $(DOC_DIR)
+	rm $(SRC_DIR)/lib/link.rs
 
 .PHONY: \
 	all \
+	link \
 	lib \
 	doc \
 	examples \

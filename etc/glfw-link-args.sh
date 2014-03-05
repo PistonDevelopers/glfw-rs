@@ -15,15 +15,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+emit() {
+    echo "#[link(name=\"$1\")] extern { }"
+}
+
 UNAME=$(uname)
 case $UNAME in
     "Linux" | "FreeBSD" | "OpenBSD" | "Darwin")
-        pkg-config --static --libs-only-l --libs-only-other glfw3
+        for lib in $(pkg-config --static --libs-only-l --libs-only-other glfw3); do
+            emit $(echo $lib | cut -c3-)
+        done
     ;;
     *)
         case $(uname -o) in
             "Cygwin" | "Msys")
-                echo -lglfw3 -lopengl32 -lgdi32
+                emit glfw3
+                emit opengl32
+                emit gdi32
             ;;
             *)
                 echo "Unsuppported platform: $UNAME";
