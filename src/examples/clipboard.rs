@@ -14,7 +14,7 @@
 // limitations under the License.
 
 extern crate native;
-extern crate glfw = "glfw-rs";
+extern crate glfw;
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
