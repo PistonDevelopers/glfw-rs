@@ -29,6 +29,7 @@ install:
   - make
   - sudo make install
   - cd ..
+  - sudo pip install cargo-lite
 script:
 # build examples and docs
   - make
@@ -37,5 +38,6 @@ script:
   - sudo make uninstall
   - make clean
   - make doc
+  - cargo-lite install
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
