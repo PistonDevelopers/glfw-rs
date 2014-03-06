@@ -15,6 +15,8 @@
 
 RUSTC               = rustc
 RUSTDOC             = rustdoc
+ 
+LINK_ARGS           = $(shell sh etc/glfw-link-args.sh)
 
 SRC_DIR             = src
 LIB_FILE            = $(SRC_DIR)/lib/lib.rs
@@ -34,7 +36,7 @@ LIB_INSTALL_DIR     = $(INSTALL_PREFIX)/lib
 all: link lib examples doc
 
 link:
-	sh etc/glfw-link-args.sh > $(SRC_DIR)/lib/link.rs
+	sh etc/link-rs.sh "$(LINK_ARGS)" > $(SRC_DIR)/lib/link.rs
 	cat $(SRC_DIR)/lib/link.rs
 
 lib: link

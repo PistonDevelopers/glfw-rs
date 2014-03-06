@@ -15,20 +15,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-UNAME=$(uname)
-case $UNAME in
-    "Linux" | "FreeBSD" | "OpenBSD" | "Darwin")
-        echo "$(pkg-config --static --libs-only-l --libs-only-other glfw3)"
-    ;;
-    *)
-        case $(uname -o) in
-            "Cygwin" | "Msys")
-                echo "-lglfw3 -lopengl32 -lgdi32"
-            ;;
-            *)
-                echo "Unsuppported platform: $UNAME";
-                exit 1
-            ;;
-        esac
-    ;;
-esac
+ARGS=$1
+FRAMEWORK=false
+
+for arg in $ARGS; do
+    if [ "$FRAMEWORK" = true ]; then
+        echo "#[link(name = \"$arg\", kind = \"framework\")]"
+        FRAMEWORK=false
+    elif [ "$arg" = "-framework" ]; then
+        FRAMEWORK=true
+    else
+        echo "#[link(name = \"$(echo $arg | cut -c3-)\")]"
+    fi
+done
+
+echo "extern {}"
