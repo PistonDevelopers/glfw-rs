@@ -41,7 +41,7 @@ link:
 
 lib: link
 	mkdir -p $(LIB_DIR)
-	$(RUSTC) --out-dir=$(LIB_DIR) -O $(LIB_FILE)
+	$(RUSTC) --out-dir=$(LIB_DIR) -C link-args="$(LINK_ARGS)" -O $(LIB_FILE)
 
 doc: link
 	mkdir -p $(DOC_DIR)
