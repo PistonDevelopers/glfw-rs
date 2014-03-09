@@ -24,7 +24,7 @@ for arg in $ARGS; do
         FRAMEWORK=false
     elif [ "$arg" = "-framework" ]; then
         FRAMEWORK=true
-    else
+    elif [ `echo $arg | cut -c-2` = -l ]; then
         echo "#[link(name = \"$(echo $arg | cut -c3-)\")]"
     fi
 done
