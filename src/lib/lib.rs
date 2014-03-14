@@ -28,7 +28,7 @@ extern crate semver;
 extern crate sync;
 
 use std::cast;
-use std::comm::{Port, Chan, Data};
+use std::comm::{channel, Receiver, Sender, Data};
 use std::fmt;
 use std::libc::*;
 use std::ptr;
@@ -711,22 +711,22 @@ pub enum WindowEvent {
 }
 
 pub struct WindowEvents<'a> {
-    priv event_port: &'a Port<(f64, WindowEvent)>,
+    priv event_receiver: &'a Receiver<(f64, WindowEvent)>,
 }
 
 impl<'a> Iterator<(f64, WindowEvent)> for WindowEvents<'a> {
     fn next(&mut self) -> Option<(f64, WindowEvent)> {
-        self.event_port.recv_opt()
+        self.event_receiver.recv_opt()
     }
 }
 
 pub struct FlushedWindowEvents<'a> {
-    priv event_port: &'a Port<(f64, WindowEvent)>,
+    priv event_receiver: &'a Receiver<(f64, WindowEvent)>,
 }
 
 impl<'a> Iterator<(f64, WindowEvent)> for FlushedWindowEvents<'a> {
     fn next(&mut self) -> Option<(f64, WindowEvent)> {
-        match self.event_port.try_recv() {
+        match self.event_receiver.try_recv() {
             Data(event) => Some(event),
             _ => None,
         }
@@ -736,7 +736,7 @@ impl<'a> Iterator<(f64, WindowEvent)> for FlushedWindowEvents<'a> {
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
     ptr: *ffi::GLFWwindow,
-    event_port: Port<(f64, WindowEvent)>,
+    event_receiver: Receiver<(f64, WindowEvent)>,
     is_shared: bool,
 }
 
@@ -777,11 +777,11 @@ impl Window {
         if ptr.is_null() {
             None
         } else {
-            let (port, chan) = Chan::new();
-            unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~chan)); }
+            let (sender, receiver) = channel();
+            unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~sender)); }
             Some(Window {
                 ptr: ptr,
-                event_port: port,
+                event_receiver: receiver,
                 is_shared: share.is_none(),
             })
         }
@@ -792,11 +792,11 @@ impl Window {
     }
 
     pub fn events<'a>(&'a self) -> WindowEvents<'a> {
-        WindowEvents { event_port: &'a self.event_port }
+        WindowEvents { event_receiver: &'a self.event_receiver }
     }
 
     pub fn flush_events<'a>(&'a self) -> FlushedWindowEvents<'a> {
-        FlushedWindowEvents { event_port: &'a self.event_port }
+        FlushedWindowEvents { event_receiver: &'a self.event_receiver }
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
@@ -1184,7 +1184,7 @@ impl Drop for Window {
         }
         if !self.ptr.is_null() {
             unsafe {
-                let _: ~Chan<(f64, WindowEvent)> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+                let _: ~Sender<(f64, WindowEvent)> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
             }
         }
     }
