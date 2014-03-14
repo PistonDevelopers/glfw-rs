@@ -54,19 +54,19 @@ pub fn set_monitor_callback<Cb: MonitorCallback + Send>(callback: ~Cb, f: |ffi::
     f(monitor_callback);
 }
 
-unsafe fn get_chan<'a>(window: &'a *ffi::GLFWwindow) -> &'a Chan<(f64, WindowEvent)> {
+unsafe fn get_sender<'a>(window: &'a *ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {
     cast::transmute(ffi::glfwGetWindowUserPointer(*window))
 }
 
 macro_rules! window_callback(
     (fn $name:ident () => $event:ident) => (
          pub extern "C" fn $name(window: *ffi::GLFWwindow) {
-            unsafe { get_chan(&window).send((get_time(), $event)); }
+            unsafe { get_sender(&window).send((get_time(), $event)); }
          }
      );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
          pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            unsafe { get_chan(&window).send((get_time(), $event($($arg_conv),*))); }
+            unsafe { get_sender(&window).send((get_time(), $event($($arg_conv),*))); }
          }
      );
 )
