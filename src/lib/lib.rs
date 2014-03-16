@@ -34,6 +34,7 @@ use std::libc::*;
 use std::ptr;
 use std::str;
 use std::vec;
+use std::vec_ng::Vec;
 use semver::Version;
 
 pub mod ffi;
@@ -298,8 +299,8 @@ pub fn get_version() -> Version {
             major: major as uint,
             minor: minor as uint,
             patch: patch as uint,
-            pre:   ~[],
-            build: ~[],
+            pre:   Vec::new(),
+            build: Vec::new(),
         }
     }
 }
@@ -916,8 +917,8 @@ impl Window {
                 major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
                 minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
                 patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
-                pre:   ~[],
-                build: ~[],
+                pre:   Vec::new(),
+                build: Vec::new(),
             }
         }
     }
