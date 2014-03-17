@@ -16,14 +16,17 @@
 #[crate_type = "lib"];
 #[crate_type = "rlib"];
 #[crate_type = "dylib"];
-#[crate_id = "github.com/bjz/glfw-rs#glfw-rs:0.1"];
+#[crate_id = "github.com/bjz/glfw-rs#glfw:0.1"];
 #[comment = "Bindings and wrapper functions for glfw3."];
 
 #[feature(globs)];
 #[feature(macro_rules)];
+#[feature(phase)];
 
 // TODO: Document differences between GLFW and glfw-rs
 
+#[phase(syntax, link)]
+extern crate log;
 extern crate semver;
 extern crate sync;
 
