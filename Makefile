@@ -72,7 +72,7 @@ clean:
 	rm -rf $(LIB_DIR)
 	rm -rf $(EXAMPLES_DIR)
 	rm -rf $(DOC_DIR)
-	rm $(SRC_DIR)/lib/link.rs
+	rm -f $(SRC_DIR)/lib/link.rs
 
 .PHONY: \
 	all \
