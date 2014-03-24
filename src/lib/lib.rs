@@ -36,7 +36,6 @@ use std::fmt;
 use std::libc::*;
 use std::ptr;
 use std::str;
-use std::vec::Vec;
 use std::slice;
 use semver::Version;
 
