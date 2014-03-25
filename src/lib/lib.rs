@@ -212,30 +212,6 @@ pub enum Error {
     FormatUnavailable           = ffi::FORMAT_UNAVAILABLE,
 }
 
-
-#[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
-pub enum ClientApi {
-    OpenGlApi                   = ffi::OPENGL_API,
-    OpenGlEsApi                 = ffi::OPENGL_ES_API,
-}
-
-#[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
-pub enum ContextRobustness {
-    NoRobustness                = ffi::NO_ROBUSTNESS,
-    NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
-    LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET,
-}
-
-#[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
-pub enum OpenGlProfile {
-    OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
-    OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
-    OpenGlCompatProfile         = ffi::OPENGL_COMPAT_PROFILE,
-}
-
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
 pub enum CursorMode {
@@ -478,148 +454,172 @@ impl fmt::Show for VidMode {
     }
 }
 
-pub mod window_hint {
-    use std::libc::c_int;
-    use super::*;
+/// Window hints that can be set using the `window_hint` function.
+pub enum WindowHint {
+    /// Specifies the desired bit depth of the red component of the default framebuffer.
+    RedBits(u32),
+    /// Specifies the desired bit depth of the green component of the default framebuffer.
+    GreenBits(u32),
+    /// Specifies the desired bit depth of the blue component of the default framebuffer.
+    BlueBits(u32),
+    /// Specifies the desired bit depth of the alpha component of the default framebuffer.
+    AlphaBits(u32),
+    /// Specifies the desired bit depth of the depth component of the default framebuffer.
+    DepthBits(u32),
+    /// Specifies the desired bit depth of the stencil component of the default framebuffer.
+    StencilBits(u32),
+    /// Specifies the desired bit depth of the red component of the accumulation framebuffer.
+    AccumRedBits(u32),
+    /// Specifies the desired bit depth of the green component of the accumulation framebuffer.
+    AccumGreenBits(u32),
+    /// Specifies the desired bit depth of the blue component of the accumulation framebuffer.
+    AccumBlueBits(u32),
+    /// Specifies the desired bit depth of the alpha component of the accumulation framebuffer.
+    AccumAlphaBits(u32),
+    /// Specifies the desired number of auxiliary buffers.
+    AuxBuffers(u32),
+    /// Specifies whether to use stereoscopic rendering.
+    Stereo(bool),
+    /// Specifies the desired number of samples to use for multisampling. Zero
+    /// disables multisampling.
+    Samples(u32),
+    /// Specifies whether the framebuffer should be sRGB capable.
+    SRgbCapable(bool),
+    /// Specifies the desired refresh rate for full screen windows. If set to
+    /// zero, the highest available refresh rate will be used.
+    ///
+    /// This hint is ignored for windowed mode windows.
+    RefreshRate(u32),
+    /// Specifies which `ClientApi` to create the context for.
+    ClientApi(ClientApi),
+    /// Specifies the major client API version that the created context must be
+    /// compatible with.
+    ///
+    /// Window creation will fail if the resulting OpenGL version is less than
+    /// the one requested.
+    ContextVersionMajor(u32),
+    /// Specifies the minor client API version that the created context must be
+    /// compatible with.
+    ///
+    /// Window creation will fail if the resulting OpenGL version is less than
+    /// the one requested.
+    ContextVersionMinor(u32),
+    /// Specifies the client API version that the created context must be
+    /// compatible with. This is the same as successive calls to `window_hint`
+    /// function with the `ContextVersionMajor` and `ContextVersionMinor` hints.
+    ///
+    /// Window creation will fail if the resulting OpenGL version is less than
+    /// the one requested.
+    ///
+    /// If `ContextVersion(1, 0)` is requested, _most_ drivers will provide the
+    /// highest available context.
+    ContextVersion(u32, u32),
+    /// Specifies the `ContextRobustness` strategy to be used.
+    ContextRobustness(ContextRobustness),
+    /// Specifies whether the OpenGL context should be forward-compatible, i.e.
+    /// one where all functionality deprecated in the requested version of
+    /// OpenGL is removed. This may only be used if the requested OpenGL version
+    /// is 3.0 or above.
+    ///
+    /// If another client API is requested, this hint is ignored.
+    OpenglForwardCompat(bool),
+    /// Specifies whether to create a debug OpenGL context, which may have
+    /// additional error and performance issue reporting functionality.
+    ///
+    /// If another client API is requested, this hint is ignored.
+    OpenglDebugContext(bool),
+    /// Specifies which OpenGL profile to create the context for. If requesting
+    /// an OpenGL version below 3.2, `OpenGlAnyProfile` must be used.
+    ///
+    /// If another client API is requested, this hint is ignored.
+    OpenglProfile(OpenGlProfile),
+    /// Specifies whether the window will be resizable by the user. Even if this
+    /// is set to `false`, the window can still be resized using the
+    /// `Window::set_size` function.
+    ///
+    /// This hint is ignored for fullscreen windows.
+    Resizable(bool),
+    /// Specifies whether the window will be visible on creation.
+    ///
+    /// This hint is ignored for fullscreen windows.
+    Visible(bool),
+    /// Specifies whether the window will have platform-specific decorations
+    /// such as a border, a close widget, etc.
+    ///
+    /// This hint is ignored for full screen windows.
+    Decorated(bool),
+}
 
-    /// Wrapper for `glfwDefaultWindowHints`.
-    pub fn default() {
-        unsafe { ffi::glfwDefaultWindowHints(); }
+/// This is used to set the window hints for the next call to `Window::create`.
+/// The hints can be reset to their default values using the
+/// `default_window_hints` function.
+///
+/// This function must only be called from the main platform thread.
+///
+/// Wrapper for `glfwWindowHint`
+pub fn window_hint(hint: WindowHint) {
+    match hint {
+        RedBits(bits)                   => unsafe { ffi::glfwWindowHint(ffi::RED_BITS,              bits as c_int) },
+        GreenBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS,            bits as c_int) },
+        BlueBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS,             bits as c_int) },
+        AlphaBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS,            bits as c_int) },
+        DepthBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS,            bits as c_int) },
+        StencilBits(bits)               => unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS,          bits as c_int) },
+        AccumRedBits(bits)              => unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS,        bits as c_int) },
+        AccumGreenBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS,      bits as c_int) },
+        AccumBlueBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS,       bits as c_int) },
+        AccumAlphaBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS,      bits as c_int) },
+        AuxBuffers(num_buffers)         => unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS,           num_buffers as c_int) },
+        Stereo(is_stereo)               => unsafe { ffi::glfwWindowHint(ffi::STEREO,                is_stereo as c_int) },
+        Samples(num_samples)            => unsafe { ffi::glfwWindowHint(ffi::SAMPLES,               num_samples as c_int) },
+        SRgbCapable(is_capable)         => unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE,          is_capable as c_int) },
+        RefreshRate(rate)               => unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE,          rate as c_int) },
+        ClientApi(api)                  => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,            api as c_int) },
+        ContextVersionMajor(minor)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
+        ContextVersionMinor(major)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int) },
+        ContextVersion(major, minor)    => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
+                                                    ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
+        ContextRobustness(robustness)   => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS,    robustness as c_int) },
+        OpenglForwardCompat(is_compat)  => unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int) },
+        OpenglDebugContext(is_debug)    => unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT,  is_debug as c_int) },
+        OpenglProfile(profile)          => unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE,        profile as c_int) },
+        Resizable(is_resizable)         => unsafe { ffi::glfwWindowHint(ffi::RESIZABLE,             is_resizable as c_int) },
+        Visible(is_visible)             => unsafe { ffi::glfwWindowHint(ffi::VISIBLE,               is_visible as c_int) },
+        Decorated(is_decorated)         => unsafe { ffi::glfwWindowHint(ffi::DECORATED,             is_decorated as c_int) },
     }
+}
 
-    /// Wrapper for `glfwWindowHint` called with `RED_BITS`.
-    pub fn red_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::RED_BITS, bits as c_int); }
-    }
+#[repr(C)]
+#[deriving(Clone, Eq, Show)]
+pub enum ClientApi {
+    OpenGlApi                   = ffi::OPENGL_API,
+    OpenGlEsApi                 = ffi::OPENGL_ES_API,
+}
 
-    /// Wrapper for `glfwWindowHint` called with `GREEN_BITS`.
-    pub fn green_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS, bits as c_int); }
-    }
+#[repr(C)]
+#[deriving(Clone, Eq, Show)]
+pub enum ContextRobustness {
+    NoRobustness                = ffi::NO_ROBUSTNESS,
+    NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
+    LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET,
+}
 
-    /// Wrapper for `glfwWindowHint` called with `BLUE_BITS`.
-    pub fn blue_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS, bits as c_int); }
-    }
+#[repr(C)]
+#[deriving(Clone, Eq, Show)]
+pub enum OpenGlProfile {
+    OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
+    OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
+    OpenGlCompatProfile         = ffi::OPENGL_COMPAT_PROFILE,
+}
 
-    /// Wrapper for `glfwWindowHint` called with `ALPHA_BITS`.
-    pub fn alpha_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS, bits as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `DEPTH_BITS`.
-    pub fn depth_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS, bits as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `STENCIL_BITS`.
-    pub fn stencil_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS, bits as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `ACCUM_RED_BITS`.
-    pub fn accum_red_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS, bits as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `ACCUM_GREEN_BITS`.
-    pub fn accum_green_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS, bits as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `ACCUM_BLUE_BITS`.
-    pub fn accum_blue_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS, bits as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `ACCUM_ALPHA_BITS`.
-    pub fn accum_alpha_bits(bits: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS, bits as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `AUX_BUFFERS`.
-    pub fn aux_buffers(buffers: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS, buffers as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `STEREO`.
-    pub fn stereo(value: bool) {
-        unsafe { ffi::glfwWindowHint(ffi::STEREO, value as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `SAMPLES`.
-    pub fn samples(samples: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::SAMPLES, samples as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `SRGB_CAPABLE`.
-    pub fn srgb_capable(value: bool) {
-        unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE, value as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `REFRESH_RATE`.
-    pub fn refresh_rate(rate: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE, rate as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `CLIENT_API`.
-    pub fn client_api(api: ClientApi) {
-        unsafe { ffi::glfwWindowHint(ffi::CLIENT_API, api as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR`.
-    pub fn context_version_major(major: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MINOR`.
-    pub fn context_version_minor(minor: u32) {
-        unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `CONTEXT_VERSION_MAJOR` and
-    /// `CONTEXT_VERSION_MINOR`.
-    pub fn context_version(major: u32, minor: u32) {
-        unsafe {
-            ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
-            ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int);
-        }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `CONTEXT_ROBUSTNESS`.
-    pub fn context_robustness(value: ContextRobustness) {
-        unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS, value as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `OPENGL_FORWARD_COMPAT`.
-    pub fn opengl_forward_compat(value: bool) {
-        unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, value as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `OPENGL_DEBUG_CONTEXT`.
-    pub fn opengl_debug_context(value: bool) {
-        unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT, value as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `OPENGL_PROFILE`.
-    pub fn opengl_profile(profile: OpenGlProfile) {
-        unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE, profile as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `RESIZABLE`.
-    pub fn resizable(value: bool) {
-        unsafe { ffi::glfwWindowHint(ffi::RESIZABLE, value as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `VISIBLE`.
-    pub fn visible(value: bool) {
-        unsafe { ffi::glfwWindowHint(ffi::VISIBLE, value as c_int); }
-    }
-
-    /// Wrapper for `glfwWindowHint` called with `DECORATED`.
-    pub fn decorated(value: bool) {
-        unsafe { ffi::glfwWindowHint(ffi::DECORATED, value as c_int); }
-    }
+/// Resets the window hints previously set by the `window_hint` function to
+/// their default values.
+///
+/// This function must only be called from the main platform thread.
+///
+/// Wrapper for `glfwDefaultWindowHints`.
+pub fn default_window_hints() {
+    unsafe { ffi::glfwDefaultWindowHints(); }
 }
 
 /// Describes the mode of a window
