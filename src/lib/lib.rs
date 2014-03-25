@@ -36,7 +36,6 @@ use std::fmt;
 use std::libc::*;
 use std::ptr;
 use std::str;
-use std::vec::Vec;
 use std::slice;
 use semver::Version;
 
@@ -263,22 +262,37 @@ pub struct GammaRamp {
 
 pub type GLProc = ffi::GLFWglproc;
 
-/// Initialise glfw. This must be called on the main platform thread.
+/// An error that might be returned when `glfw::init` is called.
+#[deriving(Eq, Show)]
+pub enum InitError {
+    /// The library was already initialised.
+    AlreadyInitialized,
+    /// An internal error occured when trying to initialise the library.
+    InternalInitError,
+}
+
+/// Initialise glfw. This must be called on the main platform thread. Subsequent
+/// calls will return `Err(AlreadyInitialized)`. If an error occured within the
+/// glfw library, `Err(InternalInitError)` will be returned.
 ///
 /// Wrapper for `glfwInit`.
-pub fn init() -> Result<(),()> {
+pub fn init() -> Result<(), InitError> {
     use sync::one::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
-    let mut is_ok = Err(());
+    let mut result = Err(AlreadyInitialized);
     unsafe {
         INIT.doit(|| {
             if ffi::glfwInit() == ffi::TRUE {
-                is_ok = Ok(());
-                std::rt::at_exit(proc() ffi::glfwTerminate());
+                result = Ok(());
+                std::rt::at_exit(proc() {
+                    ffi::glfwTerminate()
+                });
+            } else {
+                result = Err(InternalInitError);
             }
         })
     }
-    is_ok
+    result
 }
 
 /// Initialises GLFW, failing if the initialisation was unsuccessful.
@@ -287,8 +301,10 @@ pub fn init() -> Result<(),()> {
 ///
 /// - `f`: to be called after the GLFW is initialised.
 pub fn start(f: proc()) {
-    if init().is_ok() { f() }
-    else { fail!("Failed to initialize GLFW") }
+    match init() {
+        Ok(_)   => f(),
+        Err(e)  => fail!("Failed to initialize GLFW: {}", e),
+    }
 }
 
 /// Wrapper for `glfwGetVersion`.
