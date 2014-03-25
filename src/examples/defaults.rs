@@ -25,7 +25,7 @@ fn main() {
     glfw::set_error_callback(~ErrorContext);
 
     glfw::start(proc() {
-        glfw::window_hint::visible(true);
+        glfw::window_hint(glfw::Visible(true));
 
         let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed)
             .expect("Failed to create GLFW window.");

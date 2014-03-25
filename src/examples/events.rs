@@ -25,7 +25,7 @@ fn main() {
     glfw::set_error_callback(~ErrorContext);
 
     glfw::start(proc() {
-        glfw::window_hint::resizable(true);
+        glfw::window_hint(glfw::Resizable(true));
 
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
             .expect("Failed to create GLFW window.");
