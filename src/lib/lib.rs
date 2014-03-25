@@ -39,6 +39,10 @@ use std::str;
 use std::slice;
 use semver::Version;
 
+pub use MouseButtonLeft     = self::MouseButton1;
+pub use MouseButtonRight    = self::MouseButton2;
+pub use MouseButtonMiddle   = self::MouseButton3;
+
 pub mod ffi;
 mod callbacks;
 mod link;
@@ -178,14 +182,11 @@ pub enum Key {
 }
 
 #[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
+#[deriving(Clone, Eq, Hash)]
 pub enum MouseButton {
-    MouseButtonLeft             = ffi::MOUSE_BUTTON_LEFT,
-    MouseButtonRight            = ffi::MOUSE_BUTTON_RIGHT,
-    MouseButtonMiddle           = ffi::MOUSE_BUTTON_MIDDLE,
-    // MouseButton1                = ffi::MOUSE_BUTTON_1,
-    // MouseButton2                = ffi::MOUSE_BUTTON_2,
-    // MouseButton3                = ffi::MOUSE_BUTTON_3,
+    MouseButton1                = ffi::MOUSE_BUTTON_1,
+    MouseButton2                = ffi::MOUSE_BUTTON_2,
+    MouseButton3                = ffi::MOUSE_BUTTON_3,
     MouseButton4                = ffi::MOUSE_BUTTON_4,
     MouseButton5                = ffi::MOUSE_BUTTON_5,
     MouseButton6                = ffi::MOUSE_BUTTON_6,
@@ -193,9 +194,20 @@ pub enum MouseButton {
     MouseButton8                = ffi::MOUSE_BUTTON_8,
 }
 
-// pub static MouseButtonLeft           : MouseButton = MouseButton1;
-// pub static MouseButtonRight          : MouseButton = MouseButton2;
-// pub static MouseButtonMiddle         : MouseButton = MouseButton3;
+impl fmt::Show for MouseButton {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            MouseButtonLeft     => f.pad("MouseButtonLeft"),
+            MouseButtonRight    => f.pad("MouseButtonRight"),
+            MouseButtonMiddle   => f.pad("MouseButtonMiddle"),
+            MouseButton4        => f.pad("MouseButton4"),
+            MouseButton5        => f.pad("MouseButton5"),
+            MouseButton6        => f.pad("MouseButton6"),
+            MouseButton7        => f.pad("MouseButton7"),
+            MouseButton8        => f.pad("MouseButton8"),
+        }
+    }
+}
 
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
