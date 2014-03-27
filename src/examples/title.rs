@@ -25,7 +25,7 @@ fn main() {
     glfw::set_error_callback(~ErrorContext);
 
     glfw::start(proc() {
-        let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed)
+        let (window, events) = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed)
             .expect("Failed to create GLFW window.");
 
         window.set_key_polling(true);
@@ -34,7 +34,7 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
-            for (_, event) in window.flush_events() {
+            for (_, event) in events.flush_events() {
                 handle_window_event(&window, event);
             }
         }

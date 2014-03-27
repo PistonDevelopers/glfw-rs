@@ -28,7 +28,7 @@ fn main() {
     if glfw::init().is_err() {
         fail!(~"Failed to initialize GLFW");
     } else {
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
+        let (window, events) = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
             .expect("Failed to create GLFW window.");
 
         window.set_key_polling(true);
@@ -36,7 +36,7 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
-            for (_, event) in window.flush_events() {
+            for (_, event) in events.flush_events() {
                 handle_window_event(&window, event);
             }
         }

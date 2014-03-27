@@ -25,7 +25,7 @@ fn main() {
    glfw::set_error_callback(~ErrorContext);
 
     glfw::start(proc() {
-        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
+        let (window, events) = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
             .expect("Failed to create GLFW window.");
 
         window.set_cursor_mode(glfw::CursorDisabled);
@@ -36,7 +36,7 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
-            for (_, event) in window.flush_events() {
+            for (_, event) in events.flush_events() {
                 handle_window_event(&window, event);
             }
         }
