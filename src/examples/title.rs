@@ -22,7 +22,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(~ErrorContext);
+    glfw::set_error_callback(ERROR_CONTEXT);
 
     glfw::start(proc() {
         let window = glfw::Window::create(400, 400, "English 日本語 русский язык 官話", glfw::Windowed)
@@ -47,6 +47,7 @@ impl glfw::ErrorCallback for ErrorContext {
         println!("GLFW Error: {:s}", description);
     }
 }
+static ERROR_CONTEXT: &'static ErrorContext = &'static ErrorContext;
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {

@@ -22,7 +22,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(~ErrorContext);
+    glfw::set_error_callback(ERROR_CONTEXT);
 
     glfw::start(proc() {
         glfw::window_hint(glfw::Visible(true));
@@ -73,6 +73,7 @@ impl glfw::ErrorCallback for ErrorContext {
         println!("GLFW Error: {:s}", description);
     }
 }
+static ERROR_CONTEXT: &'static ErrorContext = &'static ErrorContext;
 
 mod gl {
     use std::libc;
