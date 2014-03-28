@@ -22,7 +22,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(~ErrorContext);
+    glfw::set_error_callback(ERROR_CONTEXT);
 
     glfw::start(proc() {
         glfw::window_hint(glfw::Resizable(true));
@@ -70,6 +70,7 @@ impl glfw::ErrorCallback for ErrorContext {
         println!("GLFW Error: {}", description);
     }
 }
+static ERROR_CONTEXT: &'static ErrorContext = &'static ErrorContext;
 
 fn handle_window_event(window: &glfw::Window, (time, event): (f64, glfw::WindowEvent)) {
     match event {

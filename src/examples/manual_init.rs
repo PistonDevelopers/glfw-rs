@@ -23,7 +23,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(~ErrorContext);
+    glfw::set_error_callback(ERROR_CONTEXT);
 
     if glfw::init().is_err() {
         fail!(~"Failed to initialize GLFW");
@@ -49,6 +49,7 @@ impl glfw::ErrorCallback for ErrorContext {
         println!("GLFW Error: {:s}", description);
     }
 }
+static ERROR_CONTEXT: &'static ErrorContext = &'static ErrorContext;
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
