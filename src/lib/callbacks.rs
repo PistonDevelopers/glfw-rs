@@ -24,8 +24,8 @@ use super::*;
 
 // Global callbacks
 
-static ERROR_CALLBACK: local_data::Key<&'static ErrorCallback> = &local_data::Key;
-static MONITOR_CALLBACK: local_data::Key<&'static MonitorCallback> = &local_data::Key;
+local_data_key!(ERROR_CALLBACK: &'static ErrorCallback)
+local_data_key!(MONITOR_CALLBACK: &'static MonitorCallback)
 
 pub extern "C" fn error_callback(error: c_int, description: *c_char) {
     local_data::get(ERROR_CALLBACK, (|data| {
