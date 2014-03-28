@@ -320,7 +320,7 @@ pub fn get_version_string() -> ~str {
 pub trait ErrorCallback { fn call(&self, error: Error, description: ~str); }
 
 /// Wrapper for `glfwSetErrorCallback`.
-pub fn set_error_callback<Cb: ErrorCallback + Send>(callback: ~Cb) {
+pub fn set_error_callback(callback: ~ErrorCallback:'static) {
     callbacks::set_error_callback(callback, (|ext_cb| {
         unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
     }));
@@ -389,7 +389,7 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwSetMonitorCallback`.
-    pub fn set_callback<Cb: MonitorCallback + Send>(callback: ~Cb) {
+    pub fn set_callback(callback: ~MonitorCallback:'static) {
         callbacks::set_monitor_callback(callback, (|ext_cb| {
             unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
         }));
