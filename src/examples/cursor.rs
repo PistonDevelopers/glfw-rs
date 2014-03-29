@@ -13,8 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[feature(phase)];
+
 extern crate native;
-extern crate glfw;
+#[phase(syntax, link)] extern crate glfw;
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
@@ -22,7 +24,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-   glfw::set_error_callback(~ErrorContext);
+    let errors = glfw::get_errors().unwrap();
 
     glfw::start(proc() {
         let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
@@ -36,18 +38,12 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
+            fail_on_glfw_error!(&errors);
             for (_, event) in window.flush_events() {
                 handle_window_event(&window, event);
             }
         }
     });
-}
-
-struct ErrorContext;
-impl glfw::ErrorCallback for ErrorContext {
-    fn call(&self, _: glfw::Error, description: ~str) {
-        println!("GLFW Error: {:s}", description);
-    }
 }
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {

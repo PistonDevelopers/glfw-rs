@@ -317,25 +317,64 @@ pub fn get_version_string() -> ~str {
     unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
 
-pub trait ErrorCallback { fn call(&self, error: Error, description: ~str); }
-
-/// Wrapper for `glfwSetErrorCallback`.
-pub fn set_error_callback(callback: ~ErrorCallback:'static) {
-    callbacks::set_error_callback(callback, (|ext_cb| {
-        unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
-    }));
+/// Returns a `Reciever` for intercepting errors from GLFW. This will only
+/// return `Some` once, otherwise `None` will be returned.
+///
+/// # Example
+///
+/// ~~~rust
+/// let errors = glfw::get_errors().unwrap();
+///
+/// // ...
+///
+/// match errors.try_recv() {
+///     std::comm::Data((_, _, description)) => {
+///         fail!("GLFW Error: {}", description),
+///     },
+///     _ => {},
+/// }
+/// ~~~
+///
+/// # `fail_on_glfw_error!` macro
+///
+/// The `fail_on_glfw_error!` macro is provided to simplify error handling for
+/// small programs. This will trigger a task failure if an error is currently
+/// stored in the `Reciever`'s message queue. The macro can be made available by
+/// adding the `#[phase(syntax, link)]` to glfw's crate import.
+///
+/// ~~~rust
+/// fail_on_glfw_error!(&errors);
+/// ~~~
+///
+/// ~~~rust
+/// fail_on_glfw_error!(&errors, (_, _, description) => "{}", description);
+/// ~~~
+pub fn get_errors() -> Option<Receiver<(f64, Error, ~str)>> {
+    callbacks::init_error_receiver()
 }
 
-/// An ErrorCallback implementation that uses the `error!` macro.
-pub struct LogErrorHandler;
-
-impl ErrorCallback for LogErrorHandler {
-    fn call(&self, error: Error, desc: ~str) {
-        error!("GLFW Error: {} ({})", error, desc);
-    }
-}
-
-pub trait MonitorCallback { fn call(&self, monitor: &Monitor, event: MonitorEvent); }
+#[macro_export]
+macro_rules! fail_on_glfw_error(
+    ($errors:expr) => ({
+        fail_on_glfw_error!($errors, (_, _, description) => "{}", description)
+    });
+    // ($errors:expr, $msg:expr) => ({
+    //     let errors: &Receiver<(f64, glfw::Error, ~str)> = $errors;
+    //     match errors.try_recv() {
+    //         std::comm::Data(_) => fail!("GLFW Error: {}", $msg),
+    //         _ => {},
+    //     }
+    // });
+    ($errors:expr, $err_pat:pat => $fmt:expr, $($arg:tt)*) => ({
+        let errors: &Receiver<(f64, glfw::Error, ~str)> = $errors;
+        match errors.try_recv() {
+            std::comm::Data($err_pat) => {
+                fail!("GLFW Error: {}", format!($fmt, $($arg)*))
+            },
+            _ => {},
+        }
+    });
+)
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
@@ -388,13 +427,6 @@ impl Monitor {
         unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
     }
 
-    /// Wrapper for `glfwSetMonitorCallback`.
-    pub fn set_callback(callback: ~MonitorCallback:'static) {
-        callbacks::set_monitor_callback(callback, (|ext_cb| {
-            unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
-        }));
-    }
-
     /// Wrapper for `glfwGetVideoModes`.
     pub fn get_video_modes(&self) -> ~[VidMode] {
         unsafe {
@@ -441,6 +473,12 @@ impl Monitor {
                 }
             );
         }
+    }
+
+    /// Returns a `Reciever` for intercepting monitor events from GLFW. This
+    /// will only return `Some` once, otherwise `None` will be returned.
+    pub fn get_events() -> Option<Receiver<(f64, Monitor, MonitorEvent)>> {
+        callbacks::init_monitor_receiver()
     }
 }
 
