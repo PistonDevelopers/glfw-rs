@@ -19,39 +19,59 @@ use std::cast;
 use std::libc::*;
 use std::local_data;
 use std::str;
+use sync::one::{Once, ONCE_INIT};
 
 use super::*;
 
 // Global callbacks
 
-local_data_key!(ERROR_CALLBACK: ~ErrorCallback:'static)
-local_data_key!(MONITOR_CALLBACK: ~MonitorCallback:'static)
+local_data_key!(ERROR_SENDER: Sender<(f64, Error, ~str)>)
+local_data_key!(MONITOR_SENDER: Sender<(f64, Monitor, MonitorEvent)>)
 
 pub extern "C" fn error_callback(error: c_int, description: *c_char) {
-    local_data::get(ERROR_CALLBACK, (|data| {
-        data.as_ref().map(|&ref cb| {
-            unsafe { cb.call(cast::transmute(error), str::raw::from_c_str(description)) }
+    unsafe {
+        local_data::get(ERROR_SENDER, |sender| {
+            sender.as_ref().expect("ERROR_SENDER not initialized")
+                  .send((get_time(), cast::transmute(error), str::raw::from_c_str(description)))
         });
-    }));
+    }
 }
 
-pub fn set_error_callback(callback: ~ErrorCallback:'static, f: |ffi::GLFWerrorfun| ) {
-    local_data::set(ERROR_CALLBACK, callback);
-    f(error_callback);
+pub fn init_error_receiver() -> Option<Receiver<(f64, Error, ~str)>> {
+    static mut INIT: Once = ONCE_INIT;
+    let mut errors = None;
+    unsafe {
+        INIT.doit(|| {
+            let (sender, receiver) = channel();
+            local_data::set(ERROR_SENDER, sender);
+            ffi::glfwSetErrorCallback(Some(error_callback));
+            errors = Some(receiver);
+        });
+    }
+    errors
 }
-
 
 pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
-    local_data::get(MONITOR_CALLBACK, (|data| {
-        data.as_ref().map(|&ref cb| {
-            unsafe { cb.call(&Monitor { ptr: monitor }, cast::transmute(event)) }
+    unsafe {
+        local_data::get(MONITOR_SENDER, |sender| {
+            sender.as_ref().expect("MONITOR_SENDER not initialized")
+                  .send((get_time(), Monitor { ptr: monitor }, cast::transmute(event)))
         });
-    }));
+    }
 }
 
-pub fn set_monitor_callback(callback: ~MonitorCallback:'static, f: |ffi::GLFWmonitorfun| ) {
-    local_data::set(MONITOR_CALLBACK, callback);
-    f(monitor_callback);
+pub fn init_monitor_receiver() -> Option<Receiver<(f64, Monitor, MonitorEvent)>> {
+    static mut INIT: Once = ONCE_INIT;
+    let mut errors = None;
+    unsafe {
+        INIT.doit(|| {
+            let (sender, receiver) = channel();
+            local_data::set(MONITOR_SENDER, sender);
+            ffi::glfwSetMonitorCallback(Some(monitor_callback));
+            errors = Some(receiver);
+        });
+    }
+    errors
 }
 
 unsafe fn get_sender<'a>(window: &'a *ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {
