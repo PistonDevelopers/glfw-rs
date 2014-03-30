@@ -22,47 +22,46 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let errors = glfw::get_errors().unwrap();
+    let glfw = glfw::init().unwrap();
+    let errors = glfw.get_errors().unwrap();
 
-    glfw::start(proc() {
-        glfw::window_hint(glfw::Resizable(true));
+    glfw.window_hint(glfw::Resizable(true));
 
-        let (window, events) = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
-            .expect("Failed to create GLFW window.");
+    let (window, events) = glfw.create_window(800, 600, "Hello, I am a window.", glfw::Windowed)
+        .expect("Failed to create GLFW window.");
 
-        window.set_sticky_keys(true);
+    window.set_sticky_keys(true);
 
-        // Polling of events can be turned on and off by the specific event type
-        window.set_pos_polling(true);
-        window.set_all_polling(true);
-        window.set_size_polling(true);
-        window.set_close_polling(true);
-        window.set_refresh_polling(true);
-        window.set_focus_polling(true);
-        window.set_iconify_polling(true);
-        window.set_framebuffer_size_polling(true);
-        window.set_key_polling(true);
-        window.set_char_polling(true);
-        window.set_mouse_button_polling(true);
-        window.set_cursor_pos_polling(true);
-        window.set_cursor_enter_polling(true);
-        window.set_scroll_polling(true);
+    // Polling of events can be turned on and off by the specific event type
+    window.set_pos_polling(true);
+    window.set_all_polling(true);
+    window.set_size_polling(true);
+    window.set_close_polling(true);
+    window.set_refresh_polling(true);
+    window.set_focus_polling(true);
+    window.set_iconify_polling(true);
+    window.set_framebuffer_size_polling(true);
+    window.set_key_polling(true);
+    window.set_char_polling(true);
+    window.set_mouse_button_polling(true);
+    window.set_cursor_pos_polling(true);
+    window.set_cursor_enter_polling(true);
+    window.set_scroll_polling(true);
 
-        // Alternatively, all event types may be set to poll at once. Note that
-        // in this example, this call is redundant as all events have been set
-        // to poll in the above code.
-        window.set_all_polling(true);
+    // Alternatively, all event types may be set to poll at once. Note that
+    // in this example, this call is redundant as all events have been set
+    // to poll in the above code.
+    window.set_all_polling(true);
 
-        window.make_context_current();
+    window.make_context_current();
 
-        while !window.should_close() {
-            glfw::poll_events();
-            glfw::fail_on_error(&errors);
-            for event in events.flush_events() {
-                handle_window_event(&window, event);
-            }
+    while !window.should_close() {
+        glfw.poll_events();
+        glfw::fail_on_error(&errors);
+        for event in events.flush_events() {
+            handle_window_event(&window, event);
         }
-    });
+    }
 }
 
 fn handle_window_event(window: &glfw::Window, (time, event): (f64, glfw::WindowEvent)) {
