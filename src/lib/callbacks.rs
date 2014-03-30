@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Private functions and items to be used with the high-level library wrapper.
+//! Private callback support functions.
 
 use std::cast;
 use std::libc::*;
@@ -32,7 +32,7 @@ pub extern "C" fn error_callback(error: c_int, description: *c_char) {
     unsafe {
         local_data::get(ERROR_SENDER, |sender| {
             sender.as_ref().expect("ERROR_SENDER not initialized")
-                  .send((get_time(), cast::transmute(error), str::raw::from_c_str(description)))
+                  .send((ffi::glfwGetTime() as f64, cast::transmute(error), str::raw::from_c_str(description)))
         });
     }
 }
@@ -70,14 +70,14 @@ unsafe fn get_sender<'a>(window: &'a *ffi::GLFWwindow) -> &'a Sender<(f64, Windo
 
 macro_rules! window_callback(
     (fn $name:ident () => $event:ident) => (
-         pub extern "C" fn $name(window: *ffi::GLFWwindow) {
-            unsafe { get_sender(&window).send((get_time(), $event)); }
-         }
+        pub extern "C" fn $name(window: *ffi::GLFWwindow) {
+            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, $event)); }
+        }
      );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
-         pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            unsafe { get_sender(&window).send((get_time(), $event($($arg_conv),*))); }
-         }
+        pub extern "C" fn $name(window: *ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
+            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, $event($($arg_conv),*))); }
+        }
      );
 )
 

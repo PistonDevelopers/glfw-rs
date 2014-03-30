@@ -22,23 +22,22 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let errors = glfw::get_errors().unwrap();
+    let glfw = glfw::init().unwrap();
+    let errors = glfw.get_errors().unwrap();
 
-    glfw::start(proc() {
-        let (window, events) = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
-            .expect("Failed to create GLFW window.");
+    let (window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+        .expect("Failed to create GLFW window.");
 
-        window.set_key_polling(true);
-        window.make_context_current();
+    window.set_key_polling(true);
+    window.make_context_current();
 
-        while !window.should_close() {
-            glfw::poll_events();
-            glfw::fail_on_error(&errors);
-            for (_, event) in events.flush_events() {
-                handle_window_event(&window, event);
-            }
+    while !window.should_close() {
+        glfw.poll_events();
+        glfw::fail_on_error(&errors);
+        for (_, event) in events.flush_events() {
+            handle_window_event(&window, event);
         }
-    });
+    }
 }
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {

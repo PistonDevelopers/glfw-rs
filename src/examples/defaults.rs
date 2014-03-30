@@ -22,47 +22,46 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::start(proc() {
-        glfw::window_hint(glfw::Visible(true));
+    let glfw = glfw::init().unwrap();
+    glfw.window_hint(glfw::Visible(true));
 
-        let (window, _) = glfw::Window::create(640, 480, "Defaults", glfw::Windowed)
-            .expect("Failed to create GLFW window.");
+    let (window, _) = glfw.create_window(640, 480, "Defaults", glfw::Windowed)
+        .expect("Failed to create GLFW window.");
 
-        window.make_context_current();
+    window.make_context_current();
 
-        let (width, height) = window.get_size();
-        println!("window size: ({}, {})", width, height);
+    let (width, height) = window.get_size();
+    println!("window size: ({}, {})", width, height);
 
-        println!("Context version: {:s}",         window.get_context_version().to_str());
-        println!("OpenGL forward compatible: {}", window.is_opengl_forward_compat());
-        println!("OpenGL debug context: {}",      window.is_opengl_debug_context());
-        println!("OpenGL profile: {}",            window.get_opengl_profile());
+    println!("Context version: {:s}",         window.get_context_version().to_str());
+    println!("OpenGL forward compatible: {}", window.is_opengl_forward_compat());
+    println!("OpenGL debug context: {}",      window.is_opengl_debug_context());
+    println!("OpenGL profile: {}",            window.get_opengl_profile());
 
-        let gl_params = [
-            (gl::RED_BITS,          None,   "red bits"          ),
-            (gl::GREEN_BITS,        None,   "green bits"        ),
-            (gl::BLUE_BITS,         None,   "blue bits"         ),
-            (gl::ALPHA_BITS,        None,   "alpha bits"        ),
-            (gl::DEPTH_BITS,        None,   "depth bits"        ),
-            (gl::STENCIL_BITS,      None,   "stencil bits"      ),
-            (gl::ACCUM_RED_BITS,    None,   "accum red bits"    ),
-            (gl::ACCUM_GREEN_BITS,  None,   "accum green bits"  ),
-            (gl::ACCUM_BLUE_BITS,   None,   "accum blue bits"   ),
-            (gl::ACCUM_ALPHA_BITS,  None,   "accum alpha bits"  ),
-            (gl::STEREO,            None,   "stereo"            ),
-            (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
-        ];
+    let gl_params = [
+        (gl::RED_BITS,          None,   "red bits"          ),
+        (gl::GREEN_BITS,        None,   "green bits"        ),
+        (gl::BLUE_BITS,         None,   "blue bits"         ),
+        (gl::ALPHA_BITS,        None,   "alpha bits"        ),
+        (gl::DEPTH_BITS,        None,   "depth bits"        ),
+        (gl::STENCIL_BITS,      None,   "stencil bits"      ),
+        (gl::ACCUM_RED_BITS,    None,   "accum red bits"    ),
+        (gl::ACCUM_GREEN_BITS,  None,   "accum green bits"  ),
+        (gl::ACCUM_BLUE_BITS,   None,   "accum blue bits"   ),
+        (gl::ACCUM_ALPHA_BITS,  None,   "accum alpha bits"  ),
+        (gl::STEREO,            None,   "stereo"            ),
+        (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
+    ];
 
-        for &(param, ext, name) in gl_params.iter() {
-            if ext.map_or(true, |s| {
-                glfw::extension_supported(s)
-            }) {
-                let value = 0;
-                unsafe { gl::GetIntegerv(param, &value) };
-                println!("OpenGL {:s}: {}", name, value);
-            };
-        }
-    });
+    for &(param, ext, name) in gl_params.iter() {
+        if ext.map_or(true, |s| {
+            glfw.extension_supported(s)
+        }) {
+            let value = 0;
+            unsafe { gl::GetIntegerv(param, &value) };
+            println!("OpenGL {:s}: {}", name, value);
+        };
+    }
 }
 
 mod gl {

@@ -22,19 +22,19 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::start(proc() {
-        let _ = glfw::Monitor::get_primary().map(|monitor| {
-            println!("{}:", monitor.get_name());
-            println!("    {}\n", monitor.get_video_mode().unwrap());
-        });
+    let glfw = glfw::init().unwrap();
 
-        println!("Available monitors\n\
-                  ------------------");
-        for monitor in glfw::Monitor::get_connected().iter() {
-            println!("{}:", monitor.get_name());
-            for mode in monitor.get_video_modes().iter() {
-                println!("  {}", *mode);
-            }
-        }
+    let _ = glfw.get_primary_monitor().map(|monitor| {
+        println!("{}:", monitor.get_name());
+        println!("    {}\n", monitor.get_video_mode().unwrap());
     });
+
+    println!("Available monitors\n\
+              ------------------");
+    for monitor in glfw.get_connected_monitors().iter() {
+        println!("{}:", monitor.get_name());
+        for mode in monitor.get_video_modes().iter() {
+            println!("  {}", *mode);
+        }
+    }
 }

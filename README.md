@@ -19,7 +19,7 @@
 
 GLFW bindings and wrapper for The Rust Programming Language.
 
-## Example code
+## Example
 
 ~~~rust
 extern crate native;
@@ -32,30 +32,40 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    // Set up an error callback
-    let errors = glfw::get_errors().unwrap();
+    let glfw = glfw::init().unwrap();
+    let errors = glfw.get_errors().unwrap();
 
-    // Initialize the library
-    glfw::start(proc() {
-        // Create a windowed mode window and its OpenGL context
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed)
-            .expect("Failed to create GLFW window.");
+    // Create a windowed mode window and its OpenGL context
+    let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+        .expect("Failed to create GLFW window.");
 
-        // Make the window's context current
-        window.make_context_current();
+    // Make the window's context current
+    window.make_context_current();
 
-        // Loop until the user closes the window
-        while !window.should_close() {
-            // Swap front and back buffers
-            window.swap_buffers();
+    // Loop until the user closes the window
+    while !window.should_close() {
+        // Swap front and back buffers
+        window.swap_buffers();
 
-            // Poll for and process events
-            glfw::poll_events();
-            glfw::fail_on_error(&errors);
+        // Poll for and process events
+        glfw.poll_events();
+        glfw::fail_on_error(&errors);
+        for (_, event) in glfw::flush_messages(&events) {
+            println!("{}", event);
+            match event {
+                glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+                    window.set_should_close(true)
+                },
+                _ => {},
+            }
         }
-    });
+    }
 }
 ~~~
+
+## Documentation
+
+The [API docs](http://rust-ci.org/bjz/glfw-rs/doc/glfw/) are hosted on Rust CI.
 
 ## Prerequisites
 
