@@ -237,7 +237,7 @@ pub enum Key {
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(C)]
-#[deriving(Clone, Eq, Hash)]
+#[deriving(Clone, Eq, Hash, Show)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     MouseButton1                = ffi::MOUSE_BUTTON_1,
@@ -252,17 +252,24 @@ pub enum MouseButton {
     MouseButton8                = ffi::MOUSE_BUTTON_8,
 }
 
-impl fmt::Show for MouseButton {
+/// Formats the type using aliases rather than the default variant names.
+///
+/// # Example
+///
+/// ~~~rust
+/// assert_eq(format!("{}", glfw::MouseButtonLeft), ~"MouseButton1");
+/// assert_eq(format!("{}", glfw::ShowAliases(glfw::MouseButtonLeft)), ~"MouseButtonLeft");
+/// ~~~
+pub struct ShowAliases<T>(T);
+
+impl fmt::Show for ShowAliases<MouseButton> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            MouseButtonLeft     => f.pad("MouseButtonLeft"),
-            MouseButtonRight    => f.pad("MouseButtonRight"),
-            MouseButtonMiddle   => f.pad("MouseButtonMiddle"),
-            MouseButton4        => f.pad("MouseButton4"),
-            MouseButton5        => f.pad("MouseButton5"),
-            MouseButton6        => f.pad("MouseButton6"),
-            MouseButton7        => f.pad("MouseButton7"),
-            MouseButton8        => f.pad("MouseButton8"),
+        let ShowAliases(button) = *self;
+        match button {
+            MouseButtonLeft     => write!(f.buf, "MouseButtonLeft"),
+            MouseButtonRight    => write!(f.buf, "MouseButtonRight"),
+            MouseButtonMiddle   => write!(f.buf, "MouseButtonMiddle"),
+            button              => button.fmt(f),
         }
     }
 }

@@ -76,7 +76,7 @@ fn handle_window_event(window: &glfw::Window, (time, event): (f64, glfw::WindowE
         glfw::IconifyEvent(false)           => println!("Time: {}, Window was maximised.", time),
         glfw::FramebufferSizeEvent(w, h)    => println!("Time: {}, Framebuffer size: ({}, {})", time, w, h),
         glfw::CharEvent(character)          => println!("Time: {}, Character: {}", time, character),
-        glfw::MouseButtonEvent(btn, action, mods) => println!("Time: {}, Button: {}, Action: {}, Modifiers: [{}]", time, btn, action, mods),
+        glfw::MouseButtonEvent(btn, action, mods) => println!("Time: {}, Button: {}, Action: {}, Modifiers: [{}]", time, glfw::ShowAliases(btn), action, mods),
         glfw::CursorPosEvent(xpos, ypos)    => window.set_title(format!("Time: {}, Cursor position: ({}, {})", time, xpos, ypos)),
         glfw::CursorEnterEvent(true)        => println!("Time: {}, Cursor entered window.", time),
         glfw::CursorEnterEvent(false)       => println!("Time: {}, Cursor left window.", time),
