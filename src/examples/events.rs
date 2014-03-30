@@ -22,7 +22,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(~ErrorContext);
+    let errors = glfw::get_errors().unwrap();
 
     glfw::start(proc() {
         glfw::window_hint(glfw::Resizable(true));
@@ -57,18 +57,12 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
+            glfw::fail_on_error(&errors);
             for event in events.flush_events() {
                 handle_window_event(&window, event);
             }
         }
     });
-}
-
-struct ErrorContext;
-impl glfw::ErrorCallback for ErrorContext {
-    fn call(&self, _: glfw::Error, description: ~str) {
-        println!("GLFW Error: {}", description);
-    }
 }
 
 fn handle_window_event(window: &glfw::Window, (time, event): (f64, glfw::WindowEvent)) {

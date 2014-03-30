@@ -22,8 +22,6 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    glfw::set_error_callback(~ErrorContext);
-
     glfw::start(proc() {
         glfw::window_hint(glfw::Visible(true));
 
@@ -65,13 +63,6 @@ fn main() {
             };
         }
     });
-}
-
-struct ErrorContext;
-impl glfw::ErrorCallback for ErrorContext {
-    fn call(&self, _: glfw::Error, description: ~str) {
-        println!("GLFW Error: {:s}", description);
-    }
 }
 
 mod gl {
