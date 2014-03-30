@@ -23,21 +23,19 @@ use sync::one::{Once, ONCE_INIT};
 
 use super::*;
 
-// Global callbacks
-
-local_data_key!(ERROR_SENDER: Sender<(f64, Error, ~str)>)
+local_data_key!(ERROR_SENDER: Sender<Error>)
 local_data_key!(MONITOR_CALLBACK: ~MonitorCallback:'static)
 
 pub extern "C" fn error_callback(error: c_int, description: *c_char) {
     unsafe {
         local_data::get(ERROR_SENDER, |sender| {
             sender.as_ref().expect("ERROR_SENDER not initialized")
-                  .send((ffi::glfwGetTime() as f64, cast::transmute(error), str::raw::from_c_str(description)))
+                  .send((cast::transmute(error), str::raw::from_c_str(description)))
         });
     }
 }
 
-pub fn init_error_receiver() -> Option<Receiver<(f64, Error, ~str)>> {
+pub fn init_error_receiver() -> Option<Receiver<Error>> {
     static mut INIT: Once = ONCE_INIT;
     let mut errors = None;
     unsafe {

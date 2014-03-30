@@ -37,8 +37,8 @@
 //! }
 //! 
 //! fn main() {
-//!     let glfw = glfw::init().unwrap();
-//!     let errors = glfw.get_errors().unwrap();
+//!    let (glfw, errors) = glfw::init().unwrap();
+//!    glfw::fail_on_error(&errors);
 //! 
 //!     // Create a windowed mode window and its OpenGL context
 //!     let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
@@ -270,7 +270,7 @@ impl fmt::Show for MouseButton {
 /// Tokens corresponding to various error types.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
-pub enum Error {
+pub enum ErrorType {
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
     InvalidEnum                 = ffi::INVALID_ENUM,
@@ -281,6 +281,10 @@ pub enum Error {
     PlatformError               = ffi::PLATFORM_ERROR,
     FormatUnavailable           = ffi::FORMAT_UNAVAILABLE,
 }
+ 
+/// Information pertaining to a GLFW error. This includes an `ErrorType` and a
+/// string providing additional error information in a human-readable format.
+pub type Error = (ErrorType, ~str);
 
 /// Cursor modes.
 #[repr(C)]
@@ -313,7 +317,7 @@ pub type GLProc = ffi::GLFWglproc;
  
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
-/// only be initialised on the main platform thread. Whilst this might make
+/// only be initialized on the main platform thread. Whilst this might make
 /// performing some operations harder, this is to ensure thread safety is enforced
 /// statically. The context can be safely cloned or implicitly copied if need be
 /// for convenience.
@@ -326,9 +330,11 @@ pub struct Glfw {
 /// An error that might be returned when `glfw::init` is called.
 #[deriving(Eq, Show)]
 pub enum InitError {
-    /// The library was already initialised.
+    /// The library was already initialized.
     AlreadyInitialized,
-    /// An internal error occured when trying to initialise the library.
+    /// The the error receiver could not be initialized.
+    ErrorReceiverNotInitialized,
+    /// An internal error occured when trying to initialize the library.
     InternalInitError,
 }
 
@@ -349,61 +355,53 @@ pub enum InitError {
 /// }
 /// 
 /// fn main() {
-///     let glfw = glfw::init().unwrap();
+///     let (glfw, errors) = glfw::init().unwrap();
+///     glfw::fail_on_error(&errors);
 /// }
 /// ~~~
 ///
 /// # Returns
 ///
-/// - If initialization was successful, a `Glfw` token will be returned.
+/// - If initialization was successful a `Glfw` token will be returned along
+///   with a `Receiver` from which errors can be intercepted.
 /// - Subsequent calls to `init` will return `Err(AlreadyInitialized)`.
-/// - If an initialization error occured within the glfw library,
-///   `Err(InternalInitError)` will be returned. 
-pub fn init() -> Result<Glfw, InitError> {
+/// - If the error receiver could not be initialized
+///   `Err(ErrorReceiverNotInitialized)` will be returned.
+/// - If an initialization error occured within the GLFW library
+///   `Err(InternalInitError)` will be returned.
+pub fn init() -> Result<(Glfw, Receiver<Error>), InitError> {
     use sync::one::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
     let mut result = Err(AlreadyInitialized);
     unsafe {
         INIT.doit(|| {
-            if ffi::glfwInit() == ffi::TRUE {
-                result = Ok(());
-                std::rt::at_exit(proc() {
-                    ffi::glfwTerminate()
-                });
-            } else {
-                result = Err(InternalInitError);
+            match callbacks::init_error_receiver() {
+                Some(errors) => {
+                    if ffi::glfwInit() == ffi::TRUE {
+                        result = Ok(errors);
+                        std::rt::at_exit(proc() {
+                            ffi::glfwTerminate()
+                        });
+                    } else {
+                        result = Err(InternalInitError);
+                    }
+                },
+                None => {
+                    result = Err(ErrorReceiverNotInitialized)
+                },
             }
         })
     }
-    result.map(|_| Glfw {
-        no_send: marker::NoSend,
-        no_share: marker::NoShare,
-    })
+    result.map(|errors| (
+        Glfw {
+            no_send: marker::NoSend,
+            no_share: marker::NoShare,
+        },
+        errors,
+    ))
 }
 
 impl Glfw {
-    /// Returns a `Reciever` for intercepting errors from GLFW. This will only
-    /// return the `Reciever` once – after that `None` will be returned.
-    ///
-    /// # Example
-    ///
-    /// ~~~rust
-    /// let glfw = glfw::init().unwrap();
-    /// let errors = glfw.get_errors().unwrap();
-    ///
-    /// // ...
-    ///
-    /// match errors.try_recv() {
-    ///     std::comm::Data((_, _, description)) => {
-    ///         fail!("GLFW Error: {}", description),
-    ///     },
-    ///     _ => {},
-    /// }
-    /// ~~~
-    pub fn get_errors(&self) -> Option<Receiver<(f64, Error, ~str)>> {
-        callbacks::init_error_receiver()
-    }
-
     /// Returns the primary monitor. This is usually the monitor where elements
     /// like the Windows task bar or the OS X menu bar is located.
     ///
@@ -618,10 +616,10 @@ pub fn get_version_string() -> ~str {
 }
 
 /// Fails if an error has been received.
-pub fn fail_on_error(errors: &Receiver<(f64, Error, ~str)>) {
+pub fn fail_on_error(errors: &Receiver<Error>) {
     match errors.try_recv() {
-        std::comm::Data((time, _, description)) => {
-            fail!("GLFW Error @ {}: {}", time, description)
+        std::comm::Data((_, description)) => {
+            fail!("GLFW Error: {}", description)
         },
         _ => {},
     }
