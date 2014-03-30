@@ -27,7 +27,7 @@ fn main() {
     glfw::start(proc() {
         glfw::window_hint(glfw::Resizable(true));
 
-        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
+        let (window, events) = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed)
             .expect("Failed to create GLFW window.");
 
         window.set_sticky_keys(true);
@@ -57,7 +57,7 @@ fn main() {
 
         while !window.should_close() {
             glfw::poll_events();
-            for event in window.flush_events() {
+            for event in events.flush_events() {
                 handle_window_event(&window, event);
             }
         }

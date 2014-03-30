@@ -742,16 +742,6 @@ pub enum WindowEvent {
     CharEvent(char),
 }
 
-pub struct WindowEvents<'a> {
-    priv event_receiver: &'a Receiver<(f64, WindowEvent)>,
-}
-
-impl<'a> Iterator<(f64, WindowEvent)> for WindowEvents<'a> {
-    fn next(&mut self) -> Option<(f64, WindowEvent)> {
-        self.event_receiver.recv_opt()
-    }
-}
-
 pub struct FlushedWindowEvents<'a> {
     priv event_receiver: &'a Receiver<(f64, WindowEvent)>,
 }
@@ -765,10 +755,27 @@ impl<'a> Iterator<(f64, WindowEvent)> for FlushedWindowEvents<'a> {
     }
 }
 
+pub struct EventReceiver(Receiver<(f64, WindowEvent)>);
+
+impl Deref<Receiver<(f64, WindowEvent)>> for EventReceiver {
+    fn deref<'a>(&'a self) -> &'a Receiver<(f64, WindowEvent)> {
+        match *self { EventReceiver(ref r) => r }
+    }
+}
+
+impl EventReceiver {
+    pub fn to_receiver(self) -> Receiver<(f64, WindowEvent)> { 
+        match self { EventReceiver(r) => r }
+    }
+
+    pub fn flush_events<'a>(&'a self) -> FlushedWindowEvents<'a> {
+        match *self { EventReceiver(ref r) => FlushedWindowEvents { event_receiver: r } }
+    }    
+} 
+
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
     ptr: *ffi::GLFWwindow,
-    event_receiver: Receiver<(f64, WindowEvent)>,
     is_shared: bool,
 }
 
@@ -784,17 +791,17 @@ macro_rules! set_window_callback(
 
 impl Window {
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create(width: u32, height: u32, title: &str, mode: WindowMode) -> Option<Window> {
+    pub fn create(width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, EventReceiver)> {
         Window::create_intern(width, height, title, mode, None)
     }
 
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_shared(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<Window> {
+    pub fn create_shared(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, EventReceiver)> {
         Window::create_intern(width, height, title, mode, Some(self))
     }
 
     /// Internal wrapper for `glfwCreateWindow`.
-    fn create_intern(width: u32, height: u32, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<Window> {
+    fn create_intern(width: u32, height: u32, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<(Window, EventReceiver)> {
         let ptr = unsafe {
             title.with_c_str(|title| {
                 ffi::glfwCreateWindow(
@@ -811,24 +818,15 @@ impl Window {
         } else {
             let (sender, receiver) = channel();
             unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~sender)); }
-            Some(Window {
-                ptr: ptr,
-                event_receiver: receiver,
-                is_shared: share.is_none(),
-            })
+            Some(
+                (Window {ptr: ptr, is_shared: share.is_none()},
+                EventReceiver(receiver)
+            ))
         }
     }
 
     pub fn close(self) {
         // Calling this method forces the destructor to be called, closing the window
-    }
-
-    pub fn events<'a>(&'a self) -> WindowEvents<'a> {
-        WindowEvents { event_receiver: &'a self.event_receiver }
-    }
-
-    pub fn flush_events<'a>(&'a self) -> FlushedWindowEvents<'a> {
-        FlushedWindowEvents { event_receiver: &'a self.event_receiver }
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
