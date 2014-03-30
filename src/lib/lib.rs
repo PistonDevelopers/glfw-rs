@@ -22,6 +22,52 @@
 #![feature(globs)]
 #![feature(macro_rules)]
 
+//! An ideomatic wrapper for the GLFW library.
+//!
+//! # Example
+//!
+//! ~~~rust
+//! extern crate native;
+//! extern crate glfw;
+//! 
+//! #[start]
+//! fn start(argc: int, argv: **u8) -> int {
+//!     // Run GLFW on the main thread
+//!     native::start(argc, argv, main)
+//! }
+//! 
+//! fn main() {
+//!     let glfw = glfw::init().unwrap();
+//!     let errors = glfw.get_errors().unwrap();
+//! 
+//!     // Create a windowed mode window and its OpenGL context
+//!     let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+//!         .expect("Failed to create GLFW window.");
+//! 
+//!     // Make the window's context current
+//!     window.make_context_current();
+//! 
+//!     // Loop until the user closes the window
+//!     while !window.should_close() {
+//!         // Swap front and back buffers
+//!         window.swap_buffers();
+//! 
+//!         // Poll for and process events
+//!         glfw.poll_events();
+//!         glfw::fail_on_error(&errors);
+//!         for (_, event) in glfw::flush_messages(&events) {
+//!             println!("{}", event);
+//!             match event {
+//!                 glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+//!                     window.set_should_close(true)
+//!                 },
+//!                 _ => {},
+//!             }
+//!         }
+//!     }
+//! }
+//! ~~~
+
 // TODO: Document differences between GLFW and glfw-rs
 
 extern crate semver;
@@ -37,14 +83,22 @@ use std::str;
 use std::slice;
 use semver::Version;
 
+/// Alias to `MouseButton1`, supplied for improved clarity.
 pub use MouseButtonLeft     = self::MouseButton1;
+/// Alias to `MouseButton2`, supplied for improved clarity.
 pub use MouseButtonRight    = self::MouseButton2;
+/// Alias to `MouseButton3`, supplied for improved clarity.
 pub use MouseButtonMiddle   = self::MouseButton3;
 
 pub mod ffi;
+
 mod callbacks;
+
+/// Platform-specific linking. This module is automatically generated when
+/// glfw-rs is compiled.
 mod link;
 
+/// Input actions.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
 pub enum Action {
@@ -53,6 +107,7 @@ pub enum Action {
     Repeat                       = ffi::REPEAT,
 }
 
+/// Input keys.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
 pub enum Key {
@@ -179,11 +234,16 @@ pub enum Key {
     KeyMenu                     = ffi::KEY_MENU,
 }
 
+/// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
+/// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash)]
 pub enum MouseButton {
+    /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     MouseButton1                = ffi::MOUSE_BUTTON_1,
+    /// The right mouse button. A `MouseButtonRight` alias is provided to improve clarity.
     MouseButton2                = ffi::MOUSE_BUTTON_2,
+    /// The middle mouse button. A `MouseButtonMiddle` alias is provided to improve clarity.
     MouseButton3                = ffi::MOUSE_BUTTON_3,
     MouseButton4                = ffi::MOUSE_BUTTON_4,
     MouseButton5                = ffi::MOUSE_BUTTON_5,
@@ -207,6 +267,7 @@ impl fmt::Show for MouseButton {
     }
 }
 
+/// Tokens corresponding to various error types.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
 pub enum Error {
@@ -221,6 +282,7 @@ pub enum Error {
     FormatUnavailable           = ffi::FORMAT_UNAVAILABLE,
 }
 
+/// Cursor modes.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
 pub enum CursorMode {
@@ -246,6 +308,7 @@ pub struct GammaRamp {
     blue:   ~[c_ushort],
 }
 
+/// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
  
 /// A token from which to call various GLFW functions. It can be obtained by
@@ -269,13 +332,33 @@ pub enum InitError {
     InternalInitError,
 }
 
-/// Initialises the GLFW library and returns a `Glfw` token from which specific
-/// library functions can be called. Subsequent calls will return
-/// `Err(AlreadyInitialized)`. If an error occured within the glfw library,
-/// `Err(InternalInitError)` will be returned. This must be called on the main
-/// platform thread.
+/// Initializes the GLFW library. This must be called on the main platform thread.
 ///
 /// Wrapper for `glfwInit`.
+///
+/// # Example
+///
+/// ~~~rust
+/// extern crate native;
+/// extern crate glfw;
+/// 
+/// #[start]
+/// fn start(argc: int, argv: **u8) -> int {
+///     // Run GLFW on the main thread
+///     native::start(argc, argv, main)
+/// }
+/// 
+/// fn main() {
+///     let glfw = glfw::init().unwrap();
+/// }
+/// ~~~
+///
+/// # Returns
+///
+/// - If initialization was successful, a `Glfw` token will be returned.
+/// - Subsequent calls to `init` will return `Err(AlreadyInitialized)`.
+/// - If an initialization error occured within the glfw library,
+///   `Err(InternalInitError)` will be returned. 
 pub fn init() -> Result<Glfw, InitError> {
     use sync::one::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
@@ -300,7 +383,7 @@ pub fn init() -> Result<Glfw, InitError> {
 
 impl Glfw {
     /// Returns a `Reciever` for intercepting errors from GLFW. This will only
-    /// return `Some` once, otherwise `None` will be returned.
+    /// return the `Reciever` once – after that `None` will be returned.
     ///
     /// # Example
     ///
@@ -321,6 +404,9 @@ impl Glfw {
         callbacks::init_error_receiver()
     }
 
+    /// Returns the primary monitor. This is usually the monitor where elements
+    /// like the Windows task bar or the OS X menu bar is located.
+    ///
     /// Wrapper for `glfwGetPrimaryMonitor`.
     pub fn get_primary_monitor(&self) -> Result<Monitor,()> {
         unsafe {
@@ -331,6 +417,8 @@ impl Glfw {
         }
     }
 
+    /// Returns a vector of the currently connected monitors.
+    ///
     /// Wrapper for `glfwGetMonitors`.
     pub fn get_connected_monitors(&self) -> Vec<Monitor> {
         unsafe {
@@ -385,6 +473,8 @@ impl Glfw {
         unsafe { ffi::glfwDefaultWindowHints(); }
     }
 
+    /// Creates a new window.
+    ///
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_window(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, EventReceiver)> {
         self.create_window_intern(width, height, title, mode, None)
@@ -419,6 +509,9 @@ impl Glfw {
         }
     }
 
+    /// Makes the context of the specified window current. If no window is given
+    /// then the current context is detached.
+    ///
     /// Wrapper for `glfwMakeContextCurrent`.
     pub fn make_context_current(&self, context: Option<&Window>) {
         match context {
@@ -433,31 +526,48 @@ impl Glfw {
         unsafe { ffi::glfwGetX11Display() }
     }
 
+    /// Immediately process the received events.
+    ///
     /// Wrapper for `glfwPollEvents`.
     pub fn poll_events(&self) {
         unsafe { ffi::glfwPollEvents(); }
     }
 
+    /// Sleep until at least one event has been recieved, and then perform the
+    /// equivalent of `Glfw::poll_events`.
+    ///
     /// Wrapper for `glfwWaitEvents`.
     pub fn wait_events(&self) {
         unsafe { ffi::glfwWaitEvents(); }
     }
 
+    /// Returns the current value of the GLFW timer. Unless the timer has been
+    /// set using `glfw::set_time`, the timer measures time elapsed since GLFW
+    /// was initialized.
+    ///
     /// Wrapper for `glfwGetTime`.
     pub fn get_time(&self) -> f64 {
         unsafe { ffi::glfwGetTime() as f64 }
     }
 
+    /// Sets the value of the GLFW timer.
+    ///
     /// Wrapper for `glfwSetTime`.
     pub fn set_time(&self, time: f64) {
         unsafe { ffi::glfwSetTime(time as c_double); }
     }
 
+    /// Sets the number of screen updates to wait before swapping the buffers of
+    /// the current context and returning from `Window::swap_buffers`.
+    ///
     /// Wrapper for `glfwSwapInterval`.
     pub fn set_swap_interval(&self, interval: u32) {
         unsafe { ffi::glfwSwapInterval(interval as c_int); }
     }
 
+    /// Returns `true` if the specified OpenGL or context creation API extension
+    /// is supported by the current context.
+    ///
     /// Wrapper for `glfwExtensionSupported`.
     pub fn extension_supported(&self, extension: &str) -> bool {
         unsafe {
@@ -467,6 +577,9 @@ impl Glfw {
         }
     }
 
+    /// Returns the address of the specified client API or extension function
+    /// if it is supported by the current context.
+    ///
     /// Wrapper for `glfwGetProcAddress`.
     pub fn get_proc_address(&self, procname: &str) -> Option<GLProc> {
         unsafe {
@@ -476,6 +589,7 @@ impl Glfw {
         }
     }
 
+    /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
     pub fn get_joystick(&self, id: JoystickId) -> Joystick {
         Joystick { id: id, glfw: self.clone() }
     }
@@ -513,7 +627,10 @@ pub fn fail_on_error(errors: &Receiver<(f64, Error, ~str)>) {
     }
 }
 
-pub trait MonitorCallback { fn call(&self, monitor: &Monitor, event: MonitorEvent); }
+/// A monitor callback trait.
+pub trait MonitorCallback {
+    fn call(&self, monitor: &Monitor, event: MonitorEvent);
+}
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
@@ -603,6 +720,7 @@ impl Monitor {
     }
 }
 
+/// Monitor events.
 #[repr(C)]
 pub enum MonitorEvent {
     Connected                   = ffi::CONNECTED,
@@ -737,6 +855,7 @@ pub enum WindowHint {
     Decorated(bool),
 }
 
+/// Client API tokens.
 #[repr(C)]
 #[deriving(Clone, Eq, Show)]
 pub enum ClientApi {
@@ -744,6 +863,7 @@ pub enum ClientApi {
     OpenGlEsApi                 = ffi::OPENGL_ES_API,
 }
 
+/// Context robustness tokens.
 #[repr(C)]
 #[deriving(Clone, Eq, Show)]
 pub enum ContextRobustness {
@@ -752,6 +872,7 @@ pub enum ContextRobustness {
     LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET,
 }
 
+/// OpenGL profile tokens.
 #[repr(C)]
 #[deriving(Clone, Eq, Show)]
 pub enum OpenGlProfile {
@@ -836,6 +957,7 @@ impl fmt::Show for Modifiers {
 
 pub type Scancode = c_int;
 
+/// Window event messages.
 pub enum WindowEvent {
     PosEvent(i32, i32),
     SizeEvent(i32, i32),
@@ -852,6 +974,7 @@ pub enum WindowEvent {
     CharEvent(char),
 }
 
+/// An iterator over the flushed events received from an `EventReceiver`.
 pub struct FlushedWindowEvents<'a> {
     priv event_receiver: &'a Receiver<(f64, WindowEvent)>,
 }
@@ -865,6 +988,8 @@ impl<'a> Iterator<(f64, WindowEvent)> for FlushedWindowEvents<'a> {
     }
 }
 
+/// A `Receiver` of window events that can be flushed using the
+/// `EventReceiver::flush_events` function.
 pub struct EventReceiver(Receiver<(f64, WindowEvent)>);
 
 impl Deref<Receiver<(f64, WindowEvent)>> for EventReceiver {
@@ -906,9 +1031,9 @@ impl Window {
         self.glfw.create_window_intern(width, height, title, mode, Some(self))
     }
 
-    pub fn close(self) {
-        // Calling this method forces the destructor to be called, closing the window
-    }
+    /// Calling this method forces the destructor to be called, closing the
+    /// window.
+    pub fn close(self) {}
 
     /// Wrapper for `glfwWindowShouldClose`.
     pub fn should_close(&self) -> bool {
@@ -920,6 +1045,8 @@ impl Window {
         unsafe { ffi::glfwSetWindowShouldClose(self.ptr, value as c_int) }
     }
 
+    /// Sets the title of the window.
+    ///
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
         unsafe {
@@ -989,11 +1116,9 @@ impl Window {
         unsafe { ffi::glfwHideWindow(self.ptr); }
     }
 
+    /// Returns whether the window is fullscreen or windowed.
+    ///
     /// Wrapper for `glfwGetWindowMonitor`.
-    ///
-    /// # Returns
-    ///
-    /// The window mode; either glfw::FullScreen or glfw::Windowed
     pub fn get_window_mode(&self) -> WindowMode {
         WindowMode::from_ptr(
             unsafe { ffi::glfwGetWindowMonitor(self.ptr) }
@@ -1223,11 +1348,15 @@ impl Window {
         self.glfw.make_context_current(Some(self));
     }
 
-    /// Wrapper for `glfwGetCurrentContext`
+    /// Returns `true` if the window is the current context.
     pub fn is_current_context(&self) -> bool {
         self.ptr == unsafe { ffi::glfwGetCurrentContext() }
     }
 
+    /// Swaps the front and back buffers of the window. If the swap interval is
+    /// greater than zero, the GPU driver waits the specified number of screen
+    /// updates before swapping the buffers.
+    ///
     /// Wrapper for `glfwSwapBuffers`.
     pub fn swap_buffers(&self) {
         unsafe { ffi::glfwSwapBuffers(self.ptr); }
@@ -1272,7 +1401,7 @@ impl Window {
 
 #[unsafe_destructor]
 impl Drop for Window {
-    /// Closes the window and removes all associated callbacks.
+    /// Closes the window and performs the necessary cleanups.
     ///
     /// Wrapper for `glfwDestroyWindow`.
     fn drop(&mut self) {
@@ -1287,6 +1416,7 @@ impl Drop for Window {
     }
 }
 
+/// Joystick identifier tokens.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
 pub enum JoystickId {
@@ -1308,6 +1438,7 @@ pub enum JoystickId {
     Joystick16      = ffi::JOYSTICK_16,
 }
 
+/// A joystick handle.
 pub struct Joystick {
     id: JoystickId,
     glfw: Glfw,

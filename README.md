@@ -19,7 +19,7 @@
 
 GLFW bindings and wrapper for The Rust Programming Language.
 
-## Example code
+## Example
 
 ~~~rust
 extern crate native;
@@ -50,9 +50,22 @@ fn main() {
         // Poll for and process events
         glfw.poll_events();
         glfw::fail_on_error(&errors);
+        for (_, event) in glfw::flush_messages(&events) {
+            println!("{}", event);
+            match event {
+                glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+                    window.set_should_close(true)
+                },
+                _ => {},
+            }
+        }
     }
 }
 ~~~
+
+## Documentation
+
+The [API docs](http://rust-ci.org/bjz/glfw-rs/doc/glfw/) are hosted on Rust CI.
 
 ## Prerequisites
 

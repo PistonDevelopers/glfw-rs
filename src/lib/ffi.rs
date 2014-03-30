@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Low-level glfw function bindings and constants.
+//! Low-level function bindings and constants pertaining to the underlying
+//! GLFW library.
 
 use std::libc::*;
 

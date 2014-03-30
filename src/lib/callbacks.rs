@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Private functions and items to be used with the high-level library wrapper.
+//! Private callback support functions.
 
 use std::cast;
 use std::libc::*;
