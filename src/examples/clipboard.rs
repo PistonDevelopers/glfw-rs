@@ -35,7 +35,7 @@ fn main() {
     while !window.should_close() {
         glfw.poll_events();
         glfw::fail_on_error(&errors);
-        for (_, event) in events.flush_events() {
+        for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&window, event);
         }
     }
