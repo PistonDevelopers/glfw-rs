@@ -24,8 +24,6 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-#[phase(syntax, link)]
-extern crate log;
 extern crate semver;
 extern crate sync;
 
@@ -316,21 +314,34 @@ pub fn get_version_string() -> ~str {
     unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
 
-pub trait ErrorCallback { fn call(&self, error: Error, description: ~str); }
-
-/// Wrapper for `glfwSetErrorCallback`.
-pub fn set_error_callback(callback: ~ErrorCallback:'static) {
-    callbacks::set_error_callback(callback, (|ext_cb| {
-        unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
-    }));
+/// Returns a `Reciever` for intercepting errors from GLFW. This will only
+/// return `Some` once, otherwise `None` will be returned.
+///
+/// # Example
+///
+/// ~~~rust
+/// let errors = glfw::get_errors().unwrap();
+///
+/// // ...
+///
+/// match errors.try_recv() {
+///     std::comm::Data((_, _, description)) => {
+///         fail!("GLFW Error: {}", description),
+///     },
+///     _ => {},
+/// }
+/// ~~~
+pub fn get_errors() -> Option<Receiver<(f64, Error, ~str)>> {
+    callbacks::init_error_receiver()
 }
 
-/// An ErrorCallback implementation that uses the `error!` macro.
-pub struct LogErrorHandler;
-
-impl ErrorCallback for LogErrorHandler {
-    fn call(&self, error: Error, desc: ~str) {
-        error!("GLFW Error: {} ({})", error, desc);
+/// Fails if an error has been received.
+pub fn fail_on_error(errors: &Receiver<(f64, Error, ~str)>) {
+    match errors.try_recv() {
+        std::comm::Data((time, _, description)) => {
+            fail!("GLFW Error @ {}: {}", time, description)
+        },
+        _ => {},
     }
 }
 
