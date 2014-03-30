@@ -33,7 +33,7 @@ fn start(argc: int, argv: **u8) -> int {
 
 fn main() {
     // Set up an error callback
-    glfw::set_error_callback(~ErrorContext);
+    let errors = glfw::get_errors().unwrap();
 
     // Initialize the library
     glfw::start(proc() {
@@ -51,15 +51,9 @@ fn main() {
 
             // Poll for and process events
             glfw::poll_events();
+            glfw::fail_on_error(&errors);
         }
     });
-}
-
-struct ErrorContext;
-impl glfw::ErrorCallback for ErrorContext {
-    fn call(&self, _: glfw::Error, description: ~str) {
-        println!("GLFW Error: {:s}", description);
-    }
 }
 ~~~
 

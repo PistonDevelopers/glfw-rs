@@ -13,20 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[crate_type = "lib"];
-#[crate_type = "rlib"];
-#[crate_type = "dylib"];
-#[crate_id = "github.com/bjz/glfw-rs#glfw:0.1"];
-#[comment = "Bindings and wrapper functions for glfw3."];
+#![crate_type = "lib"]
+#![crate_type = "rlib"]
+#![crate_type = "dylib"]
+#![crate_id = "github.com/bjz/glfw-rs#glfw:0.1"]
+#![comment = "Bindings and wrapper functions for glfw3."]
 
-#[feature(globs)];
-#[feature(macro_rules)];
-#[feature(phase)];
+#![feature(globs)]
+#![feature(macro_rules)]
 
 // TODO: Document differences between GLFW and glfw-rs
 
-#[phase(syntax, link)]
-extern crate log;
 extern crate semver;
 extern crate sync;
 
@@ -317,21 +314,34 @@ pub fn get_version_string() -> ~str {
     unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
 
-pub trait ErrorCallback { fn call(&self, error: Error, description: ~str); }
-
-/// Wrapper for `glfwSetErrorCallback`.
-pub fn set_error_callback(callback: ~ErrorCallback:'static) {
-    callbacks::set_error_callback(callback, (|ext_cb| {
-        unsafe { ffi::glfwSetErrorCallback(Some(ext_cb)); }
-    }));
+/// Returns a `Reciever` for intercepting errors from GLFW. This will only
+/// return `Some` once, otherwise `None` will be returned.
+///
+/// # Example
+///
+/// ~~~rust
+/// let errors = glfw::get_errors().unwrap();
+///
+/// // ...
+///
+/// match errors.try_recv() {
+///     std::comm::Data((_, _, description)) => {
+///         fail!("GLFW Error: {}", description),
+///     },
+///     _ => {},
+/// }
+/// ~~~
+pub fn get_errors() -> Option<Receiver<(f64, Error, ~str)>> {
+    callbacks::init_error_receiver()
 }
 
-/// An ErrorCallback implementation that uses the `error!` macro.
-pub struct LogErrorHandler;
-
-impl ErrorCallback for LogErrorHandler {
-    fn call(&self, error: Error, desc: ~str) {
-        error!("GLFW Error: {} ({})", error, desc);
+/// Fails if an error has been received.
+pub fn fail_on_error(errors: &Receiver<(f64, Error, ~str)>) {
+    match errors.try_recv() {
+        std::comm::Data((time, _, description)) => {
+            fail!("GLFW Error @ {}: {}", time, description)
+        },
+        _ => {},
     }
 }
 
@@ -355,11 +365,11 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitors`.
-    pub fn get_connected() -> ~[Monitor] {
+    pub fn get_connected() -> Vec<Monitor> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            slice::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
+            slice::from_buf(ptr, count as uint).iter().map(|&m| Monitor { ptr: m }).collect()
         }
     }
 
@@ -396,11 +406,11 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetVideoModes`.
-    pub fn get_video_modes(&self) -> ~[VidMode] {
+    pub fn get_video_modes(&self) -> Vec<VidMode> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            slice::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
+            slice::from_buf(ptr, count as uint).iter().map(VidMode::from_glfw_vid_mode).collect()
         }
     }
 
@@ -1258,20 +1268,20 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
-    pub fn get_axes(&self) -> ~[f32] {
+    pub fn get_axes(&self) -> Vec<f32> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(*self as c_int, &mut count);
-            slice::from_buf(ptr, count as uint).map(|&a| a as f32)
+            slice::from_buf(ptr, count as uint).iter().map(|&a| a as f32).collect()
         }
     }
 
     /// Wrapper for `glfwGetJoystickButtons`.
-    pub fn get_buttons(&self) -> ~[c_int] {
+    pub fn get_buttons(&self) -> Vec<c_int> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(*self as c_int, &mut count);
-            slice::from_buf(ptr, count as uint).map(|&b| b as c_int)
+            slice::from_buf(ptr, count as uint).iter().map(|&b| b as c_int).collect()
         }
     }
 
