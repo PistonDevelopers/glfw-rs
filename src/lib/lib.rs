@@ -483,12 +483,12 @@ impl Glfw {
     /// Creates a new window.
     ///
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_window(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, EventReceiver)> {
+    pub fn create_window(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         self.create_window_intern(width, height, title, mode, None)
     }
 
     /// Internal wrapper for `glfwCreateWindow`.
-    fn create_window_intern(&self, width: u32, height: u32, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<(Window, EventReceiver)> {
+    fn create_window_intern(&self, width: u32, height: u32, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         let ptr = unsafe {
             title.with_c_str(|title| {
                 ffi::glfwCreateWindow(
@@ -511,7 +511,7 @@ impl Glfw {
                     glfw: self.clone(),
                     is_shared: share.is_none(),
                 },
-                EventReceiver(receiver),
+                receiver,
             ))
         }
     }
@@ -965,6 +965,7 @@ impl fmt::Show for Modifiers {
 pub type Scancode = c_int;
 
 /// Window event messages.
+#[deriving(Show)]
 pub enum WindowEvent {
     PosEvent(i32, i32),
     SizeEvent(i32, i32),
@@ -981,39 +982,34 @@ pub enum WindowEvent {
     CharEvent(char),
 }
 
-/// An iterator over the flushed events received from an `EventReceiver`.
-pub struct FlushedWindowEvents<'a> {
-    priv event_receiver: &'a Receiver<(f64, WindowEvent)>,
+/// Returns an iterator that yeilds until no more messages are contained in the
+/// `Receiver`'s queue. This is useful for event handling where the blocking
+/// behaviour of `Receiver::iter` is undesirable.
+///
+/// # Example
+///
+/// ~~~rust
+/// for event in glfw::flush_messages(&events) {
+///     // handle event
+/// }
+/// ~~~
+pub fn flush_messages<'a, Message: Send>(receiver: &'a Receiver<Message>) -> FlushedMessages<'a, Message> {
+    FlushedMessages(receiver)
 }
 
-impl<'a> Iterator<(f64, WindowEvent)> for FlushedWindowEvents<'a> {
-    fn next(&mut self) -> Option<(f64, WindowEvent)> {
-        match self.event_receiver.try_recv() {
-            Data(event) => Some(event),
+/// An iterator that yeilds until no more messages are contained in the
+/// `Receiver`'s queue.
+pub struct FlushedMessages<'a, Message>(&'a Receiver<Message>);
+
+impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
+    fn next(&mut self) -> Option<Message> {
+        let FlushedMessages(receiver) = *self;
+        match receiver.try_recv() {
+            Data(message) => Some(message),
             _ => None,
         }
     }
 }
-
-/// A `Receiver` of window events that can be flushed using the
-/// `EventReceiver::flush_events` function.
-pub struct EventReceiver(Receiver<(f64, WindowEvent)>);
-
-impl Deref<Receiver<(f64, WindowEvent)>> for EventReceiver {
-    fn deref<'a>(&'a self) -> &'a Receiver<(f64, WindowEvent)> {
-        match *self { EventReceiver(ref r) => r }
-    }
-}
-
-impl EventReceiver {
-    pub fn to_receiver(self) -> Receiver<(f64, WindowEvent)> { 
-        match self { EventReceiver(r) => r }
-    }
-
-    pub fn flush_events<'a>(&'a self) -> FlushedWindowEvents<'a> {
-        match *self { EventReceiver(ref r) => FlushedWindowEvents { event_receiver: r } }
-    }    
-} 
 
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
@@ -1034,7 +1030,7 @@ macro_rules! set_window_callback(
 
 impl Window {
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_shared(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, EventReceiver)> {
+    pub fn create_shared(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         self.glfw.create_window_intern(width, height, title, mode, Some(self))
     }
 
