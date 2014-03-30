@@ -355,11 +355,11 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitors`.
-    pub fn get_connected() -> ~[Monitor] {
+    pub fn get_connected() -> Vec<Monitor> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            slice::from_buf(ptr, count as uint).map(|&m| Monitor { ptr: m })
+            slice::from_buf(ptr, count as uint).iter().map(|&m| Monitor { ptr: m }).collect()
         }
     }
 
@@ -396,11 +396,11 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetVideoModes`.
-    pub fn get_video_modes(&self) -> ~[VidMode] {
+    pub fn get_video_modes(&self) -> Vec<VidMode> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            slice::from_buf(ptr, count as uint).map(VidMode::from_glfw_vid_mode)
+            slice::from_buf(ptr, count as uint).iter().map(VidMode::from_glfw_vid_mode).collect()
         }
     }
 
@@ -1258,20 +1258,20 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickAxes`.
-    pub fn get_axes(&self) -> ~[f32] {
+    pub fn get_axes(&self) -> Vec<f32> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(*self as c_int, &mut count);
-            slice::from_buf(ptr, count as uint).map(|&a| a as f32)
+            slice::from_buf(ptr, count as uint).iter().map(|&a| a as f32).collect()
         }
     }
 
     /// Wrapper for `glfwGetJoystickButtons`.
-    pub fn get_buttons(&self) -> ~[c_int] {
+    pub fn get_buttons(&self) -> Vec<c_int> {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(*self as c_int, &mut count);
-            slice::from_buf(ptr, count as uint).map(|&b| b as c_int)
+            slice::from_buf(ptr, count as uint).iter().map(|&b| b as c_int).collect()
         }
     }
 
