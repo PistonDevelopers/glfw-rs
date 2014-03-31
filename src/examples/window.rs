@@ -22,8 +22,8 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let glfw = glfw::init().unwrap();
-    let errors = glfw.get_errors().unwrap();
+    let (glfw, errors) = glfw::init().unwrap();
+    glfw::fail_on_error(&errors);
 
     let (window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
         .expect("Failed to create GLFW window.");

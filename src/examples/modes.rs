@@ -22,7 +22,8 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let glfw = glfw::init().unwrap();
+    let (glfw, errors) = glfw::init().unwrap();
+    glfw::fail_on_error(&errors);
 
     let _ = glfw.get_primary_monitor().map(|monitor| {
         println!("{}:", monitor.get_name());

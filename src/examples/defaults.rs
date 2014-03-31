@@ -22,7 +22,9 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let glfw = glfw::init().unwrap();
+    let (glfw, errors) = glfw::init().unwrap();
+    glfw::fail_on_error(&errors);
+
     glfw.window_hint(glfw::Visible(true));
 
     let (window, _) = glfw.create_window(640, 480, "Defaults", glfw::Windowed)
