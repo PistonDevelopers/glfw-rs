@@ -508,6 +508,7 @@ impl Glfw {
                     ptr: ptr,
                     glfw: self.clone(),
                     is_shared: share.is_none(),
+                    render_drop_ack: None
                 },
                 receiver,
             ))
@@ -1014,6 +1015,9 @@ pub struct Window {
     ptr: *ffi::GLFWwindow,
     glfw: Glfw,
     is_shared: bool,
+
+    /// this is used to ack if a shared channel is alive or not
+    priv render_drop_ack: Option<Receiver<()>>,
 }
 
 macro_rules! set_window_callback(
@@ -1035,6 +1039,18 @@ impl Window {
     /// Calling this method forces the destructor to be called, closing the
     /// window.
     pub fn close(self) {}
+
+    /// creates a render  contest that can be used off the main thread
+    /// this is required for multi-threaded rendering with glfw.
+    pub fn render_context(&mut self) -> Option<RenderContext> {
+        if self.render_drop_ack.is_some() {
+            None
+        } else {
+            let (send, recv) = channel();
+            self.render_drop_ack = Some(recv);
+            Some(RenderContext{ch: send, ptr: self.ptr})
+        }
+    }
 
     /// Wrapper for `glfwWindowShouldClose`.
     pub fn should_close(&self) -> bool {
@@ -1344,25 +1360,6 @@ impl Window {
         unsafe { str::raw::from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
 
-    /// Wrapper for `glfwMakeContextCurrent`.
-    pub fn make_context_current(&self) {
-        self.glfw.make_context_current(Some(self));
-    }
-
-    /// Returns `true` if the window is the current context.
-    pub fn is_current_context(&self) -> bool {
-        self.ptr == unsafe { ffi::glfwGetCurrentContext() }
-    }
-
-    /// Swaps the front and back buffers of the window. If the swap interval is
-    /// greater than zero, the GPU driver waits the specified number of screen
-    /// updates before swapping the buffers.
-    ///
-    /// Wrapper for `glfwSwapBuffers`.
-    pub fn swap_buffers(&self) {
-        unsafe { ffi::glfwSwapBuffers(self.ptr); }
-    }
-
     /// Wrapper for `glfwGetWin32Window`
     #[cfg(target_os="win32")]
     pub fn get_win32_window(&self) -> *c_void {
@@ -1400,12 +1397,83 @@ impl Window {
     }
 }
 
+pub struct RenderContext {
+    ptr: *ffi::GLFWwindow,
+    ch: Sender<()>
+}
+
+pub trait Context
+{
+    fn context_ptr(&self) -> *ffi::GLFWwindow;
+
+    /// Wrapper for `glfwSwapBuffers`.
+    fn swap_buffers(&self) {
+        let ptr = self.context_ptr();
+        unsafe { ffi::glfwSwapBuffers(ptr); }
+    }
+
+    /// Wrapper for `glfwGetCurrentContext`
+    fn is_current_context(&self) -> bool {
+        self.context_ptr() == unsafe { ffi::glfwGetCurrentContext() }
+    }
+
+    /// Wrapper for `glfwMakeContextCurrent`
+    fn make_context_current(&self) {
+        let ptr = self.context_ptr();
+        unsafe { ffi::glfwMakeContextCurrent(ptr); }
+    }
+}
+
+impl Context for Window {
+    fn context_ptr<'a>(&self) -> *ffi::GLFWwindow {
+        self.ptr
+    }
+}
+
+impl Context for RenderContext {
+    fn context_ptr<'a>(&self) -> *ffi::GLFWwindow {
+        self.ptr
+    }
+}
+
+
+/// Wrapper for `glfwMakeContextCurrent`.
+pub fn make_context_current(context: Option<&Context>) {
+    match context {
+        Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.context_ptr()) },
+        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
+    }
+}
+
+impl Drop for RenderContext {
+    fn drop(&mut self) {
+        //ack that we are being dropped
+        self.ch.send(());
+    }
+}
+
+
 #[unsafe_destructor]
 impl Drop for Window {
     /// Closes the window and performs the necessary cleanups.
     ///
     /// Wrapper for `glfwDestroyWindow`.
     fn drop(&mut self) {
+        if self.render_drop_ack.is_some() {
+            let ch = self.render_drop_ack.take().unwrap();
+
+
+            match ch.try_recv() {
+                Data(_) | std::comm::Disconnected => (),
+                std::comm::Empty => {
+                    println!("Window should not have been dropped before the Render Context was.");
+                    println!("glfw-rs will wait until the render context has been dropped.");
+                    let _ = ch.recv();
+                }
+            }
+
+        }
+
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
