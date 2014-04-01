@@ -304,19 +304,19 @@ pub enum CursorMode {
 
 /// Describes a single video mode.
 pub struct VidMode {
-    width:        u32,
-    height:       u32,
-    red_bits:     u32,
-    green_bits:   u32,
-    blue_bits:    u32,
-    refresh_rate: u32,
+    pub width:        u32,
+    pub height:       u32,
+    pub red_bits:     u32,
+    pub green_bits:   u32,
+    pub blue_bits:    u32,
+    pub refresh_rate: u32,
 }
 
 /// Describes the gamma ramp of a monitor.
 pub struct GammaRamp {
-    red:    ~[c_ushort],
-    green:  ~[c_ushort],
-    blue:   ~[c_ushort],
+    pub red:    ~[c_ushort],
+    pub green:  ~[c_ushort],
+    pub blue:   ~[c_ushort],
 }
 
 /// An OpenGL process address.
@@ -330,8 +330,8 @@ pub type GLProc = ffi::GLFWglproc;
 /// for convenience.
 #[deriving(Clone)]
 pub struct Glfw {
-    priv no_send: marker::NoSend,
-    priv no_share: marker::NoShare,
+    no_send: marker::NoSend,
+    no_share: marker::NoShare,
 }
 
 /// An error that might be returned when `glfw::init` is called.
@@ -601,22 +601,24 @@ impl Glfw {
     }
 }
 
-/// Wrapper for `glfwGetVersion`.
-pub fn get_version() -> Version {
-    unsafe {
-        let mut major = 0;
-        let mut minor = 0;
-        let mut patch = 0;
-        ffi::glfwGetVersion(&mut major, &mut minor, &mut patch);
-        Version {
-            major: major as uint,
-            minor: minor as uint,
-            patch: patch as uint,
-            pre:   Vec::new(),
-            build: Vec::new(),
-        }
-    }
-}
+// TODO: uncomment when the semver::Version constructor is restored
+//
+// /// Wrapper for `glfwGetVersion`.
+// pub fn get_version() -> Version {
+//     unsafe {
+//         let mut major = 0;
+//         let mut minor = 0;
+//         let mut patch = 0;
+//         ffi::glfwGetVersion(&mut major, &mut minor, &mut patch);
+//         Version {
+//             major: major as uint,
+//             minor: minor as uint,
+//             patch: patch as uint,
+//             pre:   Vec::new(),
+//             build: Vec::new(),
+//         }
+//     }
+// }
 
 /// Wrapper for `glfwGetVersionString`.
 pub fn get_version_string() -> ~str {
@@ -641,7 +643,7 @@ pub trait MonitorCallback {
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
 pub struct Monitor {
-    ptr: *ffi::GLFWmonitor
+    pub ptr: *ffi::GLFWmonitor
 }
 
 impl Monitor {
@@ -921,7 +923,7 @@ impl WindowMode {
 
 /// A group of key modifiers
 pub struct Modifiers {
-    values: c_int,
+    pub values: c_int,
 }
 
 /// Key modifier tokens
@@ -1012,12 +1014,11 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
 
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
-    ptr: *ffi::GLFWwindow,
-    glfw: Glfw,
-    is_shared: bool,
-
+    pub ptr: *ffi::GLFWwindow,
+    pub glfw: Glfw,
+    pub is_shared: bool,
     /// this is used to ack if a shared channel is alive or not
-    priv render_drop_ack: Option<Receiver<()>>,
+    render_drop_ack: Option<Receiver<()>>,
 }
 
 macro_rules! set_window_callback(
@@ -1157,23 +1158,25 @@ impl Window {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::CLIENT_API) }
     }
 
-    /// Wrapper for `glfwGetWindowAttrib` called with
-    /// `CONTEXT_VERSION_MAJOR`, `CONTEXT_VERSION_MINOR` and `CONTEXT_REVISION`.
-    ///
-    /// # Returns
-    ///
-    /// The client API version of the window's context in a version struct.
-    pub fn get_context_version(&self) -> Version {
-        unsafe {
-            Version {
-                major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
-                minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
-                patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
-                pre:   Vec::new(),
-                build: Vec::new(),
-            }
-        }
-    }
+    // TODO: uncomment when the semver::Version constructor is restored
+    //
+    // /// Wrapper for `glfwGetWindowAttrib` called with
+    // /// `CONTEXT_VERSION_MAJOR`, `CONTEXT_VERSION_MINOR` and `CONTEXT_REVISION`.
+    // ///
+    // /// # Returns
+    // ///
+    // /// The client API version of the window's context in a version struct.
+    // pub fn get_context_version(&self) -> Version {
+    //     unsafe {
+    //         Version {
+    //             major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
+    //             minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
+    //             patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
+    //             pre:   Vec::new(),
+    //             build: Vec::new(),
+    //         }
+    //     }
+    // }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CONTEXT_ROBUSTNESS`.
     pub fn get_context_robustness(&self) -> c_int {
@@ -1509,8 +1512,8 @@ pub enum JoystickId {
 
 /// A joystick handle.
 pub struct Joystick {
-    id: JoystickId,
-    glfw: Glfw,
+    pub id: JoystickId,
+    pub glfw: Glfw,
 }
 
 impl Joystick {

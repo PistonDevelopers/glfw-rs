@@ -270,19 +270,19 @@ pub enum GLFWmonitor {}
 pub enum GLFWwindow {}
 
 pub struct GLFWgammaramp {
-    red:    *c_ushort,
-    green:  *c_ushort,
-    blue:   *c_ushort,
-    size:   c_uint,
+    pub red:    *c_ushort,
+    pub green:  *c_ushort,
+    pub blue:   *c_ushort,
+    pub size:   c_uint,
 }
 
 pub struct GLFWvidmode {
-    width:       c_int,
-    height:      c_int,
-    redBits:     c_int,
-    greenBits:   c_int,
-    blueBits:    c_int,
-    refreshRate: c_int,
+    pub width:       c_int,
+    pub height:      c_int,
+    pub redBits:     c_int,
+    pub greenBits:   c_int,
+    pub blueBits:    c_int,
+    pub refreshRate: c_int,
 }
 
 // C function bindings
