@@ -1012,6 +1012,7 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
     }
 }
 
+/// A message for notifying a `Window` that a `RenderContext` has been dropped.
 struct ContextDropped;
 
 /// A struct that wraps a `*GLFWwindow` handle.
@@ -1042,8 +1043,8 @@ impl Window {
     /// window.
     pub fn close(self) {}
 
-    /// Returns a render context that can be used off the main thread, allowing
-    /// for multi-threaded rendering.
+    /// Returns a render context that can be shared between tasks, allowing
+    /// for concurrent rendering.
     pub fn render_context(&mut self) -> RenderContext {
         let (send, recv) = channel();
         self.context_comm.push(recv);
@@ -1400,21 +1401,28 @@ impl Window {
     }
 }
 
+/// A rendering context that can be shared between tasks.
 pub struct RenderContext {
     ptr: *ffi::GLFWwindow,
     window_comm: Sender<ContextDropped>,
 }
 
+/// Methods common to renderable contexts
 pub trait Context {
+    /// Returns the pointer to the underlying `GLFWwindow`.
     fn context_ptr(&self) -> *ffi::GLFWwindow;
 
+    /// Swaps the front and back buffers of the window. If the swap interval is
+    /// greater than zero, the GPU driver waits the specified number of screen
+    /// updates before swapping the buffers.
+    ///
     /// Wrapper for `glfwSwapBuffers`.
     fn swap_buffers(&self) {
         let ptr = self.context_ptr();
         unsafe { ffi::glfwSwapBuffers(ptr); }
     }
 
-    /// Wrapper for `glfwGetCurrentContext`
+    /// Returns `true` if the window is the current context.
     fn is_current_context(&self) -> bool {
         self.context_ptr() == unsafe { ffi::glfwGetCurrentContext() }
     }
