@@ -1041,8 +1041,8 @@ impl Window {
     /// window.
     pub fn close(self) {}
 
-    /// creates a render  contest that can be used off the main thread
-    /// this is required for multi-threaded rendering with glfw.
+    /// Returns a render context that can be used off the main thread, allowing
+    /// for multi-threaded rendering.
     pub fn render_context(&mut self) -> Option<RenderContext> {
         if self.render_drop_ack.is_some() {
             None
