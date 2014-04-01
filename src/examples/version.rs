@@ -16,6 +16,7 @@
 extern crate glfw;
 
 fn main() {
-    println!("{:s}", glfw::get_version().to_str());
-    println!("GLFW version: {:s}", glfw::get_version_string());
+    // TODO: uncomment when the semver::Version constructor is restored
+    // println!("{:s}", glfw::get_version().to_str());
+    // println!("GLFW version: {:s}", glfw::get_version_string());
 }
