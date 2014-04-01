@@ -33,7 +33,7 @@ fn main() {
 
     window.set_key_polling(true);
 
-    let render_context = window.render_context().unwrap();
+    let render_context = window.render_context();
     let (send, recv) = channel();
 
     let mut render_task = task().named("render task");

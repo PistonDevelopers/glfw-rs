@@ -508,7 +508,7 @@ impl Glfw {
                     ptr: ptr,
                     glfw: self.clone(),
                     is_shared: share.is_none(),
-                    render_drop_ack: None
+                    context_comm: Vec::new(),
                 },
                 receiver,
             ))
@@ -1012,13 +1012,14 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
     }
 }
 
+struct ContextDropped;
+
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
     pub ptr: *ffi::GLFWwindow,
     pub glfw: Glfw,
     pub is_shared: bool,
-    /// this is used to ack if a shared channel is alive or not
-    render_drop_ack: Option<Receiver<()>>,
+    context_comm: Vec<Receiver<ContextDropped>>,
 }
 
 macro_rules! set_window_callback(
@@ -1043,13 +1044,12 @@ impl Window {
 
     /// Returns a render context that can be used off the main thread, allowing
     /// for multi-threaded rendering.
-    pub fn render_context(&mut self) -> Option<RenderContext> {
-        if self.render_drop_ack.is_some() {
-            None
-        } else {
-            let (send, recv) = channel();
-            self.render_drop_ack = Some(recv);
-            Some(RenderContext{ch: send, ptr: self.ptr})
+    pub fn render_context(&mut self) -> RenderContext {
+        let (send, recv) = channel();
+        self.context_comm.push(recv);
+        RenderContext {
+            ptr: self.ptr,
+            window_comm: send,
         }
     }
 
@@ -1402,7 +1402,7 @@ impl Window {
 
 pub struct RenderContext {
     ptr: *ffi::GLFWwindow,
-    ch: Sender<()>,
+    window_comm: Sender<ContextDropped>,
 }
 
 pub trait Context {
@@ -1449,27 +1449,26 @@ pub fn make_context_current(context: Option<&Context>) {
 
 impl Drop for RenderContext {
     fn drop(&mut self) {
-        //ack that we are being dropped
-        self.ch.send(());
+        // Notify the parent window that the context was dropped
+        self.window_comm.send(ContextDropped);
     }
 }
 
 
 #[unsafe_destructor]
 impl Drop for Window {
-    /// Closes the window and performs the necessary cleanups.
+    /// Closes the window and performs the necessary cleanups. This will block
+    /// until all associated `RenderContext`s were also dropped.
     ///
     /// Wrapper for `glfwDestroyWindow`.
     fn drop(&mut self) {
-        if self.render_drop_ack.is_some() {
-            let ch = self.render_drop_ack.take().unwrap();
-
-            match ch.try_recv() {
+        for context in self.context_comm.iter() {
+            match context.try_recv() {
                 Data(_) | std::comm::Disconnected => (),
                 std::comm::Empty => {
-                    println!("Window should not have been dropped before the Render Context was.");
-                    println!("glfw-rs will wait until the render context has been dropped.");
-                    let _ = ch.recv();
+                    println!("Attempted to drop the Window before the `RenderContext` was dropped.");
+                    println!("Blocking until the `RenderContext` was dropped.");
+                    let _ = context.recv();
                 }
             }
         }
