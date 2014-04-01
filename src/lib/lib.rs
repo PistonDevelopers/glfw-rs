@@ -1470,15 +1470,11 @@ pub trait Context {
 }
 
 impl Context for Window {
-    fn context_ptr<'a>(&self) -> *ffi::GLFWwindow {
-        self.ptr
-    }
+    fn context_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
 }
 
 impl Context for RenderContext {
-    fn context_ptr<'a>(&self) -> *ffi::GLFWwindow {
-        self.ptr
-    }
+    fn context_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
 }
 
 /// Wrapper for `glfwMakeContextCurrent`.
