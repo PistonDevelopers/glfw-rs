@@ -13,6 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Demonstrates how concurrent rendering can be achieved
+//! through the use of `RenderContext`s.
+
 extern crate native;
 extern crate glfw;
 
@@ -38,7 +41,9 @@ fn main() {
 
     let mut render_task = task().named("render task");
     let render_task_done = render_task.future_result();
-    render_task.spawn(proc() { render_main(render_context, recv) });
+    render_task.spawn(proc() {
+        render(render_context, recv);
+    });
 
     while !window.should_close() {
         glfw.poll_events();
@@ -48,22 +53,20 @@ fn main() {
         }
     }
 
-    // tell the render task to exit.
+    // Tell the render task to exit.
     send.send(());
 
-    // wait for ack
+    // Wait for acknowledgement that the rendering was completed.
     let _ = render_task_done.recv();
 }
 
-fn render_main(context: glfw::RenderContext, info: Receiver<()>) {
+fn render(context: glfw::RenderContext, finish: Receiver<()>) {
     context.make_context_current();
     loop {
-        // are we done?
-        if info.try_recv() == std::comm::Data(()) {
-            break;
-        }
+        // Check if the rendering should stop.
+        if finish.try_recv() == std::comm::Data(()) { break };
 
-        // do gl calls here
+        // Perform rendering calls
 
         context.swap_buffers();
     }
