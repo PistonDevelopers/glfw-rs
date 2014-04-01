@@ -1401,10 +1401,45 @@ impl Window {
     }
 }
 
+#[unsafe_destructor]
+impl Drop for Window {
+    /// Closes the window and performs the necessary cleanups. This will block
+    /// until all associated `RenderContext`s were also dropped.
+    ///
+    /// Wrapper for `glfwDestroyWindow`.
+    fn drop(&mut self) {
+        for context in self.context_comm.iter() {
+            match context.try_recv() {
+                Data(_) | std::comm::Disconnected => (),
+                std::comm::Empty => {
+                    println!("Attempted to drop the Window before the `RenderContext` was dropped.");
+                    println!("Blocking until the `RenderContext` was dropped.");
+                    let _ = context.recv();
+                }
+            }
+        }
+        if !self.is_shared {
+            unsafe { ffi::glfwDestroyWindow(self.ptr); }
+        }
+        if !self.ptr.is_null() {
+            unsafe {
+                let _: ~Sender<(f64, WindowEvent)> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+            }
+        }
+    }
+}
+
 /// A rendering context that can be shared between tasks.
 pub struct RenderContext {
     ptr: *ffi::GLFWwindow,
     window_comm: Sender<ContextDropped>,
+}
+
+impl Drop for RenderContext {
+    fn drop(&mut self) {
+        // Notify the parent window that the context was dropped.
+        self.window_comm.send(ContextDropped);
+    }
 }
 
 /// Methods common to renderable contexts
@@ -1446,48 +1481,11 @@ impl Context for RenderContext {
     }
 }
 
-
 /// Wrapper for `glfwMakeContextCurrent`.
 pub fn make_context_current(context: Option<&Context>) {
     match context {
         Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.context_ptr()) },
         None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
-    }
-}
-
-impl Drop for RenderContext {
-    fn drop(&mut self) {
-        // Notify the parent window that the context was dropped
-        self.window_comm.send(ContextDropped);
-    }
-}
-
-
-#[unsafe_destructor]
-impl Drop for Window {
-    /// Closes the window and performs the necessary cleanups. This will block
-    /// until all associated `RenderContext`s were also dropped.
-    ///
-    /// Wrapper for `glfwDestroyWindow`.
-    fn drop(&mut self) {
-        for context in self.context_comm.iter() {
-            match context.try_recv() {
-                Data(_) | std::comm::Disconnected => (),
-                std::comm::Empty => {
-                    println!("Attempted to drop the Window before the `RenderContext` was dropped.");
-                    println!("Blocking until the `RenderContext` was dropped.");
-                    let _ = context.recv();
-                }
-            }
-        }
-        if !self.is_shared {
-            unsafe { ffi::glfwDestroyWindow(self.ptr); }
-        }
-        if !self.ptr.is_null() {
-            unsafe {
-                let _: ~Sender<(f64, WindowEvent)> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
-            }
-        }
     }
 }
 
