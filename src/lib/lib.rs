@@ -1402,11 +1402,10 @@ impl Window {
 
 pub struct RenderContext {
     ptr: *ffi::GLFWwindow,
-    ch: Sender<()>
+    ch: Sender<()>,
 }
 
-pub trait Context
-{
+pub trait Context {
     fn context_ptr(&self) -> *ffi::GLFWwindow;
 
     /// Wrapper for `glfwSwapBuffers`.
@@ -1465,7 +1464,6 @@ impl Drop for Window {
         if self.render_drop_ack.is_some() {
             let ch = self.render_drop_ack.take().unwrap();
 
-
             match ch.try_recv() {
                 Data(_) | std::comm::Disconnected => (),
                 std::comm::Empty => {
@@ -1474,9 +1472,7 @@ impl Drop for Window {
                     let _ = ch.recv();
                 }
             }
-
         }
-
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }

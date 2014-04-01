@@ -55,8 +55,7 @@ fn main() {
     let _ = render_task_done.recv();
 }
 
-fn render_main(context: glfw::RenderContext, info: Receiver<()>)
-{
+fn render_main(context: glfw::RenderContext, info: Receiver<()>) {
     context.make_context_current();
     loop {
         // are we done?
