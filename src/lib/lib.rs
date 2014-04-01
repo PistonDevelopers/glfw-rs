@@ -29,6 +29,8 @@
 //! ~~~rust
 //! extern crate native;
 //! extern crate glfw;
+//!
+//! use glfw::Context;
 //! 
 //! #[start]
 //! fn start(argc: int, argv: **u8) -> int {

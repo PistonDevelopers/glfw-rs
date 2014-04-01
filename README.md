@@ -25,6 +25,8 @@ GLFW bindings and wrapper for The Rust Programming Language.
 extern crate native;
 extern crate glfw;
 
+use glfw::Context;
+
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     // Run GLFW on the main thread
