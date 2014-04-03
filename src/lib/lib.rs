@@ -48,7 +48,7 @@
 //!         .expect("Failed to create GLFW window.");
 //! 
 //!     // Make the window's context current
-//!     window.make_context_current();
+//!     window.make_current();
 //! 
 //!     // Loop until the user closes the window
 //!     while !window.should_close() {
