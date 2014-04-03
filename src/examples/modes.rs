@@ -25,17 +25,21 @@ fn main() {
     let (glfw, errors) = glfw::init().unwrap();
     glfw::fail_on_error(&errors);
 
-    let _ = glfw.get_primary_monitor().map(|monitor| {
-        println!("{}:", monitor.get_name());
-        println!("    {}\n", monitor.get_video_mode().unwrap());
+    glfw.get_primary_monitor(|monitor| {
+        let _ = monitor.map(|monitor| {
+            println!("{}:", monitor.get_name());
+            println!("    {}\n", monitor.get_video_mode().unwrap());
+        });
     });
 
     println!("Available monitors\n\
               ------------------");
-    for monitor in glfw.get_connected_monitors().iter() {
-        println!("{}:", monitor.get_name());
-        for mode in monitor.get_video_modes().iter() {
-            println!("  {}", *mode);
+    glfw.get_connected_monitors(|monitors| {
+        for monitor in monitors.iter() {
+            println!("{}:", monitor.get_name());
+            for mode in monitor.get_video_modes().iter() {
+                println!("  {}", *mode);
+            }
         }
-    }
+    });
 }

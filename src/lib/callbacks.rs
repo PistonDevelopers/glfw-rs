@@ -16,6 +16,7 @@
 //! Private callback support functions.
 
 use std::cast;
+use std::kinds::marker;
 use std::libc::*;
 use std::local_data;
 use std::str;
@@ -52,7 +53,13 @@ pub fn init_error_receiver() -> Option<Receiver<Error>> {
 pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
     local_data::get(MONITOR_CALLBACK, (|data| {
         data.as_ref().map(|&ref cb| {
-            unsafe { cb.call(&Monitor { ptr: monitor }, cast::transmute(event)) }
+            let monitor = Monitor {
+                ptr: monitor,
+                no_copy: marker::NoCopy,
+                no_send: marker::NoSend,
+                no_share: marker::NoShare,
+            };
+            unsafe { cb.call(&monitor, cast::transmute(event)) }
         });
     }));
 }
