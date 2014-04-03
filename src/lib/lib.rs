@@ -417,7 +417,12 @@ impl Glfw {
     pub fn get_primary_monitor(&self, f: |Option<Monitor>|) {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(None),
-            ptr                  => f(Some(Monitor { ptr: ptr })),
+            ptr => f(Some(Monitor {
+                ptr: ptr,
+                no_copy: marker::NoCopy,
+                no_send: marker::NoSend,
+                no_share: marker::NoShare,
+            })),
         }
     }
 
@@ -430,7 +435,12 @@ impl Glfw {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
             f(slice::from_buf(ptr, count as uint).iter().map(|&ptr| {
-                Monitor { ptr: ptr }
+                Monitor {
+                    ptr: ptr,
+                    no_copy: marker::NoCopy,
+                    no_send: marker::NoSend,
+                    no_share: marker::NoShare,
+                }
             }).collect());
         }
     }
@@ -644,7 +654,10 @@ pub trait MonitorCallback {
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[deriving(Eq)]
 pub struct Monitor {
-    pub ptr: *ffi::GLFWmonitor
+    ptr: *ffi::GLFWmonitor,
+    no_copy: marker::NoCopy,
+    no_send: marker::NoSend,
+    no_share: marker::NoShare,
 }
 
 impl Monitor {
@@ -908,7 +921,12 @@ impl WindowMode {
         if ptr.is_null() {
             Windowed
         } else {
-            FullScreen(Monitor { ptr: ptr })
+            FullScreen(Monitor {
+                ptr: ptr,
+                no_copy: marker::NoCopy,
+                no_send: marker::NoSend,
+                no_share: marker::NoShare,
+            })
         }
     }
 
@@ -916,8 +934,8 @@ impl WindowMode {
     /// it returns a null pointer (if it is in windowed mode).
     fn to_ptr(&self) -> *ffi::GLFWmonitor {
         match *self {
-            FullScreen(monitor) => monitor.ptr,
-            Windowed => ptr::null()
+            FullScreen(ref monitor) => monitor.ptr,
+            Windowed                => ptr::null(),
         }
     }
 }
