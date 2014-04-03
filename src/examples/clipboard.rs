@@ -31,7 +31,7 @@ fn main() {
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
-    window.make_context_current();
+    window.make_current();
     glfw.set_swap_interval(1);
 
     while !window.should_close() {

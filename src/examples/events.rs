@@ -55,7 +55,7 @@ fn main() {
     // to poll in the above code.
     window.set_all_polling(true);
 
-    window.make_context_current();
+    window.make_current();
 
     while !window.should_close() {
         glfw.poll_events();

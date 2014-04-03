@@ -61,7 +61,7 @@ fn main() {
 }
 
 fn render(context: glfw::RenderContext, finish: Receiver<()>) {
-    context.make_context_current();
+    context.make_current();
     loop {
         // Check if the rendering should stop.
         if finish.try_recv() == std::comm::Data(()) { break };

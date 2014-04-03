@@ -31,7 +31,7 @@ fn main() {
         .expect("Failed to create GLFW window.");
 
     window.set_cursor_mode(glfw::CursorDisabled);
-    window.make_context_current();
+    window.make_current();
 
     window.set_cursor_pos_polling(true);
     window.set_key_polling(true);

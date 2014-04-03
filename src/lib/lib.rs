@@ -21,6 +21,7 @@
 
 #![feature(globs)]
 #![feature(macro_rules)]
+#![feature(phase)]
 
 //! An ideomatic wrapper for the GLFW library.
 //!
@@ -74,6 +75,7 @@
 
 extern crate semver;
 extern crate sync;
+#[phase(syntax, link)] extern crate log;
 
 use std::cast;
 use std::comm::{channel, Receiver, Sender, Data};
@@ -1441,7 +1443,7 @@ pub struct RenderContext {
 /// Methods common to renderable contexts
 pub trait Context {
     /// Returns the pointer to the underlying `GLFWwindow`.
-    fn context_ptr(&self) -> *ffi::GLFWwindow;
+    fn window_ptr(&self) -> *ffi::GLFWwindow;
 
     /// Swaps the front and back buffers of the window. If the swap interval is
     /// greater than zero, the GPU driver waits the specified number of screen
@@ -1449,34 +1451,34 @@ pub trait Context {
     ///
     /// Wrapper for `glfwSwapBuffers`.
     fn swap_buffers(&self) {
-        let ptr = self.context_ptr();
+        let ptr = self.window_ptr();
         unsafe { ffi::glfwSwapBuffers(ptr); }
     }
 
     /// Returns `true` if the window is the current context.
-    fn is_current_context(&self) -> bool {
-        self.context_ptr() == unsafe { ffi::glfwGetCurrentContext() }
+    fn is_current(&self) -> bool {
+        self.window_ptr() == unsafe { ffi::glfwGetCurrentContext() }
     }
 
     /// Wrapper for `glfwMakeContextCurrent`
-    fn make_context_current(&self) {
-        let ptr = self.context_ptr();
+    fn make_current(&self) {
+        let ptr = self.window_ptr();
         unsafe { ffi::glfwMakeContextCurrent(ptr); }
     }
 }
 
 impl Context for Window {
-    fn context_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
 }
 
 impl Context for RenderContext {
-    fn context_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
 }
 
 /// Wrapper for `glfwMakeContextCurrent`.
 pub fn make_context_current(context: Option<&Context>) {
     match context {
-        Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.context_ptr()) },
+        Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
         None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
     }
 }
