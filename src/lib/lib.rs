@@ -414,7 +414,7 @@ impl Glfw {
     /// the OS X menu bar is located.
     ///
     /// Wrapper for `glfwGetPrimaryMonitor`.
-    pub fn get_primary_monitor(&self, f: |Option<&Monitor>|) {
+    pub fn get_primary_monitor<T>(&self, f: |Option<&Monitor>| -> T) -> T {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(None),
             ptr => f(Some(&Monitor {
@@ -430,7 +430,7 @@ impl Glfw {
     /// provided.
     ///
     /// Wrapper for `glfwGetMonitors`.
-    pub fn get_connected_monitors(&self, f: |&[Monitor]|) {
+    pub fn get_connected_monitors<T>(&self, f: |&[Monitor]| -> T) -> T {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
