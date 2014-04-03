@@ -409,27 +409,29 @@ pub fn init() -> Result<(Glfw, Receiver<Error>), InitError> {
 }
 
 impl Glfw {
-    /// Returns the primary monitor. This is usually the monitor where elements
-    /// like the Windows task bar or the OS X menu bar is located.
+    /// Supplies the primary monitor to the closure provided, if it exists.
+    /// This is usually the monitor where elements like the Windows task bar or
+    /// the OS X menu bar is located.
     ///
     /// Wrapper for `glfwGetPrimaryMonitor`.
-    pub fn get_primary_monitor(&self) -> Result<Monitor,()> {
-        unsafe {
-            ffi::glfwGetPrimaryMonitor()
-             .to_option()
-             .map_or(Err(()),
-                |ptr| Ok(Monitor { ptr: ptr }))
+    pub fn get_primary_monitor(&self, f: |Option<Monitor>|) {
+        match unsafe { ffi::glfwGetPrimaryMonitor() } {
+            ptr if ptr.is_null() => f(None),
+            ptr                  => f(Some(Monitor { ptr: ptr })),
         }
     }
 
-    /// Returns a vector of the currently connected monitors.
+    /// Supplies a vector of the currently connected monitors to the closure
+    /// provided.
     ///
     /// Wrapper for `glfwGetMonitors`.
-    pub fn get_connected_monitors(&self) -> Vec<Monitor> {
+    pub fn get_connected_monitors(&self, f: |Vec<Monitor>|) {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            slice::from_buf(ptr, count as uint).iter().map(|&m| Monitor { ptr: m }).collect()
+            f(slice::from_buf(ptr, count as uint).iter().map(|&ptr| {
+                Monitor { ptr: ptr }
+            }).collect());
         }
     }
 
