@@ -16,6 +16,8 @@
 extern crate native;
 extern crate glfw;
 
+use glfw::Context;
+
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     native::start(argc, argv, main)
@@ -53,7 +55,7 @@ fn main() {
     // to poll in the above code.
     window.set_all_polling(true);
 
-    window.make_context_current();
+    window.make_current();
 
     while !window.should_close() {
         glfw.poll_events();

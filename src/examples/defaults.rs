@@ -16,6 +16,8 @@
 extern crate native;
 extern crate glfw;
 
+use glfw::Context;
+
 #[start]
 fn start(argc: int, argv: **u8) -> int {
     native::start(argc, argv, main)
@@ -30,7 +32,7 @@ fn main() {
     let (window, _) = glfw.create_window(640, 480, "Defaults", glfw::Windowed)
         .expect("Failed to create GLFW window.");
 
-    window.make_context_current();
+    window.make_current();
 
     let (width, height) = window.get_size();
     println!("window size: ({}, {})", width, height);

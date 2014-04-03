@@ -1,4 +1,4 @@
-// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
+// Copyright 2014 The GLFW-RS Developers. For a full listing of the authors,
 // refer to the AUTHORS file at the top-level directory of this distribution.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Demonstrates how concurrent rendering can be achieved
+//! through the use of `RenderContext`s.
+
 extern crate native;
 extern crate glfw;
 
 use glfw::Context;
+use std::task::task;
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
@@ -27,12 +31,19 @@ fn main() {
     let (glfw, errors) = glfw::init().unwrap();
     glfw::fail_on_error(&errors);
 
-    let (window, events) = glfw.create_window(300, 300, "Clipboard Test", glfw::Windowed)
+    let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
-    window.make_current();
-    glfw.set_swap_interval(1);
+
+    let render_context = window.render_context();
+    let (send, recv) = channel();
+
+    let mut render_task = task().named("render task");
+    let render_task_done = render_task.future_result();
+    render_task.spawn(proc() {
+        render(render_context, recv);
+    });
 
     while !window.should_close() {
         glfw.poll_events();
@@ -41,33 +52,33 @@ fn main() {
             handle_window_event(&window, event);
         }
     }
+
+    // Tell the render task to exit.
+    send.send(());
+
+    // Wait for acknowledgement that the rendering was completed.
+    let _ = render_task_done.recv();
 }
 
-#[cfg(target_os = "macos")]
-static NATIVE_MOD: glfw::Modifier = glfw::Super;
+fn render(context: glfw::RenderContext, finish: Receiver<()>) {
+    context.make_current();
+    loop {
+        // Check if the rendering should stop.
+        if finish.try_recv() == std::comm::Data(()) { break };
 
-#[cfg(not(target_os = "macos"))]
-static NATIVE_MOD: glfw::Modifier = glfw::Control;
+        // Perform rendering calls
+
+        context.swap_buffers();
+    }
+
+    // required on some platforms
+    glfw::make_context_current(None);
+}
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::KeyEvent(key, _, action, mods) => {
-            if action == glfw::Press {
-                if key == glfw::KeyEscape {
-                    window.set_should_close(true);
-                }
-                if (key == glfw::KeyV) && mods.contains(NATIVE_MOD) {
-                    match window.get_clipboard_string() {
-                        ref s if !s.is_empty() => println!("Clipboard contains \"{:s}\"", *s),
-                        _                      => println!("Clipboard does not contain a string"),
-                    }
-                }
-                if (key == glfw::KeyC) && mods.contains(NATIVE_MOD) {
-                    let s = "Hello GLFW World!";
-                    window.set_clipboard_string(s);
-                    println!("Setting clipboard to {:s}", s);
-                }
-            }
+        glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+            window.set_should_close(true)
         }
         _ => {}
     }

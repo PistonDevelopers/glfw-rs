@@ -21,6 +21,7 @@
 
 #![feature(globs)]
 #![feature(macro_rules)]
+#![feature(phase)]
 
 //! An ideomatic wrapper for the GLFW library.
 //!
@@ -29,6 +30,8 @@
 //! ~~~rust
 //! extern crate native;
 //! extern crate glfw;
+//!
+//! use glfw::Context;
 //! 
 //! #[start]
 //! fn start(argc: int, argv: **u8) -> int {
@@ -45,7 +48,7 @@
 //!         .expect("Failed to create GLFW window.");
 //! 
 //!     // Make the window's context current
-//!     window.make_context_current();
+//!     window.make_current();
 //! 
 //!     // Loop until the user closes the window
 //!     while !window.should_close() {
@@ -72,6 +75,7 @@
 
 extern crate semver;
 extern crate sync;
+#[phase(syntax, link)] extern crate log;
 
 use std::cast;
 use std::comm::{channel, Receiver, Sender, Data};
@@ -513,6 +517,7 @@ impl Glfw {
         if ptr.is_null() {
             None
         } else {
+            let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
             unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~sender)); }
             Some((
@@ -520,6 +525,8 @@ impl Glfw {
                     ptr: ptr,
                     glfw: self.clone(),
                     is_shared: share.is_none(),
+                    drop_sender: Some(drop_sender),
+                    drop_receiver: drop_receiver
                 },
                 receiver,
             ))
@@ -1031,11 +1038,17 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
     }
 }
 
+/// A message for notifying a `Window` that a `RenderContext` has been dropped.
+#[deriving(Eq)]
+struct ContextDropped;
+
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
     pub ptr: *ffi::GLFWwindow,
     pub glfw: Glfw,
     pub is_shared: bool,
+    drop_sender: Option<Sender<ContextDropped>>,
+    drop_receiver: Receiver<ContextDropped>
 }
 
 macro_rules! set_window_callback(
@@ -1057,6 +1070,16 @@ impl Window {
     /// Calling this method forces the destructor to be called, closing the
     /// window.
     pub fn close(self) {}
+
+    /// Returns a render context that can be shared between tasks, allowing
+    /// for concurrent rendering.
+    pub fn render_context(&mut self) -> RenderContext {
+        RenderContext {
+            ptr: self.ptr,
+            // this will only be None after dropping so this is safe
+            drop_sender: self.drop_sender.as_ref().unwrap().clone()
+        }
+    }
 
     /// Wrapper for `glfwWindowShouldClose`.
     pub fn should_close(&self) -> bool {
@@ -1368,25 +1391,6 @@ impl Window {
         unsafe { str::raw::from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
 
-    /// Wrapper for `glfwMakeContextCurrent`.
-    pub fn make_context_current(&self) {
-        self.glfw.make_context_current(Some(self));
-    }
-
-    /// Returns `true` if the window is the current context.
-    pub fn is_current_context(&self) -> bool {
-        self.ptr == unsafe { ffi::glfwGetCurrentContext() }
-    }
-
-    /// Swaps the front and back buffers of the window. If the swap interval is
-    /// greater than zero, the GPU driver waits the specified number of screen
-    /// updates before swapping the buffers.
-    ///
-    /// Wrapper for `glfwSwapBuffers`.
-    pub fn swap_buffers(&self) {
-        unsafe { ffi::glfwSwapBuffers(self.ptr); }
-    }
-
     /// Wrapper for `glfwGetWin32Window`
     #[cfg(target_os="win32")]
     pub fn get_win32_window(&self) -> *c_void {
@@ -1426,10 +1430,19 @@ impl Window {
 
 #[unsafe_destructor]
 impl Drop for Window {
-    /// Closes the window and performs the necessary cleanups.
+    /// Closes the window and performs the necessary cleanups. This will block
+    /// until all associated `RenderContext`s were also dropped.
     ///
     /// Wrapper for `glfwDestroyWindow`.
     fn drop(&mut self) {
+        drop(self.drop_sender.take());
+
+        if self.drop_receiver.try_recv() != std::comm::Disconnected {
+            error!("Attempted to drop a Window before the `RenderContext` was dropped.");
+            error!("Blocking until the `RenderContext` was dropped.");
+            let _ = self.drop_receiver.recv_opt();
+        }
+
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
@@ -1438,6 +1451,55 @@ impl Drop for Window {
                 let _: ~Sender<(f64, WindowEvent)> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
             }
         }
+    }
+}
+
+/// A rendering context that can be shared between tasks.
+pub struct RenderContext {
+    ptr: *ffi::GLFWwindow,
+    drop_sender: Sender<ContextDropped>
+}
+
+/// Methods common to renderable contexts
+pub trait Context {
+    /// Returns the pointer to the underlying `GLFWwindow`.
+    fn window_ptr(&self) -> *ffi::GLFWwindow;
+
+    /// Swaps the front and back buffers of the window. If the swap interval is
+    /// greater than zero, the GPU driver waits the specified number of screen
+    /// updates before swapping the buffers.
+    ///
+    /// Wrapper for `glfwSwapBuffers`.
+    fn swap_buffers(&self) {
+        let ptr = self.window_ptr();
+        unsafe { ffi::glfwSwapBuffers(ptr); }
+    }
+
+    /// Returns `true` if the window is the current context.
+    fn is_current(&self) -> bool {
+        self.window_ptr() == unsafe { ffi::glfwGetCurrentContext() }
+    }
+
+    /// Wrapper for `glfwMakeContextCurrent`
+    fn make_current(&self) {
+        let ptr = self.window_ptr();
+        unsafe { ffi::glfwMakeContextCurrent(ptr); }
+    }
+}
+
+impl Context for Window {
+    fn window_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
+}
+
+impl Context for RenderContext {
+    fn window_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
+}
+
+/// Wrapper for `glfwMakeContextCurrent`.
+pub fn make_context_current(context: Option<&Context>) {
+    match context {
+        Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
+        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
     }
 }
 
