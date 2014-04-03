@@ -503,6 +503,7 @@ impl Glfw {
         if ptr.is_null() {
             None
         } else {
+            let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
             unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~sender)); }
             Some((
@@ -510,7 +511,8 @@ impl Glfw {
                     ptr: ptr,
                     glfw: self.clone(),
                     is_shared: share.is_none(),
-                    context_comm: Vec::new(),
+                    drop_sender: Some(drop_sender),
+                    drop_receiver: drop_receiver
                 },
                 receiver,
             ))
@@ -1015,6 +1017,7 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
 }
 
 /// A message for notifying a `Window` that a `RenderContext` has been dropped.
+#[deriving(Eq)]
 struct ContextDropped;
 
 /// A struct that wraps a `*GLFWwindow` handle.
@@ -1022,7 +1025,8 @@ pub struct Window {
     pub ptr: *ffi::GLFWwindow,
     pub glfw: Glfw,
     pub is_shared: bool,
-    context_comm: Vec<Receiver<ContextDropped>>,
+    drop_sender: Option<Sender<ContextDropped>>,
+    drop_receiver: Receiver<ContextDropped>
 }
 
 macro_rules! set_window_callback(
@@ -1048,11 +1052,10 @@ impl Window {
     /// Returns a render context that can be shared between tasks, allowing
     /// for concurrent rendering.
     pub fn render_context(&mut self) -> RenderContext {
-        let (send, recv) = channel();
-        self.context_comm.push(recv);
         RenderContext {
             ptr: self.ptr,
-            window_comm: send,
+            // this will only be None after dropping so this is safe
+            drop_sender: self.drop_sender.as_ref().unwrap().clone()
         }
     }
 
@@ -1410,16 +1413,14 @@ impl Drop for Window {
     ///
     /// Wrapper for `glfwDestroyWindow`.
     fn drop(&mut self) {
-        for context in self.context_comm.iter() {
-            match context.try_recv() {
-                Data(_) | std::comm::Disconnected => (),
-                std::comm::Empty => {
-                    println!("Attempted to drop the Window before the `RenderContext` was dropped.");
-                    println!("Blocking until the `RenderContext` was dropped.");
-                    let _ = context.recv();
-                }
-            }
+        drop(self.drop_sender.take());
+
+        if self.drop_receiver.try_recv() != std::comm::Disconnected {
+            error!("Attempted to drop a Window before the `RenderContext` was dropped.");
+            error!("Blocking until the `RenderContext` was dropped.");
+            let _ = self.drop_receiver.recv_opt();
         }
+
         if !self.is_shared {
             unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
@@ -1434,14 +1435,7 @@ impl Drop for Window {
 /// A rendering context that can be shared between tasks.
 pub struct RenderContext {
     ptr: *ffi::GLFWwindow,
-    window_comm: Sender<ContextDropped>,
-}
-
-impl Drop for RenderContext {
-    fn drop(&mut self) {
-        // Notify the parent window that the context was dropped.
-        self.window_comm.send(ContextDropped);
-    }
+    drop_sender: Sender<ContextDropped>
 }
 
 /// Methods common to renderable contexts
