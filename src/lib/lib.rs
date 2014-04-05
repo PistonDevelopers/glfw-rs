@@ -264,7 +264,7 @@ pub enum MouseButton {
 /// assert_eq(format!("{}", glfw::MouseButtonLeft), ~"MouseButton1");
 /// assert_eq(format!("{}", glfw::ShowAliases(glfw::MouseButtonLeft)), ~"MouseButtonLeft");
 /// ~~~
-pub struct ShowAliases<T>(T);
+pub struct ShowAliases<T>(pub T);
 
 impl fmt::Show for ShowAliases<MouseButton> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
