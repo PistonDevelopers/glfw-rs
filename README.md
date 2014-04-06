@@ -34,8 +34,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let (glfw, errors) = glfw::init().unwrap();
-    glfw::fail_on_error(&errors);
+    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     // Create a windowed mode window and its OpenGL context
     let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
@@ -51,7 +50,6 @@ fn main() {
 
         // Poll for and process events
         glfw.poll_events();
-        glfw::fail_on_error(&errors);
         for (_, event) in glfw::flush_messages(&events) {
             println!("{}", event);
             match event {

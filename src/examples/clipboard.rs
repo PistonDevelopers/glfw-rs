@@ -24,8 +24,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let (glfw, errors) = glfw::init().unwrap();
-    glfw::fail_on_error(&errors);
+    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     let (window, events) = glfw.create_window(300, 300, "Clipboard Test", glfw::Windowed)
         .expect("Failed to create GLFW window.");
@@ -36,7 +35,6 @@ fn main() {
 
     while !window.should_close() {
         glfw.poll_events();
-        glfw::fail_on_error(&errors);
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&window, event);
         }

@@ -24,8 +24,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let (glfw, errors) = glfw::init().unwrap();
-    glfw::fail_on_error(&errors);
+    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     glfw.window_hint(glfw::Resizable(true));
 
@@ -59,7 +58,6 @@ fn main() {
 
     while !window.should_close() {
         glfw.poll_events();
-        glfw::fail_on_error(&errors);
         for event in glfw::flush_messages(&events) {
             handle_window_event(&window, event);
         }
