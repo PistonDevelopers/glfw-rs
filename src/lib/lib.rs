@@ -439,12 +439,20 @@ impl Glfw {
     /// # Example
     ///
     /// ~~~rust
-    /// fn fail_on_errors(_: glfw::Error, description: ~str, prefix: &'static str) {
-    ///     fail!("{}{}", prefix, description);
+    /// use std::cell::Cell;
+    ///
+    /// fn error_callback(_: glfw::Error, description: ~str, error_count: &Cell<uint>) {
+    ///     error!("GLFW error {}: {}", error_count.get(), description);
+    ///     error_count.set(error_count.get() + 1);
     /// }
     ///
     /// // sets a new callback
-    /// glfw.set_error_callback(Some((fail_on_errors, "GLFW Error: ")));
+    /// glfw.set_error_callback(Some(
+    ///     glfw::Callback {
+    ///         f: error_callback,
+    ///         data: Cell::new(0),
+    ///     }
+    /// ));
     ///
     /// // removes the previously set callback
     /// glfw.set_error_callback(None);
@@ -464,7 +472,7 @@ impl Glfw {
         }
     }
 
-    /// Sets the error callback, overwriting the previous one stored.
+    /// Sets the monitor callback, overwriting the previous one stored.
     pub fn set_monitor_callback<UserData: 'static>(&self, callback: Option<MonitorCallback<UserData>>) {
         match callback {
             Some(f) => callbacks::monitor::set(f),
