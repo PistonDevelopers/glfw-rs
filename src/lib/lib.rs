@@ -643,24 +643,22 @@ impl Glfw {
     }
 }
 
-// TODO: uncomment when the semver::Version constructor is restored
-//
-// /// Wrapper for `glfwGetVersion`.
-// pub fn get_version() -> Version {
-//     unsafe {
-//         let mut major = 0;
-//         let mut minor = 0;
-//         let mut patch = 0;
-//         ffi::glfwGetVersion(&mut major, &mut minor, &mut patch);
-//         Version {
-//             major: major as uint,
-//             minor: minor as uint,
-//             patch: patch as uint,
-//             pre:   Vec::new(),
-//             build: Vec::new(),
-//         }
-//     }
-// }
+/// Wrapper for `glfwGetVersion`.
+pub fn get_version() -> Version {
+    unsafe {
+        let mut major = 0;
+        let mut minor = 0;
+        let mut patch = 0;
+        ffi::glfwGetVersion(&mut major, &mut minor, &mut patch);
+        Version {
+            major: major as uint,
+            minor: minor as uint,
+            patch: patch as uint,
+            pre:   Vec::new(),
+            build: Vec::new(),
+        }
+    }
+}
 
 /// Wrapper for `glfwGetVersionString`.
 pub fn get_version_string() -> ~str {
@@ -1210,25 +1208,23 @@ impl Window {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::CLIENT_API) }
     }
 
-    // TODO: uncomment when the semver::Version constructor is restored
-    //
-    // /// Wrapper for `glfwGetWindowAttrib` called with
-    // /// `CONTEXT_VERSION_MAJOR`, `CONTEXT_VERSION_MINOR` and `CONTEXT_REVISION`.
-    // ///
-    // /// # Returns
-    // ///
-    // /// The client API version of the window's context in a version struct.
-    // pub fn get_context_version(&self) -> Version {
-    //     unsafe {
-    //         Version {
-    //             major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
-    //             minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
-    //             patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
-    //             pre:   Vec::new(),
-    //             build: Vec::new(),
-    //         }
-    //     }
-    // }
+    /// Wrapper for `glfwGetWindowAttrib` called with
+    /// `CONTEXT_VERSION_MAJOR`, `CONTEXT_VERSION_MINOR` and `CONTEXT_REVISION`.
+    ///
+    /// # Returns
+    ///
+    /// The client API version of the window's context in a version struct.
+    pub fn get_context_version(&self) -> Version {
+        unsafe {
+            Version {
+                major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as uint,
+                minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as uint,
+                patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as uint,
+                pre:   Vec::new(),
+                build: Vec::new(),
+            }
+        }
+    }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CONTEXT_ROBUSTNESS`.
     pub fn get_context_robustness(&self) -> c_int {
