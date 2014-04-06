@@ -16,57 +16,86 @@
 //! Private callback support functions.
 
 use std::cast;
-use std::kinds::marker;
 use std::libc::*;
-use std::local_data;
-use std::str;
-use sync::one::{Once, ONCE_INIT};
 
 use super::*;
 
-local_data_key!(ERROR_SENDER: Sender<Error>)
-local_data_key!(MONITOR_CALLBACK: ~MonitorCallback:'static)
+macro_rules! callback(
+    (
+        type Args = ($($arg:ident: $arg_ty:ty),*);
+        type Callback = $Callback:ident;
+        let ext_set = $ext_set:expr;
+        fn callback($($ext_arg:ident: $ext_arg_ty:ty),*) $call:expr
+    ) => (
+        local_data_key!(CALLBACK_KEY: ~Object<Args>:'static)
 
-pub extern "C" fn error_callback(error: c_int, description: *c_char) {
-    unsafe {
-        local_data::get(ERROR_SENDER, |sender| {
-            sender.as_ref().expect("ERROR_SENDER not initialized")
-                  .send((cast::transmute(error), str::raw::from_c_str(description)))
-        });
-    }
+        type Args = ($($arg_ty),*,);
+
+        trait Object<T> {
+            fn call(&self, args: T);
+        }
+
+        impl<UserData> Object<Args> for ::Callback<fn($($arg_ty),*, &UserData), UserData> {
+            fn call(&self, ($($arg),*,): Args) {
+                (self.f)($($arg),*, &self.data);
+            }
+        }
+
+        pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
+            ::std::local_data::set(CALLBACK_KEY, ~f as ~Object<Args>:'static);
+            ($ext_set)(Some(callback));
+        }
+
+        pub fn unset() {
+            ::std::local_data::pop(CALLBACK_KEY);
+            ($ext_set)(None);
+        }
+
+        extern "C" fn callback($($ext_arg: $ext_arg_ty),*) {
+            ::std::local_data::get(CALLBACK_KEY, |data| {
+                match data {
+                    Some(cb) => unsafe { cb.call($call) },
+                    _ => {}
+                }
+            });
+        }
+    )
+)
+
+pub mod error {
+    use std::cast;
+    use std::libc::{c_int, c_char};
+    use std::str;
+
+    callback!(
+        type Args = (error: ::Error, description: ~str);
+        type Callback = ErrorCallback;
+        let ext_set = |cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
+        fn callback(error: c_int, description: *c_char) {
+            (cast::transmute(error), str::raw::from_c_str(description))
+        }
+    )
 }
 
-pub fn init_error_receiver() -> Option<Receiver<Error>> {
-    static mut INIT: Once = ONCE_INIT;
-    let mut errors = None;
-    unsafe {
-        INIT.doit(|| {
-            let (sender, receiver) = channel();
-            local_data::set(ERROR_SENDER, sender);
-            ffi::glfwSetErrorCallback(Some(error_callback));
-            errors = Some(receiver);
-        });
-    }
-    errors
-}
+pub mod monitor {
+    use std::cast;
+    use std::kinds::marker;
+    use std::libc::c_int;
 
-pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
-    local_data::get(MONITOR_CALLBACK, (|data| {
-        data.as_ref().map(|&ref cb| {
-            let monitor = Monitor {
+    callback!(
+        type Args = (monitor: ::Monitor, event: ::MonitorEvent);
+        type Callback = MonitorCallback;
+        let ext_set = |cb| unsafe { ::ffi::glfwSetMonitorCallback(cb) };
+        fn callback(monitor: *::ffi::GLFWmonitor, event: c_int) {
+            let monitor = ::Monitor {
                 ptr: monitor,
                 no_copy: marker::NoCopy,
                 no_send: marker::NoSend,
                 no_share: marker::NoShare,
             };
-            unsafe { cb.call(&monitor, cast::transmute(event)) }
-        });
-    }));
-}
-
-pub fn set_monitor_callback(callback: ~MonitorCallback:'static, f: |ffi::GLFWmonitorfun| ) {
-    local_data::set(MONITOR_CALLBACK, callback);
-    f(monitor_callback);
+            (monitor, cast::transmute(event))
+        }
+    )
 }
 
 unsafe fn get_sender<'a>(window: &'a *ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {

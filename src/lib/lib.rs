@@ -40,8 +40,7 @@
 //! }
 //! 
 //! fn main() {
-//!    let (glfw, errors) = glfw::init().unwrap();
-//!    glfw::fail_on_error(&errors);
+//!    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 //! 
 //!     // Create a windowed mode window and its OpenGL context
 //!     let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
@@ -57,7 +56,6 @@
 //! 
 //!         // Poll for and process events
 //!         glfw.poll_events();
-//!         glfw::fail_on_error(&errors);
 //!         for (_, event) in glfw::flush_messages(&events) {
 //!             println!("{}", event);
 //!             match event {
@@ -278,10 +276,15 @@ impl fmt::Show for ShowAliases<MouseButton> {
     }
 }
 
+pub struct Callback<Fn, UserData> {
+    pub f: Fn,
+    pub data: UserData,
+}
+
 /// Tokens corresponding to various error types.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show)]
-pub enum ErrorType {
+pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
     InvalidEnum                 = ffi::INVALID_ENUM,
@@ -292,10 +295,29 @@ pub enum ErrorType {
     PlatformError               = ffi::PLATFORM_ERROR,
     FormatUnavailable           = ffi::FORMAT_UNAVAILABLE,
 }
- 
-/// Information pertaining to a GLFW error. This includes an `ErrorType` and a
-/// string providing additional error information in a human-readable format.
-pub type Error = (ErrorType, ~str);
+
+/// An error callback. This can be supplied with some user data to be passed to
+/// the callback function when it is triggered.
+pub type ErrorCallback<UserData> = Callback<fn(Error, ~str, &UserData), UserData>;
+
+/// The function to be used with the `FAIL_ON_ERRORS` callback.
+pub fn fail_on_errors(_: Error, description: ~str, _: &()) {
+    fail!("GLFW Error: {}", description);
+}
+
+/// A callback that triggers a task failure when an error is encountered.
+pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> =
+    Some(Callback { f: fail_on_errors, data: () });
+
+/// The function to be used with the `LOG_ERRORS` callback.
+pub fn log_errors(_: Error, description: ~str, _: &()) {
+    error!("GLFW Error: {}", description);
+}
+
+/// A callback that logs each error as it is encountered without triggering a
+/// task failure.
+pub static LOG_ERRORS: Option<ErrorCallback<()>> =
+    Some(Callback { f: log_errors, data: () });
 
 /// Cursor modes.
 #[repr(C)]
@@ -343,15 +365,20 @@ pub struct Glfw {
 pub enum InitError {
     /// The library was already initialized.
     AlreadyInitialized,
-    /// The the error receiver could not be initialized.
-    ErrorReceiverNotInitialized,
     /// An internal error occured when trying to initialize the library.
     InternalInitError,
 }
 
-/// Initializes the GLFW library. This must be called on the main platform thread.
+/// Initializes the GLFW library. This must be called on the main platform
+/// thread.
 ///
 /// Wrapper for `glfwInit`.
+///
+/// # Error callback
+///
+/// An error callback can be set if desired. This allows for the handling of any
+/// errors that occur during initialization. This can subsequently be changed
+/// using the `Glfw::set_error_callback` function.
 ///
 /// # Example
 ///
@@ -366,8 +393,7 @@ pub enum InitError {
 /// }
 /// 
 /// fn main() {
-///     let (glfw, errors) = glfw::init().unwrap();
-///     glfw::fail_on_error(&errors);
+///    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 /// }
 /// ~~~
 ///
@@ -376,43 +402,76 @@ pub enum InitError {
 /// - If initialization was successful a `Glfw` token will be returned along
 ///   with a `Receiver` from which errors can be intercepted.
 /// - Subsequent calls to `init` will return `Err(AlreadyInitialized)`.
-/// - If the error receiver could not be initialized
-///   `Err(ErrorReceiverNotInitialized)` will be returned.
 /// - If an initialization error occured within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
-pub fn init() -> Result<(Glfw, Receiver<Error>), InitError> {
+pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) -> Result<Glfw, InitError> {
     use sync::one::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
     let mut result = Err(AlreadyInitialized);
     unsafe {
         INIT.doit(|| {
-            match callbacks::init_error_receiver() {
-                Some(errors) => {
-                    if ffi::glfwInit() == ffi::TRUE {
-                        result = Ok(errors);
-                        std::rt::at_exit(proc() {
-                            ffi::glfwTerminate()
-                        });
-                    } else {
-                        result = Err(InternalInitError);
-                    }
-                },
-                None => {
-                    result = Err(ErrorReceiverNotInitialized)
-                },
+            // Initialize the error callback if it was supplied. This is done
+            // before `ffi::glfwInit` because errors could occur during
+            // initialization.
+            match callback.take() {
+                Some(f) => callbacks::error::set(f),
+                None    => callbacks::error::unset(),
+            }
+            if ffi::glfwInit() == ffi::TRUE {
+                result = Ok(());
+                std::rt::at_exit(proc() {
+                    ffi::glfwTerminate()
+                });
+            } else {
+                result = Err(InternalInitError);
             }
         })
     }
-    result.map(|errors| (
-        Glfw {
-            no_send: marker::NoSend,
-            no_share: marker::NoShare,
-        },
-        errors,
-    ))
+    result.map(|_| Glfw {
+        no_send: marker::NoSend,
+        no_share: marker::NoShare,
+    })
 }
 
 impl Glfw {
+    /// Sets the error callback, overwriting the previous one stored.
+    ///
+    /// # Example
+    ///
+    /// ~~~rust
+    /// fn fail_on_errors(_: glfw::Error, description: ~str, prefix: &'static str) {
+    ///     fail!("{}{}", prefix, description);
+    /// }
+    ///
+    /// // sets a new callback
+    /// glfw.set_error_callback(Some((fail_on_errors, "GLFW Error: ")));
+    ///
+    /// // removes the previously set callback
+    /// glfw.set_error_callback(None);
+    /// ~~~
+    ///
+    /// The `FAIL_ON_ERRORS` and `LOG_ERRORS` callbacks are provided for
+    /// convenience. For example:
+    ///
+    /// ~~~rust
+    /// // triggers a task failure when a GLFW error is encountered.
+    /// glfw.set_error_callback(glfw::FAIL_ON_ERRORS);
+    /// ~~~
+    pub fn set_error_callback<UserData: 'static>(&self, callback: Option<ErrorCallback<UserData>>) {
+        match callback {
+            Some(f) => callbacks::error::set(f),
+            None    => callbacks::error::unset(),
+        }
+    }
+
+    /// Sets the error callback, overwriting the previous one stored.
+    pub fn set_monitor_callback<UserData: 'static>(&self, callback: Option<MonitorCallback<UserData>>) {
+        match callback {
+            Some(f) => callbacks::monitor::set(f),
+            None    => callbacks::monitor::unset(),
+        }
+    }
+
     /// Supplies the primary monitor to the closure provided, if it exists.
     /// This is usually the monitor where elements like the Windows task bar or
     /// the OS X menu bar is located.
@@ -667,23 +726,11 @@ pub fn get_version_string() -> ~str {
     unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
 
-/// Fails if an error has been received.
-pub fn fail_on_error(errors: &Receiver<Error>) {
-    match errors.try_recv() {
-        std::comm::Data((_, description)) => {
-            fail!("GLFW Error: {}", description)
-        },
-        _ => {},
-    }
-}
-
-/// A monitor callback trait.
-pub trait MonitorCallback {
-    fn call(&self, monitor: &Monitor, event: MonitorEvent);
-}
+/// An monitor callback. This can be supplied with some user data to be passed
+/// to the callback function when it is triggered.
+pub type MonitorCallback<UserData> = Callback<fn(Monitor, MonitorEvent, &UserData), UserData>;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
-#[deriving(Eq)]
 pub struct Monitor {
     ptr: *ffi::GLFWmonitor,
     no_copy: marker::NoCopy,
@@ -715,13 +762,6 @@ impl Monitor {
     /// Wrapper for `glfwGetMonitorName`.
     pub fn get_name(&self) -> ~str {
         unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
-    }
-
-    /// Wrapper for `glfwSetMonitorCallback`.
-    pub fn set_callback(callback: ~MonitorCallback:'static) {
-        callbacks::set_monitor_callback(callback, (|ext_cb| {
-            unsafe { ffi::glfwSetMonitorCallback(Some(ext_cb)); }
-        }));
     }
 
     /// Wrapper for `glfwGetVideoModes`.
