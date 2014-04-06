@@ -343,13 +343,11 @@ pub struct Glfw {
 pub enum InitError {
     /// The library was already initialized.
     AlreadyInitialized,
-    /// The the error receiver could not be initialized.
-    ErrorReceiverNotInitialized,
     /// An internal error occured when trying to initialize the library.
     InternalInitError,
 }
 
-/// Initializes the GLFW library. This must be called on the main platform thread.
+/// Initializes the GLFW library. This _must_ be called from the main platform thread.
 ///
 /// Wrapper for `glfwInit`.
 ///
@@ -376,40 +374,40 @@ pub enum InitError {
 /// - If initialization was successful a `Glfw` token will be returned along
 ///   with a `Receiver` from which errors can be intercepted.
 /// - Subsequent calls to `init` will return `Err(AlreadyInitialized)`.
-/// - If the error receiver could not be initialized
-///   `Err(ErrorReceiverNotInitialized)` will be returned.
 /// - If an initialization error occured within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
 pub fn init() -> Result<(Glfw, Receiver<Error>), InitError> {
-    use sync::one::{Once, ONCE_INIT};
-    static mut INIT: Once = ONCE_INIT;
-    let mut result = Err(AlreadyInitialized);
-    unsafe {
-        INIT.doit(|| {
-            match callbacks::init_error_receiver() {
-                Some(errors) => {
-                    if ffi::glfwInit() == ffi::TRUE {
-                        result = Ok(errors);
-                        std::rt::at_exit(proc() {
-                            ffi::glfwTerminate()
-                        });
-                    } else {
-                        result = Err(InternalInitError);
-                    }
+    use std::local_data;
+    local_data_key!(IS_INITIALIZED: ())
+
+    // Check if GLFW is already running
+    let mut is_initialized = false;
+    local_data::get(IS_INITIALIZED, |x| {
+        is_initialized = x.is_some();
+    });
+
+    if is_initialized {
+        Err(AlreadyInitialized)
+    } else {
+        // Initialize error channel. We do this before `ffi::glfwInit` because
+        // errors can happen during initialization.
+        let errors = callbacks::init_errors();
+
+        if unsafe { ffi::glfwInit() } == ffi::FALSE {
+            Err(InternalInitError)
+        } else {
+            // Ensure GLFW is terminated when the program is closed.
+            std::rt::at_exit(proc() unsafe { ffi::glfwTerminate() });
+            local_data::set(IS_INITIALIZED, ());
+            Ok((
+                Glfw {
+                    no_send: marker::NoSend,
+                    no_share: marker::NoShare,
                 },
-                None => {
-                    result = Err(ErrorReceiverNotInitialized)
-                },
-            }
-        })
+                errors,
+            ))
+        }
     }
-    result.map(|errors| (
-        Glfw {
-            no_send: marker::NoSend,
-            no_share: marker::NoShare,
-        },
-        errors,
-    ))
 }
 
 impl Glfw {

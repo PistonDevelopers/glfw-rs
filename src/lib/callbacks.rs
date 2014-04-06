@@ -20,7 +20,6 @@ use std::kinds::marker;
 use std::libc::*;
 use std::local_data;
 use std::str;
-use sync::one::{Once, ONCE_INIT};
 
 use super::*;
 
@@ -36,18 +35,13 @@ pub extern "C" fn error_callback(error: c_int, description: *c_char) {
     }
 }
 
-pub fn init_error_receiver() -> Option<Receiver<Error>> {
-    static mut INIT: Once = ONCE_INIT;
-    let mut errors = None;
+pub fn init_errors() -> Receiver<Error> {
+    let (sender, receiver) = channel();
+    local_data::set(ERROR_SENDER, sender);
     unsafe {
-        INIT.doit(|| {
-            let (sender, receiver) = channel();
-            local_data::set(ERROR_SENDER, sender);
-            ffi::glfwSetErrorCallback(Some(error_callback));
-            errors = Some(receiver);
-        });
+        ffi::glfwSetErrorCallback(Some(error_callback));
     }
-    errors
+    receiver
 }
 
 pub extern "C" fn monitor_callback(monitor: *ffi::GLFWmonitor, event: c_int) {
