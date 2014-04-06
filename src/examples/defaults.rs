@@ -24,8 +24,7 @@ fn start(argc: int, argv: **u8) -> int {
 }
 
 fn main() {
-    let (glfw, errors) = glfw::init().unwrap();
-    glfw::fail_on_error(&errors);
+    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     glfw.window_hint(glfw::Visible(true));
 
