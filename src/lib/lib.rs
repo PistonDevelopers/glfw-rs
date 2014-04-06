@@ -449,11 +449,35 @@ impl Glfw {
         }
     }
 
-    /// This is used to set the window hints for the next call to `Window::create`.
-    /// The hints can be reset to their default values using the
-    /// `default_window_hints` function.
+    /// This is used to set the window hints for the next call to
+    /// `Glfw::create_window`. The hints can be reset to their default values
+    /// using calling the `Glfw::default_window_hints` function.
     ///
     /// Wrapper for `glfwWindowHint`
+    ///
+    /// # OpenGL 3.x and 4.x on Mac OS X
+    ///
+    /// The only OpenGL 3.x and 4.x contexts supported by OS X are
+    /// forward-compatible, core profile contexts.
+    ///
+    /// 10.7 and 10.8 support the following OpenGL versions:
+    ///
+    /// - `glfw::ContextVersion(3, 2)`
+    ///
+    /// 10.9 supports the following OpenGL versions
+    ///
+    /// - `glfw::ContextVersion(3, 2)`
+    /// - `glfw::ContextVersion(3, 3)`
+    /// - `glfw::ContextVersion(4, 1)`
+    ///
+    /// To create an OS X compatible context, the hints should be specified as
+    /// follows:
+    ///
+    /// ~~~rust
+    /// glfw.window_hint(glfw::ContextVersion(3, 2));
+    /// glfw.window_hint(glfw::OpenglForwardCompat(true));
+    /// glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
+    /// ~~~
     pub fn window_hint(&self, hint: WindowHint) {
         match hint {
             RedBits(bits)                   => unsafe { ffi::glfwWindowHint(ffi::RED_BITS,              bits as c_int) },
