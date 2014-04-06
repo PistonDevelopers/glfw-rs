@@ -73,13 +73,15 @@
 
 extern crate semver;
 extern crate sync;
+extern crate libc;
 #[phase(syntax, link)] extern crate log;
 
+use libc::{c_double, c_float, c_int};
+use libc::{c_uint, c_ushort, c_void};
 use std::cast;
 use std::comm::{channel, Receiver, Sender, Data};
 use std::fmt;
 use std::kinds::marker;
-use std::libc::*;
 use std::ptr;
 use std::str;
 use std::slice;
