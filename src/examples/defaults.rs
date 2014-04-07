@@ -68,7 +68,7 @@ fn main() {
 }
 
 mod gl {
-    use std::libc;
+    extern crate libc;
 
     #[cfg(target_os = "macos")]
     #[link(name="OpenGL", kind="framework")]

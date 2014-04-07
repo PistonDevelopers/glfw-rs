@@ -16,7 +16,8 @@
 //! Low-level function bindings and constants pertaining to the underlying
 //! GLFW library.
 
-use std::libc::*;
+use libc::{c_char, c_double, c_float, c_int};
+use libc::{c_uchar, c_uint, c_ushort, c_void};
 
 pub static FALSE                        : c_int = 0;
 pub static TRUE                         : c_int = 1;

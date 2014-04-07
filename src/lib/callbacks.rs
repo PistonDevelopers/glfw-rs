@@ -15,8 +15,8 @@
 
 //! Private callback support functions.
 
+use libc::{c_double, c_int, c_uint};
 use std::cast;
-use std::libc::*;
 
 use super::*;
 
@@ -63,8 +63,8 @@ macro_rules! callback(
 )
 
 pub mod error {
+    use libc::{c_int, c_char};
     use std::cast;
-    use std::libc::{c_int, c_char};
     use std::str;
 
     callback!(
@@ -78,9 +78,9 @@ pub mod error {
 }
 
 pub mod monitor {
+    use libc::{c_int};
     use std::cast;
     use std::kinds::marker;
-    use std::libc::c_int;
 
     callback!(
         type Args = (monitor: ::Monitor, event: ::MonitorEvent);
