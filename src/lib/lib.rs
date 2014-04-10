@@ -487,7 +487,7 @@ impl Glfw {
     /// the OS X menu bar is located.
     ///
     /// Wrapper for `glfwGetPrimaryMonitor`.
-    pub fn get_primary_monitor<T>(&self, f: |Option<&Monitor>| -> T) -> T {
+    pub fn with_primary_monitor<T>(&self, f: |Option<&Monitor>| -> T) -> T {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(None),
             ptr => f(Some(&Monitor {
@@ -503,7 +503,7 @@ impl Glfw {
     /// provided.
     ///
     /// Wrapper for `glfwGetMonitors`.
-    pub fn get_connected_monitors<T>(&self, f: |&[Monitor]| -> T) -> T {
+    pub fn with_connected_monitors<T>(&self, f: |&[Monitor]| -> T) -> T {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
@@ -983,32 +983,16 @@ pub enum OpenGlProfile {
 }
 
 /// Describes the mode of a window
-pub enum WindowMode {
+pub enum WindowMode<'a> {
     /// Full screen mode. Contains the monitor on which the window is displayed.
-    FullScreen(Monitor),
+    FullScreen(&'a Monitor),
 
     /// Windowed mode.
     Windowed,
 }
 
 /// Private conversion methods for `glfw::WindowMode`
-impl WindowMode {
-    /// Extract the window mode from a low-level monitor pointer. If the pointer
-    /// is null it assumes the window is in windowed mode and returns `Windowed`,
-    /// otherwise it returns the pointer wrapped in `glfw::FullScreen`.
-    fn from_ptr(ptr: *ffi::GLFWmonitor) -> WindowMode {
-        if ptr.is_null() {
-            Windowed
-        } else {
-            FullScreen(Monitor {
-                ptr: ptr,
-                no_copy: marker::NoCopy,
-                no_send: marker::NoSend,
-                no_share: marker::NoShare,
-            })
-        }
-    }
-
+impl<'a> WindowMode<'a> {
     /// Returns a pointer to a monitor if the window is fullscreen, otherwise
     /// it returns a null pointer (if it is in windowed mode).
     fn to_ptr(&self) -> *ffi::GLFWmonitor {
@@ -1238,10 +1222,18 @@ impl Window {
     /// Returns whether the window is fullscreen or windowed.
     ///
     /// Wrapper for `glfwGetWindowMonitor`.
-    pub fn get_window_mode(&self) -> WindowMode {
-        WindowMode::from_ptr(
-            unsafe { ffi::glfwGetWindowMonitor(self.ptr) }
-        )
+    pub fn with_window_mode<T>(&self, f: |WindowMode| -> T) -> T {
+        let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
+        if ptr.is_null() {
+            f(Windowed)
+        } else {
+            f(FullScreen(&Monitor {
+                ptr: ptr,
+                no_copy: marker::NoCopy,
+                no_send: marker::NoSend,
+                no_share: marker::NoShare,
+            }))
+        }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.

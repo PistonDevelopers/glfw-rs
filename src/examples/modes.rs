@@ -24,7 +24,7 @@ fn start(argc: int, argv: **u8) -> int {
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    glfw.get_primary_monitor(|monitor| {
+    glfw.with_primary_monitor(|monitor| {
         let _ = monitor.map(|monitor| {
             println!("{}:", monitor.get_name());
             println!("    {}\n", monitor.get_video_mode().unwrap());
@@ -33,7 +33,7 @@ fn main() {
 
     println!("Available monitors\n\
               ------------------");
-    glfw.get_connected_monitors(|monitors| {
+    glfw.with_connected_monitors(|monitors| {
         for monitor in monitors.iter() {
             println!("{}:", monitor.get_name());
             for mode in monitor.get_video_modes().iter() {
