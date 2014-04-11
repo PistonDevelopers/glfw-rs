@@ -15,8 +15,6 @@
 
 RUSTC               ?= rustc
 RUSTDOC             ?= rustdoc
- 
-LINK_ARGS           = $(shell sh etc/glfw-link-args.sh)
 
 SRC_DIR             = src
 LIB_FILE            = $(SRC_DIR)/lib/lib.rs
@@ -26,20 +24,29 @@ TEST_FILES          = $(SRC_DIR)/tests/*.rs
 CRATE_NAME          = $(shell $(RUSTC) --crate-name $(LIB_FILE))
 CRATE_FILES         = $(shell $(RUSTC) --crate-file-name $(LIB_FILE))
 
+DEPS_DIR            = deps
+GLFW_BUILD_DIR      = $(DEPS_DIR)/glfw-build
+GLFW_BUILD_SRC_DIR  = $(GLFW_BUILD_DIR)/src
+
 DOC_DIR             = doc
 EXAMPLES_DIR        = examples
 LIB_DIR             = lib
 TESTS_DIR           = tests
 
-all: link lib examples doc
+all: lib examples doc
 
-link:
-	sh etc/link-rs.sh "$(LINK_ARGS)" > $(SRC_DIR)/lib/link.rs
-	cat $(SRC_DIR)/lib/link.rs
+deps:
+	mkdir -p $(GLFW_BUILD_DIR)
+	cd $(GLFW_BUILD_DIR) && \
+	cmake -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -Wno-dev ../glfw
+	make -C $(GLFW_BUILD_DIR)
 
-lib: link
+link: deps
+	sh etc/link-rs.sh "$(shell sh etc/glfw-link-args.sh $(GLFW_BUILD_SRC_DIR))" > $(SRC_DIR)/lib/link.rs
+
+lib: deps link
 	mkdir -p $(LIB_DIR)
-	$(RUSTC) --out-dir=$(LIB_DIR) -C link-args="$(LINK_ARGS)" -O $(LIB_FILE)
+	$(RUSTC) -L $(GLFW_BUILD_SRC_DIR) --out-dir=$(LIB_DIR) -O $(LIB_FILE)
 
 doc: link
 	mkdir -p $(DOC_DIR)
@@ -49,7 +56,7 @@ tests-dir:
 	mkdir -p $(TESTS_DIR)
 
 $(TEST_FILES): lib tests-dir
-	@ $(RUSTC) -L $(LIB_DIR) -C link-args="$(LINK_ARGS)" --out-dir=$(TESTS_DIR) $@
+	@ $(RUSTC) -L $(LIB_DIR) --out-dir=$(TESTS_DIR) $@
 	@ echo "testing $@" && ./$(TESTS_DIR)/$(shell $(RUSTC) --crate-name $@)
 
 check: $(TEST_FILES)
@@ -59,7 +66,7 @@ examples-dir:
 	mkdir -p $(EXAMPLES_DIR)
 
 $(EXAMPLE_FILES): lib examples-dir
-	$(RUSTC) -L $(LIB_DIR) -C link-args="$(LINK_ARGS)" --out-dir=$(EXAMPLES_DIR) $@
+	$(RUSTC) -L $(LIB_DIR) --out-dir=$(EXAMPLES_DIR) $@
 
 examples: $(EXAMPLE_FILES)
 
@@ -68,10 +75,12 @@ clean:
 	rm -rf $(EXAMPLES_DIR)
 	rm -rf $(DOC_DIR)
 	rm -rf $(TESTS_DIR)
+	rm -rf $(GLFW_BUILD_DIR)
 	rm -f $(SRC_DIR)/lib/link.rs
 
 .PHONY: \
 	all \
+	deps \
 	link \
 	lib \
 	doc \

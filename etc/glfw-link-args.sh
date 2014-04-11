@@ -15,10 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+GLFW_PKG_CONFIG=$1
 UNAME=$(uname)
 case $UNAME in
     "Linux" | "FreeBSD" | "OpenBSD" | "Darwin")
-        echo "$(pkg-config --static --libs-only-l --libs-only-other glfw3)"
+        echo "-lglfw3 $(env PKG_CONFIG_PATH=$GLFW_PKG_CONFIG pkg-config --static --libs-only-other glfw3)"
+    ;;
+    "Darwin")
+        echo "-lglfw3 -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"
     ;;
     *)
         case $(uname -o) in
