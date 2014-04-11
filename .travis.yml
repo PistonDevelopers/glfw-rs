@@ -31,15 +31,13 @@ install:
   - cd ..
   - sudo pip install cargo-lite
 script:
-# build examples and docs
+  # Test targets
   - make
-# run tests
   - make check
-# test other targets
-  - sudo make install
-  - sudo make uninstall
   - make clean
-  - make doc
+  # Check cargo-lite install
   - cargo-lite install
+  # Regenerate docs for Rust CI
+  - make doc
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh

@@ -103,18 +103,6 @@ Or a specific example:
 make src/examples/window.rs
 ~~~
 
-## Installing
-
-~~~
-make install
-~~~
-
-To install to a custom location, override the `INSTALL_DIR` variable:
-
-~~~
-make install INSTALL_DIR=custom/location
-~~~
-
 ## FAQ
 
 _I get lots of errors like: `undefined reference to 'glfwSetScrollCallback'`_
