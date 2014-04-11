@@ -1,6 +1,8 @@
 .DS_Store
 /bin/
+/deps/glfw-build/
 /doc/
 /examples/
 /lib/
+/tests/
 /src/lib/link.rs

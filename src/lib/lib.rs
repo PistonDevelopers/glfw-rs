@@ -1,4 +1,4 @@
-// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
+// Copyright 2013-2014 The GLFW-RS Developers. For a full listing of the authors,
 // refer to the AUTHORS file at the top-level directory of this distribution.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,10 +97,6 @@ pub use MouseButtonMiddle   = self::MouseButton3;
 pub mod ffi;
 
 mod callbacks;
-
-/// Platform-specific linking. This module is automatically generated when
-/// glfw-rs is compiled.
-mod link;
 
 /// Input actions.
 #[repr(C)]
@@ -407,32 +403,42 @@ pub enum InitError {
 /// - If an initialization error occured within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
 pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) -> Result<Glfw, InitError> {
-    use sync::one::{Once, ONCE_INIT};
-    static mut INIT: Once = ONCE_INIT;
-    let mut result = Err(AlreadyInitialized);
+    // We don't use `sync::once` because it would not allow us to retry
+    // initialization if `ffi::glfwInit` fails (see mozilla/rust#13357).
+
+    use sync::mutex::{MUTEX_INIT, StaticMutex};
+    static mut INIT_MUTEX: StaticMutex = MUTEX_INIT;
+    static mut IS_INITED: bool = false;
+
     unsafe {
-        INIT.doit(|| {
-            // Initialize the error callback if it was supplied. This is done
-            // before `ffi::glfwInit` because errors could occur during
-            // initialization.
-            match callback.take() {
-                Some(f) => callbacks::error::set(f),
-                None    => callbacks::error::unset(),
-            }
-            if ffi::glfwInit() == ffi::TRUE {
-                result = Ok(());
+        let guard = INIT_MUTEX.lock();
+        let result = if IS_INITED {
+            Err(AlreadyInitialized)
+        } else {
+            let glfw = Glfw {
+                no_send: marker::NoSend,
+                no_share: marker::NoShare,
+            };
+
+            // Set the error callback before `ffi::glfwInit` because errors
+            // could occur during initialization.
+            glfw.set_error_callback(callback.take());
+
+            // Attempt to initialize glfw
+            if ffi::glfwInit() == ffi::FALSE {
+                Err(InternalInitError)
+            } else {
                 std::rt::at_exit(proc() {
+                    // Ensure that glfw is cleaned up when the program exits
                     ffi::glfwTerminate()
                 });
-            } else {
-                result = Err(InternalInitError);
+                IS_INITED = true;
+                Ok(glfw)
             }
-        })
+        };
+        drop(guard);
+        result
     }
-    result.map(|_| Glfw {
-        no_send: marker::NoSend,
-        no_share: marker::NoShare,
-    })
 }
 
 impl Glfw {

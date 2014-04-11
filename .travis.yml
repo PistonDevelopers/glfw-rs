@@ -22,22 +22,15 @@ before_install:
 install:
   - sudo apt-get install rust-nightly
   - sudo apt-get install libXxf86vm-dev
-  - git clone https://github.com/glfw/glfw.git
-  - cd glfw
-  - git checkout 3.0.3
-  - cmake -DBUILD_SHARED_LIBS=ON .
-  - make
-  - sudo make install
-  - cd ..
   - sudo pip install cargo-lite
 script:
-# build examples and docs
+  # Test targets
   - make
-# test other targets
-  - sudo make install
-  - sudo make uninstall
+  - make check
   - make clean
-  - make doc
+  # Check cargo-lite install
   - cargo-lite install
+  # Regenerate docs for Rust CI
+  - make doc
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
