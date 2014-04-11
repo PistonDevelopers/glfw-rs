@@ -33,6 +33,8 @@ install:
 script:
 # build examples and docs
   - make
+# run tests
+  - make check
 # test other targets
   - sudo make install
   - sudo make uninstall

@@ -3,4 +3,5 @@
 /doc/
 /examples/
 /lib/
+/tests/
 /src/lib/link.rs
