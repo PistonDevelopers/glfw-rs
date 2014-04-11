@@ -19,6 +19,10 @@
 use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_uchar, c_uint, c_ushort, c_void};
 
+/// Platform-specific linking. This module is automatically generated when
+/// glfw-rs is compiled.
+mod link;
+
 pub static FALSE                        : c_int = 0;
 pub static TRUE                         : c_int = 1;
 

@@ -98,10 +98,6 @@ pub mod ffi;
 
 mod callbacks;
 
-/// Platform-specific linking. This module is automatically generated when
-/// glfw-rs is compiled.
-mod link;
-
 /// Input actions.
 #[repr(C)]
 #[deriving(Clone, Eq, Hash, Show, TotalEq)]
