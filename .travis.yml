@@ -33,9 +33,6 @@ install:
 script:
 # build examples and docs
   - make
-# test other targets
-  - sudo make install
-  - sudo make uninstall
   - make clean
   - make doc
   - cargo-lite install
