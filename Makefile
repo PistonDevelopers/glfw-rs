@@ -30,7 +30,7 @@ DOC_DIR             = doc
 EXAMPLES_DIR        = examples
 LIB_DIR             = lib
 
-all: link lib examples doc
+all: lib examples doc
 
 link:
 	sh etc/link-rs.sh "$(LINK_ARGS)" > $(SRC_DIR)/lib/link.rs
