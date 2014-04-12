@@ -33,7 +33,6 @@ all: link lib examples doc
 
 link:
 	sh etc/link-rs.sh "$(LINK_ARGS)" > $(SRC_DIR)/lib/link.rs
-	cat $(SRC_DIR)/lib/link.rs
 
 lib: link
 	mkdir -p $(LIB_DIR)
