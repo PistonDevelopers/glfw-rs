@@ -15,9 +15,8 @@
 
 RUSTC               = rustc
 RUSTDOC             = rustdoc
-RUST_PATH           ?= ~/.local/rust
-TARGET              = $(shell $(RUSTC) --version | tail -n1 | cut -c7-)
- 
+
+GLFW_LIB_DIR        ?=
 LINK_ARGS           = $(shell sh etc/glfw-link-args.sh)
 
 SRC_DIR             = src
@@ -31,18 +30,14 @@ DOC_DIR             = doc
 EXAMPLES_DIR        = examples
 LIB_DIR             = lib
 
-INSTALL_PREFIX      = $(RUST_PATH)/$(TARGET)
-LIB_INSTALL_DIR     = $(INSTALL_PREFIX)/lib
-
-all: link lib examples doc
+all: lib examples doc
 
 link:
 	sh etc/link-rs.sh "$(LINK_ARGS)" > $(SRC_DIR)/lib/link.rs
-	cat $(SRC_DIR)/lib/link.rs
 
 lib: link
 	mkdir -p $(LIB_DIR)
-	$(RUSTC) --out-dir=$(LIB_DIR) -C link-args="$(LINK_ARGS)" -O $(LIB_FILE)
+	$(RUSTC) $(if $(GLFW_LIB_DIR),-L $(GLFW_LIB_DIR)) --out-dir=$(LIB_DIR) -O $(LIB_FILE)
 
 doc: link
 	mkdir -p $(DOC_DIR)
@@ -52,21 +47,9 @@ examples-dir:
 	mkdir -p $(EXAMPLES_DIR)
 
 $(EXAMPLE_FILES): lib examples-dir
-	$(RUSTC) -L $(LIB_DIR) -C link-args="$(LINK_ARGS)" --out-dir=$(EXAMPLES_DIR) $@
+	$(RUSTC) -L $(LIB_DIR) --out-dir=$(EXAMPLES_DIR) $@
 
 examples: $(EXAMPLE_FILES)
-
-install: lib
-	mkdir -p $(LIB_INSTALL_DIR)
-	@ $(foreach crate, $(CRATE_FILES), \
-		cp $(LIB_DIR)/$(crate) $(LIB_INSTALL_DIR)/$(crate) && \
-		echo "Installed $(crate) to $(LIB_INSTALL_DIR)" ; \
-	)
-
-uninstall:
-	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.rlib ||:
-	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.so ||:
-	@-rm -f $(LIB_INSTALL_DIR)/lib$(CRATE_NAME)-*.dylib ||:
 
 clean:
 	rm -rf $(LIB_DIR)
@@ -82,6 +65,4 @@ clean:
 	examples \
 	examples-dir \
 	$(EXAMPLE_FILES) \
-	install \
-	uninstall \
 	clean

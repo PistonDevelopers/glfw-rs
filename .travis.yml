@@ -25,7 +25,7 @@ install:
   - git clone https://github.com/glfw/glfw.git
   - cd glfw
   - git checkout 3.0.3
-  - cmake -DBUILD_SHARED_LIBS=ON .
+  - cmake -DCMAKE_C_FLAGS=-fPIC -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF .
   - make
   - sudo make install
   - cd ..
@@ -33,9 +33,6 @@ install:
 script:
 # build examples and docs
   - make
-# test other targets
-  - sudo make install
-  - sudo make uninstall
   - make clean
   - make doc
   - cargo-lite install
