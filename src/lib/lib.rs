@@ -79,7 +79,7 @@ extern crate libc;
 use libc::{c_double, c_float, c_int};
 use libc::{c_uint, c_ushort, c_void};
 use std::cast;
-use std::comm::{channel, Receiver, Sender, Data};
+use std::comm::{channel, Receiver, Sender};
 use std::fmt;
 use std::kinds::marker;
 use std::ptr;
@@ -1089,7 +1089,7 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
     fn next(&mut self) -> Option<Message> {
         let FlushedMessages(receiver) = *self;
         match receiver.try_recv() {
-            Data(message) => Some(message),
+            Ok(message) => Some(message),
             _ => None,
         }
     }
@@ -1500,7 +1500,7 @@ impl Drop for Window {
     fn drop(&mut self) {
         drop(self.drop_sender.take());
 
-        if self.drop_receiver.try_recv() != std::comm::Disconnected {
+        if self.drop_receiver.try_recv() != Err(std::comm::Disconnected) {
             error!("Attempted to drop a Window before the `RenderContext` was dropped.");
             error!("Blocking until the `RenderContext` was dropped.");
             let _ = self.drop_receiver.recv_opt();
