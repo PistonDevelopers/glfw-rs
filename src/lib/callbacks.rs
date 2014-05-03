@@ -41,14 +41,28 @@ macro_rules! callback(
             }
         }
 
+        #[cfg(not(target_word_size = "32"))]
         pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
             ::std::local_data::set(CALLBACK_KEY, ~f as ~Object<Args>:'static);
             ($ext_set)(Some(callback));
         }
+        // FIXME: workaround for mozilla/rust#11040
+        #[cfg(target_word_size = "32")]
+        pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
+            ::std::local_data::set(CALLBACK_KEY, ~f as ~Object<Args>:'static);
+            ($ext_set)(callback);
+        }
 
+        #[cfg(not(target_word_size = "32"))]
         pub fn unset() {
             ::std::local_data::pop(CALLBACK_KEY);
             ($ext_set)(None);
+        }
+        // FIXME: workaround for mozilla/rust#11040
+        #[cfg(target_word_size = "32")]
+        pub fn unset() {
+            ::std::local_data::pop(CALLBACK_KEY);
+            ($ext_set)(unsafe { cast::transmute(::std::ptr::null::<::libc::c_void>()) });
         }
 
         extern "C" fn callback($($ext_arg: $ext_arg_ty),*) {
