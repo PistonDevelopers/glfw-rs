@@ -17,11 +17,13 @@ env:
   global:
     - secure: d0ai0sK6NFiz+822DaAKAGcJXjC6dBFLGOjqjACcsoqDtRH85HR9IVUnwCsNVPvH05frEutD5Ebd9SzrjqPriTNnzM0iwZZBxHgiHV+SAYcL/D+qyeEAB/IYU5jZxjYgq/6fHA2VhXI56rGqBRwoXe1sLsEAaTfDmo9gVi6xhQo=
 before_install:
-  - yes | sudo add-apt-repository ppa:hansjorg/rust
   - sudo apt-get update
 install:
-  - sudo apt-get install rust-nightly
   - sudo apt-get install libXxf86vm-dev
+  - wget http://static.rust-lang.org/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz
+  - tar xzf rust-nightly-x86_64-unknown-linux-gnu.tar.gz
+  - export PATH=$PATH:$(pwd)/rust-nightly-x86_64-unknown-linux-gnu/bin
+  - rustc -v
   - git clone https://github.com/glfw/glfw.git
   - cd glfw
   - git checkout 3.0.3
