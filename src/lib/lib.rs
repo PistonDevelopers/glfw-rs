@@ -1003,36 +1003,14 @@ impl<'a> WindowMode<'a> {
     }
 }
 
-/// A group of key modifiers
-#[deriving(Clone)]
-pub struct Modifiers {
-    pub values: c_int,
-}
-
-/// Key modifier tokens
-#[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
-pub enum Modifier {
-    Shift       = ffi::MOD_SHIFT,
-    Control     = ffi::MOD_CONTROL,
-    Alt         = ffi::MOD_ALT,
-    Super       = ffi::MOD_SUPER,
-}
-
-impl Modifiers {
-    /// Check to see if a specific key modifier is present
-    ///
-    /// # Example
-    ///
-    /// ~~~rust
-    /// do window.set_key_callback |_, _, _, _, mods| {
-    ///     if mods.contains(glfw::Shift) {
-    ///         println!("Shift detected!")
-    ///     }
-    /// }
-    /// ~~~
-    pub fn contains(&self, modifier: Modifier) -> bool {
-        self.values & (modifier as c_int) != ffi::FALSE
+bitflags! {
+    #[doc = "Key modifiers"]
+    #[deriving(Hash)]
+    flags Modifiers: c_int {
+        static Shift       = ffi::MOD_SHIFT,
+        static Control     = ffi::MOD_CONTROL,
+        static Alt         = ffi::MOD_ALT,
+        static Super       = ffi::MOD_SUPER
     }
 }
 
@@ -1040,7 +1018,11 @@ impl fmt::Show for Modifiers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (i, x) in [Shift, Control, Alt, Super].iter().filter(|x| self.contains(**x)).enumerate() {
             if i != 0 { try!(write!(f.buf, ", ")) };
-            try!(write!(f.buf, "{}", *x));
+            if      *x == Shift   { try!(write!(f.buf, "Shift"   )) }
+            else if *x == Control { try!(write!(f.buf, "Control" )) }
+            else if *x == Alt     { try!(write!(f.buf, "Alt"     )) }
+            else if *x == Super   { try!(write!(f.buf, "Super"   )) }
+            else                  { try!(write!(f.buf, "???"     )) }
         }
         Ok(())
     }

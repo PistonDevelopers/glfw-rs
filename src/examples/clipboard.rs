@@ -42,10 +42,10 @@ fn main() {
 }
 
 #[cfg(target_os = "macos")]
-static NATIVE_MOD: glfw::Modifier = glfw::Super;
+static NATIVE_MOD: glfw::Modifiers = glfw::Super;
 
 #[cfg(not(target_os = "macos"))]
-static NATIVE_MOD: glfw::Modifier = glfw::Control;
+static NATIVE_MOD: glfw::Modifiers = glfw::Control;
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
