@@ -612,7 +612,7 @@ impl Glfw {
         } else {
             let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
-            unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(~sender)); }
+            unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(box sender)); }
             Some((
                 Window {
                     ptr: ptr,
@@ -1505,7 +1505,7 @@ impl Drop for Window {
         }
         if !self.ptr.is_null() {
             unsafe {
-                let _: ~Sender<(f64, WindowEvent)> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+                let _: Box<Sender<(f64, WindowEvent)>> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
             }
         }
     }
