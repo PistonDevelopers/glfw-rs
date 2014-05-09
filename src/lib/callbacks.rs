@@ -27,7 +27,7 @@ macro_rules! callback(
         let ext_set = $ext_set:expr;
         fn callback($($ext_arg:ident: $ext_arg_ty:ty),*) $call:expr
     ) => (
-        local_data_key!(CALLBACK_KEY: ~Object<Args>:'static)
+        local_data_key!(CALLBACK_KEY: Box<Object<Args>:'static>)
 
         type Args = ($($arg_ty),*,);
 
@@ -43,35 +43,33 @@ macro_rules! callback(
 
         #[cfg(not(target_word_size = "32"))]
         pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
-            ::std::local_data::set(CALLBACK_KEY, ~f as ~Object<Args>:'static);
+            CALLBACK_KEY.replace(Some(box f as Box<Object<Args>:'static>));
             ($ext_set)(Some(callback));
         }
         // FIXME: workaround for mozilla/rust#11040
         #[cfg(target_word_size = "32")]
         pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
-            ::std::local_data::set(CALLBACK_KEY, ~f as ~Object<Args>:'static);
+            CALLBACK_KEY.replace(Some(box f as Box<Object<Args>:'static>));
             ($ext_set)(callback);
         }
 
         #[cfg(not(target_word_size = "32"))]
         pub fn unset() {
-            ::std::local_data::pop(CALLBACK_KEY);
+            CALLBACK_KEY.replace(None);
             ($ext_set)(None);
         }
         // FIXME: workaround for mozilla/rust#11040
         #[cfg(target_word_size = "32")]
         pub fn unset() {
-            ::std::local_data::pop(CALLBACK_KEY);
+            CALLBACK_KEY.replace(None);
             ($ext_set)(unsafe { cast::transmute(::std::ptr::null::<::libc::c_void>()) });
         }
 
         extern "C" fn callback($($ext_arg: $ext_arg_ty),*) {
-            ::std::local_data::get(CALLBACK_KEY, |data| {
-                match data {
-                    Some(cb) => unsafe { cb.call($call) },
-                    _ => {}
-                }
-            });
+            match CALLBACK_KEY.get() {
+                Some(cb) => unsafe { cb.call($call) },
+                _ => {}
+            }
         }
     )
 )
