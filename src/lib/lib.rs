@@ -84,7 +84,7 @@ use std::fmt;
 use std::kinds::marker;
 use std::ptr;
 use std::str;
-use std::slice;
+use std::vec;
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -342,9 +342,9 @@ pub struct VidMode {
 
 /// Describes the gamma ramp of a monitor.
 pub struct GammaRamp {
-    pub red:    ~[c_ushort],
-    pub green:  ~[c_ushort],
-    pub blue:   ~[c_ushort],
+    pub red:    Vec<c_ushort>,
+    pub green:  Vec<c_ushort>,
+    pub blue:   Vec<c_ushort>,
 }
 
 /// An OpenGL process address.
@@ -507,14 +507,14 @@ impl Glfw {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            f(slice::from_buf(ptr, count as uint).iter().map(|&ptr| {
+            f(vec::raw::from_buf(ptr, count as uint).iter().map(|&ptr| {
                 Monitor {
                     ptr: ptr,
                     no_copy: marker::NoCopy,
                     no_send: marker::NoSend,
                     no_share: marker::NoShare,
                 }
-            }).collect::<~[Monitor]>())
+            }).collect::<Vec<Monitor>>().as_slice())
         }
     }
 
@@ -777,7 +777,7 @@ impl Monitor {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            slice::from_buf(ptr, count as uint).iter().map(VidMode::from_glfw_vid_mode).collect()
+            vec::raw::from_buf(ptr, count as uint).iter().map(VidMode::from_glfw_vid_mode).collect()
         }
     }
 
@@ -798,9 +798,9 @@ impl Monitor {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    slice::from_buf(llramp.red,   llramp.size as uint),
-                green:  slice::from_buf(llramp.green, llramp.size as uint),
-                blue:   slice::from_buf(llramp.blue,  llramp.size as uint),
+                red:    vec::raw::from_buf(llramp.red,   llramp.size as uint),
+                green:  vec::raw::from_buf(llramp.green, llramp.size as uint),
+                blue:   vec::raw::from_buf(llramp.blue,  llramp.size as uint),
             }
         }
     }
@@ -1599,7 +1599,7 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(self.id as c_int, &mut count);
-            slice::from_buf(ptr, count as uint).iter().map(|&a| a as f32).collect()
+            vec::raw::from_buf(ptr, count as uint).iter().map(|&a| a as f32).collect()
         }
     }
 
@@ -1608,7 +1608,7 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(self.id as c_int, &mut count);
-            slice::from_buf(ptr, count as uint).iter().map(|&b| b as c_int).collect()
+            vec::raw::from_buf(ptr, count as uint).iter().map(|&b| b as c_int).collect()
         }
     }
 
