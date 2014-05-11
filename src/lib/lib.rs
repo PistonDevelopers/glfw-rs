@@ -78,7 +78,7 @@ extern crate libc;
 
 use libc::{c_double, c_float, c_int};
 use libc::{c_uint, c_ushort, c_void};
-use std::cast;
+use std::mem;
 use std::comm::{channel, Receiver, Sender};
 use std::fmt;
 use std::kinds::marker;
@@ -612,7 +612,7 @@ impl Glfw {
         } else {
             let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
-            unsafe { ffi::glfwSetWindowUserPointer(ptr, cast::transmute(box sender)); }
+            unsafe { ffi::glfwSetWindowUserPointer(ptr, mem::transmute(box sender)); }
             Some((
                 Window {
                     ptr: ptr,
@@ -1107,7 +1107,7 @@ macro_rules! set_window_callback(
         if $should_poll {
             unsafe { ffi::$ll_fn(self.ptr, callbacks::$callback); }
         } else {
-            unsafe { ffi::$ll_fn(self.ptr, cast::transmute(ptr::null::<libc::c_void>())); }
+            unsafe { ffi::$ll_fn(self.ptr, mem::transmute(ptr::null::<libc::c_void>())); }
         }
     })
 )
@@ -1351,7 +1351,7 @@ impl Window {
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
     pub fn get_cursor_mode(&self) -> CursorMode {
-        unsafe { cast::transmute(ffi::glfwGetInputMode(self.ptr, ffi::CURSOR)) }
+        unsafe { mem::transmute(ffi::glfwGetInputMode(self.ptr, ffi::CURSOR)) }
     }
 
     /// Wrapper for `glfwSetInputMode` called with `CURSOR`.
@@ -1381,12 +1381,12 @@ impl Window {
 
     /// Wrapper for `glfwGetKey`.
     pub fn get_key(&self, key: Key) -> Action {
-        unsafe { cast::transmute(ffi::glfwGetKey(self.ptr, key as c_int)) }
+        unsafe { mem::transmute(ffi::glfwGetKey(self.ptr, key as c_int)) }
     }
 
     /// Wrapper for `glfwGetMouseButton`.
     pub fn get_mouse_button(&self, button: MouseButton) -> Action {
-        unsafe { cast::transmute(ffi::glfwGetMouseButton(self.ptr, button as c_int)) }
+        unsafe { mem::transmute(ffi::glfwGetMouseButton(self.ptr, button as c_int)) }
     }
 
     /// Wrapper for `glfwGetCursorPos`.
@@ -1505,7 +1505,7 @@ impl Drop for Window {
         }
         if !self.ptr.is_null() {
             unsafe {
-                let _: Box<Sender<(f64, WindowEvent)>> = cast::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+                let _: Box<Sender<(f64, WindowEvent)>> = mem::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
             }
         }
     }

@@ -16,7 +16,7 @@
 //! Private callback support functions.
 
 use libc::{c_double, c_int, c_uint};
-use std::cast;
+use std::mem;
 
 use super::*;
 
@@ -62,7 +62,7 @@ macro_rules! callback(
         #[cfg(target_word_size = "32")]
         pub fn unset() {
             CALLBACK_KEY.replace(None);
-            ($ext_set)(unsafe { cast::transmute(::std::ptr::null::<::libc::c_void>()) });
+            ($ext_set)(unsafe { mem::transmute(::std::ptr::null::<::libc::c_void>()) });
         }
 
         extern "C" fn callback($($ext_arg: $ext_arg_ty),*) {
@@ -76,7 +76,7 @@ macro_rules! callback(
 
 pub mod error {
     use libc::{c_int, c_char};
-    use std::cast;
+    use std::mem;
     use std::str;
 
     callback!(
@@ -84,14 +84,14 @@ pub mod error {
         type Callback = ErrorCallback;
         let ext_set = |cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
         fn callback(error: c_int, description: *c_char) {
-            (cast::transmute(error), str::raw::from_c_str(description))
+            (mem::transmute(error), str::raw::from_c_str(description))
         }
     )
 }
 
 pub mod monitor {
     use libc::{c_int};
-    use std::cast;
+    use std::mem;
     use std::kinds::marker;
 
     callback!(
@@ -105,13 +105,13 @@ pub mod monitor {
                 no_send: marker::NoSend,
                 no_share: marker::NoShare,
             };
-            (monitor, cast::transmute(event))
+            (monitor, mem::transmute(event))
         }
     )
 }
 
 unsafe fn get_sender<'a>(window: &'a *ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {
-    cast::transmute(ffi::glfwGetWindowUserPointer(*window))
+    mem::transmute(ffi::glfwGetWindowUserPointer(*window))
 }
 
 macro_rules! window_callback(
@@ -134,9 +134,9 @@ window_callback!(fn window_refresh_callback()                                   
 window_callback!(fn window_focus_callback(focused: c_int)                                   => FocusEvent(focused == ffi::TRUE))
 window_callback!(fn window_iconify_callback(iconified: c_int)                               => IconifyEvent(iconified == ffi::TRUE))
 window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => FramebufferSizeEvent(width as i32, height as i32))
-window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButtonEvent(cast::transmute(button), cast::transmute(action), Modifiers::from_bits(mods)))
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButtonEvent(mem::transmute(button), mem::transmute(action), Modifiers::from_bits(mods)))
 window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => CursorPosEvent(xpos as f64, ypos as f64))
 window_callback!(fn cursor_enter_callback(entered: c_int)                                   => CursorEnterEvent(entered == ffi::TRUE))
 window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => ScrollEvent(xpos as f64, ypos as f64))
-window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => KeyEvent(cast::transmute(key), scancode, cast::transmute(action), Modifiers::from_bits(mods)))
+window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => KeyEvent(mem::transmute(key), scancode, mem::transmute(action), Modifiers::from_bits(mods)))
 window_callback!(fn char_callback(character: c_uint)                                        => CharEvent(::std::char::from_u32(character).unwrap()))
