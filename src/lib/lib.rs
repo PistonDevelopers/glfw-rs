@@ -270,9 +270,9 @@ impl fmt::Show for ShowAliases<MouseButton> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let ShowAliases(button) = *self;
         match button {
-            MouseButtonLeft     => write!(f.buf, "MouseButtonLeft"),
-            MouseButtonRight    => write!(f.buf, "MouseButtonRight"),
-            MouseButtonMiddle   => write!(f.buf, "MouseButtonMiddle"),
+            MouseButtonLeft     => write!(f, "MouseButtonLeft"),
+            MouseButtonRight    => write!(f, "MouseButtonRight"),
+            MouseButtonMiddle   => write!(f, "MouseButtonMiddle"),
             button              => button.fmt(f),
         }
     }
@@ -852,7 +852,7 @@ impl fmt::Show for VidMode {
     /// ~"[width] x [height], [total_bits] ([red_bits] [green_bits] [blue_bits]) [refresh_rate] Hz"
     /// ~~~
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f.buf, "{} x {}, {} = {} + {} + {}, {} Hz",
+        write!(f, "{} x {}, {} = {} + {} + {}, {} Hz",
             self.width, self.height,
             self.red_bits + self.green_bits + self.blue_bits,
             self.red_bits, self.green_bits, self.blue_bits,
@@ -1017,12 +1017,12 @@ bitflags! {
 impl fmt::Show for Modifiers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (i, x) in [Shift, Control, Alt, Super].iter().filter(|x| self.contains(**x)).enumerate() {
-            if i != 0 { try!(write!(f.buf, ", ")) };
-            if      *x == Shift   { try!(write!(f.buf, "Shift"   )) }
-            else if *x == Control { try!(write!(f.buf, "Control" )) }
-            else if *x == Alt     { try!(write!(f.buf, "Alt"     )) }
-            else if *x == Super   { try!(write!(f.buf, "Super"   )) }
-            else                  { try!(write!(f.buf, "???"     )) }
+            if i != 0 { try!(write!(f, ", ")) };
+            if      *x == Shift   { try!(write!(f, "Shift"   )) }
+            else if *x == Control { try!(write!(f, "Control" )) }
+            else if *x == Alt     { try!(write!(f, "Alt"     )) }
+            else if *x == Super   { try!(write!(f, "Super"   )) }
+            else                  { try!(write!(f, "???"     )) }
         }
         Ok(())
     }
