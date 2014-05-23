@@ -294,18 +294,14 @@ extern "C" {
     pub fn glfwGetVersion(major: *mut c_int, minor: *mut c_int, rev: *mut c_int);
     pub fn glfwGetVersionString() -> *c_char;
 
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetErrorCallback(cbfun: Option<GLFWerrorfun>) -> Option<GLFWerrorfun>;
-    // FIXME: workaround for mozilla/rust#11040
-    #[cfg(target_word_size = "32")] pub fn glfwSetErrorCallback(cbfun: GLFWerrorfun) -> GLFWerrorfun;
+    pub fn glfwSetErrorCallback(cbfun: Option<GLFWerrorfun>) -> Option<GLFWerrorfun>;
 
     pub fn glfwGetMonitors(count: *mut c_int) -> **GLFWmonitor;
     pub fn glfwGetPrimaryMonitor() -> *GLFWmonitor;
     pub fn glfwGetMonitorPos(monitor: *GLFWmonitor, xpos: *mut c_int, ypos: *mut c_int);
     pub fn glfwGetMonitorPhysicalSize(monitor: *GLFWmonitor, width: *mut c_int, height: *mut c_int);
     pub fn glfwGetMonitorName(monitor: *GLFWmonitor) -> *c_char;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetMonitorCallback(cbfun: Option<GLFWmonitorfun>) -> Option<GLFWmonitorfun>;
-    // FIXME: workaround for mozilla/rust#11040
-    #[cfg(target_word_size = "32")] pub fn glfwSetMonitorCallback(cbfun: GLFWmonitorfun) -> GLFWmonitorfun;
+    pub fn glfwSetMonitorCallback(cbfun: Option<GLFWmonitorfun>) -> Option<GLFWmonitorfun>;
     pub fn glfwGetVideoModes(monitor: *GLFWmonitor, count: *mut c_int) -> *GLFWvidmode;
     pub fn glfwGetVideoMode(monitor: *GLFWmonitor) -> *GLFWvidmode;
     pub fn glfwSetGamma(monitor: *GLFWmonitor, gamma: c_float);
@@ -332,21 +328,13 @@ extern "C" {
     pub fn glfwGetWindowAttrib(window: *GLFWwindow, attrib: c_int) -> c_int;
     pub fn glfwSetWindowUserPointer(window: *GLFWwindow, pointer: *c_void);
     pub fn glfwGetWindowUserPointer(window: *GLFWwindow) -> *c_void;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetWindowPosCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowposfun>) -> Option<GLFWwindowposfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetWindowSizeCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowsizefun>) -> Option<GLFWwindowsizefun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetWindowCloseCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowclosefun>) -> Option<GLFWwindowclosefun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetWindowRefreshCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowrefreshfun>) -> Option<GLFWwindowrefreshfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetWindowFocusCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowfocusfun>) -> Option<GLFWwindowfocusfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetWindowIconifyCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowiconifyfun>) -> Option<GLFWwindowiconifyfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetFramebufferSizeCallback(window: *GLFWwindow, cbfun: Option<GLFWframebuffersizefun>) -> Option<GLFWframebuffersizefun>;
-    // FIXME: workaround for mozilla/rust#11040
-    #[cfg(target_word_size = "32")] pub fn glfwSetWindowPosCallback(window: *GLFWwindow, cbfun: GLFWwindowposfun) -> GLFWwindowposfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetWindowSizeCallback(window: *GLFWwindow, cbfun: GLFWwindowsizefun) -> GLFWwindowsizefun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetWindowCloseCallback(window: *GLFWwindow, cbfun: GLFWwindowclosefun) -> GLFWwindowclosefun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetWindowRefreshCallback(window: *GLFWwindow, cbfun: GLFWwindowrefreshfun) -> GLFWwindowrefreshfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetWindowFocusCallback(window: *GLFWwindow, cbfun: GLFWwindowfocusfun) -> GLFWwindowfocusfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetWindowIconifyCallback(window: *GLFWwindow, cbfun: GLFWwindowiconifyfun) -> GLFWwindowiconifyfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetFramebufferSizeCallback(window: *GLFWwindow, cbfun: GLFWframebuffersizefun) -> GLFWframebuffersizefun;
+    pub fn glfwSetWindowPosCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowposfun>) -> Option<GLFWwindowposfun>;
+    pub fn glfwSetWindowSizeCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowsizefun>) -> Option<GLFWwindowsizefun>;
+    pub fn glfwSetWindowCloseCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowclosefun>) -> Option<GLFWwindowclosefun>;
+    pub fn glfwSetWindowRefreshCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowrefreshfun>) -> Option<GLFWwindowrefreshfun>;
+    pub fn glfwSetWindowFocusCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowfocusfun>) -> Option<GLFWwindowfocusfun>;
+    pub fn glfwSetWindowIconifyCallback(window: *GLFWwindow, cbfun: Option<GLFWwindowiconifyfun>) -> Option<GLFWwindowiconifyfun>;
+    pub fn glfwSetFramebufferSizeCallback(window: *GLFWwindow, cbfun: Option<GLFWframebuffersizefun>) -> Option<GLFWframebuffersizefun>;
 
     pub fn glfwPollEvents();
     pub fn glfwWaitEvents();
@@ -357,19 +345,12 @@ extern "C" {
     pub fn glfwGetMouseButton(window: *GLFWwindow, button: c_int) -> c_int;
     pub fn glfwGetCursorPos(window: *GLFWwindow, xpos: *mut c_double, ypos: *mut c_double);
     pub fn glfwSetCursorPos(window: *GLFWwindow, xpos: c_double, ypos: c_double);
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetKeyCallback(window: *GLFWwindow, cbfun: Option<GLFWkeyfun>) -> Option<GLFWkeyfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetCharCallback(window: *GLFWwindow, cbfun: Option<GLFWcharfun>) -> Option<GLFWcharfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetMouseButtonCallback(window: *GLFWwindow, cbfun: Option<GLFWmousebuttonfun>) -> Option<GLFWmousebuttonfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetCursorPosCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorposfun>) -> Option<GLFWcursorposfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorenterfun>) -> Option<GLFWcursorenterfun>;
-    #[cfg(not(target_word_size = "32"))] pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: Option<GLFWscrollfun>) -> Option<GLFWscrollfun>;
-    // FIXME: workaround for mozilla/rust#11040
-    #[cfg(target_word_size = "32")] pub fn glfwSetKeyCallback(window: *GLFWwindow, cbfun: GLFWkeyfun) -> GLFWkeyfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetCharCallback(window: *GLFWwindow, cbfun: GLFWcharfun) -> GLFWcharfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetMouseButtonCallback(window: *GLFWwindow, cbfun: GLFWmousebuttonfun) -> GLFWmousebuttonfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetCursorPosCallback(window: *GLFWwindow, cbfun: GLFWcursorposfun) -> GLFWcursorposfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: GLFWcursorenterfun) -> GLFWcursorenterfun;
-    #[cfg(target_word_size = "32")] pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: GLFWscrollfun) -> GLFWscrollfun;
+    pub fn glfwSetKeyCallback(window: *GLFWwindow, cbfun: Option<GLFWkeyfun>) -> Option<GLFWkeyfun>;
+    pub fn glfwSetCharCallback(window: *GLFWwindow, cbfun: Option<GLFWcharfun>) -> Option<GLFWcharfun>;
+    pub fn glfwSetMouseButtonCallback(window: *GLFWwindow, cbfun: Option<GLFWmousebuttonfun>) -> Option<GLFWmousebuttonfun>;
+    pub fn glfwSetCursorPosCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorposfun>) -> Option<GLFWcursorposfun>;
+    pub fn glfwSetCursorEnterCallback(window: *GLFWwindow, cbfun: Option<GLFWcursorenterfun>) -> Option<GLFWcursorenterfun>;
+    pub fn glfwSetScrollCallback(window: *GLFWwindow, cbfun: Option<GLFWscrollfun>) -> Option<GLFWscrollfun>;
 
     pub fn glfwJoystickPresent(joy: c_int) -> c_int;
     pub fn glfwGetJoystickAxes(joy: c_int, count: *mut c_int) -> *c_float;
