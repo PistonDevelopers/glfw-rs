@@ -43,7 +43,7 @@ fn main() {
     let _ = glfw.create_window(300, 300, "Stop it! :(",          glfw::Windowed);
 }
 
-fn error_callback(_: glfw::Error, description: ~str, error_count: &Cell<uint>) {
+fn error_callback(_: glfw::Error, description: StrBuf, error_count: &Cell<uint>) {
     error!("GLFW error {}: {}", error_count.get(), description);
     error_count.set(error_count.get() + 1);
 }
