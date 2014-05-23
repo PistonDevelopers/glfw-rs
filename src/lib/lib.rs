@@ -1090,24 +1090,12 @@ pub struct Window {
     drop_receiver: Receiver<ContextDropped>
 }
 
-#[cfg(not(target_word_size = "32"))]
 macro_rules! set_window_callback(
     ($should_poll:expr, $ll_fn:ident, $callback:ident) => ({
         if $should_poll {
             unsafe { ffi::$ll_fn(self.ptr, Some(callbacks::$callback)); }
         } else {
             unsafe { ffi::$ll_fn(self.ptr, None); }
-        }
-    })
-)
-// FIXME: workaround for mozilla/rust#11040
-#[cfg(target_word_size = "32")]
-macro_rules! set_window_callback(
-    ($should_poll:expr, $ll_fn:ident, $callback:ident) => ({
-        if $should_poll {
-            unsafe { ffi::$ll_fn(self.ptr, callbacks::$callback); }
-        } else {
-            unsafe { ffi::$ll_fn(self.ptr, mem::transmute(ptr::null::<libc::c_void>())); }
         }
     })
 )
