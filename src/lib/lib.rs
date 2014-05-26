@@ -32,28 +32,28 @@
 //! extern crate glfw;
 //!
 //! use glfw::Context;
-//! 
+//!
 //! #[start]
 //! fn start(argc: int, argv: **u8) -> int {
 //!     // Run GLFW on the main thread
 //!     native::start(argc, argv, main)
 //! }
-//! 
+//!
 //! fn main() {
 //!    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
-//! 
+//!
 //!     // Create a windowed mode window and its OpenGL context
 //!     let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
 //!         .expect("Failed to create GLFW window.");
-//! 
+//!
 //!     // Make the window's context current
 //!     window.make_current();
-//! 
+//!
 //!     // Loop until the user closes the window
 //!     while !window.should_close() {
 //!         // Swap front and back buffers
 //!         window.swap_buffers();
-//! 
+//!
 //!         // Poll for and process events
 //!         glfw.poll_events();
 //!         for (_, event) in glfw::flush_messages(&events) {
@@ -300,10 +300,10 @@ pub enum Error {
 
 /// An error callback. This can be supplied with some user data to be passed to
 /// the callback function when it is triggered.
-pub type ErrorCallback<UserData> = Callback<fn(Error, StrBuf, &UserData), UserData>;
+pub type ErrorCallback<UserData> = Callback<fn(Error, String, &UserData), UserData>;
 
 /// The function to be used with the `FAIL_ON_ERRORS` callback.
-pub fn fail_on_errors(_: Error, description: StrBuf, _: &()) {
+pub fn fail_on_errors(_: Error, description: String, _: &()) {
     fail!("GLFW Error: {}", description);
 }
 
@@ -312,7 +312,7 @@ pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> =
     Some(Callback { f: fail_on_errors, data: () });
 
 /// The function to be used with the `LOG_ERRORS` callback.
-pub fn log_errors(_: Error, description: StrBuf, _: &()) {
+pub fn log_errors(_: Error, description: String, _: &()) {
     error!("GLFW Error: {}", description);
 }
 
@@ -349,7 +349,7 @@ pub struct GammaRamp {
 
 /// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
- 
+
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
 /// only be initialized on the main platform thread. Whilst this might make
@@ -387,13 +387,13 @@ pub enum InitError {
 /// ~~~rust
 /// extern crate native;
 /// extern crate glfw;
-/// 
+///
 /// #[start]
 /// fn start(argc: int, argv: **u8) -> int {
 ///     // Run GLFW on the main thread
 ///     native::start(argc, argv, main)
 /// }
-/// 
+///
 /// fn main() {
 ///    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 /// }
@@ -443,7 +443,7 @@ impl Glfw {
     /// ~~~rust
     /// use std::cell::Cell;
     ///
-    /// fn error_callback(_: glfw::Error, description: StrBuf, error_count: &Cell<uint>) {
+    /// fn error_callback(_: glfw::Error, description: String, error_count: &Cell<uint>) {
     ///     error!("GLFW error {}: {}", error_count.get(), description);
     ///     error_count.set(error_count.get() + 1);
     /// }
@@ -730,7 +730,7 @@ pub fn get_version() -> Version {
 }
 
 /// Wrapper for `glfwGetVersionString`.
-pub fn get_version_string() -> StrBuf {
+pub fn get_version_string() -> String {
     unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
 
@@ -768,7 +768,7 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorName`.
-    pub fn get_name(&self) -> StrBuf {
+    pub fn get_name(&self) -> String {
         unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
     }
 
@@ -1432,7 +1432,7 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetClipboardString`.
-    pub fn get_clipboard_string(&self) -> StrBuf {
+    pub fn get_clipboard_string(&self) -> String {
         unsafe { str::raw::from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
 
@@ -1601,7 +1601,7 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickName`.
-    pub fn get_name(&self) -> StrBuf {
+    pub fn get_name(&self) -> String {
         unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(self.id as c_int)) }
     }
 }
