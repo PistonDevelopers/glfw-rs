@@ -32,28 +32,28 @@
 //! extern crate glfw;
 //!
 //! use glfw::Context;
-//! 
+//!
 //! #[start]
 //! fn start(argc: int, argv: **u8) -> int {
 //!     // Run GLFW on the main thread
 //!     native::start(argc, argv, main)
 //! }
-//! 
+//!
 //! fn main() {
 //!    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
-//! 
+//!
 //!     // Create a windowed mode window and its OpenGL context
 //!     let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
 //!         .expect("Failed to create GLFW window.");
-//! 
+//!
 //!     // Make the window's context current
 //!     window.make_current();
-//! 
+//!
 //!     // Loop until the user closes the window
 //!     while !window.should_close() {
 //!         // Swap front and back buffers
 //!         window.swap_buffers();
-//! 
+//!
 //!         // Poll for and process events
 //!         glfw.poll_events();
 //!         for (_, event) in glfw::flush_messages(&events) {
@@ -349,7 +349,7 @@ pub struct GammaRamp {
 
 /// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
- 
+
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
 /// only be initialized on the main platform thread. Whilst this might make
@@ -387,13 +387,13 @@ pub enum InitError {
 /// ~~~rust
 /// extern crate native;
 /// extern crate glfw;
-/// 
+///
 /// #[start]
 /// fn start(argc: int, argv: **u8) -> int {
 ///     // Run GLFW on the main thread
 ///     native::start(argc, argv, main)
 /// }
-/// 
+///
 /// fn main() {
 ///    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 /// }
