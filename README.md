@@ -29,36 +29,32 @@ use glfw::Context;
 
 #[start]
 fn start(argc: int, argv: **u8) -> int {
-    // Run GLFW on the main thread
     native::start(argc, argv, main)
 }
 
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    // Create a windowed mode window and its OpenGL context
-    let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+    let (window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
         .expect("Failed to create GLFW window.");
 
-    // Make the window's context current
-    window.make_context_current();
+    window.set_key_polling(true);
+    window.make_current();
 
-    // Loop until the user closes the window
     while !window.should_close() {
-        // Swap front and back buffers
-        window.swap_buffers();
-
-        // Poll for and process events
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            println!("{}", event);
-            match event {
-                glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
-                    window.set_should_close(true)
-                },
-                _ => {},
-            }
+            handle_window_event(&window, event);
         }
+    }
+}
+
+fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
+    match event {
+        glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+            window.set_should_close(true)
+        }
+        _ => {}
     }
 }
 ~~~
@@ -96,10 +92,6 @@ You can use [cargo-lite](https://github.com/cmr/cargo-lite):
 ~~~
 cargo-lite.py install --git https://github.com/bjz/glfw-rs.git glfw-rs
 ~~~
-
-## Documentation
-
-The [API docs](http://rust-ci.org/bjz/glfw-rs/doc/glfw/) are hosted on Rust CI.
 
 ## Support
 
