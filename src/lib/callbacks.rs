@@ -80,7 +80,7 @@ pub mod error {
     use std::str;
 
     callback!(
-        type Args = (error: ::Error, description: ~str);
+        type Args = (error: ::Error, description: String);
         type Callback = ErrorCallback;
         let ext_set = |cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
         fn callback(error: c_int, description: *c_char) {

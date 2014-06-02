@@ -300,10 +300,10 @@ pub enum Error {
 
 /// An error callback. This can be supplied with some user data to be passed to
 /// the callback function when it is triggered.
-pub type ErrorCallback<UserData> = Callback<fn(Error, ~str, &UserData), UserData>;
+pub type ErrorCallback<UserData> = Callback<fn(Error, String, &UserData), UserData>;
 
 /// The function to be used with the `FAIL_ON_ERRORS` callback.
-pub fn fail_on_errors(_: Error, description: ~str, _: &()) {
+pub fn fail_on_errors(_: Error, description: String, _: &()) {
     fail!("GLFW Error: {}", description);
 }
 
@@ -312,7 +312,7 @@ pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> =
     Some(Callback { f: fail_on_errors, data: () });
 
 /// The function to be used with the `LOG_ERRORS` callback.
-pub fn log_errors(_: Error, description: ~str, _: &()) {
+pub fn log_errors(_: Error, description: String, _: &()) {
     error!("GLFW Error: {}", description);
 }
 
@@ -730,7 +730,7 @@ pub fn get_version() -> Version {
 }
 
 /// Wrapper for `glfwGetVersionString`.
-pub fn get_version_string() -> ~str {
+pub fn get_version_string() -> String {
     unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
 }
 
@@ -768,7 +768,7 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorName`.
-    pub fn get_name(&self) -> ~str {
+    pub fn get_name(&self) -> String {
         unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
     }
 
@@ -1444,7 +1444,7 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetClipboardString`.
-    pub fn get_clipboard_string(&self) -> ~str {
+    pub fn get_clipboard_string(&self) -> String {
         unsafe { str::raw::from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
 
@@ -1613,7 +1613,7 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickName`.
-    pub fn get_name(&self) -> ~str {
+    pub fn get_name(&self) -> String {
         unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(self.id as c_int)) }
     }
 }
