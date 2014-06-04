@@ -104,7 +104,7 @@ mod link;
 
 /// Input actions.
 #[repr(C)]
-#[deriving(Clone, Eq, Hash, Show, TotalEq)]
+#[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum Action {
     Release                      = ffi::RELEASE,
     Press                        = ffi::PRESS,
@@ -113,7 +113,7 @@ pub enum Action {
 
 /// Input keys.
 #[repr(C)]
-#[deriving(Clone, Eq, Hash, Show, TotalEq)]
+#[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum Key {
     KeySpace                    = ffi::KEY_SPACE,
     KeyApostrophe               = ffi::KEY_APOSTROPHE,
@@ -241,7 +241,7 @@ pub enum Key {
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(C)]
-#[deriving(Clone, Eq, Hash, Show, TotalEq)]
+#[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     MouseButton1                = ffi::MOUSE_BUTTON_1,
@@ -285,7 +285,7 @@ pub struct Callback<Fn, UserData> {
 
 /// Tokens corresponding to various error types.
 #[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
+#[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
@@ -323,7 +323,7 @@ pub static LOG_ERRORS: Option<ErrorCallback<()>> =
 
 /// Cursor modes.
 #[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
+#[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum CursorMode {
     CursorNormal                = ffi::CURSOR_NORMAL,
     CursorHidden                = ffi::CURSOR_HIDDEN,
@@ -363,7 +363,7 @@ pub struct Glfw {
 }
 
 /// An error that might be returned when `glfw::init` is called.
-#[deriving(Eq, Show)]
+#[deriving(Eq, PartialEq, Show)]
 pub enum InitError {
     /// The library was already initialized.
     AlreadyInitialized,
@@ -958,7 +958,7 @@ pub enum WindowHint {
 
 /// Client API tokens.
 #[repr(C)]
-#[deriving(Clone, Eq, Show)]
+#[deriving(Clone, Eq, PartialEq, Show)]
 pub enum ClientApi {
     OpenGlApi                   = ffi::OPENGL_API,
     OpenGlEsApi                 = ffi::OPENGL_ES_API,
@@ -966,7 +966,7 @@ pub enum ClientApi {
 
 /// Context robustness tokens.
 #[repr(C)]
-#[deriving(Clone, Eq, Show)]
+#[deriving(Clone, Eq, PartialEq, Show)]
 pub enum ContextRobustness {
     NoRobustness                = ffi::NO_ROBUSTNESS,
     NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
@@ -975,7 +975,7 @@ pub enum ContextRobustness {
 
 /// OpenGL profile tokens.
 #[repr(C)]
-#[deriving(Clone, Eq, Show)]
+#[deriving(Clone, Eq, PartialEq, Show)]
 pub enum OpenGlProfile {
     OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
     OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
@@ -1078,7 +1078,7 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
 }
 
 /// A message for notifying a `Window` that a `RenderContext` has been dropped.
-#[deriving(Eq)]
+#[deriving(Eq, PartialEq)]
 struct ContextDropped;
 
 /// A struct that wraps a `*GLFWwindow` handle.
@@ -1550,7 +1550,7 @@ pub fn make_context_current(context: Option<&Context>) {
 
 /// Joystick identifier tokens.
 #[repr(C)]
-#[deriving(Clone, Eq, Hash, Show)]
+#[deriving(Clone, Eq, PartialEq, Hash, Show)]
 pub enum JoystickId {
     Joystick1       = ffi::JOYSTICK_1,
     Joystick2       = ffi::JOYSTICK_2,
