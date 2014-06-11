@@ -19,7 +19,7 @@
 
 extern crate native;
 extern crate glfw;
-#[phase(syntax, link)] extern crate log;
+#[phase(plugin, link)] extern crate log;
 
 use std::cell::Cell;
 
