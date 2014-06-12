@@ -74,7 +74,7 @@
 extern crate semver;
 extern crate sync;
 extern crate libc;
-#[phase(plugin, link)] extern crate log;
+#[phase(syntax, link)] extern crate log;
 
 use libc::{c_double, c_float, c_int};
 use libc::{c_uint, c_ushort, c_void};
