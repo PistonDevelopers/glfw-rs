@@ -698,7 +698,7 @@ impl Glfw {
     /// if it is supported by the current context.
     ///
     /// Wrapper for `glfwGetProcAddress`.
-    pub fn get_proc_address(&self, procname: &str) -> Option<GLProc> {
+    pub fn get_proc_address(&self, procname: &str) -> GLProc {
         unsafe {
             procname.with_c_str(|procname| {
                 ffi::glfwGetProcAddress(procname)
