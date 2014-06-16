@@ -250,21 +250,21 @@ pub static DISCONNECTED                 : c_int = 0x00040002;
 
 pub type GLFWglproc             = *c_void;
 
-pub type GLFWerrorfun           = extern "C" fn(c_int,*c_char);
-pub type GLFWwindowposfun       = extern "C" fn(*GLFWwindow,c_int,c_int);
-pub type GLFWwindowsizefun      = extern "C" fn(*GLFWwindow,c_int,c_int);
+pub type GLFWerrorfun           = extern "C" fn(c_int, *c_char);
+pub type GLFWwindowposfun       = extern "C" fn(*GLFWwindow, c_int, c_int);
+pub type GLFWwindowsizefun      = extern "C" fn(*GLFWwindow, c_int, c_int);
 pub type GLFWwindowclosefun     = extern "C" fn(*GLFWwindow);
 pub type GLFWwindowrefreshfun   = extern "C" fn(*GLFWwindow);
-pub type GLFWwindowfocusfun     = extern "C" fn(*GLFWwindow,c_int);
-pub type GLFWwindowiconifyfun   = extern "C" fn(*GLFWwindow,c_int);
-pub type GLFWframebuffersizefun = extern "C" fn(*GLFWwindow,c_int,c_int);
-pub type GLFWmousebuttonfun     = extern "C" fn(*GLFWwindow,c_int,c_int,c_int);
-pub type GLFWcursorposfun       = extern "C" fn(*GLFWwindow,c_double,c_double);
-pub type GLFWcursorenterfun     = extern "C" fn(*GLFWwindow,c_int);
-pub type GLFWscrollfun          = extern "C" fn(*GLFWwindow,c_double,c_double);
-pub type GLFWkeyfun             = extern "C" fn(*GLFWwindow,c_int,c_int,c_int,c_int);
-pub type GLFWcharfun            = extern "C" fn(*GLFWwindow,c_uint);
-pub type GLFWmonitorfun         = extern "C" fn(*GLFWmonitor,c_int);
+pub type GLFWwindowfocusfun     = extern "C" fn(*GLFWwindow, c_int);
+pub type GLFWwindowiconifyfun   = extern "C" fn(*GLFWwindow, c_int);
+pub type GLFWframebuffersizefun = extern "C" fn(*GLFWwindow, c_int, c_int);
+pub type GLFWmousebuttonfun     = extern "C" fn(*GLFWwindow, c_int, c_int, c_int);
+pub type GLFWcursorposfun       = extern "C" fn(*GLFWwindow, c_double, c_double);
+pub type GLFWcursorenterfun     = extern "C" fn(*GLFWwindow, c_int);
+pub type GLFWscrollfun          = extern "C" fn(*GLFWwindow, c_double, c_double);
+pub type GLFWkeyfun             = extern "C" fn(*GLFWwindow, c_int, c_int, c_int, c_int);
+pub type GLFWcharfun            = extern "C" fn(*GLFWwindow, c_uint);
+pub type GLFWmonitorfun         = extern "C" fn(*GLFWmonitor, c_int);
 
 pub enum GLFWmonitor {}
 
