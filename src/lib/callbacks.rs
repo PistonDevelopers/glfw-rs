@@ -27,7 +27,7 @@ macro_rules! callback(
         let ext_set = $ext_set:expr;
         fn callback($($ext_arg:ident: $ext_arg_ty:ty),*) $call:expr
     ) => (
-        local_data_key!(CALLBACK_KEY: Box<Object<Args>:'static>)
+        local_data_key!(CALLBACK_KEY: Box<Object<Args> + 'static>)
 
         type Args = ($($arg_ty),*,);
 
@@ -42,7 +42,7 @@ macro_rules! callback(
         }
 
         pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
-            CALLBACK_KEY.replace(Some(box f as Box<Object<Args>:'static>));
+            CALLBACK_KEY.replace(Some(box f as Box<Object<Args> + 'static>));
             ($ext_set)(Some(callback));
         }
 
