@@ -20,6 +20,9 @@ case $UNAME in
     "Linux" | "FreeBSD" | "OpenBSD" | "Darwin")
         echo "$(pkg-config --static --libs-only-l --libs-only-other glfw3)"
     ;;
+    "MINGW"*)
+        echo "-lglfw3 -lopengl32 -lgdi32"
+    ;;
     *)
         case $(uname -o) in
             "Cygwin" | "Msys")
@@ -32,3 +35,4 @@ case $UNAME in
         esac
     ;;
 esac
+
