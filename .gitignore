@@ -4,3 +4,25 @@
 /examples/
 /lib/
 /src/lib/link.rs
+
+# rust-empty
+*~
+*#
+*.o
+*.so
+*.swp
+*.dylib
+*.dSYM
+*.dll
+*.rlib
+*.dummy
+*.exe
+*-test
+/bin/main
+/bin/test-internal
+/bin/test-external
+/target/
+/build/
+/.rust/
+rusti.sh
+watch.sh

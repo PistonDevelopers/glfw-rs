@@ -93,6 +93,14 @@ You can use [cargo-lite](https://github.com/cmr/cargo-lite):
 cargo-lite.py install --git https://github.com/bjz/glfw-rs.git glfw-rs
 ~~~
 
+### Compiling with Rust-Empty
+
+The following command compiles to the folder 'target/cpu-vendor-os/lib':
+
+`make link && make -f rust-empty.mk`
+
+For more information see [Rust-Empty](https://github.com/bvssvni/rust-empty)
+
 ## Support
 
 Contact `bjz` on irc.mozilla.org [#rust](http://mibbit.com/?server=irc.mozilla.org&channel=%23rust)
