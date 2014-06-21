@@ -22,6 +22,7 @@
 #![feature(globs)]
 #![feature(macro_rules)]
 #![feature(phase)]
+#![feature(unsafe_destructor)]
 
 //! An ideomatic wrapper for the GLFW library.
 //!
