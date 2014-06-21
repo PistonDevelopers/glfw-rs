@@ -38,9 +38,8 @@ fn main() {
     let render_context = window.render_context();
     let (send, recv) = channel();
 
-    let mut render_task = TaskBuilder::new().named("render task");
-    let render_task_done = render_task.future_result();
-    render_task.spawn(proc() {
+    let render_task = TaskBuilder::new().named("render task");
+    let mut render_task_done = render_task.try_future(proc() {
         render(render_context, recv);
     });
 
@@ -55,7 +54,7 @@ fn main() {
     send.send(());
 
     // Wait for acknowledgement that the rendering was completed.
-    let _ = render_task_done.recv();
+    let _ = render_task_done.get_ref();
 }
 
 fn render(context: glfw::RenderContext, finish: Receiver<()>) {
