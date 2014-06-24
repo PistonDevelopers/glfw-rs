@@ -1,0 +1,28 @@
+[package]
+
+name = "glfw-rs"
+version = "0.0.1"
+authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>",
+        "Amey Parulekar",
+        "Andy",
+        "Brian Anderson",
+        "Colin Sherratt",
+        "Dustin Lacewell",
+        "Jack Moffitt",
+        "Jeaye",
+        "jmgrosen",
+        "Keegan McAllister",
+        "Lars Bergstrom",
+        "Marvin Löbel",
+        "Niko Matsakis",
+        "Sébastien Crozet",
+        "Tomasz Stachowiak",
+        "Torbjorn Loken",
+        "zofrex"
+]
+
+build = "./.build.sh"
+
+[[lib]]
+
+name = "glfw"

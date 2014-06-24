@@ -20,7 +20,7 @@ GLFW_LIB_DIR        ?=
 LINK_ARGS           = $(shell sh etc/glfw-link-args.sh)
 
 SRC_DIR             = src
-LIB_FILE            = $(SRC_DIR)/lib/lib.rs
+LIB_FILE            = $(SRC_DIR)/glfw.rs
 EXAMPLE_FILES       = $(SRC_DIR)/examples/*.rs
 
 CRATE_NAME          = $(shell $(RUSTC) --crate-name $(LIB_FILE))
@@ -33,7 +33,7 @@ LIB_DIR             = lib
 all: lib examples doc
 
 link:
-	sh etc/link-rs.sh "$(LINK_ARGS)" > $(SRC_DIR)/lib/link.rs
+	sh etc/link-rs.sh "$(LINK_ARGS)" > $(SRC_DIR)/link.rs
 
 lib: link
 	mkdir -p $(LIB_DIR)
