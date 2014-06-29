@@ -19,7 +19,7 @@ extern crate glfw;
 use glfw::Context;
 
 #[start]
-fn start(argc: int, argv: **u8) -> int {
+fn start(argc: int, argv: *const *const u8) -> int {
     native::start(argc, argv, main)
 }
 
@@ -96,11 +96,11 @@ mod gl {
 
     #[inline(never)]
     #[allow(non_snake_case_functions)]
-    pub unsafe fn GetIntegerv(pname: GLenum, params: *GLint) {
+    pub unsafe fn GetIntegerv(pname: GLenum, params: *const GLint) {
         glGetIntegerv(pname, params)
     }
 
     extern "C" {
-        fn glGetIntegerv(pname: GLenum, params: *GLint);
+        fn glGetIntegerv(pname: GLenum, params: *const GLint);
     }
 }
