@@ -640,7 +640,7 @@ impl Glfw {
 
     /// Wrapper for `glfwGetX11Display`
     #[cfg(target_os="linux")]
-    pub fn get_x11_display(&self) -> *c_void {
+    pub fn get_x11_display(&self) -> *const c_void {
         unsafe { ffi::glfwGetX11Display() }
     }
 
@@ -741,7 +741,7 @@ pub type MonitorCallback<UserData> = Callback<fn(Monitor, MonitorEvent, &UserDat
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 pub struct Monitor {
-    ptr: *ffi::GLFWmonitor,
+    ptr: *const ffi::GLFWmonitor,
     no_copy: marker::NoCopy,
     no_send: marker::NoSend,
     no_share: marker::NoShare,
@@ -996,7 +996,7 @@ pub enum WindowMode<'a> {
 impl<'a> WindowMode<'a> {
     /// Returns a pointer to a monitor if the window is fullscreen, otherwise
     /// it returns a null pointer (if it is in windowed mode).
-    fn to_ptr(&self) -> *ffi::GLFWmonitor {
+    fn to_ptr(&self) -> *const ffi::GLFWmonitor {
         match *self {
             FullScreen(ref monitor) => monitor.ptr,
             Windowed                => ptr::null(),
@@ -1080,7 +1080,7 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
 
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
-    pub ptr: *ffi::GLFWwindow,
+    pub ptr: *const ffi::GLFWwindow,
     pub glfw: Glfw,
     pub is_shared: bool,
     /// A `Sender` that can be cloned out to child `RenderContext`s.
@@ -1439,37 +1439,37 @@ impl Window {
 
     /// Wrapper for `glfwGetWin32Window`
     #[cfg(target_os="win32")]
-    pub fn get_win32_window(&self) -> *c_void {
+    pub fn get_win32_window(&self) -> *const c_void {
         unsafe { ffi::glfwGetWin32Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWGLContext`
     #[cfg(target_os="win32")]
-    pub fn get_wgl_context(&self) -> *c_void {
+    pub fn get_wgl_context(&self) -> *const c_void {
         unsafe { ffi::glfwGetWGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetCocoaWindow`
     #[cfg(target_os="macos")]
-    pub fn get_cocoa_window(&self) -> *c_void {
+    pub fn get_cocoa_window(&self) -> *const c_void {
         unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetNSGLContext`
     #[cfg(target_os="macos")]
-    pub fn get_nsgl_context(&self) -> *c_void {
+    pub fn get_nsgl_context(&self) -> *const c_void {
         unsafe { ffi::glfwGetNSGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetX11Window`
     #[cfg(target_os="linux")]
-    pub fn get_x11_window(&self) -> *c_void {
+    pub fn get_x11_window(&self) -> *const c_void {
         unsafe { ffi::glfwGetX11Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetGLXContext`
     #[cfg(target_os="linux")]
-    pub fn get_glx_context(&self) -> *c_void {
+    pub fn get_glx_context(&self) -> *const c_void {
         unsafe { ffi::glfwGetGLXContext(self.ptr) }
     }
 }
@@ -1505,7 +1505,7 @@ impl Drop for Window {
 
 /// A rendering context that can be shared between tasks.
 pub struct RenderContext {
-    ptr: *ffi::GLFWwindow,
+    ptr: *const ffi::GLFWwindow,
     /// As long as this sender is alive, it is not safe to drop the parent
     /// `Window`.
     #[allow(dead_code)]
@@ -1515,7 +1515,7 @@ pub struct RenderContext {
 /// Methods common to renderable contexts
 pub trait Context {
     /// Returns the pointer to the underlying `GLFWwindow`.
-    fn window_ptr(&self) -> *ffi::GLFWwindow;
+    fn window_ptr(&self) -> *const ffi::GLFWwindow;
 
     /// Swaps the front and back buffers of the window. If the swap interval is
     /// greater than zero, the GPU driver waits the specified number of screen
@@ -1540,11 +1540,11 @@ pub trait Context {
 }
 
 impl Context for Window {
-    fn window_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *const ffi::GLFWwindow { self.ptr }
 }
 
 impl Context for RenderContext {
-    fn window_ptr(&self) -> *ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *const ffi::GLFWwindow { self.ptr }
 }
 
 /// Wrapper for `glfwMakeContextCurrent`.
