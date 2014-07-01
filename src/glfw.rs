@@ -104,7 +104,7 @@ mod callbacks;
 mod link;
 
 /// Input actions.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum Action {
     Release                      = ffi::RELEASE,
@@ -113,7 +113,7 @@ pub enum Action {
 }
 
 /// Input keys.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum Key {
     KeySpace                    = ffi::KEY_SPACE,
@@ -241,7 +241,7 @@ pub enum Key {
 
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
@@ -285,7 +285,7 @@ pub struct Callback<Fn, UserData> {
 }
 
 /// Tokens corresponding to various error types.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED,
@@ -323,7 +323,7 @@ pub static LOG_ERRORS: Option<ErrorCallback<()>> =
     Some(Callback { f: log_errors, data: () });
 
 /// Cursor modes.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, Hash, PartialEq, Show)]
 pub enum CursorMode {
     CursorNormal                = ffi::CURSOR_NORMAL,
@@ -823,7 +823,7 @@ impl Monitor {
 }
 
 /// Monitor events.
-#[repr(C)]
+#[repr(i32)]
 pub enum MonitorEvent {
     Connected                   = ffi::CONNECTED,
     Disconnected                = ffi::DISCONNECTED,
@@ -958,7 +958,7 @@ pub enum WindowHint {
 }
 
 /// Client API tokens.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Show)]
 pub enum ClientApi {
     OpenGlApi                   = ffi::OPENGL_API,
@@ -966,7 +966,7 @@ pub enum ClientApi {
 }
 
 /// Context robustness tokens.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Show)]
 pub enum ContextRobustness {
     NoRobustness                = ffi::NO_ROBUSTNESS,
@@ -975,7 +975,7 @@ pub enum ContextRobustness {
 }
 
 /// OpenGL profile tokens.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Show)]
 pub enum OpenGlProfile {
     OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
@@ -1556,7 +1556,7 @@ pub fn make_context_current(context: Option<&Context>) {
 }
 
 /// Joystick identifier tokens.
-#[repr(C)]
+#[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Hash, Show)]
 pub enum JoystickId {
     Joystick1       = ffi::JOYSTICK_1,
