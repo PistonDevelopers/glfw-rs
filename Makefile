@@ -37,7 +37,7 @@ link:
 
 lib: link
 	mkdir -p $(LIB_DIR)
-	$(RUSTC) $(if $(GLFW_LIB_DIR),-L $(GLFW_LIB_DIR)) --out-dir=$(LIB_DIR) -O $(LIB_FILE)
+	$(RUSTC) -C extra-filename=-rs $(if $(GLFW_LIB_DIR),-L $(GLFW_LIB_DIR)) --out-dir=$(LIB_DIR) -O $(LIB_FILE)
 
 doc: link
 	mkdir -p $(DOC_DIR)
