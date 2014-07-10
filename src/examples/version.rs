@@ -16,6 +16,6 @@
 extern crate glfw;
 
 fn main() {
-    println!("{:s}", glfw::get_version().to_str());
-    println!("GLFW version: {:s}", glfw::get_version_string());
+    println!("{}", glfw::get_version());
+    println!("GLFW version: {}", glfw::get_version_string());
 }
