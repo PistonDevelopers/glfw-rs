@@ -36,7 +36,7 @@ fn main() {
     let (width, height) = window.get_size();
     println!("window size: ({}, {})", width, height);
 
-    println!("Context version: {:s}",         window.get_context_version().to_str());
+    println!("Context version: {:s}",         window.get_context_version().to_string());
     println!("OpenGL forward compatible: {}", window.is_opengl_forward_compat());
     println!("OpenGL debug context: {}",      window.is_opengl_debug_context());
     println!("OpenGL profile: {}",            window.get_opengl_profile());
