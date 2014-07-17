@@ -84,7 +84,7 @@ pub mod monitor {
         type Args = (monitor: ::Monitor, event: ::MonitorEvent);
         type Callback = MonitorCallback;
         let ext_set = |cb| unsafe { ::ffi::glfwSetMonitorCallback(cb) };
-        fn callback(monitor: *const ::ffi::GLFWmonitor, event: c_int) {
+        fn callback(monitor: *mut ::ffi::GLFWmonitor, event: c_int) {
             let monitor = ::Monitor {
                 ptr: monitor,
                 no_copy: marker::NoCopy,
@@ -96,18 +96,18 @@ pub mod monitor {
     )
 }
 
-unsafe fn get_sender<'a>(window: &'a *const ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {
+unsafe fn get_sender<'a>(window: &'a *mut ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {
     mem::transmute(ffi::glfwGetWindowUserPointer(*window))
 }
 
 macro_rules! window_callback(
     (fn $name:ident () => $event:ident) => (
-        pub extern "C" fn $name(window: *const ffi::GLFWwindow) {
+        pub extern "C" fn $name(window: *mut ffi::GLFWwindow) {
             unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, $event)); }
         }
      );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
-        pub extern "C" fn $name(window: *const ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
+        pub extern "C" fn $name(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
             unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, $event($($arg_conv),*))); }
         }
      );
