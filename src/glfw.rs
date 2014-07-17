@@ -508,7 +508,7 @@ impl Glfw {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            f(vec::raw::from_buf(ptr, count as uint).iter().map(|&ptr| {
+            f(vec::raw::from_buf(ptr as *const _, count as uint).iter().map(|&ptr| {
                 Monitor {
                     ptr: ptr,
                     no_copy: marker::NoCopy,
@@ -604,7 +604,7 @@ impl Glfw {
                     height as c_int,
                     title,
                     mode.to_ptr(),
-                    match share { Some(w) => w.ptr, None => ptr::null() }
+                    match share { Some(w) => w.ptr, None => ptr::mut_null() }
                 )
             })
         };
@@ -634,13 +634,13 @@ impl Glfw {
     pub fn make_context_current(&self, context: Option<&Window>) {
         match context {
             Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
-            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
+            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
         }
     }
 
     /// Wrapper for `glfwGetX11Display`
     #[cfg(target_os="linux")]
-    pub fn get_x11_display(&self) -> *const c_void {
+    pub fn get_x11_display(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Display() }
     }
 
@@ -741,7 +741,7 @@ pub type MonitorCallback<UserData> = Callback<fn(Monitor, MonitorEvent, &UserDat
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 pub struct Monitor {
-    ptr: *const ffi::GLFWmonitor,
+    ptr: *mut ffi::GLFWmonitor,
     no_copy: marker::NoCopy,
     no_send: marker::NoSend,
     no_share: marker::NoShare,
@@ -799,22 +799,22 @@ impl Monitor {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    vec::raw::from_buf(llramp.red,   llramp.size as uint),
-                green:  vec::raw::from_buf(llramp.green, llramp.size as uint),
-                blue:   vec::raw::from_buf(llramp.blue,  llramp.size as uint),
+                red:    vec::raw::from_buf(llramp.red as *const _,   llramp.size as uint),
+                green:  vec::raw::from_buf(llramp.green as *const _, llramp.size as uint),
+                blue:   vec::raw::from_buf(llramp.blue as *const _,  llramp.size as uint),
             }
         }
     }
 
     /// Wrapper for `glfwSetGammaRamp`.
-    pub fn set_gamma_ramp(&self, ramp: &GammaRamp) {
+    pub fn set_gamma_ramp(&self, mut ramp: GammaRamp) {
         unsafe {
             ffi::glfwSetGammaRamp(
                 self.ptr,
                 &ffi::GLFWgammaramp {
-                    red:    ramp.red.as_ptr(),
-                    green:  ramp.green.as_ptr(),
-                    blue:   ramp.blue.as_ptr(),
+                    red:    ramp.red.as_mut_ptr(),
+                    green:  ramp.green.as_mut_ptr(),
+                    blue:   ramp.blue.as_mut_ptr(),
                     size:   ramp.red.len() as c_uint,
                 }
             );
@@ -996,10 +996,10 @@ pub enum WindowMode<'a> {
 impl<'a> WindowMode<'a> {
     /// Returns a pointer to a monitor if the window is fullscreen, otherwise
     /// it returns a null pointer (if it is in windowed mode).
-    fn to_ptr(&self) -> *const ffi::GLFWmonitor {
+    fn to_ptr(&self) -> *mut ffi::GLFWmonitor {
         match *self {
             FullScreen(ref monitor) => monitor.ptr,
-            Windowed                => ptr::null(),
+            Windowed                => ptr::mut_null(),
         }
     }
 }
@@ -1080,7 +1080,7 @@ impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
 
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
-    pub ptr: *const ffi::GLFWwindow,
+    pub ptr: *mut ffi::GLFWwindow,
     pub glfw: Glfw,
     pub is_shared: bool,
     /// A `Sender` that can be cloned out to child `RenderContext`s.
@@ -1439,37 +1439,37 @@ impl Window {
 
     /// Wrapper for `glfwGetWin32Window`
     #[cfg(target_os="win32")]
-    pub fn get_win32_window(&self) -> *const c_void {
+    pub fn get_win32_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWin32Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWGLContext`
     #[cfg(target_os="win32")]
-    pub fn get_wgl_context(&self) -> *const c_void {
+    pub fn get_wgl_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetCocoaWindow`
     #[cfg(target_os="macos")]
-    pub fn get_cocoa_window(&self) -> *const c_void {
+    pub fn get_cocoa_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetNSGLContext`
     #[cfg(target_os="macos")]
-    pub fn get_nsgl_context(&self) -> *const c_void {
+    pub fn get_nsgl_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetNSGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetX11Window`
     #[cfg(target_os="linux")]
-    pub fn get_x11_window(&self) -> *const c_void {
+    pub fn get_x11_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetGLXContext`
     #[cfg(target_os="linux")]
-    pub fn get_glx_context(&self) -> *const c_void {
+    pub fn get_glx_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetGLXContext(self.ptr) }
     }
 }
@@ -1505,7 +1505,7 @@ impl Drop for Window {
 
 /// A rendering context that can be shared between tasks.
 pub struct RenderContext {
-    ptr: *const ffi::GLFWwindow,
+    ptr: *mut ffi::GLFWwindow,
     /// As long as this sender is alive, it is not safe to drop the parent
     /// `Window`.
     #[allow(dead_code)]
@@ -1515,7 +1515,7 @@ pub struct RenderContext {
 /// Methods common to renderable contexts
 pub trait Context {
     /// Returns the pointer to the underlying `GLFWwindow`.
-    fn window_ptr(&self) -> *const ffi::GLFWwindow;
+    fn window_ptr(&self) -> *mut ffi::GLFWwindow;
 
     /// Swaps the front and back buffers of the window. If the swap interval is
     /// greater than zero, the GPU driver waits the specified number of screen
@@ -1540,18 +1540,18 @@ pub trait Context {
 }
 
 impl Context for Window {
-    fn window_ptr(&self) -> *const ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *mut ffi::GLFWwindow { self.ptr }
 }
 
 impl Context for RenderContext {
-    fn window_ptr(&self) -> *const ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *mut ffi::GLFWwindow { self.ptr }
 }
 
 /// Wrapper for `glfwMakeContextCurrent`.
 pub fn make_context_current(context: Option<&Context>) {
     match context {
         Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
-        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null()) },
+        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
     }
 }
 
