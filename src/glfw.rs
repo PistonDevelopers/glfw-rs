@@ -1,4 +1,4 @@
-// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
+// Copyright 2013-2014 The GLFW-RS Developers. For a full listing of the authors,
 // refer to the AUTHORS file at the top-level directory of this distribution.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -487,7 +487,14 @@ impl Glfw {
     /// This is usually the monitor where elements like the Windows task bar or
     /// the OS X menu bar is located.
     ///
-    /// Wrapper for `glfwGetPrimaryMonitor`.
+    /// # Example
+    ///
+    /// ~~~rust
+    /// let (window, events) = glfw.with_primary_monitor(|m| {
+    ///     glfw.create_window(300, 300, "Hello this is window",
+    ///         m.map_or(glfw::Windowed, |m| glfw::FullScreen(m)))
+    /// }).expect("Failed to create GLFW window.");
+    /// ~~~
     pub fn with_primary_monitor<T>(&self, f: |Option<&Monitor>| -> T) -> T {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(None),
@@ -503,7 +510,15 @@ impl Glfw {
     /// Supplies a vector of the currently connected monitors to the closure
     /// provided.
     ///
-    /// Wrapper for `glfwGetMonitors`.
+    /// # Example
+    ///
+    /// ~~~rust
+    /// glfw.with_connected_monitors(|monitors| {
+    ///     for monitor in monitors.iter() {
+    ///         println!("{}: {}", monitor.get_name(), monitor.get_video_mode());
+    ///     }
+    /// });
+    /// ~~~
     pub fn with_connected_monitors<T>(&self, f: |&[Monitor]| -> T) -> T {
         unsafe {
             let mut count = 0;
@@ -1204,7 +1219,16 @@ impl Window {
 
     /// Returns whether the window is fullscreen or windowed.
     ///
-    /// Wrapper for `glfwGetWindowMonitor`.
+    /// # Example
+    ///
+    /// ~~~rust
+    /// window.with_window_mode(|mode| {
+    ///     match mode {
+    ///         glfw::Windowed() => println!("Windowed"),
+    ///         glfw::FullScreen(m) => println!("FullScreen({})", m.get_name()),
+    ///     }
+    /// });
+    /// ~~~
     pub fn with_window_mode<T>(&self, f: |WindowMode| -> T) -> T {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
