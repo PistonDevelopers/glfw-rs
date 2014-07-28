@@ -5,4 +5,6 @@ if [ "$OS" == "Windows_NT" ]; then
 	MAKE=mingw32-make
 fi
 
-$MAKE link
+if [ ! -f src/link.rs ]; then
+	$MAKE link
+fi
