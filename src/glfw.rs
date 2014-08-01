@@ -84,7 +84,7 @@ use std::comm::{channel, Receiver, Sender};
 use std::fmt;
 use std::kinds::marker;
 use std::ptr;
-use std::str;
+use std::string;
 use std::vec;
 use semver::Version;
 
@@ -747,7 +747,7 @@ pub fn get_version() -> Version {
 
 /// Wrapper for `glfwGetVersionString`.
 pub fn get_version_string() -> String {
-    unsafe { str::raw::from_c_str(ffi::glfwGetVersionString()) }
+    unsafe { string::raw::from_buf(ffi::glfwGetVersionString() as *const u8) }
 }
 
 /// An monitor callback. This can be supplied with some user data to be passed
@@ -785,7 +785,7 @@ impl Monitor {
 
     /// Wrapper for `glfwGetMonitorName`.
     pub fn get_name(&self) -> String {
-        unsafe { str::raw::from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
+        unsafe { string::raw::from_buf(ffi::glfwGetMonitorName(self.ptr) as *const u8) }
     }
 
     /// Wrapper for `glfwGetVideoModes`.
@@ -1458,7 +1458,7 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn get_clipboard_string(&self) -> String {
-        unsafe { str::raw::from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
+        unsafe { string::raw::from_buf(ffi::glfwGetClipboardString(self.ptr) as *const u8) }
     }
 
     /// Wrapper for `glfwGetWin32Window`
@@ -1633,6 +1633,6 @@ impl Joystick {
 
     /// Wrapper for `glfwGetJoystickName`.
     pub fn get_name(&self) -> String {
-        unsafe { str::raw::from_c_str(ffi::glfwGetJoystickName(self.id as c_int)) }
+        unsafe { string::raw::from_buf(ffi::glfwGetJoystickName(self.id as c_int) as *const u8) }
     }
 }
