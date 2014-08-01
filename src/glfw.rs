@@ -1021,7 +1021,6 @@ impl<'a> WindowMode<'a> {
 
 bitflags! {
     #[doc = "Key modifiers"]
-    #[deriving(Hash)]
     flags Modifiers: c_int {
         static Shift       = ffi::MOD_SHIFT,
         static Control     = ffi::MOD_CONTROL,
