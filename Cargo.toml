@@ -21,7 +21,7 @@ authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>",
         "zofrex"
 ]
 
-build = "./.build.sh"
+build = "sh ./.build.sh"
 
 [[lib]]
 
