@@ -15,9 +15,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARGS=$1
-FRAMEWORK=false
+UNAME=$(uname)
+ARGS=""
+case $UNAME in
+    "Linux" | "FreeBSD" | "OpenBSD" | "Darwin")
+        ARGS="$(pkg-config --static --libs-only-l --libs-only-other glfw3)"
+    ;;
+    "MINGW"*)
+        ARGS="-lglfw3 -lopengl32 -lgdi32"
+    ;;
+    *)
+        case $(uname -o) in
+            "Cygwin" | "Msys")
+                ARGS="-lglfw3 -lopengl32 -lgdi32"
+            ;;
+            *)
+                echo "Unsuppported platform: $UNAME";
+                exit 1
+            ;;
+        esac
+    ;;
+esac
 
+FRAMEWORK=false
 for arg in $ARGS; do
     if [ "$FRAMEWORK" = true ]; then
         echo "#[link(name = \"$arg\", kind = \"framework\")]"

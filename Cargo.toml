@@ -21,8 +21,7 @@ authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>",
         "zofrex"
 ]
 
-build = "sh ./.build.sh"
+build = "sh src/link.rs.sh > src/link.rs"
 
 [[lib]]
-
 name = "glfw"

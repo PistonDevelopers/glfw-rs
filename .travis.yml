@@ -35,9 +35,9 @@ install:
   - rustc -v
 script:
   - cargo build
-# build examples and docs
-  - make
-  - make clean
-  - make doc
+  - cargo test
+  - cargo doc
+  # the doc directory needs to be in the root for rust-ci
+  - ln -s target/doc doc
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
