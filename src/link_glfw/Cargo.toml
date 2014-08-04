@@ -1,0 +1,11 @@
+[package]
+
+name = "link_glfw"
+version = "0.1.0"
+authors = [
+]
+
+[[lib]]
+name = "link_glfw"
+path = "lib.rs"
+crate-type = [ "dylib" ]
