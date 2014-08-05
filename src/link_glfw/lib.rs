@@ -27,7 +27,7 @@ use syntax::codemap;
 use syntax::ext::base;
 use syntax::ext::build::AstBuilder;
 use syntax::parse::token;
-use syntax::parse::token::InternedString;
+use intern_str = syntax::parse::token::intern_and_get_ident;
 
 #[plugin_registrar]
 pub fn registrar(reg: &mut rustc::plugin::Registry) {
@@ -35,49 +35,36 @@ pub fn registrar(reg: &mut rustc::plugin::Registry) {
                                   base::ItemModifier(expand));
 }
 
-enum Meta {
-    MetaName(InternedString),
-    MetaNameValue(InternedString, ast::Lit_),
-    MetaList(InternedString, Vec<Meta>),
+fn lit_str(s: token::InternedString) -> ast::Lit_ {
+    ast::LitStr(s, ast::CookedStr)
 }
 
-impl Meta {
-    fn to_meta_item(self, context: &mut base::ExtCtxt, span: codemap::Span) -> Gc<ast::MetaItem> {
-        match self {
-            MetaName(name) => context.meta_word(span, name),
-            MetaNameValue(name, value) => context.meta_name_value(span, name, value),
-            MetaList(name, list) => {
-                let meta_items = list.move_iter().map(|meta| {
-                    meta.to_meta_item(context, span)
-                }).collect();
-                context.meta_list(span, name, meta_items)
-            },
-        }
-    }
-
-    fn to_attribute(self, context: &mut base::ExtCtxt, span: codemap::Span) -> ast::Attribute {
-        let meta = self.to_meta_item(context, span);
-        context.attribute(span, meta)
-    }
-
-    fn link(name: InternedString, kind: Option<InternedString>) -> Meta {
-        let mut name_meta = MetaNameValue(InternedString::new("name"),
-                                          ast::LitStr(name, ast::CookedStr));
-        MetaList(InternedString::new("link"), match kind {
-            Some(kind) => {
-                let kind_meta = MetaNameValue(InternedString::new("kind"),
-                                              ast::LitStr(kind, ast::CookedStr));
-                vec![name_meta, kind_meta]
-            },
-            None => {
-                vec![name_meta]
-            },
-        })
-    }
+enum LinkKind {
+    Unknown,
+    Framework,
 }
 
-pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span, meta_item: Gc<ast::MetaItem>,
-              item: Gc<ast::Item>) -> Gc<ast::Item> {
+fn attr_link(context: &mut base::ExtCtxt, span: codemap::Span,
+             name: token::InternedString, kind: LinkKind) -> ast::Attribute {
+    let mut meta_items = vec![
+        context.meta_name_value(span, intern_str("name"), lit_str(name)),
+    ];
+    match kind {
+        Framework => {
+            meta_items.push(context.meta_name_value(
+                span, intern_str("kind"),
+                lit_str(intern_str("framework"))
+            ));
+        },
+        _ => {},
+    }
+    let meta_list = context.meta_list(span, intern_str("link"), meta_items);
+    context.attribute(span, meta_list)
+}
+
+pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span,
+              meta_item: Gc<ast::MetaItem>, item: Gc<ast::Item>
+              ) -> Gc<ast::Item> {
     let out = Command::new("pkg-config")
         .arg("--static")
         .arg("--libs-only-l")
@@ -92,16 +79,18 @@ pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span, meta_item: Gc<as
                     let mut expect_framework = false;
                     for word in output.words() {
                         if word.starts_with("-l") {
-                            item.attrs.push(Meta::link(
-                                token::intern_and_get_ident(word.slice_from(2)),
-                                None,
-                            ).to_attribute(context, span));
+                            item.attrs.push(attr_link(
+                                context, span,
+                                intern_str(word.slice_from(2)),
+                                Unknown,
+                            ));
                         } else if expect_framework {
                             expect_framework = false;
-                            item.attrs.push(Meta::link(
-                                token::intern_and_get_ident(word),
-                                Some(InternedString::new("framework")),
-                            ).to_attribute(context, span));
+                            item.attrs.push(attr_link(
+                                context, span,
+                                intern_str(word),
+                                Framework,
+                            ));
                         } else if word.starts_with("-framework") {
                             expect_framework = true;
                         }
