@@ -25,5 +25,8 @@ authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>",
 name = "glfw"
 path = "src/glfw/lib.rs"
 
+[dependencies.semver]
+git = "https://github.com/rust-lang/semver"
+
 [dependencies.link_glfw]
 path = "src/link_glfw"
