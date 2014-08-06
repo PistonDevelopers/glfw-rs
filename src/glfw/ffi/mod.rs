@@ -1,4 +1,4 @@
-// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
+// Copyright 2013-2014 The GLFW-RS Developers. For a full listing of the authors,
 // refer to the AUTHORS file at the top-level directory of this distribution.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,8 @@
 
 use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_uchar, c_uint, c_ushort, c_void};
+
+mod link;
 
 pub static FALSE                        : c_int = 0;
 pub static TRUE                         : c_int = 1;

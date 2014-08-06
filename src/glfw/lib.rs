@@ -75,7 +75,8 @@
 extern crate semver;
 extern crate sync;
 extern crate libc;
-#[phase(plugin, link)] extern crate log;
+#[phase(plugin, link)]
+extern crate log;
 
 use libc::{c_double, c_float, c_int};
 use libc::{c_uint, c_ushort, c_void};
@@ -96,12 +97,7 @@ pub use MouseButtonRight    = self::MouseButton2;
 pub use MouseButtonMiddle   = self::MouseButton3;
 
 pub mod ffi;
-
 mod callbacks;
-
-/// Platform-specific linking. This module is automatically generated when
-/// glfw-rs is compiled.
-mod link;
 
 /// Input actions.
 #[repr(i32)]

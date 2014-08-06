@@ -59,7 +59,7 @@ fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
 }
 ~~~
 
-## Compilation
+## Using glfw-rs
 
 ### Prerequisites
 
@@ -76,30 +76,18 @@ binaries when you call `make` or `make lib`:
 GLFW_LIB_DIR=path/to/glfw/lib/directory make
 ~~~
 
-### Targets
+### Including glfw-rs in your project
 
-- `make`: library, examples, docs
-- `make lib`: libs only
-- `make doc`: docs only
-- `make examples`: build examples
-- `make src/examples/<example>.rs`: build a specific example
-- `make clean`: clean up all build files
+Add this to your `Cargo.toml`:
 
-### Cargo-lite
-
-You can use [cargo-lite](https://github.com/cmr/cargo-lite):
-
-~~~
-cargo-lite.py install --git https://github.com/bjz/glfw-rs.git glfw-rs
+~~~toml
+[dependencies.glfw]
+git = "https://github.com/bjz/glfw-rs.git"
 ~~~
 
-### Compiling with Rust-Empty
+### Building and running the examples
 
-The following command compiles to the folder 'target/cpu-vendor-os/lib':
-
-`make link && make -f rust-empty.mk`
-
-For more information see [Rust-Empty](https://github.com/bvssvni/rust-empty)
+Run `cargo test`, then `./target/test/<example_name>`.
 
 ## Support
 
