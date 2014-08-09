@@ -89,7 +89,7 @@ pub mod monitor {
                 ptr: monitor,
                 no_copy: marker::NoCopy,
                 no_send: marker::NoSend,
-                no_share: marker::NoShare,
+                no_share: marker::NoSync,
             };
             (monitor, mem::transmute(event))
         }

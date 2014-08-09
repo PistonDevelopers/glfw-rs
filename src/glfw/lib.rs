@@ -356,7 +356,7 @@ pub type GLProc = ffi::GLFWglproc;
 #[deriving(Clone)]
 pub struct Glfw {
     no_send: marker::NoSend,
-    no_share: marker::NoShare,
+    no_share: marker::NoSync,
 }
 
 /// An error that might be returned when `glfw::init` is called.
@@ -428,7 +428,7 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
     }
     result.map(|_| Glfw {
         no_send: marker::NoSend,
-        no_share: marker::NoShare,
+        no_share: marker::NoSync,
     })
 }
 
@@ -498,7 +498,7 @@ impl Glfw {
                 ptr: ptr,
                 no_copy: marker::NoCopy,
                 no_send: marker::NoSend,
-                no_share: marker::NoShare,
+                no_share: marker::NoSync,
             })),
         }
     }
@@ -524,7 +524,7 @@ impl Glfw {
                     ptr: ptr,
                     no_copy: marker::NoCopy,
                     no_send: marker::NoSend,
-                    no_share: marker::NoShare,
+                    no_share: marker::NoSync,
                 }
             }).collect::<Vec<Monitor>>().as_slice())
         }
@@ -755,7 +755,7 @@ pub struct Monitor {
     ptr: *mut ffi::GLFWmonitor,
     no_copy: marker::NoCopy,
     no_send: marker::NoSend,
-    no_share: marker::NoShare,
+    no_share: marker::NoSync,
 }
 
 impl Monitor {
@@ -1233,7 +1233,7 @@ impl Window {
                 ptr: ptr,
                 no_copy: marker::NoCopy,
                 no_send: marker::NoSend,
-                no_share: marker::NoShare,
+                no_share: marker::NoSync,
             }))
         }
     }
