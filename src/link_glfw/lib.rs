@@ -69,6 +69,7 @@ pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span,
         .arg("--static")
         .arg("--libs-only-l")
         .arg("--libs-only-other")
+        .arg("--print-errors")
         .arg("glfw3")
         .output();
     match out {
@@ -98,8 +99,17 @@ pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span,
                 });
                 box (GC) item
             } else {
-                context.span_err(span, format!("error returned by \
-                    `pkg-config`: ({})", out.status).as_slice());
+                context.span_err( 
+                    span, 
+                    format!(
+                        "error returned by \
+                        `pkg-config`: ({})\n\
+                        `pkg-config stdout`: {}\n\
+                        `pkg-config stderr`: {}", 
+                        out.status, 
+                        String::from_utf8(out.output).unwrap(),
+                        String::from_utf8(out.error).unwrap())
+                        .as_slice());
                 item
             }
         },
