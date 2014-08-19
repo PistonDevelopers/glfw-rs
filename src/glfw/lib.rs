@@ -90,11 +90,11 @@ use std::vec;
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
-pub use MouseButtonLeft     = self::MouseButton1;
+pub use self::MouseButton1 as MouseButtonLeft;
 /// Alias to `MouseButton2`, supplied for improved clarity.
-pub use MouseButtonRight    = self::MouseButton2;
+pub use self::MouseButton2 as MouseButtonRight;
 /// Alias to `MouseButton3`, supplied for improved clarity.
-pub use MouseButtonMiddle   = self::MouseButton3;
+pub use self::MouseButton3 as MouseButtonMiddle;
 
 pub mod ffi;
 mod callbacks;

@@ -27,7 +27,7 @@ use syntax::codemap;
 use syntax::ext::base;
 use syntax::ext::build::AstBuilder;
 use syntax::parse::token;
-use intern_str = syntax::parse::token::intern_and_get_ident;
+use syntax::parse::token::intern_and_get_ident as intern_str;
 
 #[plugin_registrar]
 pub fn registrar(reg: &mut rustc::plugin::Registry) {
