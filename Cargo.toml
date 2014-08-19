@@ -21,7 +21,7 @@ authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>",
         "zofrex"
 ]
 
-[[lib]]
+[lib]
 name = "glfw"
 path = "src/glfw/lib.rs"
 
