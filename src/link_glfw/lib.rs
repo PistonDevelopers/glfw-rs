@@ -99,14 +99,14 @@ pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span,
                 });
                 box (GC) item
             } else {
-                context.span_err( 
-                    span, 
+                context.span_err(
+                    span,
                     format!(
                         "error returned by \
                         `pkg-config`: ({})\n\
                         `pkg-config stdout`: {}\n\
-                        `pkg-config stderr`: {}", 
-                        out.status, 
+                        `pkg-config stderr`: {}",
+                        out.status,
                         String::from_utf8(out.output).unwrap(),
                         String::from_utf8(out.error).unwrap())
                         .as_slice());
