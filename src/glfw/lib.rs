@@ -97,7 +97,10 @@ pub use self::MouseButton2 as MouseButtonRight;
 /// Alias to `MouseButton3`, supplied for improved clarity.
 pub use self::MouseButton3 as MouseButtonMiddle;
 
+pub use build::WindowBuilder;
+
 pub mod ffi;
+mod build;
 mod callbacks;
 
 /// Input actions.
