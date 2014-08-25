@@ -1457,13 +1457,13 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetWin32Window`
-    #[cfg(target_os="win32")]
+    #[cfg(target_os="windows")]
     pub fn get_win32_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWin32Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWGLContext`
-    #[cfg(target_os="win32")]
+    #[cfg(target_os="windows")]
     pub fn get_wgl_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWGLContext(self.ptr) }
     }

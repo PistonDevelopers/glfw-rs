@@ -14,15 +14,15 @@
 // limitations under the License.
 
 #[phase(plugin)]
-#[cfg(not(target_os="win32"))]
+#[cfg(not(target_os="windows"))]
 extern crate link_glfw;
 
-#[cfg(target_os="win32")]
+#[cfg(target_os="windows")]
 #[link(name = "glfw3")]
 #[link(name = "opengl32")]
 #[link(name = "gdi32")]
 extern {}
 
-#[cfg(not(target_os="win32"))]
+#[cfg(not(target_os="windows"))]
 #[link_glfw]
 extern {}
