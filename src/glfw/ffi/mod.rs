@@ -374,8 +374,8 @@ extern "C" {
 
     // native APIs
 
-    #[cfg(target_os="win32")] pub fn glfwGetWin32Window(window: *mut GLFWwindow) -> *mut c_void;
-    #[cfg(target_os="win32")] pub fn glfwGetWGLContext(window: *mut GLFWwindow) -> *mut c_void;
+    #[cfg(target_os="windows")] pub fn glfwGetWin32Window(window: *mut GLFWwindow) -> *mut c_void;
+    #[cfg(target_os="windows")] pub fn glfwGetWGLContext(window: *mut GLFWwindow) -> *mut c_void;
 
     #[cfg(target_os="macos")] pub fn glfwGetCocoaWindow(window: *mut GLFWwindow) -> *mut c_void;
     #[cfg(target_os="macos")] pub fn glfwGetNSGLContext(window: *mut GLFWwindow) -> *mut c_void;
