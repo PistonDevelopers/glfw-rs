@@ -28,14 +28,14 @@
 //!
 //! # Example
 //!
-//! ~~~rust
+//! ~~~no_run
 //! extern crate native;
 //! extern crate glfw;
 //!
 //! use glfw::Context;
 //!
 //! #[start]
-//! fn start(argc: int, argv: **u8) -> int {
+//! fn start(argc: int, argv: *const *const u8) -> int {
 //!     // Run GLFW on the main thread
 //!     native::start(argc, argv, main)
 //! }
@@ -44,7 +44,7 @@
 //!    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 //!
 //!     // Create a windowed mode window and its OpenGL context
-//!     let window = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+//!     let (window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
 //!         .expect("Failed to create GLFW window.");
 //!
 //!     // Make the window's context current
@@ -257,9 +257,9 @@ pub enum MouseButton {
 ///
 /// # Example
 ///
-/// ~~~rust
-/// assert_eq(format!("{}", glfw::MouseButtonLeft), ~"MouseButton1");
-/// assert_eq(format!("{}", glfw::ShowAliases(glfw::MouseButtonLeft)), ~"MouseButtonLeft");
+/// ~~~ignore
+/// assert_eq(format!("{}", glfw::MouseButtonLeft), "MouseButton1");
+/// assert_eq(format!("{}", glfw::ShowAliases(glfw::MouseButtonLeft)), "MouseButtonLeft");
 /// ~~~
 pub struct ShowAliases<T>(pub T);
 
@@ -381,12 +381,12 @@ pub enum InitError {
 ///
 /// # Example
 ///
-/// ~~~rust
+/// ~~~no_run
 /// extern crate native;
 /// extern crate glfw;
 ///
 /// #[start]
-/// fn start(argc: int, argv: **u8) -> int {
+/// fn start(argc: int, argv: *const *const u8) -> int {
 ///     // Run GLFW on the main thread
 ///     native::start(argc, argv, main)
 /// }
@@ -437,11 +437,11 @@ impl Glfw {
     ///
     /// # Example
     ///
-    /// ~~~rust
+    /// ~~~ignore
     /// use std::cell::Cell;
     ///
     /// fn error_callback(_: glfw::Error, description: String, error_count: &Cell<uint>) {
-    ///     error!("GLFW error {}: {}", error_count.get(), description);
+    ///     println!("GLFW error {}: {}", error_count.get(), description);
     ///     error_count.set(error_count.get() + 1);
     /// }
     ///
@@ -460,7 +460,7 @@ impl Glfw {
     /// The `FAIL_ON_ERRORS` and `LOG_ERRORS` callbacks are provided for
     /// convenience. For example:
     ///
-    /// ~~~rust
+    /// ~~~ignore
     /// // triggers a task failure when a GLFW error is encountered.
     /// glfw.set_error_callback(glfw::FAIL_ON_ERRORS);
     /// ~~~
@@ -485,7 +485,7 @@ impl Glfw {
     ///
     /// # Example
     ///
-    /// ~~~rust
+    /// ~~~ignore
     /// let (window, events) = glfw.with_primary_monitor(|m| {
     ///     glfw.create_window(300, 300, "Hello this is window",
     ///         m.map_or(glfw::Windowed, |m| glfw::FullScreen(m)))
@@ -508,7 +508,7 @@ impl Glfw {
     ///
     /// # Example
     ///
-    /// ~~~rust
+    /// ~~~ignore
     /// glfw.with_connected_monitors(|monitors| {
     ///     for monitor in monitors.iter() {
     ///         println!("{}: {}", monitor.get_name(), monitor.get_video_mode());
@@ -554,7 +554,7 @@ impl Glfw {
     /// To create an OS X compatible context, the hints should be specified as
     /// follows:
     ///
-    /// ~~~rust
+    /// ~~~ignore
     /// glfw.window_hint(glfw::ContextVersion(3, 2));
     /// glfw.window_hint(glfw::OpenglForwardCompat(true));
     /// glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
@@ -860,7 +860,7 @@ impl fmt::Show for VidMode {
     ///
     /// A string in the form:
     ///
-    /// ~~~
+    /// ~~~ignore
     /// ~"[width] x [height], [total_bits] ([red_bits] [green_bits] [blue_bits]) [refresh_rate] Hz"
     /// ~~~
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -1065,7 +1065,7 @@ pub enum WindowEvent {
 ///
 /// # Example
 ///
-/// ~~~rust
+/// ~~~ignore
 /// for event in glfw::flush_messages(&events) {
 ///     // handle event
 /// }
@@ -1216,10 +1216,10 @@ impl Window {
     ///
     /// # Example
     ///
-    /// ~~~rust
+    /// ~~~ignore
     /// window.with_window_mode(|mode| {
     ///     match mode {
-    ///         glfw::Windowed() => println!("Windowed"),
+    ///         glfw::Windowed => println!("Windowed"),
     ///         glfw::FullScreen(m) => println!("FullScreen({})", m.get_name()),
     ///     }
     /// });
