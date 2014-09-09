@@ -1,8 +1,8 @@
 [package]
-
 name = "glfw"
 version = "0.0.1"
-authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>",
+authors = [
+        "Brendan Zabarauskas <bjzaba@yahoo.com.au>",
         "Amey Parulekar",
         "Andy",
         "Brian Anderson",
@@ -18,15 +18,12 @@ authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>",
         "Sébastien Crozet",
         "Tomasz Stachowiak",
         "Torbjorn Loken",
-        "zofrex"
+        "zofrex",
 ]
-
-[lib]
-name = "glfw"
-path = "src/glfw/lib.rs"
 
 [dependencies.semver]
 git = "https://github.com/rust-lang/semver"
 
-[dependencies.link_glfw]
-path = "src/link_glfw"
+[dependencies.glfw-sys]
+git = "https://github.com/servo/glfw"
+branch = "cargo-3.0.4"

@@ -21,16 +21,7 @@ env:
 before_install:
   - yes | sudo add-apt-repository ppa:cmrx64/cargo
   - sudo apt-get update
-install:
-  - sudo apt-get install libXxf86vm-dev cargo
-  # glfw3
-  - git clone https://github.com/glfw/glfw.git
-  - cd glfw
-  - git checkout 3.0.3
-  - cmake -DCMAKE_C_FLAGS=-fPIC -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF .
-  - make
-  - sudo make install
-  - cd ..
+install: sudo apt-get install libXxf86vm-dev cargo
 script:
   - cargo build
   - cargo test

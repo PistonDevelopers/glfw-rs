@@ -13,16 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[phase(plugin)]
-#[cfg(not(target_os="windows"))]
-extern crate link_glfw;
-
 #[cfg(target_os="windows")]
-#[link(name = "glfw3")]
 #[link(name = "opengl32")]
 #[link(name = "gdi32")]
 extern {}
 
-#[cfg(not(target_os="windows"))]
-#[link_glfw]
+#[link(name = "glfw3", kind = "static")]
+extern {}
+
+#[cfg(target_os="linux")]
+#[link(name = "X11")]
+#[link(name = "GL")]
+#[link(name = "Xxf86vm")]
+#[link(name = "Xrandr")]
+#[link(name = "Xi")]
+extern {}
+
+#[cfg(target_os="macos")]
+#[link(name = "Cocoa", kind = "framework")]
+#[link(name = "OpenGL", kind = "framework")]
+#[link(name = "IOKit", kind = "framework")]
+#[link(name = "CoreFoundation", kind = "framework")]
+#[link(name = "QuartzCore", kind = "framework")]
 extern {}
