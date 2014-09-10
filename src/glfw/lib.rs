@@ -706,16 +706,20 @@ impl Glfw {
         }
     }
 
-    /// Returns the address of the specified client API or extension function
-    /// if it is supported by the current context.
+    /// Returns the address of the specified client API or extension function if
+    /// it is supported by the current context, NULL otherwise.
     ///
     /// Wrapper for `glfwGetProcAddress`.
+    pub fn get_proc_address_raw(&self, procname: &str) -> GLProc {
+        debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::mut_null());
+        procname.with_c_str(|procname| {
+            unsafe { ffi::glfwGetProcAddress(procname) }
+        })
+    }
+
+    #[deprecated="Use Window::get_proc_address or Glfw::get_proc_address_raw"]
     pub fn get_proc_address(&self, procname: &str) -> GLProc {
-        unsafe {
-            procname.with_c_str(|procname| {
-                ffi::glfwGetProcAddress(procname)
-            })
-        }
+        self.get_proc_address_raw(procname)
     }
 
     /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
@@ -1121,6 +1125,19 @@ macro_rules! set_window_callback {
 }
 
 impl Window {
+    /// Returns the address of the specified client API or extension function if
+    /// it is supported by the context associated with this Window. If this Window is not the
+    /// current context, it will make it the current context.
+    ///
+    /// Wrapper for `glfwGetProcAddress`.
+    pub fn get_proc_address(&self, procname: &str) -> GLProc {
+        if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
+            self.make_current();
+        }
+
+        self.glfw.get_proc_address_raw(procname)
+    }
+
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_shared(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         self.glfw.create_window_intern(width, height, title, mode, Some(self))
