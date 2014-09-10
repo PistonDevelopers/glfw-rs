@@ -802,7 +802,7 @@ impl Monitor {
     /// Wrapper for `glfwGetVideoMode`.
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
-            ffi::glfwGetVideoMode(self.ptr).to_option().map(|v| VidMode::from_glfw_vid_mode(v))
+            ffi::glfwGetVideoMode(self.ptr).as_ref().map(|v| VidMode::from_glfw_vid_mode(v))
         }
     }
 
