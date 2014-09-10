@@ -16,6 +16,8 @@
 //! Low-level function bindings and constants pertaining to the underlying
 //! GLFW library.
 
+#![allow(bad_style)] // yeah yeah, but it's ffi
+
 use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_uchar, c_uint, c_ushort, c_void};
 
@@ -272,6 +274,7 @@ pub enum GLFWmonitor {}
 
 pub enum GLFWwindow {}
 
+#[repr(C)]
 pub struct GLFWgammaramp {
     pub red:    *mut c_ushort,
     pub green:  *mut c_ushort,
@@ -279,6 +282,7 @@ pub struct GLFWgammaramp {
     pub size:   c_uint,
 }
 
+#[repr(C)]
 pub struct GLFWvidmode {
     pub width:       c_int,
     pub height:      c_int,

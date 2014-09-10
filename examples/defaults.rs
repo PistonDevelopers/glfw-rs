@@ -95,7 +95,7 @@ mod gl {
     pub static SAMPLES_ARB           : GLenum = 0x80A9;
 
     #[inline(never)]
-    #[allow(non_snake_case_functions)]
+    #[allow(non_snake_case)]
     pub unsafe fn GetIntegerv(pname: GLenum, params: *const GLint) {
         glGetIntegerv(pname, params)
     }
