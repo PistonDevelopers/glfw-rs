@@ -32,7 +32,7 @@ use syntax::parse::token::intern_and_get_ident as intern_str;
 #[plugin_registrar]
 pub fn registrar(reg: &mut rustc::plugin::Registry) {
     reg.register_syntax_extension(token::intern("link_glfw"),
-                                  base::ItemModifier(expand));
+                                  base::ItemModifier(box expand));
 }
 
 fn lit_str(s: token::InternedString) -> ast::Lit_ {
