@@ -18,7 +18,6 @@
 extern crate rustc;
 extern crate syntax;
 
-use std::gc::{Gc, GC};
 use std::io::Command;
 use std::mem;
 use std::str;
@@ -28,6 +27,7 @@ use syntax::ext::base;
 use syntax::ext::build::AstBuilder;
 use syntax::parse::token;
 use syntax::parse::token::intern_and_get_ident as intern_str;
+use syntax::ptr::P;
 
 #[plugin_registrar]
 pub fn registrar(reg: &mut rustc::plugin::Registry) {
@@ -63,8 +63,8 @@ fn attr_link(context: &mut base::ExtCtxt, span: codemap::Span,
 }
 
 pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span,
-              meta_item: Gc<ast::MetaItem>, item: Gc<ast::Item>
-              ) -> Gc<ast::Item> {
+              meta_item: &ast::MetaItem, item: P<ast::Item>
+              ) -> P<ast::Item> {
     let out = Command::new("pkg-config")
         .arg("--static")
         .arg("--libs-only-l")
@@ -97,7 +97,7 @@ pub fn expand(context: &mut base::ExtCtxt, span: codemap::Span,
                         }
                     }
                 });
-                box (GC) item
+                P(item)
             } else {
                 context.span_err(
                     span,
