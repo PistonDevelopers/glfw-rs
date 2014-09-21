@@ -615,7 +615,7 @@ impl Glfw {
                     height as c_int,
                     title,
                     mode.to_ptr(),
-                    match share { Some(w) => w.ptr, None => ptr::mut_null() }
+                    match share { Some(w) => w.ptr, None => ptr::null_mut() }
                 )
             })
         };
@@ -645,7 +645,7 @@ impl Glfw {
     pub fn make_context_current(&self, context: Option<&Window>) {
         match context {
             Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
-            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
+            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
         }
     }
 
@@ -921,7 +921,7 @@ pub enum WindowHint {
     /// This hint is ignored for windowed mode windows.
     RefreshRate(u32),
     /// Specifies which `ClientApi` to create the context for.
-    ClientApi(ClientApi),
+    ClientApi(ClientApiHint),
     /// Specifies the major client API version that the created context must be
     /// compatible with.
     ///
@@ -945,7 +945,7 @@ pub enum WindowHint {
     /// highest available context.
     ContextVersion(u32, u32),
     /// Specifies the `ContextRobustness` strategy to be used.
-    ContextRobustness(ContextRobustness),
+    ContextRobustness(ContextRobustnessHint),
     /// Specifies whether the OpenGL context should be forward-compatible, i.e.
     /// one where all functionality deprecated in the requested version of
     /// OpenGL is removed. This may only be used if the requested OpenGL version
@@ -983,7 +983,7 @@ pub enum WindowHint {
 /// Client API tokens.
 #[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
-pub enum ClientApi {
+pub enum ClientApiHint {
     OpenGlApi                   = ffi::OPENGL_API,
     OpenGlEsApi                 = ffi::OPENGL_ES_API,
 }
@@ -991,7 +991,7 @@ pub enum ClientApi {
 /// Context robustness tokens.
 #[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
-pub enum ContextRobustness {
+pub enum ContextRobustnessHint {
     NoRobustness                = ffi::NO_ROBUSTNESS,
     NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
     LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET,
@@ -1023,7 +1023,7 @@ impl<'a> WindowMode<'a> {
     fn to_ptr(&self) -> *mut ffi::GLFWmonitor {
         match *self {
             FullScreen(ref monitor) => monitor.ptr,
-            Windowed                => ptr::mut_null(),
+            Windowed                => ptr::null_mut(),
         }
     }
 }
@@ -1596,7 +1596,7 @@ impl Context for RenderContext {
 pub fn make_context_current(context: Option<&Context>) {
     match context {
         Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
-        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
+        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
     }
 }
 
