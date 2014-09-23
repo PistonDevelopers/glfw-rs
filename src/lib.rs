@@ -711,7 +711,7 @@ impl Glfw {
     ///
     /// Wrapper for `glfwGetProcAddress`.
     pub fn get_proc_address_raw(&self, procname: &str) -> GLProc {
-        debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::mut_null());
+        debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
         procname.with_c_str(|procname| {
             unsafe { ffi::glfwGetProcAddress(procname) }
         })
