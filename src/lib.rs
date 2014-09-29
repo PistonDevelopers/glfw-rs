@@ -615,7 +615,7 @@ impl Glfw {
                     height as c_int,
                     title,
                     mode.to_ptr(),
-                    match share { Some(w) => w.ptr, None => ptr::mut_null() }
+                    match share { Some(w) => w.ptr, None => ptr::null_mut() }
                 )
             })
         };
@@ -645,7 +645,7 @@ impl Glfw {
     pub fn make_context_current(&self, context: Option<&Window>) {
         match context {
             Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
-            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
+            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
         }
     }
 
@@ -711,7 +711,7 @@ impl Glfw {
     ///
     /// Wrapper for `glfwGetProcAddress`.
     pub fn get_proc_address_raw(&self, procname: &str) -> GLProc {
-        debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::mut_null());
+        debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
         procname.with_c_str(|procname| {
             unsafe { ffi::glfwGetProcAddress(procname) }
         })
@@ -944,7 +944,7 @@ pub enum WindowHint {
     /// If `ContextVersion(1, 0)` is requested, _most_ drivers will provide the
     /// highest available context.
     ContextVersion(u32, u32),
-    /// Specifies the `ContextRobustnessHint` strategy to be used.
+    /// Specifies the `ContextRobustness` strategy to be used.
     ContextRobustness(ContextRobustnessHint),
     /// Specifies whether the OpenGL context should be forward-compatible, i.e.
     /// one where all functionality deprecated in the requested version of
@@ -1023,7 +1023,7 @@ impl<'a> WindowMode<'a> {
     fn to_ptr(&self) -> *mut ffi::GLFWmonitor {
         match *self {
             FullScreen(ref monitor) => monitor.ptr,
-            Windowed                => ptr::mut_null(),
+            Windowed                => ptr::null_mut(),
         }
     }
 }
