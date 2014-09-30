@@ -1596,7 +1596,7 @@ impl Context for RenderContext {
 pub fn make_context_current(context: Option<&Context>) {
     match context {
         Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
-        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
+        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
     }
 }
 
