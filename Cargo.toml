@@ -25,5 +25,5 @@ authors = [
 git = "https://github.com/rust-lang/semver"
 
 [dependencies.glfw-sys]
-git = "https://github.com/servo/glfw"
+git = "https://github.com/bitshifter/glfw"
 branch = "cargo-3.0.4"
