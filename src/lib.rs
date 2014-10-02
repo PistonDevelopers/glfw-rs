@@ -615,7 +615,7 @@ impl Glfw {
                     height as c_int,
                     title,
                     mode.to_ptr(),
-                    match share { Some(w) => w.ptr, None => ptr::mut_null() }
+                    match share { Some(w) => w.ptr, None => ptr::null_mut() }
                 )
             })
         };
@@ -645,7 +645,7 @@ impl Glfw {
     pub fn make_context_current(&self, context: Option<&Window>) {
         match context {
             Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
-            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
+            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
         }
     }
 
@@ -1023,7 +1023,7 @@ impl<'a> WindowMode<'a> {
     fn to_ptr(&self) -> *mut ffi::GLFWmonitor {
         match *self {
             FullScreen(ref monitor) => monitor.ptr,
-            Windowed                => ptr::mut_null(),
+            Windowed                => ptr::null_mut(),
         }
     }
 }
@@ -1596,7 +1596,7 @@ impl Context for RenderContext {
 pub fn make_context_current(context: Option<&Context>) {
     match context {
         Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
-        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::mut_null()) },
+        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
     }
 }
 
