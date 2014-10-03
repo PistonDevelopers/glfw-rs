@@ -18,7 +18,13 @@
 #[link(name = "gdi32")]
 extern {}
 
+#[cfg(feature = "glfw-sys")]
 #[link(name = "glfw3", kind = "static")]
+extern {}
+
+#[cfg(not(feature = "glfw-sys"))]
+// leaving off `kind = static` allows for the specification of a dynamic library if desired
+#[link(name = "glfw3")]
 extern {}
 
 #[cfg(target_os="linux")]

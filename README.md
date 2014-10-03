@@ -86,6 +86,18 @@ Add this to your `Cargo.toml`:
 git = "https://github.com/bjz/glfw-rs.git"
 ~~~
 
+#### On Windows
+
+By default, `glfw-rs` will try to compile the `glfw` library. If you want to link to your custom
+build of `glfw` or if the build doesn't work (which is probably the case on Windows), you can
+disable this:
+
+~~~toml
+[dependencies.glfw]
+git = "https://github.com/bjz/glfw-rs.git"
+default-features = false
+~~~
+
 ### Building and running the examples
 
 Run `cargo test`, then `./target/test/<example_name>`.
