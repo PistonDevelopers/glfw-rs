@@ -962,7 +962,7 @@ pub enum WindowHint {
     /// an OpenGL version below 3.2, `OpenGlAnyProfile` must be used.
     ///
     /// If another client API is requested, this hint is ignored.
-    OpenglProfile(OpenGlProfile),
+    OpenglProfile(OpenGlProfileHint),
     /// Specifies whether the window will be resizable by the user. Even if this
     /// is set to `false`, the window can still be resized using the
     /// `Window::set_size` function.
@@ -1000,7 +1000,7 @@ pub enum ContextRobustnessHint {
 /// OpenGL profile tokens.
 #[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
-pub enum OpenGlProfile {
+pub enum OpenGlProfileHint {
     OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
     OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
     OpenGlCompatProfile         = ffi::OPENGL_COMPAT_PROFILE,
