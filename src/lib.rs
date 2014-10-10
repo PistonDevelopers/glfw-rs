@@ -1031,10 +1031,10 @@ impl<'a> WindowMode<'a> {
 bitflags! {
     #[doc = "Key modifiers"]
     flags Modifiers: c_int {
-        static Shift       = ffi::MOD_SHIFT,
-        static Control     = ffi::MOD_CONTROL,
-        static Alt         = ffi::MOD_ALT,
-        static Super       = ffi::MOD_SUPER
+        const Shift       = ffi::MOD_SHIFT,
+        const Control     = ffi::MOD_CONTROL,
+        const Alt         = ffi::MOD_ALT,
+        const Super       = ffi::MOD_SUPER
     }
 }
 
