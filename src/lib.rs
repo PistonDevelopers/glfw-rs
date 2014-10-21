@@ -110,7 +110,7 @@ pub enum Action {
 
 /// Input keys.
 #[repr(i32)]
-#[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum Key {
     KeySpace                    = ffi::KEY_SPACE,
     KeyApostrophe               = ffi::KEY_APOSTROPHE,
@@ -238,7 +238,7 @@ pub enum Key {
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(i32)]
-#[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     MouseButton1                = ffi::MOUSE_BUTTON_1,
@@ -1602,7 +1602,7 @@ pub fn make_context_current(context: Option<&Context>) {
 
 /// Joystick identifier tokens.
 #[repr(i32)]
-#[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum JoystickId {
     Joystick1       = ffi::JOYSTICK_1,
     Joystick2       = ffi::JOYSTICK_2,
