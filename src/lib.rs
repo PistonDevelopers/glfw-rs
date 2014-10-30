@@ -301,7 +301,7 @@ pub type ErrorCallback<UserData> = Callback<fn(Error, String, &UserData), UserDa
 
 /// The function to be used with the `FAIL_ON_ERRORS` callback.
 pub fn fail_on_errors(_: Error, description: String, _: &()) {
-    fail!("GLFW Error: {}", description);
+    panic!("GLFW Error: {}", description);
 }
 
 /// A callback that triggers a task failure when an error is encountered.
