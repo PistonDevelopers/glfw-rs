@@ -21,13 +21,21 @@ authors = [
         "zofrex",
 ]
 
-[features]
-default = ["glfw-sys"]
-
 [dependencies.semver]
 git = "https://github.com/rust-lang/semver"
 
-[dependencies.glfw-sys]
+[target.i686-unknown-linux-gnu.dependencies.glfw-sys]
 git = "https://github.com/servo/glfw"
 branch = "cargo-3.0.4"
-optional = true
+
+[target.x86_64_unknown_linux_gnu.dependencies.glfw-sys]
+git = "https://github.com/servo/glfw"
+branch = "cargo-3.0.4"
+
+[target.i686-apple-darwin.dependencies.glfw-sys]
+git = "https://github.com/servo/glfw"
+branch = "cargo-3.0.4"
+
+[target.x86_64-apple-darwin.dependencies.glfw-sys]
+git = "https://github.com/servo/glfw"
+branch = "cargo-3.0.4"
