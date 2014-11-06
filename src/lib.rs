@@ -24,6 +24,8 @@
 #![feature(phase)]
 #![feature(unsafe_destructor)]
 
+#![allow(non_upper_case_globals)]
+
 //! An ideomatic wrapper for the GLFW library.
 //!
 //! # Example
