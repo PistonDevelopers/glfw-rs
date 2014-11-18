@@ -34,7 +34,7 @@
 //! extern crate native;
 //! extern crate glfw;
 //!
-//! use glfw::Context;
+//! use glfw::{Action, Context, Key};
 //!
 //! #[start]
 //! fn start(argc: int, argv: *const *const u8) -> int {
@@ -62,7 +62,7 @@
 //!         for (_, event) in glfw::flush_messages(&events) {
 //!             println!("{}", event);
 //!             match event {
-//!                 glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+//!                 glfw::KeyEvent(Key::Escape, _, Action::Press, _) => {
 //!                     window.set_should_close(true)
 //!                 },
 //!                 _ => {},
@@ -92,11 +92,11 @@ use std::vec;
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
-pub use self::MouseButton1 as MouseButtonLeft;
+pub use self::MouseButton::Button1 as MouseButtonLeft;
 /// Alias to `MouseButton2`, supplied for improved clarity.
-pub use self::MouseButton2 as MouseButtonRight;
+pub use self::MouseButton::Button2 as MouseButtonRight;
 /// Alias to `MouseButton3`, supplied for improved clarity.
-pub use self::MouseButton3 as MouseButtonMiddle;
+pub use self::MouseButton::Button3 as MouseButtonMiddle;
 
 pub mod ffi;
 mod callbacks;
@@ -114,127 +114,127 @@ pub enum Action {
 #[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum Key {
-    KeySpace                    = ffi::KEY_SPACE,
-    KeyApostrophe               = ffi::KEY_APOSTROPHE,
-    KeyComma                    = ffi::KEY_COMMA,
-    KeyMinus                    = ffi::KEY_MINUS,
-    KeyPeriod                   = ffi::KEY_PERIOD,
-    KeySlash                    = ffi::KEY_SLASH,
-    Key0                        = ffi::KEY_0,
-    Key1                        = ffi::KEY_1,
-    Key2                        = ffi::KEY_2,
-    Key3                        = ffi::KEY_3,
-    Key4                        = ffi::KEY_4,
-    Key5                        = ffi::KEY_5,
-    Key6                        = ffi::KEY_6,
-    Key7                        = ffi::KEY_7,
-    Key8                        = ffi::KEY_8,
-    Key9                        = ffi::KEY_9,
-    KeySemicolon                = ffi::KEY_SEMICOLON,
-    KeyEqual                    = ffi::KEY_EQUAL,
-    KeyA                        = ffi::KEY_A,
-    KeyB                        = ffi::KEY_B,
-    KeyC                        = ffi::KEY_C,
-    KeyD                        = ffi::KEY_D,
-    KeyE                        = ffi::KEY_E,
-    KeyF                        = ffi::KEY_F,
-    KeyG                        = ffi::KEY_G,
-    KeyH                        = ffi::KEY_H,
-    KeyI                        = ffi::KEY_I,
-    KeyJ                        = ffi::KEY_J,
-    KeyK                        = ffi::KEY_K,
-    KeyL                        = ffi::KEY_L,
-    KeyM                        = ffi::KEY_M,
-    KeyN                        = ffi::KEY_N,
-    KeyO                        = ffi::KEY_O,
-    KeyP                        = ffi::KEY_P,
-    KeyQ                        = ffi::KEY_Q,
-    KeyR                        = ffi::KEY_R,
-    KeyS                        = ffi::KEY_S,
-    KeyT                        = ffi::KEY_T,
-    KeyU                        = ffi::KEY_U,
-    KeyV                        = ffi::KEY_V,
-    KeyW                        = ffi::KEY_W,
-    KeyX                        = ffi::KEY_X,
-    KeyY                        = ffi::KEY_Y,
-    KeyZ                        = ffi::KEY_Z,
-    KeyLeftBracket              = ffi::KEY_LEFT_BRACKET,
-    KeyBackslash                = ffi::KEY_BACKSLASH,
-    KeyRightBracket             = ffi::KEY_RIGHT_BRACKET,
-    KeyGraveAccent              = ffi::KEY_GRAVE_ACCENT,
-    KeyWorld1                   = ffi::KEY_WORLD_1,
-    KeyWorld2                   = ffi::KEY_WORLD_2,
+    Space                    = ffi::KEY_SPACE,
+    Apostrophe               = ffi::KEY_APOSTROPHE,
+    Comma                    = ffi::KEY_COMMA,
+    Minus                    = ffi::KEY_MINUS,
+    Period                   = ffi::KEY_PERIOD,
+    Slash                    = ffi::KEY_SLASH,
+    Num0                        = ffi::KEY_0,
+    Num1                        = ffi::KEY_1,
+    Num2                        = ffi::KEY_2,
+    Num3                        = ffi::KEY_3,
+    Num4                        = ffi::KEY_4,
+    Num5                        = ffi::KEY_5,
+    Num6                        = ffi::KEY_6,
+    Num7                        = ffi::KEY_7,
+    Num8                        = ffi::KEY_8,
+    Num9                        = ffi::KEY_9,
+    Semicolon                = ffi::KEY_SEMICOLON,
+    Equal                    = ffi::KEY_EQUAL,
+    A                        = ffi::KEY_A,
+    B                        = ffi::KEY_B,
+    C                        = ffi::KEY_C,
+    D                        = ffi::KEY_D,
+    E                        = ffi::KEY_E,
+    F                        = ffi::KEY_F,
+    G                        = ffi::KEY_G,
+    H                        = ffi::KEY_H,
+    I                        = ffi::KEY_I,
+    J                        = ffi::KEY_J,
+    K                        = ffi::KEY_K,
+    L                        = ffi::KEY_L,
+    M                        = ffi::KEY_M,
+    N                        = ffi::KEY_N,
+    O                        = ffi::KEY_O,
+    P                        = ffi::KEY_P,
+    Q                        = ffi::KEY_Q,
+    R                        = ffi::KEY_R,
+    S                        = ffi::KEY_S,
+    T                        = ffi::KEY_T,
+    U                        = ffi::KEY_U,
+    V                        = ffi::KEY_V,
+    W                        = ffi::KEY_W,
+    X                        = ffi::KEY_X,
+    Y                        = ffi::KEY_Y,
+    Z                        = ffi::KEY_Z,
+    LeftBracket              = ffi::KEY_LEFT_BRACKET,
+    Backslash                = ffi::KEY_BACKSLASH,
+    RightBracket             = ffi::KEY_RIGHT_BRACKET,
+    GraveAccent              = ffi::KEY_GRAVE_ACCENT,
+    World1                   = ffi::KEY_WORLD_1,
+    World2                   = ffi::KEY_WORLD_2,
 
-    KeyEscape                   = ffi::KEY_ESCAPE,
-    KeyEnter                    = ffi::KEY_ENTER,
-    KeyTab                      = ffi::KEY_TAB,
-    KeyBackspace                = ffi::KEY_BACKSPACE,
-    KeyInsert                   = ffi::KEY_INSERT,
-    KeyDelete                   = ffi::KEY_DELETE,
-    KeyRight                    = ffi::KEY_RIGHT,
-    KeyLeft                     = ffi::KEY_LEFT,
-    KeyDown                     = ffi::KEY_DOWN,
-    KeyUp                       = ffi::KEY_UP,
-    KeyPageUp                   = ffi::KEY_PAGE_UP,
-    KeyPageDown                 = ffi::KEY_PAGE_DOWN,
-    KeyHome                     = ffi::KEY_HOME,
-    KeyEnd                      = ffi::KEY_END,
-    KeyCapsLock                 = ffi::KEY_CAPS_LOCK,
-    KeyScrollLock               = ffi::KEY_SCROLL_LOCK,
-    KeyNumLock                  = ffi::KEY_NUM_LOCK,
-    KeyPrintScreen              = ffi::KEY_PRINT_SCREEN,
-    KeyPause                    = ffi::KEY_PAUSE,
-    KeyF1                       = ffi::KEY_F1,
-    KeyF2                       = ffi::KEY_F2,
-    KeyF3                       = ffi::KEY_F3,
-    KeyF4                       = ffi::KEY_F4,
-    KeyF5                       = ffi::KEY_F5,
-    KeyF6                       = ffi::KEY_F6,
-    KeyF7                       = ffi::KEY_F7,
-    KeyF8                       = ffi::KEY_F8,
-    KeyF9                       = ffi::KEY_F9,
-    KeyF10                      = ffi::KEY_F10,
-    KeyF11                      = ffi::KEY_F11,
-    KeyF12                      = ffi::KEY_F12,
-    KeyF13                      = ffi::KEY_F13,
-    KeyF14                      = ffi::KEY_F14,
-    KeyF15                      = ffi::KEY_F15,
-    KeyF16                      = ffi::KEY_F16,
-    KeyF17                      = ffi::KEY_F17,
-    KeyF18                      = ffi::KEY_F18,
-    KeyF19                      = ffi::KEY_F19,
-    KeyF20                      = ffi::KEY_F20,
-    KeyF21                      = ffi::KEY_F21,
-    KeyF22                      = ffi::KEY_F22,
-    KeyF23                      = ffi::KEY_F23,
-    KeyF24                      = ffi::KEY_F24,
-    KeyF25                      = ffi::KEY_F25,
-    KeyKp0                      = ffi::KEY_KP_0,
-    KeyKp1                      = ffi::KEY_KP_1,
-    KeyKp2                      = ffi::KEY_KP_2,
-    KeyKp3                      = ffi::KEY_KP_3,
-    KeyKp4                      = ffi::KEY_KP_4,
-    KeyKp5                      = ffi::KEY_KP_5,
-    KeyKp6                      = ffi::KEY_KP_6,
-    KeyKp7                      = ffi::KEY_KP_7,
-    KeyKp8                      = ffi::KEY_KP_8,
-    KeyKp9                      = ffi::KEY_KP_9,
-    KeyKpDecimal                = ffi::KEY_KP_DECIMAL,
-    KeyKpDivide                 = ffi::KEY_KP_DIVIDE,
-    KeyKpMultiply               = ffi::KEY_KP_MULTIPLY,
-    KeyKpSubtract               = ffi::KEY_KP_SUBTRACT,
-    KeyKpAdd                    = ffi::KEY_KP_ADD,
-    KeyKpEnter                  = ffi::KEY_KP_ENTER,
-    KeyKpEqual                  = ffi::KEY_KP_EQUAL,
-    KeyLeftShift                = ffi::KEY_LEFT_SHIFT,
-    KeyLeftControl              = ffi::KEY_LEFT_CONTROL,
-    KeyLeftAlt                  = ffi::KEY_LEFT_ALT,
-    KeyLeftSuper                = ffi::KEY_LEFT_SUPER,
-    KeyRightShift               = ffi::KEY_RIGHT_SHIFT,
-    KeyRightControl             = ffi::KEY_RIGHT_CONTROL,
-    KeyRightAlt                 = ffi::KEY_RIGHT_ALT,
-    KeyRightSuper               = ffi::KEY_RIGHT_SUPER,
-    KeyMenu                     = ffi::KEY_MENU,
+    Escape                   = ffi::KEY_ESCAPE,
+    Enter                    = ffi::KEY_ENTER,
+    Tab                      = ffi::KEY_TAB,
+    Backspace                = ffi::KEY_BACKSPACE,
+    Insert                   = ffi::KEY_INSERT,
+    Delete                   = ffi::KEY_DELETE,
+    Right                    = ffi::KEY_RIGHT,
+    Left                     = ffi::KEY_LEFT,
+    Down                     = ffi::KEY_DOWN,
+    Up                       = ffi::KEY_UP,
+    PageUp                   = ffi::KEY_PAGE_UP,
+    PageDown                 = ffi::KEY_PAGE_DOWN,
+    Home                     = ffi::KEY_HOME,
+    End                      = ffi::KEY_END,
+    CapsLock                 = ffi::KEY_CAPS_LOCK,
+    ScrollLock               = ffi::KEY_SCROLL_LOCK,
+    NumLock                  = ffi::KEY_NUM_LOCK,
+    PrintScreen              = ffi::KEY_PRINT_SCREEN,
+    Pause                    = ffi::KEY_PAUSE,
+    F1                       = ffi::KEY_F1,
+    F2                       = ffi::KEY_F2,
+    F3                       = ffi::KEY_F3,
+    F4                       = ffi::KEY_F4,
+    F5                       = ffi::KEY_F5,
+    F6                       = ffi::KEY_F6,
+    F7                       = ffi::KEY_F7,
+    F8                       = ffi::KEY_F8,
+    F9                       = ffi::KEY_F9,
+    F10                      = ffi::KEY_F10,
+    F11                      = ffi::KEY_F11,
+    F12                      = ffi::KEY_F12,
+    F13                      = ffi::KEY_F13,
+    F14                      = ffi::KEY_F14,
+    F15                      = ffi::KEY_F15,
+    F16                      = ffi::KEY_F16,
+    F17                      = ffi::KEY_F17,
+    F18                      = ffi::KEY_F18,
+    F19                      = ffi::KEY_F19,
+    F20                      = ffi::KEY_F20,
+    F21                      = ffi::KEY_F21,
+    F22                      = ffi::KEY_F22,
+    F23                      = ffi::KEY_F23,
+    F24                      = ffi::KEY_F24,
+    F25                      = ffi::KEY_F25,
+    Kp0                      = ffi::KEY_KP_0,
+    Kp1                      = ffi::KEY_KP_1,
+    Kp2                      = ffi::KEY_KP_2,
+    Kp3                      = ffi::KEY_KP_3,
+    Kp4                      = ffi::KEY_KP_4,
+    Kp5                      = ffi::KEY_KP_5,
+    Kp6                      = ffi::KEY_KP_6,
+    Kp7                      = ffi::KEY_KP_7,
+    Kp8                      = ffi::KEY_KP_8,
+    Kp9                      = ffi::KEY_KP_9,
+    KpDecimal                = ffi::KEY_KP_DECIMAL,
+    KpDivide                 = ffi::KEY_KP_DIVIDE,
+    KpMultiply               = ffi::KEY_KP_MULTIPLY,
+    KpSubtract               = ffi::KEY_KP_SUBTRACT,
+    KpAdd                    = ffi::KEY_KP_ADD,
+    KpEnter                  = ffi::KEY_KP_ENTER,
+    KpEqual                  = ffi::KEY_KP_EQUAL,
+    LeftShift                = ffi::KEY_LEFT_SHIFT,
+    LeftControl              = ffi::KEY_LEFT_CONTROL,
+    LeftAlt                  = ffi::KEY_LEFT_ALT,
+    LeftSuper                = ffi::KEY_LEFT_SUPER,
+    RightShift               = ffi::KEY_RIGHT_SHIFT,
+    RightControl             = ffi::KEY_RIGHT_CONTROL,
+    RightAlt                 = ffi::KEY_RIGHT_ALT,
+    RightSuper               = ffi::KEY_RIGHT_SUPER,
+    Menu                     = ffi::KEY_MENU,
 }
 
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
@@ -243,16 +243,16 @@ pub enum Key {
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
-    MouseButton1                = ffi::MOUSE_BUTTON_1,
+    Button1                = ffi::MOUSE_BUTTON_1,
     /// The right mouse button. A `MouseButtonRight` alias is provided to improve clarity.
-    MouseButton2                = ffi::MOUSE_BUTTON_2,
+    Button2                = ffi::MOUSE_BUTTON_2,
     /// The middle mouse button. A `MouseButtonMiddle` alias is provided to improve clarity.
-    MouseButton3                = ffi::MOUSE_BUTTON_3,
-    MouseButton4                = ffi::MOUSE_BUTTON_4,
-    MouseButton5                = ffi::MOUSE_BUTTON_5,
-    MouseButton6                = ffi::MOUSE_BUTTON_6,
-    MouseButton7                = ffi::MOUSE_BUTTON_7,
-    MouseButton8                = ffi::MOUSE_BUTTON_8,
+    Button3                = ffi::MOUSE_BUTTON_3,
+    Button4                = ffi::MOUSE_BUTTON_4,
+    Button5                = ffi::MOUSE_BUTTON_5,
+    Button6                = ffi::MOUSE_BUTTON_6,
+    Button7                = ffi::MOUSE_BUTTON_7,
+    Button8                = ffi::MOUSE_BUTTON_8,
 }
 
 /// Formats the type using aliases rather than the default variant names.
@@ -324,9 +324,9 @@ pub static LOG_ERRORS: Option<ErrorCallback<()>> =
 #[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum CursorMode {
-    CursorNormal                = ffi::CURSOR_NORMAL,
-    CursorHidden                = ffi::CURSOR_HIDDEN,
-    CursorDisabled              = ffi::CURSOR_DISABLED,
+    Normal                = ffi::CURSOR_NORMAL,
+    Hidden                = ffi::CURSOR_HIDDEN,
+    Disabled              = ffi::CURSOR_DISABLED,
 }
 
 /// Describes a single video mode.
@@ -367,7 +367,7 @@ pub enum InitError {
     /// The library was already initialized.
     AlreadyInitialized,
     /// An internal error occured when trying to initialize the library.
-    InternalInitError,
+    Internal,
 }
 
 /// Initializes the GLFW library. This must be called on the main platform
@@ -408,7 +408,7 @@ pub enum InitError {
 pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) -> Result<Glfw, InitError> {
     use sync::one::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
-    let mut result = Err(AlreadyInitialized);
+    let mut result = Err(InitError::AlreadyInitialized);
     unsafe {
         INIT.doit(|| {
             // Initialize the error callback if it was supplied. This is done
@@ -424,7 +424,7 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
                     ffi::glfwTerminate()
                 });
             } else {
-                result = Err(InternalInitError);
+                result = Err(InitError::Internal);
             }
         })
     }
@@ -563,33 +563,33 @@ impl Glfw {
     /// ~~~
     pub fn window_hint(&self, hint: WindowHint) {
         match hint {
-            RedBits(bits)                   => unsafe { ffi::glfwWindowHint(ffi::RED_BITS,              bits as c_int) },
-            GreenBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS,            bits as c_int) },
-            BlueBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS,             bits as c_int) },
-            AlphaBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS,            bits as c_int) },
-            DepthBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS,            bits as c_int) },
-            StencilBits(bits)               => unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS,          bits as c_int) },
-            AccumRedBits(bits)              => unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS,        bits as c_int) },
-            AccumGreenBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS,      bits as c_int) },
-            AccumBlueBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS,       bits as c_int) },
-            AccumAlphaBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS,      bits as c_int) },
-            AuxBuffers(num_buffers)         => unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS,           num_buffers as c_int) },
-            Stereo(is_stereo)               => unsafe { ffi::glfwWindowHint(ffi::STEREO,                is_stereo as c_int) },
-            Samples(num_samples)            => unsafe { ffi::glfwWindowHint(ffi::SAMPLES,               num_samples as c_int) },
-            SRgbCapable(is_capable)         => unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE,          is_capable as c_int) },
-            RefreshRate(rate)               => unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE,          rate as c_int) },
-            ClientApi(api)                  => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,            api as c_int) },
-            ContextVersionMajor(major)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int) },
-            ContextVersionMinor(minor)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
-            ContextVersion(major, minor)    => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
+            WindowHint::RedBits(bits)                   => unsafe { ffi::glfwWindowHint(ffi::RED_BITS,              bits as c_int) },
+            WindowHint::GreenBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS,            bits as c_int) },
+            WindowHint::BlueBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS,             bits as c_int) },
+            WindowHint::AlphaBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS,            bits as c_int) },
+            WindowHint::DepthBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS,            bits as c_int) },
+            WindowHint::StencilBits(bits)               => unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS,          bits as c_int) },
+            WindowHint::AccumRedBits(bits)              => unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS,        bits as c_int) },
+            WindowHint::AccumGreenBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS,      bits as c_int) },
+            WindowHint::AccumBlueBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS,       bits as c_int) },
+            WindowHint::AccumAlphaBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS,      bits as c_int) },
+            WindowHint::AuxBuffers(num_buffers)         => unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS,           num_buffers as c_int) },
+            WindowHint::Stereo(is_stereo)               => unsafe { ffi::glfwWindowHint(ffi::STEREO,                is_stereo as c_int) },
+            WindowHint::Samples(num_samples)            => unsafe { ffi::glfwWindowHint(ffi::SAMPLES,               num_samples as c_int) },
+            WindowHint::SRgbCapable(is_capable)         => unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE,          is_capable as c_int) },
+            WindowHint::RefreshRate(rate)               => unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE,          rate as c_int) },
+            WindowHint::ClientApi(api)                  => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,            api as c_int) },
+            WindowHint::ContextVersionMajor(major)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int) },
+            WindowHint::ContextVersionMinor(minor)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
+            WindowHint::ContextVersion(major, minor)    => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
                                                         ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
-            ContextRobustness(robustness)   => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS,    robustness as c_int) },
-            OpenglForwardCompat(is_compat)  => unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int) },
-            OpenglDebugContext(is_debug)    => unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT,  is_debug as c_int) },
-            OpenglProfile(profile)          => unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE,        profile as c_int) },
-            Resizable(is_resizable)         => unsafe { ffi::glfwWindowHint(ffi::RESIZABLE,             is_resizable as c_int) },
-            Visible(is_visible)             => unsafe { ffi::glfwWindowHint(ffi::VISIBLE,               is_visible as c_int) },
-            Decorated(is_decorated)         => unsafe { ffi::glfwWindowHint(ffi::DECORATED,             is_decorated as c_int) },
+            WindowHint::ContextRobustness(robustness)   => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS,    robustness as c_int) },
+            WindowHint::OpenglForwardCompat(is_compat)  => unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int) },
+            WindowHint::OpenglDebugContext(is_debug)    => unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT,  is_debug as c_int) },
+            WindowHint::OpenglProfile(profile)          => unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE,        profile as c_int) },
+            WindowHint::Resizable(is_resizable)         => unsafe { ffi::glfwWindowHint(ffi::RESIZABLE,             is_resizable as c_int) },
+            WindowHint::Visible(is_visible)             => unsafe { ffi::glfwWindowHint(ffi::VISIBLE,               is_visible as c_int) },
+            WindowHint::Decorated(is_decorated)         => unsafe { ffi::glfwWindowHint(ffi::DECORATED,             is_decorated as c_int) },
         }
     }
 
@@ -986,8 +986,8 @@ pub enum WindowHint {
 #[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum ClientApiHint {
-    OpenGlApi                   = ffi::OPENGL_API,
-    OpenGlEsApi                 = ffi::OPENGL_ES_API,
+    OpenGl                   = ffi::OPENGL_API,
+    OpenGlEs                 = ffi::OPENGL_ES_API,
 }
 
 /// Context robustness tokens.
@@ -1003,9 +1003,9 @@ pub enum ContextRobustnessHint {
 #[repr(i32)]
 #[deriving(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum OpenGlProfileHint {
-    OpenGlAnyProfile            = ffi::OPENGL_ANY_PROFILE,
-    OpenGlCoreProfile           = ffi::OPENGL_CORE_PROFILE,
-    OpenGlCompatProfile         = ffi::OPENGL_COMPAT_PROFILE,
+    Any            = ffi::OPENGL_ANY_PROFILE,
+    Core           = ffi::OPENGL_CORE_PROFILE,
+    Compat         = ffi::OPENGL_COMPAT_PROFILE,
 }
 
 /// Describes the mode of a window
@@ -1024,8 +1024,8 @@ impl<'a> WindowMode<'a> {
     /// it returns a null pointer (if it is in windowed mode).
     fn to_ptr(&self) -> *mut ffi::GLFWmonitor {
         match *self {
-            FullScreen(ref monitor) => monitor.ptr,
-            Windowed                => ptr::null_mut(),
+            WindowMode::FullScreen(ref monitor) => monitor.ptr,
+            WindowMode::Windowed                => ptr::null_mut(),
         }
     }
 }
@@ -1255,9 +1255,9 @@ impl Window {
     pub fn with_window_mode<T>(&self, f: |WindowMode| -> T) -> T {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
-            f(Windowed)
+            f(WindowMode::Windowed)
         } else {
-            f(FullScreen(&Monitor {
+            f(WindowMode::FullScreen(&Monitor {
                 ptr: ptr,
                 no_copy: marker::NoCopy,
                 no_send: marker::NoSend,
