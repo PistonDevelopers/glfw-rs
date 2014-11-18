@@ -16,7 +16,7 @@
 extern crate native;
 extern crate glfw;
 
-use glfw::Context;
+use glfw::{Action, Context, Key};
 
 #[start]
 fn start(argc: int, argv: *const *const u8) -> int {
@@ -84,8 +84,8 @@ fn handle_window_event(window: &glfw::Window, (time, event): (f64, glfw::WindowE
         glfw::KeyEvent(key, scancode, action, mods) => {
             println!("Time: {}, Key: {}, ScanCode: {}, Action: {}, Modifiers: [{}]", time, key, scancode, action, mods);
             match (key, action) {
-                (glfw::KeyEscape, glfw::Press) => window.set_should_close(true),
-                (glfw::KeyR, glfw::Press) => {
+                (Key::Escape, Action::Press) => window.set_should_close(true),
+                (Key::R, Action::Press) => {
                     // Resize should cause the window to "refresh"
                     let (window_width, window_height) = window.get_size();
                     window.set_size(window_width + 1, window_height);

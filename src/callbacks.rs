@@ -104,12 +104,12 @@ unsafe fn get_sender<'a>(window: &'a *mut ffi::GLFWwindow) -> &'a Sender<(f64, W
 macro_rules! window_callback(
     (fn $name:ident () => $event:ident) => (
         pub extern "C" fn $name(window: *mut ffi::GLFWwindow) {
-            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, $event)); }
+            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event)); }
         }
      );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
         pub extern "C" fn $name(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, $event($($arg_conv),*))); }
+            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event($($arg_conv),*))); }
         }
      );
 )
