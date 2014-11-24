@@ -70,7 +70,7 @@ pub mod error {
         type Callback = ErrorCallback;
         let ext_set = |cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
         fn callback(error: c_int, description: *const c_char) {
-            (mem::transmute(error), string::raw::from_buf(
+            (mem::transmute(error), string::String::from_raw_buf(
                 mem::transmute(description)))
         }
     )

@@ -521,7 +521,7 @@ impl Glfw {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            f(vec::raw::from_buf(ptr as *const _, count as uint).iter().map(|&ptr| {
+            f(vec::Vec::from_raw_buf(ptr as *const _, count as uint).iter().map(|&ptr| {
                 Monitor {
                     ptr: ptr,
                     no_copy: marker::NoCopy,
@@ -749,7 +749,7 @@ pub fn get_version() -> Version {
 
 /// Wrapper for `glfwGetVersionString`.
 pub fn get_version_string() -> String {
-    unsafe { string::raw::from_buf(ffi::glfwGetVersionString() as *const u8) }
+    unsafe { string::String::from_raw_buf(ffi::glfwGetVersionString() as *const u8) }
 }
 
 /// An monitor callback. This can be supplied with some user data to be passed
@@ -793,7 +793,7 @@ impl Monitor {
 
     /// Wrapper for `glfwGetMonitorName`.
     pub fn get_name(&self) -> String {
-        unsafe { string::raw::from_buf(ffi::glfwGetMonitorName(self.ptr) as *const u8) }
+        unsafe { string::String::from_raw_buf(ffi::glfwGetMonitorName(self.ptr) as *const u8) }
     }
 
     /// Wrapper for `glfwGetVideoModes`.
@@ -801,7 +801,7 @@ impl Monitor {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            vec::raw::from_buf(ptr, count as uint).iter().map(VidMode::from_glfw_vid_mode).collect()
+            vec::Vec::from_raw_buf(ptr, count as uint).iter().map(VidMode::from_glfw_vid_mode).collect()
         }
     }
 
@@ -822,9 +822,9 @@ impl Monitor {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    vec::raw::from_buf(llramp.red as *const _,   llramp.size as uint),
-                green:  vec::raw::from_buf(llramp.green as *const _, llramp.size as uint),
-                blue:   vec::raw::from_buf(llramp.blue as *const _,  llramp.size as uint),
+                red:    vec::Vec::from_raw_buf(llramp.red as *const _,   llramp.size as uint),
+                green:  vec::Vec::from_raw_buf(llramp.green as *const _, llramp.size as uint),
+                blue:   vec::Vec::from_raw_buf(llramp.blue as *const _,  llramp.size as uint),
             }
         }
     }
@@ -1481,7 +1481,7 @@ impl Window {
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn get_clipboard_string(&self) -> String {
-        unsafe { string::raw::from_buf(ffi::glfwGetClipboardString(self.ptr) as *const u8) }
+        unsafe { string::String::from_raw_buf(ffi::glfwGetClipboardString(self.ptr) as *const u8) }
     }
 
     /// Wrapper for `glfwGetWin32Window`
@@ -1641,7 +1641,7 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(self.id as c_int, &mut count);
-            vec::raw::from_buf(ptr, count as uint).iter().map(|&a| a as f32).collect()
+            vec::Vec::from_raw_buf(ptr, count as uint).iter().map(|&a| a as f32).collect()
         }
     }
 
@@ -1650,12 +1650,12 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(self.id as c_int, &mut count);
-            vec::raw::from_buf(ptr, count as uint).iter().map(|&b| b as c_int).collect()
+            vec::Vec::from_raw_buf(ptr, count as uint).iter().map(|&b| b as c_int).collect()
         }
     }
 
     /// Wrapper for `glfwGetJoystickName`.
     pub fn get_name(&self) -> String {
-        unsafe { string::raw::from_buf(ffi::glfwGetJoystickName(self.id as c_int) as *const u8) }
+        unsafe { string::String::from_raw_buf(ffi::glfwGetJoystickName(self.id as c_int) as *const u8) }
     }
 }
