@@ -22,15 +22,9 @@ GLFW bindings and wrapper for The Rust Programming Language.
 ## Example
 
 ~~~rust
-extern crate native;
 extern crate glfw;
 
 use glfw::{Action, Context, Key};
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
-}
 
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
