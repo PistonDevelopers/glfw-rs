@@ -13,15 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate native;
 extern crate glfw;
 
 use glfw::{Action, Context, Key};
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
-}
 
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -56,14 +50,14 @@ fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
                 }
                 if (key == Key::V) && mods.contains(NATIVE_MOD) {
                     match window.get_clipboard_string() {
-                        ref s if !s.is_empty() => println!("Clipboard contains \"{:s}\"", *s),
+                        ref s if !s.is_empty() => println!("Clipboard contains \"{}\"", *s),
                         _                      => println!("Clipboard does not contain a string"),
                     }
                 }
                 if (key == Key::C) && mods.contains(NATIVE_MOD) {
                     let s = "Hello GLFW World!";
                     window.set_clipboard_string(s);
-                    println!("Setting clipboard to {:s}", s);
+                    println!("Setting clipboard to {}", s);
                 }
             }
         }

@@ -17,16 +17,10 @@
 
 #![feature(phase)]
 
-extern crate native;
 extern crate glfw;
 #[phase(plugin, link)] extern crate log;
 
 use std::cell::Cell;
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
-}
 
 fn main() {
     let glfw = glfw::init(Some(
