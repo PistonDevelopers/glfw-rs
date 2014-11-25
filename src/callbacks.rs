@@ -71,7 +71,7 @@ pub mod error {
         let ext_set = |cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
         fn callback(error: c_int, description: *const c_char) {
             (mem::transmute(error), string::String::from_raw_buf(
-                mem::transmute(description)))
+                description as *const u8))
         }
     )
 }
