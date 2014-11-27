@@ -68,7 +68,6 @@
 // TODO: Document differences between GLFW and glfw-rs
 
 extern crate semver;
-extern crate sync;
 extern crate libc;
 #[phase(plugin, link)]
 extern crate log;
@@ -392,7 +391,7 @@ pub enum InitError {
 /// - If an initialization error occured within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
 pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) -> Result<Glfw, InitError> {
-    use sync::one::{Once, ONCE_INIT};
+    use std::sync::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
     let mut result = Err(InitError::AlreadyInitialized);
     unsafe {
