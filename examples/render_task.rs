@@ -24,7 +24,7 @@ use std::task::TaskBuilder;
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+    let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
@@ -68,7 +68,7 @@ fn render(context: glfw::RenderContext, finish: Receiver<()>) {
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::KeyEvent(Key::Escape, _, Action::Press, _) => {
+        glfw::WindowEvent::KeyEvent(Key::Escape, _, Action::Press, _) => {
             window.set_should_close(true)
         }
         _ => {}

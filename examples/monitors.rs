@@ -28,7 +28,7 @@ fn main() {
 
     let (window, events) = glfw.with_primary_monitor(|m| {
         glfw.create_window(300, 300, "Hello this is window",
-            m.map_or(glfw::Windowed, |m| glfw::FullScreen(m)))
+            m.map_or(glfw::WindowMode::Windowed, |m| glfw::WindowMode::FullScreen(m)))
     }).expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
@@ -44,7 +44,7 @@ fn main() {
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::KeyEvent(Key::Escape, _, Action::Press, _) => {
+        glfw::WindowEvent::KeyEvent(Key::Escape, _, Action::Press, _) => {
             window.set_should_close(true)
         }
         _ => {}

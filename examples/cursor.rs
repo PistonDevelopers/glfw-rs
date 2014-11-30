@@ -20,7 +20,7 @@ use glfw::{Action, Context, CursorMode, Key};
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (window, events) = glfw.create_window(800, 600, "Hello, I am a window.", glfw::Windowed)
+    let (window, events) = glfw.create_window(800, 600, "Hello, I am a window.", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_cursor_mode(CursorMode::Disabled);
@@ -39,9 +39,9 @@ fn main() {
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::CursorPosEvent(xpos, ypos) => println!("Cursor position: ({}, {})", xpos, ypos),
-        glfw::KeyEvent(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
-        glfw::KeyEvent(Key::Space, _, Action::Press, _) => {
+        glfw::WindowEvent::CursorPosEvent(xpos, ypos) => println!("Cursor position: ({}, {})", xpos, ypos),
+        glfw::WindowEvent::KeyEvent(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
+        glfw::WindowEvent::KeyEvent(Key::Space, _, Action::Press, _) => {
             match window.get_cursor_mode() {
                 CursorMode::Disabled => window.set_cursor_mode(CursorMode::Normal),
                 CursorMode::Normal   => window.set_cursor_mode(CursorMode::Disabled),
