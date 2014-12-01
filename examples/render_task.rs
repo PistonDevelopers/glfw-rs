@@ -68,7 +68,7 @@ fn render(context: glfw::RenderContext, finish: Receiver<()>) {
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::KeyEvent(Key::Escape, _, Action::Press, _) => {
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
             window.set_should_close(true)
         }
         _ => {}

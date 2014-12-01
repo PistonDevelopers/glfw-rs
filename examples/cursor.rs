@@ -39,9 +39,9 @@ fn main() {
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::CursorPosEvent(xpos, ypos) => println!("Cursor position: ({}, {})", xpos, ypos),
-        glfw::WindowEvent::KeyEvent(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
-        glfw::WindowEvent::KeyEvent(Key::Space, _, Action::Press, _) => {
+        glfw::WindowEvent::CursorPos(xpos, ypos) => println!("Cursor position: ({}, {})", xpos, ypos),
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
+        glfw::WindowEvent::Key(Key::Space, _, Action::Press, _) => {
             match window.get_cursor_mode() {
                 CursorMode::Disabled => window.set_cursor_mode(CursorMode::Normal),
                 CursorMode::Normal   => window.set_cursor_mode(CursorMode::Disabled),

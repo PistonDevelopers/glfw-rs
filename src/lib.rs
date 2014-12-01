@@ -55,7 +55,7 @@
 //!         for (_, event) in glfw::flush_messages(&events) {
 //!             println!("{}", event);
 //!             match event {
-//!                 glfw::WindowEvent::KeyEvent(Key::Escape, _, Action::Press, _) => {
+//!                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
 //!                     window.set_should_close(true)
 //!                 },
 //!                 _ => {},
@@ -1044,19 +1044,19 @@ pub type Scancode = c_int;
 /// Window event messages.
 #[deriving(Clone, PartialEq, PartialOrd, Show)]
 pub enum WindowEvent {
-    PosEvent(i32, i32),
-    SizeEvent(i32, i32),
-    CloseEvent,
-    RefreshEvent,
-    FocusEvent(bool),
-    IconifyEvent(bool),
-    FramebufferSizeEvent(i32, i32),
-    MouseButtonEvent(MouseButton, Action, Modifiers),
-    CursorPosEvent(f64, f64),
-    CursorEnterEvent(bool),
-    ScrollEvent(f64, f64),
-    KeyEvent(Key, Scancode, Action, Modifiers),
-    CharEvent(char),
+    Pos(i32, i32),
+    Size(i32, i32),
+    Close,
+    Refresh,
+    Focus(bool),
+    Iconify(bool),
+    FramebufferSize(i32, i32),
+    MouseButton(MouseButton, Action, Modifiers),
+    CursorPos(f64, f64),
+    CursorEnter(bool),
+    Scroll(f64, f64),
+    Key(Key, Scancode, Action, Modifiers),
+    Char(char),
 }
 
 /// Returns an iterator that yeilds until no more messages are contained in the

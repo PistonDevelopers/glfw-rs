@@ -60,22 +60,22 @@ fn main() {
 
 fn handle_window_event(window: &glfw::Window, (time, event): (f64, glfw::WindowEvent)) {
     match event {
-        glfw::WindowEvent::PosEvent(x, y)                => window.set_title(format!("Time: {}, Window pos: ({}, {})", time, x, y).as_slice()),
-        glfw::WindowEvent::SizeEvent(w, h)               => window.set_title(format!("Time: {}, Window size: ({}, {})", time, w, h).as_slice()),
-        glfw::WindowEvent::CloseEvent                    => println!("Time: {}, Window close requested.", time),
-        glfw::WindowEvent::RefreshEvent                  => println!("Time: {}, Window refresh callback triggered.", time),
-        glfw::WindowEvent::FocusEvent(true)              => println!("Time: {}, Window focus gained.", time),
-        glfw::WindowEvent::FocusEvent(false)             => println!("Time: {}, Window focus lost.", time),
-        glfw::WindowEvent::IconifyEvent(true)            => println!("Time: {}, Window was minimised", time),
-        glfw::WindowEvent::IconifyEvent(false)           => println!("Time: {}, Window was maximised.", time),
-        glfw::WindowEvent::FramebufferSizeEvent(w, h)    => println!("Time: {}, Framebuffer size: ({}, {})", time, w, h),
-        glfw::WindowEvent::CharEvent(character)          => println!("Time: {}, Character: {}", time, character),
-        glfw::WindowEvent::MouseButtonEvent(btn, action, mods) => println!("Time: {}, Button: {}, Action: {}, Modifiers: [{}]", time, glfw::ShowAliases(btn), action, mods),
-        glfw::WindowEvent::CursorPosEvent(xpos, ypos)    => window.set_title(format!("Time: {}, Cursor position: ({}, {})", time, xpos, ypos).as_slice()),
-        glfw::WindowEvent::CursorEnterEvent(true)        => println!("Time: {}, Cursor entered window.", time),
-        glfw::WindowEvent::CursorEnterEvent(false)       => println!("Time: {}, Cursor left window.", time),
-        glfw::WindowEvent::ScrollEvent(x, y)             => window.set_title(format!("Time: {}, Scroll offset: ({}, {})", time, x, y).as_slice()),
-        glfw::WindowEvent::KeyEvent(key, scancode, action, mods) => {
+        glfw::WindowEvent::Pos(x, y)                      => window.set_title(format!("Time: {}, Window pos: ({}, {})", time, x, y).as_slice()),
+        glfw::WindowEvent::Size(w, h)                     => window.set_title(format!("Time: {}, Window size: ({}, {})", time, w, h).as_slice()),
+        glfw::WindowEvent::Close                          => println!("Time: {}, Window close requested.", time),
+        glfw::WindowEvent::Refresh                        => println!("Time: {}, Window refresh callback triggered.", time),
+        glfw::WindowEvent::Focus(true)                    => println!("Time: {}, Window focus gained.", time),
+        glfw::WindowEvent::Focus(false)                   => println!("Time: {}, Window focus lost.", time),
+        glfw::WindowEvent::Iconify(true)                  => println!("Time: {}, Window was minimised", time),
+        glfw::WindowEvent::Iconify(false)                 => println!("Time: {}, Window was maximised.", time),
+        glfw::WindowEvent::FramebufferSize(w, h)          => println!("Time: {}, Framebuffer size: ({}, {})", time, w, h),
+        glfw::WindowEvent::Char(character)                => println!("Time: {}, Character: {}", time, character),
+        glfw::WindowEvent::MouseButton(btn, action, mods) => println!("Time: {}, Button: {}, Action: {}, Modifiers: [{}]", time, glfw::ShowAliases(btn), action, mods),
+        glfw::WindowEvent::CursorPos(xpos, ypos)          => window.set_title(format!("Time: {}, Cursor position: ({}, {})", time, xpos, ypos).as_slice()),
+        glfw::WindowEvent::CursorEnter(true)              => println!("Time: {}, Cursor entered window.", time),
+        glfw::WindowEvent::CursorEnter(false)             => println!("Time: {}, Cursor left window.", time),
+        glfw::WindowEvent::Scroll(x, y)                   => window.set_title(format!("Time: {}, Scroll offset: ({}, {})", time, x, y).as_slice()),
+        glfw::WindowEvent::Key(key, scancode, action, mods) => {
             println!("Time: {}, Key: {}, ScanCode: {}, Action: {}, Modifiers: [{}]", time, key, scancode, action, mods);
             match (key, action) {
                 (Key::Escape, Action::Press) => window.set_should_close(true),

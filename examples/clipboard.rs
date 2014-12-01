@@ -43,7 +43,7 @@ static NATIVE_MOD: glfw::Modifiers = glfw::Control;
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::KeyEvent(key, _, action, mods) => {
+        glfw::WindowEvent::Key(key, _, action, mods) => {
             if action == Action::Press {
                 if key == Key::Escape {
                     window.set_should_close(true);
