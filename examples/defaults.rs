@@ -20,9 +20,9 @@ use glfw::Context;
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    glfw.window_hint(glfw::Visible(true));
+    glfw.window_hint(glfw::WindowHint::Visible(true));
 
-    let (window, _) = glfw.create_window(640, 480, "Defaults", glfw::Windowed)
+    let (window, _) = glfw.create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.make_current();

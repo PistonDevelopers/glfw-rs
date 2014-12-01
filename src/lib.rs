@@ -39,7 +39,7 @@
 //!    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 //!
 //!     // Create a windowed mode window and its OpenGL context
-//!     let (window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+//!     let (window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
 //!         .expect("Failed to create GLFW window.");
 //!
 //!     // Make the window's context current
@@ -55,7 +55,7 @@
 //!         for (_, event) in glfw::flush_messages(&events) {
 //!             println!("{}", event);
 //!             match event {
-//!                 glfw::KeyEvent(Key::Escape, _, Action::Press, _) => {
+//!                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
 //!                     window.set_should_close(true)
 //!                 },
 //!                 _ => {},
@@ -475,7 +475,7 @@ impl Glfw {
     /// ~~~ignore
     /// let (window, events) = glfw.with_primary_monitor(|m| {
     ///     glfw.create_window(300, 300, "Hello this is window",
-    ///         m.map_or(glfw::Windowed, |m| glfw::FullScreen(m)))
+    ///         m.map_or(glfw::WindowMode::Windowed, |m| glfw::FullScreen(m)))
     /// }).expect("Failed to create GLFW window.");
     /// ~~~
     pub fn with_primary_monitor<T>(&self, f: |Option<&Monitor>| -> T) -> T {
@@ -1044,19 +1044,19 @@ pub type Scancode = c_int;
 /// Window event messages.
 #[deriving(Clone, PartialEq, PartialOrd, Show)]
 pub enum WindowEvent {
-    PosEvent(i32, i32),
-    SizeEvent(i32, i32),
-    CloseEvent,
-    RefreshEvent,
-    FocusEvent(bool),
-    IconifyEvent(bool),
-    FramebufferSizeEvent(i32, i32),
-    MouseButtonEvent(MouseButton, Action, Modifiers),
-    CursorPosEvent(f64, f64),
-    CursorEnterEvent(bool),
-    ScrollEvent(f64, f64),
-    KeyEvent(Key, Scancode, Action, Modifiers),
-    CharEvent(char),
+    Pos(i32, i32),
+    Size(i32, i32),
+    Close,
+    Refresh,
+    Focus(bool),
+    Iconify(bool),
+    FramebufferSize(i32, i32),
+    MouseButton(MouseButton, Action, Modifiers),
+    CursorPos(f64, f64),
+    CursorEnter(bool),
+    Scroll(f64, f64),
+    Key(Key, Scancode, Action, Modifiers),
+    Char(char),
 }
 
 /// Returns an iterator that yeilds until no more messages are contained in the

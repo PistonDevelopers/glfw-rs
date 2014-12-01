@@ -20,7 +20,7 @@ use glfw::{Action, Context, Key};
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (window, events) = glfw.create_window(300, 300, "Clipboard Test", glfw::Windowed)
+    let (window, events) = glfw.create_window(300, 300, "Clipboard Test", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
@@ -43,7 +43,7 @@ static NATIVE_MOD: glfw::Modifiers = glfw::Control;
 
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::KeyEvent(key, _, action, mods) => {
+        glfw::WindowEvent::Key(key, _, action, mods) => {
             if action == Action::Press {
                 if key == Key::Escape {
                     window.set_should_close(true);

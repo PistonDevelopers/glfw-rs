@@ -31,10 +31,10 @@ fn main() {
     )).unwrap();
 
     // Force the error callback to be triggered
-    glfw.window_hint(glfw::ContextVersion(40000, 3000)); // Ridiculous!
-    let _ = glfw.create_window(300, 300, "Hey this won't work.", glfw::Windowed);
-    let _ = glfw.create_window(300, 300, "Nope, not working.",   glfw::Windowed);
-    let _ = glfw.create_window(300, 300, "Stop it! :(",          glfw::Windowed);
+    glfw.window_hint(glfw::WindowHint::ContextVersion(40000, 3000)); // Ridiculous!
+    let _ = glfw.create_window(300, 300, "Hey this won't work.", glfw::WindowMode::Windowed);
+    let _ = glfw.create_window(300, 300, "Nope, not working.",   glfw::WindowMode::Windowed);
+    let _ = glfw.create_window(300, 300, "Stop it! :(",          glfw::WindowMode::Windowed);
 }
 
 fn error_callback(_: glfw::Error, description: String, error_count: &Cell<uint>) {
