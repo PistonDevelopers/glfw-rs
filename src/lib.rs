@@ -530,21 +530,21 @@ impl Glfw {
     ///
     /// 10.7 and 10.8 support the following OpenGL versions:
     ///
-    /// - `glfw::ContextVersion(3, 2)`
+    /// - `glfw::WindowHint::ContextVersion(3, 2)`
     ///
     /// 10.9 supports the following OpenGL versions
     ///
-    /// - `glfw::ContextVersion(3, 2)`
-    /// - `glfw::ContextVersion(3, 3)`
-    /// - `glfw::ContextVersion(4, 1)`
+    /// - `glfw::WindowHint::ContextVersion(3, 2)`
+    /// - `glfw::WindowHint::ContextVersion(3, 3)`
+    /// - `glfw::WindowHint::ContextVersion(4, 1)`
     ///
     /// To create an OS X compatible context, the hints should be specified as
     /// follows:
     ///
     /// ~~~ignore
-    /// glfw.window_hint(glfw::ContextVersion(3, 2));
-    /// glfw.window_hint(glfw::OpenglForwardCompat(true));
-    /// glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
+    /// glfw.window_hint(glfw::WindowHint::ContextVersion(3, 2));
+    /// glfw.window_hint(glfw::WindowHint::OpenglForwardCompat(true));
+    /// glfw.window_hint(glfw::WindowHint::OpenglProfile(glfw::OpenGlProfileHint::Core));
     /// ~~~
     pub fn window_hint(&self, hint: WindowHint) {
         match hint {
