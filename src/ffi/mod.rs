@@ -282,6 +282,8 @@ pub struct GLFWgammaramp {
     pub size:   c_uint,
 }
 
+impl Copy for GLFWgammaramp {}
+
 #[repr(C)]
 pub struct GLFWvidmode {
     pub width:       c_int,
