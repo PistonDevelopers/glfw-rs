@@ -33,7 +33,7 @@ fn main() {
     let (send, recv) = channel();
 
     let render_task = TaskBuilder::new().named("render task");
-    let mut render_task_done = render_task.try_future(proc() {
+    let mut render_task_done = render_task.try_future(move || {
         render(render_context, recv);
     });
 

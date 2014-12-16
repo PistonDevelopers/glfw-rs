@@ -407,7 +407,7 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
             }
             if ffi::glfwInit() == ffi::TRUE {
                 result = Ok(());
-                std::rt::at_exit(proc() {
+                std::rt::at_exit(|| {
                     ffi::glfwTerminate()
                 });
             } else {
@@ -1019,7 +1019,6 @@ impl<'a> WindowMode<'a> {
 
 bitflags! {
     #[doc = "Key modifiers"]
-    #[deriving(Copy)]
     flags Modifiers: c_int {
         const Shift       = ffi::MOD_SHIFT,
         const Control     = ffi::MOD_CONTROL,
