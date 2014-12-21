@@ -349,7 +349,7 @@ pub type GLProc = ffi::GLFWglproc;
 /// performing some operations harder, this is to ensure thread safety is enforced
 /// statically. The context can be safely cloned or implicitly copied if need be
 /// for convenience.
-#[deriving(Clone)]
+#[deriving(Copy, Clone)]
 pub struct Glfw {
     no_send: marker::NoSend,
     no_share: marker::NoSync,
