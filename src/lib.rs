@@ -301,7 +301,7 @@ pub fn fail_on_errors(_: Error, description: String, _: &()) {
 
 /// A callback that triggers a task failure when an error is encountered.
 pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> =
-    Some(Callback { f: fail_on_errors, data: () });
+    Some(Callback { f: fail_on_errors as fn(Error, String, &()), data: () });
 
 /// The function to be used with the `LOG_ERRORS` callback.
 pub fn log_errors(_: Error, description: String, _: &()) {
@@ -311,7 +311,7 @@ pub fn log_errors(_: Error, description: String, _: &()) {
 /// A callback that logs each error as it is encountered without triggering a
 /// task failure.
 pub static LOG_ERRORS: Option<ErrorCallback<()>> =
-    Some(Callback { f: log_errors, data: () });
+    Some(Callback { f: log_errors as fn(Error, String, &()), data: () });
 
 /// Cursor modes.
 #[repr(i32)]
