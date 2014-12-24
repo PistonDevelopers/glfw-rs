@@ -46,7 +46,7 @@ macro_rules! callback(
             CALLBACK_KEY.with(|cb| {
                 *cb.borrow_mut() = boxed_cb.take();
             });
-            ($ext_set)(Some(callback));
+            ($ext_set)(Some(callback as extern "C" fn($($ext_arg: $ext_arg_ty),*)));
         }
 
         pub fn unset() {
@@ -110,16 +110,24 @@ unsafe fn get_sender<'a>(window: &'a *mut ffi::GLFWwindow) -> &'a Sender<(f64, W
     mem::transmute(ffi::glfwGetWindowUserPointer(*window))
 }
 
+// Note that this macro creates a static function pointer rather than a plain function.
+// This makes it more ergonomic to embed in an Option; see set_window_callback! in lib.rs
 macro_rules! window_callback(
     (fn $name:ident () => $event:ident) => (
-        pub extern "C" fn $name(window: *mut ffi::GLFWwindow) {
-            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event)); }
-        }
+        pub static $name: (extern "C" fn(window: *mut ffi::GLFWwindow)) = {
+            extern "C" fn actual_callback(window: *mut ffi::GLFWwindow) {
+                unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event));}
+            }
+            actual_callback
+        };
      );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
-        pub extern "C" fn $name(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-            unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event($($arg_conv),*))); }
-        }
+        pub static $name: (extern "C" fn(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*)) = {
+            extern "C" fn actual_callback(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
+                unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event($($arg_conv),*))); }
+            }
+            actual_callback
+        };
      );
 );
 
