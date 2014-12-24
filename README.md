@@ -82,15 +82,9 @@ git = "https://github.com/bjz/glfw-rs.git"
 
 #### On Windows
 
-By default, `glfw-rs` will try to compile the `glfw` library. If you want to link to your custom
-build of `glfw` or if the build doesn't work (which is probably the case on Windows), you can
-disable this:
-
-~~~toml
-[dependencies.glfw]
-git = "https://github.com/bjz/glfw-rs.git"
-default-features = false
-~~~
+On Linux and OS/X `glfw-rs` will automatically compile the `glfw` library.
+However on Windows you will need to provide `libglfw3` yourself. To do so, put
+the precompiled library in `C:\Users\<you>\.rust`.
 
 ### Building and running the examples
 
