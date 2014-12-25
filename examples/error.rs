@@ -25,7 +25,7 @@ use std::cell::Cell;
 fn main() {
     let glfw = glfw::init(Some(
         glfw::Callback {
-            f: error_callback,
+            f: error_callback as fn(glfw::Error, String, &Cell<uint>),
             data: Cell::new(0),
         }
     )).unwrap();
