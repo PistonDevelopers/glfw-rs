@@ -24,8 +24,9 @@ authors = [
 [features]
 default = ["glfw-sys"]
 
-[dependencies.semver]
-git = "https://github.com/rust-lang/semver"
+[dependencies]
+semver = "*"
+log = "*"
 
 [dependencies.glfw-sys]
 git = "https://github.com/servo/glfw"
