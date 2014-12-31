@@ -80,6 +80,7 @@ use std::kinds::marker;
 use std::ptr;
 use std::string;
 use std::vec;
+use std::kinds::Send;
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -350,10 +351,7 @@ pub type GLProc = ffi::GLFWglproc;
 /// statically. The context can be safely cloned or implicitly copied if need be
 /// for convenience.
 #[deriving(Copy, Clone)]
-pub struct Glfw {
-    no_send: marker::NoSend,
-    no_share: marker::NoSync,
-}
+pub struct Glfw;
 
 /// An error that might be returned when `glfw::init` is called.
 #[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
@@ -415,10 +413,7 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
             }
         })
     }
-    result.map(|_| Glfw {
-        no_send: marker::NoSend,
-        no_share: marker::NoSync,
-    })
+    result.map(|_| Glfw)
 }
 
 impl Glfw {
@@ -1545,6 +1540,8 @@ pub struct RenderContext {
     #[allow(dead_code)]
     drop_sender: Sender<()>,
 }
+
+unsafe impl Send for RenderContext {}
 
 /// Methods common to renderable contexts
 pub trait Context {
