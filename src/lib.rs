@@ -73,8 +73,9 @@ extern crate log;
 
 use libc::{c_double, c_float, c_int};
 use libc::{c_uint, c_ushort, c_void};
+use std::c_str::ToCStr;
 use std::mem;
-use std::comm::{channel, Receiver, Sender};
+use std::sync::mpsc::{channel, Receiver, Sender};
 use std::fmt;
 use std::kinds::marker;
 use std::ptr;
@@ -95,7 +96,7 @@ mod callbacks;
 
 /// Input actions.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum Action {
     Release                      = ffi::RELEASE,
     Press                        = ffi::PRESS,
@@ -104,7 +105,7 @@ pub enum Action {
 
 /// Input keys.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum Key {
     Space                    = ffi::KEY_SPACE,
     Apostrophe               = ffi::KEY_APOSTROPHE,
@@ -232,7 +233,7 @@ pub enum Key {
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     Button1                = ffi::MOUSE_BUTTON_1,
@@ -278,7 +279,7 @@ impl<Fn: Copy, UserData: Copy> Copy for Callback<Fn, UserData> {}
 
 /// Tokens corresponding to various error types.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
@@ -316,7 +317,7 @@ pub static LOG_ERRORS: Option<ErrorCallback<()>> =
 
 /// Cursor modes.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum CursorMode {
     Normal                = ffi::CURSOR_NORMAL,
     Hidden                = ffi::CURSOR_HIDDEN,
@@ -324,7 +325,7 @@ pub enum CursorMode {
 }
 
 /// Describes a single video mode.
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct VidMode {
     pub width:        u32,
     pub height:       u32,
@@ -350,11 +351,11 @@ pub type GLProc = ffi::GLFWglproc;
 /// performing some operations harder, this is to ensure thread safety is enforced
 /// statically. The context can be safely cloned or implicitly copied if need be
 /// for convenience.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Glfw;
 
 /// An error that might be returned when `glfw::init` is called.
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum InitError {
     /// The library was already initialized.
     AlreadyInitialized,
@@ -395,7 +396,7 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
     static mut INIT: Once = ONCE_INIT;
     let mut result = Err(InitError::AlreadyInitialized);
     unsafe {
-        INIT.doit(|| {
+        INIT.call_once(|| {
             // Initialize the error callback if it was supplied. This is done
             // before `ffi::glfwInit` because errors could occur during
             // initialization.
@@ -829,7 +830,7 @@ impl Monitor {
 
 /// Monitor events.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum MonitorEvent {
     Connected                   = ffi::CONNECTED,
     Disconnected                = ffi::DISCONNECTED,
@@ -868,7 +869,7 @@ impl fmt::Show for VidMode {
 }
 
 /// Window hints that can be set using the `window_hint` function.
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum WindowHint {
     /// Specifies the desired bit depth of the red component of the default framebuffer.
     RedBits(u32),
@@ -966,7 +967,7 @@ pub enum WindowHint {
 
 /// Client API tokens.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum ClientApiHint {
     OpenGl                   = ffi::OPENGL_API,
     OpenGlEs                 = ffi::OPENGL_ES_API,
@@ -974,7 +975,7 @@ pub enum ClientApiHint {
 
 /// Context robustness tokens.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum ContextRobustnessHint {
     NoRobustness                = ffi::NO_ROBUSTNESS,
     NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
@@ -983,7 +984,7 @@ pub enum ContextRobustnessHint {
 
 /// OpenGL profile tokens.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
 pub enum OpenGlProfileHint {
     Any            = ffi::OPENGL_ANY_PROFILE,
     Core           = ffi::OPENGL_CORE_PROFILE,
@@ -991,7 +992,7 @@ pub enum OpenGlProfileHint {
 }
 
 /// Describes the mode of a window
-#[deriving(Copy, Show)]
+#[derive(Copy, Show)]
 pub enum WindowMode<'a> {
     /// Full screen mode. Contains the monitor on which the window is displayed.
     FullScreen(&'a Monitor),
@@ -1039,7 +1040,7 @@ impl fmt::Show for Modifiers {
 pub type Scancode = c_int;
 
 /// Window event messages.
-#[deriving(Copy, Clone, PartialEq, PartialOrd, Show)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Show)]
 pub enum WindowEvent {
     Pos(i32, i32),
     Size(i32, i32),
@@ -1514,10 +1515,10 @@ impl Drop for Window {
         drop(self.drop_sender.take());
 
         // Check if all senders from the child `RenderContext`s have hung up.
-        if self.drop_receiver.try_recv() != Err(std::comm::Disconnected) {
+        if self.drop_receiver.try_recv() != Err(std::sync::mpsc::TryRecvError::Disconnected) {
             debug!("Attempted to drop a Window before the `RenderContext` was dropped.");
             debug!("Blocking until the `RenderContext` was dropped.");
-            let _ = self.drop_receiver.recv_opt();
+            let _ = self.drop_receiver.recv();
         }
 
         if !self.is_shared {
@@ -1588,7 +1589,7 @@ pub fn make_context_current(context: Option<&Context>) {
 
 /// Joystick identifier tokens.
 #[repr(i32)]
-#[deriving(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
 pub enum JoystickId {
     Joystick1       = ffi::JOYSTICK_1,
     Joystick2       = ffi::JOYSTICK_2,
@@ -1609,6 +1610,7 @@ pub enum JoystickId {
 }
 
 /// A joystick handle.
+#[derive(Copy)]
 pub struct Joystick {
     pub id: JoystickId,
     pub glfw: Glfw,

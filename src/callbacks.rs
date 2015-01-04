@@ -17,6 +17,7 @@
 
 use libc::{c_double, c_int, c_uint};
 use std::mem;
+use std::sync::mpsc::Sender;
 
 use super::*;
 
@@ -116,7 +117,7 @@ macro_rules! window_callback(
     (fn $name:ident () => $event:ident) => (
         pub static $name: (extern "C" fn(window: *mut ffi::GLFWwindow)) = {
             extern "C" fn actual_callback(window: *mut ffi::GLFWwindow) {
-                unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event));}
+                unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event)).unwrap();}
             }
             actual_callback
         };
@@ -124,7 +125,7 @@ macro_rules! window_callback(
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
         pub static $name: (extern "C" fn(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*)) = {
             extern "C" fn actual_callback(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
-                unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event($($arg_conv),*))); }
+                unsafe { get_sender(&window).send((ffi::glfwGetTime() as f64, WindowEvent::$event($($arg_conv),*))).unwrap(); }
             }
             actual_callback
         };
