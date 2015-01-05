@@ -18,6 +18,7 @@
 
 extern crate glfw;
 
+use std::sync::mpsc::{channel, Receiver};
 use glfw::{Action, Context, Key};
 use std::thread::Builder;
 
@@ -45,7 +46,7 @@ fn main() {
     }
 
     // Tell the render task to exit.
-    send.send(());
+    send.send(()).ok().expect("Failed signal to render thread.");
 
     // Wait for acknowledgement that the rendering was completed.
     let _ = render_task_done.join();
