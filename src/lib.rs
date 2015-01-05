@@ -22,6 +22,7 @@
 #![feature(macro_rules)]
 #![feature(phase)]
 #![feature(unsafe_destructor)]
+#![feature(associated_types)]
 
 #![allow(non_upper_case_globals)]
 
@@ -1076,7 +1077,9 @@ pub fn flush_messages<'a, Message: Send>(receiver: &'a Receiver<Message>) -> Flu
 /// `Receiver`'s queue.
 pub struct FlushedMessages<'a, Message: 'a>(&'a Receiver<Message>);
 
-impl<'a, Message: Send> Iterator<Message> for FlushedMessages<'a, Message> {
+impl<'a, Message: Send> Iterator for FlushedMessages<'a, Message> {
+    type Item = Message;
+
     fn next(&mut self) -> Option<Message> {
         let FlushedMessages(receiver) = *self;
         match receiver.try_recv() {
