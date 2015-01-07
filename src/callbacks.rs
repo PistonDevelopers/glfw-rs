@@ -77,7 +77,7 @@ pub mod error {
     callback!(
         type Args = (error: ::Error, description: String);
         type Callback = ErrorCallback;
-        let ext_set = |cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
+        let ext_set = |&:cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
         fn callback(error: c_int, description: *const c_char) {
             (mem::transmute(error), string::String::from_raw_buf(
                 description as *const u8))
@@ -94,7 +94,7 @@ pub mod monitor {
     callback!(
         type Args = (monitor: ::Monitor, event: ::MonitorEvent);
         type Callback = MonitorCallback;
-        let ext_set = |cb| unsafe { ::ffi::glfwSetMonitorCallback(cb) };
+        let ext_set = |&:cb| unsafe { ::ffi::glfwSetMonitorCallback(cb) };
         fn callback(monitor: *mut ::ffi::GLFWmonitor, event: c_int) {
             let monitor = ::Monitor {
                 ptr: monitor,
