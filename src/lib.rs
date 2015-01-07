@@ -477,7 +477,7 @@ impl Glfw {
     ///         m.map_or(glfw::WindowMode::Windowed, |m| glfw::FullScreen(m)))
     /// }).expect("Failed to create GLFW window.");
     /// ~~~
-    pub fn with_primary_monitor<T>(&self, f: |Option<&Monitor>| -> T) -> T {
+    pub fn with_primary_monitor<T, F>(&self, f: F) -> T where F: Fn(Option<&Monitor>) -> T {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(None),
             ptr => f(Some(&Monitor {
@@ -501,7 +501,7 @@ impl Glfw {
     ///     }
     /// });
     /// ~~~
-    pub fn with_connected_monitors<T>(&self, f: |&[Monitor]| -> T) -> T {
+    pub fn with_connected_monitors<T, F>(&self, f: F) -> T where F: Fn(&[Monitor]) -> T {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
@@ -1238,7 +1238,7 @@ impl Window {
     ///     }
     /// });
     /// ~~~
-    pub fn with_window_mode<T>(&self, f: |WindowMode| -> T) -> T {
+    pub fn with_window_mode<T, F>(&self, f: F) -> T where F: Fn(WindowMode) -> T {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
             f(WindowMode::Windowed)
