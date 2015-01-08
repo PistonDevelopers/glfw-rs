@@ -18,11 +18,7 @@
 #![crate_type = "dylib"]
 #![crate_name = "glfw"]
 
-#![feature(globs)]
-#![feature(macro_rules)]
-#![feature(phase)]
 #![feature(unsafe_destructor)]
-#![feature(associated_types)]
 
 #![allow(non_upper_case_globals)]
 
@@ -69,20 +65,20 @@
 
 extern crate semver;
 extern crate libc;
-#[phase(plugin, link)]
+#[macro_use]
 extern crate log;
 
 use libc::{c_double, c_float, c_int};
 use libc::{c_uint, c_ushort, c_void};
-use std::c_str::ToCStr;
 use std::mem;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::fmt;
 use std::kinds::marker;
 use std::ptr;
-use std::string;
 use std::vec;
 use std::kinds::Send;
+use std::ffi::{CString, c_str_to_bytes};
+
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -477,7 +473,8 @@ impl Glfw {
     ///         m.map_or(glfw::WindowMode::Windowed, |m| glfw::FullScreen(m)))
     /// }).expect("Failed to create GLFW window.");
     /// ~~~
-    pub fn with_primary_monitor<T>(&self, f: |Option<&Monitor>| -> T) -> T {
+    pub fn with_primary_monitor<T, F>(&self, mut f: F) -> T
+        where F: FnMut(Option<(&Monitor)>) -> T {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(None),
             ptr => f(Some(&Monitor {
@@ -501,7 +498,8 @@ impl Glfw {
     ///     }
     /// });
     /// ~~~
-    pub fn with_connected_monitors<T>(&self, f: |&[Monitor]| -> T) -> T {
+    pub fn with_connected_monitors<F, T>(&self, mut f: F) -> T
+        where F: FnMut(&[Monitor]) -> T {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
@@ -595,15 +593,14 @@ impl Glfw {
     /// Internal wrapper for `glfwCreateWindow`.
     fn create_window_intern(&self, width: u32, height: u32, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         let ptr = unsafe {
-            title.with_c_str(|title| {
-                ffi::glfwCreateWindow(
-                    width as c_int,
-                    height as c_int,
-                    title,
-                    mode.to_ptr(),
-                    match share { Some(w) => w.ptr, None => ptr::null_mut() }
-                )
-            })
+            let title = CString::from_slice(title.as_bytes());
+            ffi::glfwCreateWindow(
+                width as c_int,
+                height as c_int,
+                title.as_ptr(),
+                mode.to_ptr(),
+                match share { Some(w) => w.ptr, None => ptr::null_mut() }
+            )
         };
         if ptr.is_null() {
             None
@@ -686,9 +683,8 @@ impl Glfw {
     /// Wrapper for `glfwExtensionSupported`.
     pub fn extension_supported(&self, extension: &str) -> bool {
         unsafe {
-            extension.with_c_str(|extension| {
-                ffi::glfwExtensionSupported(extension) == ffi::TRUE
-            })
+            let extension = CString::from_slice(extension.as_bytes());
+            ffi::glfwExtensionSupported(extension.as_ptr()) == ffi::TRUE
         }
     }
 
@@ -698,9 +694,8 @@ impl Glfw {
     /// Wrapper for `glfwGetProcAddress`.
     pub fn get_proc_address_raw(&self, procname: &str) -> GLProc {
         debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
-        procname.with_c_str(|procname| {
-            unsafe { ffi::glfwGetProcAddress(procname) }
-        })
+        let procname = CString::from_slice(procname.as_bytes());
+        unsafe { ffi::glfwGetProcAddress(procname.as_ptr()) }
     }
 
     #[deprecated="Use Window::get_proc_address or Glfw::get_proc_address_raw"]
@@ -733,7 +728,7 @@ pub fn get_version() -> Version {
 
 /// Wrapper for `glfwGetVersionString`.
 pub fn get_version_string() -> String {
-    unsafe { string::String::from_raw_buf(ffi::glfwGetVersionString() as *const u8) }
+    unsafe { CString::from_slice(c_str_to_bytes(&ffi::glfwGetVersionString())).to_string() }
 }
 
 /// An monitor callback. This can be supplied with some user data to be passed
@@ -777,7 +772,7 @@ impl Monitor {
 
     /// Wrapper for `glfwGetMonitorName`.
     pub fn get_name(&self) -> String {
-        unsafe { string::String::from_raw_buf(ffi::glfwGetMonitorName(self.ptr) as *const u8) }
+        unsafe { CString::from_slice(c_str_to_bytes(&ffi::glfwGetMonitorName(self.ptr))).to_string() }
     }
 
     /// Wrapper for `glfwGetVideoModes`.
@@ -1160,9 +1155,8 @@ impl Window {
     /// Wrapper for `glfwSetWindowTitle`.
     pub fn set_title(&self, title: &str) {
         unsafe {
-            title.with_c_str(|title| {
-                ffi::glfwSetWindowTitle(self.ptr, title);
-            });
+            let title = CString::from_slice(title.as_bytes());
+            ffi::glfwSetWindowTitle(self.ptr, title.as_ptr());
         }
     }
 
@@ -1238,7 +1232,8 @@ impl Window {
     ///     }
     /// });
     /// ~~~
-    pub fn with_window_mode<T>(&self, f: |WindowMode| -> T) -> T {
+    pub fn with_window_mode<T, F>(&self, mut f: F) -> T
+        where F: FnMut(WindowMode) -> T {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
             f(WindowMode::Windowed)
@@ -1459,15 +1454,14 @@ impl Window {
     /// Wrapper for `glfwGetClipboardString`.
     pub fn set_clipboard_string(&self, string: &str) {
         unsafe {
-            string.with_c_str(|string| {
-                ffi::glfwSetClipboardString(self.ptr, string);
-            });
+            let string = CString::from_slice(string.as_bytes());
+            ffi::glfwSetClipboardString(self.ptr, string.as_ptr());
         }
     }
 
     /// Wrapper for `glfwGetClipboardString`.
     pub fn get_clipboard_string(&self) -> String {
-        unsafe { string::String::from_raw_buf(ffi::glfwGetClipboardString(self.ptr) as *const u8) }
+        unsafe { CString::from_slice(c_str_to_bytes(&ffi::glfwGetClipboardString(self.ptr))).to_string() }
     }
 
     /// Wrapper for `glfwGetWin32Window`
@@ -1645,6 +1639,6 @@ impl Joystick {
 
     /// Wrapper for `glfwGetJoystickName`.
     pub fn get_name(&self) -> String {
-        unsafe { string::String::from_raw_buf(ffi::glfwGetJoystickName(self.id as c_int) as *const u8) }
+        unsafe { CString::from_slice(c_str_to_bytes(&ffi::glfwGetJoystickName(self.id as c_int))).to_string() }
     }
 }

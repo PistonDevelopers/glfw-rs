@@ -18,7 +18,8 @@
 #![feature(phase)]
 
 extern crate glfw;
-#[phase(plugin, link)] extern crate log;
+#[macro_use]
+extern crate log;
 
 use std::cell::Cell;
 
