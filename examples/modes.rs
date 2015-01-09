@@ -20,8 +20,8 @@ fn main() {
 
     glfw.with_primary_monitor(|monitor| {
         let _ = monitor.map(|monitor| {
-            println!("{}:", monitor.get_name());
-            println!("    {}\n", monitor.get_video_mode().unwrap());
+            println!("{:?}:", monitor.get_name());
+            println!("    {:?}\n", monitor.get_video_mode().unwrap());
         });
     });
 
@@ -29,9 +29,9 @@ fn main() {
               ------------------");
     glfw.with_connected_monitors(|monitors| {
         for monitor in monitors.iter() {
-            println!("{}:", monitor.get_name());
+            println!("{:?}:", monitor.get_name());
             for mode in monitor.get_video_modes().iter() {
-                println!("  {}", *mode);
+                println!("  {:?}", *mode);
             }
         }
     });
