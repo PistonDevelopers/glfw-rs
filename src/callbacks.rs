@@ -87,7 +87,7 @@ pub mod monitor {
     use libc::{c_int};
     use std::cell::RefCell;
     use std::mem;
-    use std::kinds::marker;
+    use std::marker;
 
     callback!(
         type Args = (monitor: ::Monitor, event: ::MonitorEvent);
