@@ -22,7 +22,7 @@ fn main() {
 
     glfw.with_connected_monitors(|monitors| {
         for monitor in monitors.iter() {
-            println!("{}: {}", monitor.get_name(), monitor.get_video_mode());
+            println!("{:?}: {:?}", monitor.get_name(), monitor.get_video_mode());
         }
     });
 

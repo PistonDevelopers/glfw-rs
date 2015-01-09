@@ -28,12 +28,12 @@ fn main() {
     window.make_current();
 
     let (width, height) = window.get_size();
-    println!("window size: ({}, {})", width, height);
+    println!("window size: ({:?}, {:?})", width, height);
 
-    println!("Context version: {}",           window.get_context_version());
-    println!("OpenGL forward compatible: {}", window.is_opengl_forward_compat());
-    println!("OpenGL debug context: {}",      window.is_opengl_debug_context());
-    println!("OpenGL profile: {}",            window.get_opengl_profile());
+    println!("Context version: {:?}",           window.get_context_version());
+    println!("OpenGL forward compatible: {:?}", window.is_opengl_forward_compat());
+    println!("OpenGL debug context: {:?}",      window.is_opengl_debug_context());
+    println!("OpenGL profile: {:?}",            window.get_opengl_profile());
 
     let gl_params = [
         (gl::RED_BITS,          None,   "red bits"          ),
@@ -56,7 +56,7 @@ fn main() {
         }) {
             let value = 0;
             unsafe { gl::GetIntegerv(param, &value) };
-            println!("OpenGL {}: {}", name, value);
+            println!("OpenGL {:?}: {:?}", name, value);
         };
     }
 }

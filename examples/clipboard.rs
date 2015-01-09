@@ -50,14 +50,14 @@ fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
                 }
                 if (key == Key::V) && mods.contains(NATIVE_MOD) {
                     match window.get_clipboard_string() {
-                        ref s if !s.is_empty() => println!("Clipboard contains \"{}\"", *s),
+                        ref s if !s.is_empty() => println!("Clipboard contains \"{:?}\"", *s),
                         _                      => println!("Clipboard does not contain a string"),
                     }
                 }
                 if (key == Key::C) && mods.contains(NATIVE_MOD) {
                     let s = "Hello GLFW World!";
                     window.set_clipboard_string(s);
-                    println!("Setting clipboard to {}", s);
+                    println!("Setting clipboard to {:?}", s);
                 }
             }
         }

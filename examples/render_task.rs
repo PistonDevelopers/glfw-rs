@@ -49,7 +49,7 @@ fn main() {
     send.send(()).ok().expect("Failed signal to render thread.");
 
     // Wait for acknowledgement that the rendering was completed.
-    let _ = render_task_done.join();
+    let _ = render_task_done;
 }
 
 fn render(context: glfw::RenderContext, finish: Receiver<()>) {
