@@ -18,11 +18,11 @@ extern crate glfw;
 use glfw::Context;
 
 fn main() {
-    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
 
-    let (window, _) = glfw.create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
+    let (mut window, _) = glfw.create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.make_current();

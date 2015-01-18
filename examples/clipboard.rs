@@ -18,9 +18,9 @@ extern crate glfw;
 use glfw::{Action, Context, Key};
 
 fn main() {
-    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (window, events) = glfw.create_window(300, 300, "Clipboard Test", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw.create_window(300, 300, "Clipboard Test", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
@@ -30,7 +30,7 @@ fn main() {
     while !window.should_close() {
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event(&window, event);
+            handle_window_event(&mut window, event);
         }
     }
 }
@@ -41,7 +41,7 @@ static NATIVE_MOD: glfw::Modifiers = glfw::Super;
 #[cfg(not(target_os = "macos"))]
 static NATIVE_MOD: glfw::Modifiers = glfw::Control;
 
-fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
+fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
         glfw::WindowEvent::Key(key, _, action, mods) => {
             if action == Action::Press {

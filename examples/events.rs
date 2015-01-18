@@ -18,11 +18,11 @@ extern crate glfw;
 use glfw::{Action, Context, Key};
 
 fn main() {
-    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     glfw.window_hint(glfw::WindowHint::Resizable(true));
 
-    let (window, events) = glfw.create_window(800, 600, "Hello, I am a window.", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw.create_window(800, 600, "Hello, I am a window.", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_sticky_keys(true);
@@ -53,12 +53,12 @@ fn main() {
     while !window.should_close() {
         glfw.poll_events();
         for event in glfw::flush_messages(&events) {
-            handle_window_event(&window, event);
+            handle_window_event(&mut window, event);
         }
     }
 }
 
-fn handle_window_event(window: &glfw::Window, (time, event): (f64, glfw::WindowEvent)) {
+fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::WindowEvent)) {
     match event {
         glfw::WindowEvent::Pos(x, y)                      => window.set_title(format!("Time: {:?}, Window pos: ({:?}, {:?})", time, x, y).as_slice()),
         glfw::WindowEvent::Size(w, h)                     => window.set_title(format!("Time: {:?}, Window size: ({:?}, {:?})", time, w, h).as_slice()),
