@@ -23,7 +23,7 @@ use std::cell::Cell;
 fn main() {
     let glfw = glfw::init(Some(
         glfw::Callback {
-            f: error_callback as fn(glfw::Error, String, &Cell<uint>),
+            f: error_callback as fn(glfw::Error, String, &Cell<usize>),
             data: Cell::new(0),
         }
     )).unwrap();
@@ -35,7 +35,7 @@ fn main() {
     let _ = glfw.create_window(300, 300, "Stop it! :(",          glfw::WindowMode::Windowed);
 }
 
-fn error_callback(_: glfw::Error, description: String, error_count: &Cell<uint>) {
+fn error_callback(_: glfw::Error, description: String, error_count: &Cell<usize>) {
     error!("GLFW error {:?}: {:?}", error_count.get(), description);
     error_count.set(error_count.get() + 1);
 }

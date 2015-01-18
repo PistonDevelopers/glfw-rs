@@ -87,7 +87,6 @@ pub mod monitor {
     use libc::{c_int};
     use std::cell::RefCell;
     use std::mem;
-    use std::marker;
 
     callback!(
         type Args = (monitor: ::Monitor, event: ::MonitorEvent);
@@ -95,10 +94,7 @@ pub mod monitor {
         let ext_set = |&: cb| unsafe { ::ffi::glfwSetMonitorCallback(cb) };
         fn callback(monitor: *mut ::ffi::GLFWmonitor, event: c_int) {
             let monitor = ::Monitor {
-                ptr: monitor,
-                no_copy: marker::NoCopy,
-                no_send: marker::NoSend,
-                no_share: marker::NoSync,
+                ptr: monitor
             };
             (monitor, mem::transmute(event))
         }

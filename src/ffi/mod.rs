@@ -270,8 +270,10 @@ pub type GLFWkeyfun             = extern "C" fn(*mut GLFWwindow, c_int, c_int, c
 pub type GLFWcharfun            = extern "C" fn(*mut GLFWwindow, c_uint);
 pub type GLFWmonitorfun         = extern "C" fn(*mut GLFWmonitor, c_int);
 
+#[allow(missing_copy_implementations)]
 pub enum GLFWmonitor {}
 
+#[allow(missing_copy_implementations)]
 pub enum GLFWwindow {}
 
 #[repr(C)]
@@ -284,6 +286,7 @@ pub struct GLFWgammaramp {
 
 impl Copy for GLFWgammaramp {}
 
+#[allow(missing_copy_implementations)]
 #[repr(C)]
 pub struct GLFWvidmode {
     pub width:       c_int,

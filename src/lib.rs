@@ -74,9 +74,10 @@ use std::ffi::CString;
 use std::mem;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::fmt;
-use std::marker::{self,Send};
+use std::marker::Send;
 use std::ptr;
 use std::vec;
+use std::slice;
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -475,10 +476,7 @@ impl Glfw {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(None),
             ptr => f(Some(&Monitor {
-                ptr: ptr,
-                no_copy: marker::NoCopy,
-                no_send: marker::NoSend,
-                no_share: marker::NoSync,
+                ptr: ptr
             })),
         }
     }
@@ -499,12 +497,9 @@ impl Glfw {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            f(vec::Vec::from_raw_buf(ptr as *const _, count as usize).iter().map(|&ptr| {
+            f(slice::from_raw_buf(&(ptr as *const _), count as usize).iter().map(|&ptr| {
                 Monitor {
-                    ptr: ptr,
-                    no_copy: marker::NoCopy,
-                    no_send: marker::NoSend,
-                    no_share: marker::NoSync,
+                    ptr: ptr
                 }
             }).collect::<Vec<Monitor>>().as_slice())
         }
@@ -747,11 +742,9 @@ pub fn get_version_string() -> String {
 pub type MonitorCallback<UserData> = Callback<fn(Monitor, MonitorEvent, &UserData), UserData>;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
+#[allow(missing_copy_implementations)]
 pub struct Monitor {
-    ptr: *mut ffi::GLFWmonitor,
-    no_copy: marker::NoCopy,
-    no_send: marker::NoSend,
-    no_share: marker::NoSync,
+    ptr: *mut ffi::GLFWmonitor
 }
 
 impl std::fmt::Show for Monitor {
@@ -791,7 +784,7 @@ impl Monitor {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            vec::Vec::from_raw_buf(ptr, count as usize).iter().map(VidMode::from_glfw_vid_mode).collect()
+            slice::from_raw_buf(&ptr, count as usize).iter().map(VidMode::from_glfw_vid_mode).collect()
         }
     }
 
@@ -812,15 +805,18 @@ impl Monitor {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    vec::Vec::from_raw_buf(llramp.red as *const _,   llramp.size as usize),
-                green:  vec::Vec::from_raw_buf(llramp.green as *const _, llramp.size as usize),
-                blue:   vec::Vec::from_raw_buf(llramp.blue as *const _,  llramp.size as usize),
+                red:    slice::from_raw_buf(&(llramp.red as *const c_ushort), llramp.size as usize)
+                              .iter().map(|&x| x).collect(),
+                green:  slice::from_raw_buf(&(llramp.green as *const c_ushort), llramp.size as usize)
+                              .iter().map(|&x| x).collect(),
+                blue:   slice::from_raw_buf(&(llramp.blue as *const c_ushort), llramp.size as usize)
+                              .iter().map(|&x| x).collect(),
             }
         }
     }
 
     /// Wrapper for `glfwSetGammaRamp`.
-    pub fn set_gamma_ramp(&self, mut ramp: GammaRamp) {
+    pub fn set_gamma_ramp(&self, ramp: &mut GammaRamp) {
         unsafe {
             ffi::glfwSetGammaRamp(
                 self.ptr,
@@ -1250,10 +1246,7 @@ impl Window {
             f(WindowMode::Windowed)
         } else {
             f(WindowMode::FullScreen(&Monitor {
-                ptr: ptr,
-                no_copy: marker::NoCopy,
-                no_send: marker::NoSend,
-                no_share: marker::NoSync,
+                ptr: ptr
             }))
         }
     }
@@ -1636,7 +1629,7 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(self.id as c_int, &mut count);
-            vec::Vec::from_raw_buf(ptr, count as usize).iter().map(|&a| a as f32).collect()
+            slice::from_raw_buf(&ptr, count as usize).iter().map(|&a| a as f32).collect()
         }
     }
 
@@ -1645,7 +1638,7 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(self.id as c_int, &mut count);
-            vec::Vec::from_raw_buf(ptr, count as usize).iter().map(|&b| b as c_int).collect()
+            slice::from_raw_buf(&ptr, count as usize).iter().map(|&b| b as c_int).collect()
         }
     }
 
