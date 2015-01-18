@@ -27,6 +27,8 @@ default = ["glfw-sys"]
 [dependencies]
 semver = "*"
 log = "*"
+bitflags = "*"
+libc = "*"
 
 [dependencies.glfw-sys]
 git = "https://github.com/servo/glfw"

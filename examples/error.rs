@@ -21,7 +21,7 @@ extern crate glfw;
 use std::cell::Cell;
 
 fn main() {
-    let glfw = glfw::init(Some(
+    let mut glfw = glfw::init(Some(
         glfw::Callback {
             f: error_callback as fn(glfw::Error, String, &Cell<usize>),
             data: Cell::new(0),

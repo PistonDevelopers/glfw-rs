@@ -18,7 +18,7 @@ extern crate glfw;
 use glfw::{Action, Context, Key};
 
 fn main() {
-    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     glfw.with_connected_monitors(|monitors| {
         for monitor in monitors.iter() {
@@ -26,7 +26,7 @@ fn main() {
         }
     });
 
-    let (window, events) = glfw.with_primary_monitor(|m| {
+    let (mut window, events) = glfw.with_primary_monitor(|m| {
         glfw.create_window(300, 300, "Hello this is window",
             m.map_or(glfw::WindowMode::Windowed, |m| glfw::WindowMode::FullScreen(m)))
     }).expect("Failed to create GLFW window.");
@@ -37,12 +37,12 @@ fn main() {
     while !window.should_close() {
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event(&window, event);
+            handle_window_event(&mut window, event);
         }
     }
 }
 
-fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
+fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
         glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
             window.set_should_close(true)
