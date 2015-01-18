@@ -78,7 +78,6 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::fmt;
 use std::marker::Send;
 use std::ptr;
-use std::vec;
 use std::slice;
 use semver::Version;
 
@@ -725,7 +724,7 @@ pub fn get_version() -> Version {
 /// Replacement for `String::from_raw_buf`
 pub unsafe fn string_from_c_str(c_str: *const i8) -> String {
     use std::ffi::c_str_to_bytes;
-    String::from_utf8_lossy(c_str_to_bytes(&c_str)).into_owned()  
+    String::from_utf8_lossy(c_str_to_bytes(&c_str)).into_owned()
 }
 
 /// Replacement for `ToCStr::with_c_str`
