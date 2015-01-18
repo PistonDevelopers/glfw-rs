@@ -67,6 +67,8 @@ extern crate semver;
 extern crate libc;
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate bitflags;
 
 use libc::{c_double, c_float, c_int};
 use libc::{c_ushort, c_void};
