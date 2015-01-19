@@ -20,13 +20,13 @@ use glfw::{Action, Context, Key};
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    glfw.with_connected_monitors(|monitors| {
+    glfw.with_connected_monitors(|_, monitors| {
         for monitor in monitors.iter() {
             println!("{:?}: {:?}", monitor.get_name(), monitor.get_video_mode());
         }
     });
 
-    let (mut window, events) = glfw.with_primary_monitor(|m| {
+    let (mut window, events) = glfw.with_primary_monitor(|glfw, m| {
         glfw.create_window(300, 300, "Hello this is window",
             m.map_or(glfw::WindowMode::Windowed, |m| glfw::WindowMode::FullScreen(m)))
     }).expect("Failed to create GLFW window.");
