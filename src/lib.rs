@@ -70,7 +70,7 @@ extern crate log;
 #[macro_use]
 extern crate bitflags;
 
-use libc::{c_double, c_float, c_int};
+use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_ushort, c_void};
 use std::ffi::CString;
 use std::mem;
@@ -722,13 +722,13 @@ pub fn get_version() -> Version {
 }
 
 /// Replacement for `String::from_raw_buf`
-pub unsafe fn string_from_c_str(c_str: *const i8) -> String {
+pub unsafe fn string_from_c_str(c_str: *const c_char) -> String {
     use std::ffi::c_str_to_bytes;
     String::from_utf8_lossy(c_str_to_bytes(&c_str)).into_owned()
 }
 
 /// Replacement for `ToCStr::with_c_str`
-pub fn with_c_str<F, T>(s: &str, f: F) -> T where F: FnOnce(*const i8) -> T {
+pub fn with_c_str<F, T>(s: &str, f: F) -> T where F: FnOnce(*const c_char) -> T {
     let c_str = CString::from_slice(s.as_bytes());
     f(c_str.as_slice_with_nul().as_ptr())
 }
