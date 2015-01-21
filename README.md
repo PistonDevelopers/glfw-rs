@@ -29,7 +29,7 @@ use glfw::{Action, Context, Key};
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, mut events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
