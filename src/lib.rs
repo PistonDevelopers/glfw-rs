@@ -255,7 +255,7 @@ pub enum MouseButton {
 /// ~~~
 pub struct ShowAliases<T>(pub T);
 
-impl fmt::Show for ShowAliases<MouseButton> {
+impl fmt::Debug for ShowAliases<MouseButton> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let ShowAliases(button) = *self;
         match button {
@@ -854,7 +854,7 @@ impl VidMode {
     }
 }
 
-impl fmt::Show for VidMode {
+impl fmt::Debug for VidMode {
     /// Returns a string representation of the video mode.
     ///
     /// # Returns
