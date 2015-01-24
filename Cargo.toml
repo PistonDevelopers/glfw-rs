@@ -1,25 +1,12 @@
 [package]
 name = "glfw"
 version = "0.0.1"
-authors = [
-        "Brendan Zabarauskas <bjzaba@yahoo.com.au>",
-        "Amey Parulekar",
-        "Andy",
-        "Brian Anderson",
-        "Colin Sherratt",
-        "Dustin Lacewell",
-        "Jack Moffitt",
-        "Jeaye",
-        "jmgrosen",
-        "Keegan McAllister",
-        "Lars Bergstrom",
-        "Marvin Löbel",
-        "Niko Matsakis",
-        "Sébastien Crozet",
-        "Tomasz Stachowiak",
-        "Torbjorn Loken",
-        "zofrex",
-]
+authors = ["The glfw-rs developers."]
+description = "GLFW3 bindings and idiomatic wrapper for Rust."
+keywords = ["windowing", "opengl"]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/bjz/glfw-rs"
 
 [features]
 default = ["glfw-sys"]
@@ -31,6 +18,5 @@ bitflags = "*"
 libc = "*"
 
 [dependencies.glfw-sys]
-git = "https://github.com/servo/glfw"
-branch = "cargo-3.0.4"
+glfw-sys = "*"
 optional = true
