@@ -18,7 +18,7 @@ extern crate glfw;
 use glfw::{Action, Context, Key};
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().expect("Failed to init glfw");
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     let (mut window, events) = glfw.create_window(400, 400, "English 日本語 русский язык 官話", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
