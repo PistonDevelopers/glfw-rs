@@ -78,7 +78,6 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::fmt;
 use std::marker::Send;
 use std::ptr;
-use std::slice;
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -505,11 +504,9 @@ impl Glfw {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
             f(self,
-              slice::from_raw_buf(&(ptr as *const _), count as usize).iter().map(|&ptr| {
-                Monitor {
-                    ptr: ptr
-                }
-            }).collect::<Vec<Monitor>>().as_slice())
+              Vec::from_raw_parts(ptr as *mut _, count as usize, count as usize).iter()
+                .map(|&ptr| Monitor { ptr: ptr })
+                .collect::<Vec<Monitor>>().as_slice())
         }
     }
 
@@ -728,7 +725,7 @@ pub fn get_version() -> Version {
     }
 }
 
-/// Replacement for `String::from_raw_buf`
+/// Replacement for `String::from_raw_parts`
 pub unsafe fn string_from_c_str(c_str: *const c_char) -> String {
     use std::ffi::c_str_to_bytes;
     String::from_utf8_lossy(c_str_to_bytes(&c_str)).into_owned()
@@ -792,7 +789,7 @@ impl Monitor {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            slice::from_raw_buf(&ptr, count as usize).iter().map(VidMode::from_glfw_vid_mode).collect()
+            Vec::from_raw_parts(ptr as *mut _, count as usize, count as usize).iter().map(VidMode::from_glfw_vid_mode).collect()
         }
     }
 
@@ -813,11 +810,11 @@ impl Monitor {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    slice::from_raw_buf(&(llramp.red as *const c_ushort), llramp.size as usize)
+                red:    Vec::from_raw_parts(llramp.red as *mut c_ushort, llramp.size as usize, llramp.size as usize)
                               .iter().map(|&x| x).collect(),
-                green:  slice::from_raw_buf(&(llramp.green as *const c_ushort), llramp.size as usize)
+                green:  Vec::from_raw_parts(llramp.green as *mut c_ushort, llramp.size as usize, llramp.size as usize)
                               .iter().map(|&x| x).collect(),
-                blue:   slice::from_raw_buf(&(llramp.blue as *const c_ushort), llramp.size as usize)
+                blue:   Vec::from_raw_parts(llramp.blue as *mut c_ushort, llramp.size as usize, llramp.size as usize)
                               .iter().map(|&x| x).collect(),
             }
         }
@@ -1637,7 +1634,8 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(self.id as c_int, &mut count);
-            slice::from_raw_buf(&ptr, count as usize).iter().map(|&a| a as f32).collect()
+            Vec::from_raw_parts(ptr as *mut f32, count as usize, count as usize).iter()
+                .map(|&a| a as f32).collect()
         }
     }
 
@@ -1646,7 +1644,8 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(self.id as c_int, &mut count);
-            slice::from_raw_buf(&ptr, count as usize).iter().map(|&b| b as c_int).collect()
+            Vec::from_raw_parts(ptr as *mut f32, count as usize, count as usize).iter()
+                .map(|&b| b as c_int).collect()
         }
     }
 
