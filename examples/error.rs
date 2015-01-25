@@ -26,7 +26,7 @@ fn main() {
             f: error_callback as fn(glfw::Error, String, &Cell<usize>),
             data: Cell::new(0),
         }
-    )).unwrap();
+    )).ok().expect("Failed to init glfw");
 
     // Force the error callback to be triggered
     glfw.window_hint(glfw::WindowHint::ContextVersion(40000, 3000)); // Ridiculous!

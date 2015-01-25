@@ -32,7 +32,7 @@
 //! use glfw::{Action, Context, Key};
 //!
 //! fn main() {
-//!    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+//!    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().expect("Failed to init glfw");
 //!
 //!     // Create a windowed mode window and its OpenGL context
 //!     let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
@@ -377,7 +377,7 @@ pub enum InitError {
 /// extern crate glfw;
 ///
 /// fn main() {
-///    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+///    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().expect("Failed to init glfw");
 /// }
 /// ~~~
 ///
