@@ -23,7 +23,7 @@ use glfw::{Action, Context, Key};
 use std::thread::Builder;
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().expect("Failed to init glfw");
 
     let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
