@@ -18,7 +18,7 @@ extern crate glfw;
 use glfw::Context;
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().expect("Failed to init glfw");
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
 
