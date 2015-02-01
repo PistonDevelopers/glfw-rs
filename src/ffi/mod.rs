@@ -204,6 +204,8 @@ pub const ICONIFIED                    : c_int = 0x00020002;
 pub const RESIZABLE                    : c_int = 0x00020003;
 pub const VISIBLE                      : c_int = 0x00020004;
 pub const DECORATED                    : c_int = 0x00020005;
+pub const AUTO_ICONIFY                 : c_int = 0x00020006;
+pub const FLOATING                     : c_int = 0x00020007;
 
 pub const RED_BITS                     : c_int = 0x00021001;
 pub const GREEN_BITS                   : c_int = 0x00021002;
@@ -220,6 +222,7 @@ pub const STEREO                       : c_int = 0x0002100C;
 pub const SAMPLES                      : c_int = 0x0002100D;
 pub const SRGB_CAPABLE                 : c_int = 0x0002100E;
 pub const REFRESH_RATE                 : c_int = 0x0002100F;
+pub const DOUBLEBUFFER                 : c_int = 0x00021010; // TODO: Not yet exposed
 
 pub const CLIENT_API                   : c_int = 0x00022001;
 pub const CONTEXT_VERSION_MAJOR        : c_int = 0x00022002;
@@ -229,6 +232,7 @@ pub const CONTEXT_ROBUSTNESS           : c_int = 0x00022005;
 pub const OPENGL_FORWARD_COMPAT        : c_int = 0x00022006;
 pub const OPENGL_DEBUG_CONTEXT         : c_int = 0x00022007;
 pub const OPENGL_PROFILE               : c_int = 0x00022008;
+pub const CONTEXT_RELEASE_BEHAVIOR     : c_int = 0x00022009; // TODO: Not yet exposed
 
 pub const OPENGL_API                   : c_int = 0x00030001;
 pub const OPENGL_ES_API                : c_int = 0x00030002;
@@ -249,8 +253,21 @@ pub const CURSOR_NORMAL                : c_int = 0x00034001;
 pub const CURSOR_HIDDEN                : c_int = 0x00034002;
 pub const CURSOR_DISABLED              : c_int = 0x00034003;
 
+pub const ANY_RELEASE_BEHAVIOR         : c_int = 0; // TODO: Not yet exposed
+pub const RELEASE_BEHAVIOR_FLUSH       : c_int = 0x00035001; // TODO: Not yet exposed
+pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002; // TODO: Not yet exposed
+
+pub const ARROW_CURSOR                 : c_int = 0x00036001; // TODO: Not yet exposed
+pub const IBEAM_CURSOR                 : c_int = 0x00036002; // TODO: Not yet exposed
+pub const CROSSHAIR_CURSOR             : c_int = 0x00036003; // TODO: Not yet exposed
+pub const HAND_CURSOR                  : c_int = 0x00036004; // TODO: Not yet exposed
+pub const HRESIZE_CURSOR               : c_int = 0x00036005; // TODO: Not yet exposed
+pub const VRESIZE_CURSOR               : c_int = 0x00036006; // TODO: Not yet exposed
+
 pub const CONNECTED                    : c_int = 0x00040001;
 pub const DISCONNECTED                 : c_int = 0x00040002;
+
+pub const DONT_CARE                    : c_int = -1; // TODO: Not yet exposed
 
 pub type GLFWglproc             = *const c_void;
 
@@ -268,6 +285,8 @@ pub type GLFWcursorenterfun     = extern "C" fn(*mut GLFWwindow, c_int);
 pub type GLFWscrollfun          = extern "C" fn(*mut GLFWwindow, c_double, c_double);
 pub type GLFWkeyfun             = extern "C" fn(*mut GLFWwindow, c_int, c_int, c_int, c_int);
 pub type GLFWcharfun            = extern "C" fn(*mut GLFWwindow, c_uint);
+pub type GLFWcharmodsfun        = extern "C" fn(*mut GLFWwindow, c_uint, c_int); // TODO: Not yet exposed
+pub type GLFWdropfun            = extern "C" fn(*mut GLFWwindow, c_int, *mut *const c_char); // TODO: Not yet exposed
 pub type GLFWmonitorfun         = extern "C" fn(*mut GLFWmonitor, c_int);
 
 #[allow(missing_copy_implementations)]
@@ -275,6 +294,9 @@ pub enum GLFWmonitor {}
 
 #[allow(missing_copy_implementations)]
 pub enum GLFWwindow {}
+
+#[allow(missing_copy_implementations)]
+pub enum GLFWcursor {}
 
 #[repr(C)]
 pub struct GLFWgammaramp {
@@ -295,6 +317,14 @@ pub struct GLFWvidmode {
     pub greenBits:   c_int,
     pub blueBits:    c_int,
     pub refreshRate: c_int,
+}
+
+#[allow(missing_copy_implementations)]
+#[repr(C)]
+pub struct GLFWimage {
+    pub width: c_int,
+    pub height: c_int,
+    pub pixels: *mut c_uchar pixels,
 }
 
 // C function bindings
@@ -349,6 +379,7 @@ extern "C" {
 
     pub fn glfwPollEvents();
     pub fn glfwWaitEvents();
+    pub fn glfwPostEmptyEvent(); // TODO: Not yet exposed
 
     pub fn glfwGetInputMode(window: *mut GLFWwindow, mode: c_int) -> c_int;
     pub fn glfwSetInputMode(window: *mut GLFWwindow, mode: c_int, value: c_int);
@@ -356,12 +387,18 @@ extern "C" {
     pub fn glfwGetMouseButton(window: *mut GLFWwindow, button: c_int) -> c_int;
     pub fn glfwGetCursorPos(window: *mut GLFWwindow, xpos: *mut c_double, ypos: *mut c_double);
     pub fn glfwSetCursorPos(window: *mut GLFWwindow, xpos: c_double, ypos: c_double);
+    pub fn glfwCreateCursor(image: *const GLFWimage, xhot: c_int, yhot: c_int) -> *mut GLFWcursor; // TODO: Not yet exposed
+    pub fn glfwCreateStandardCursor(shape: c_int) -> *mut GLFWcursor; // TODO: Not yet exposed
+    pub fn glfwDestroyCursor(cursor: *mut GLFWcursor); // TODO: Not yet exposed
+    pub fn glfwSetCursor(window: *mut GLFWwindow, cursor: *mut GLFWcursor); // TODO: Not yet exposed
     pub fn glfwSetKeyCallback(window: *mut GLFWwindow, cbfun: Option<GLFWkeyfun>) -> Option<GLFWkeyfun>;
     pub fn glfwSetCharCallback(window: *mut GLFWwindow, cbfun: Option<GLFWcharfun>) -> Option<GLFWcharfun>;
+    pub fn glfwSetCharModsCallback(window: *mut GLFWwindow, cbfun: Option<GLFWcharmodsfun>) -> Option<GLFWcharmodsfun>; // TODO: Not yet exposed
     pub fn glfwSetMouseButtonCallback(window: *mut GLFWwindow, cbfun: Option<GLFWmousebuttonfun>) -> Option<GLFWmousebuttonfun>;
     pub fn glfwSetCursorPosCallback(window: *mut GLFWwindow, cbfun: Option<GLFWcursorposfun>) -> Option<GLFWcursorposfun>;
     pub fn glfwSetCursorEnterCallback(window: *mut GLFWwindow, cbfun: Option<GLFWcursorenterfun>) -> Option<GLFWcursorenterfun>;
     pub fn glfwSetScrollCallback(window: *mut GLFWwindow, cbfun: Option<GLFWscrollfun>) -> Option<GLFWscrollfun>;
+    pub fn glfwSetDropCallback(window: *mut GLFWwindow, cbfun: Option<GLFWdropfun>) -> Option<GLFWdropfun>; // TODO: Not yet exposed
 
     pub fn glfwJoystickPresent(joy: c_int) -> c_int;
     pub fn glfwGetJoystickAxes(joy: c_int, count: *mut c_int) -> *const c_float;
