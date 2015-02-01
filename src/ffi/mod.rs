@@ -324,7 +324,7 @@ pub struct GLFWvidmode {
 pub struct GLFWimage {
     pub width: c_int,
     pub height: c_int,
-    pub pixels: *mut c_uchar pixels,
+    pub pixels: *mut c_uchar,
 }
 
 // C function bindings
