@@ -22,7 +22,7 @@ before_install:
   # install a newer cmake since at this time Travis only has version 2.8.7
   - yes | sudo add-apt-repository ppa:kalakris/cmake
   - sudo apt-get update -qq
-install: sudo apt-get install libXxf86vm-dev cmake
+install: sudo apt-get install cmake libXxf86vm-dev libxinerama-dev libxcursor-dev
 script:
   - cargo build
   - cargo test
