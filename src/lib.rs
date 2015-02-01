@@ -571,6 +571,8 @@ impl Glfw {
             WindowHint::Resizable(is_resizable)         => unsafe { ffi::glfwWindowHint(ffi::RESIZABLE,             is_resizable as c_int) },
             WindowHint::Visible(is_visible)             => unsafe { ffi::glfwWindowHint(ffi::VISIBLE,               is_visible as c_int) },
             WindowHint::Decorated(is_decorated)         => unsafe { ffi::glfwWindowHint(ffi::DECORATED,             is_decorated as c_int) },
+            WindowHint::AutoIconify(auto_iconify)       => unsafe { ffi::glfwWindowHint(ffi::AUTO_ICONIFY,          auto_iconify as c_int) },
+            WindowHint::Floating(is_floating)           => unsafe { ffi::glfwWindowHint(ffi::FLOATING,              is_floating as c_int) },
         }
     }
 
@@ -974,6 +976,16 @@ pub enum WindowHint {
     ///
     /// This hint is ignored for full screen windows.
     Decorated(bool),
+    /// Specifies whether the (full screen) window will automatically iconify
+    /// and restore the previous video mode on input focus loss.
+    ///
+    /// This hint is ignored for windowed mode windows.
+    AutoIconify(bool),
+    /// Specifies whether the window will be floating above other regular
+    /// windows, also called topmost or always-on-top.
+    ///
+    /// This hint is ignored for full screen windows.
+    Floating(bool),
 }
 
 /// Client API tokens.

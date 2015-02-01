@@ -33,6 +33,8 @@ extern {}
 #[link(name = "Xxf86vm")]
 #[link(name = "Xrandr")]
 #[link(name = "Xi")]
+#[link(name = "Xcursor")]
+#[link(name = "Xinerama")]
 extern {}
 
 #[cfg(target_os="macos")]
