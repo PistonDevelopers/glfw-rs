@@ -93,7 +93,7 @@ mod callbacks;
 
 /// Input actions.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Action {
     Release                      = ffi::RELEASE,
     Press                        = ffi::PRESS,
@@ -102,7 +102,7 @@ pub enum Action {
 
 /// Input keys.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, FromPrimitive)]
 pub enum Key {
     Space                    = ffi::KEY_SPACE,
     Apostrophe               = ffi::KEY_APOSTROPHE,
@@ -230,7 +230,7 @@ pub enum Key {
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, FromPrimitive)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     Button1                = ffi::MOUSE_BUTTON_1,
@@ -251,13 +251,13 @@ pub enum MouseButton {
 ///
 /// ~~~ignore
 /// assert_eq(format!("{}", glfw::MouseButtonLeft), "MouseButton1");
-/// assert_eq(format!("{}", glfw::ShowAliases(glfw::MouseButtonLeft)), "MouseButtonLeft");
+/// assert_eq(format!("{}", glfw::DebugAliases(glfw::MouseButtonLeft)), "MouseButtonLeft");
 /// ~~~
-pub struct ShowAliases<T>(pub T);
+pub struct DebugAliases<T>(pub T);
 
-impl fmt::Debug for ShowAliases<MouseButton> {
+impl fmt::Debug for DebugAliases<MouseButton> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let ShowAliases(button) = *self;
+        let DebugAliases(button) = *self;
         match button {
             MouseButtonLeft     => write!(f, "MouseButtonLeft"),
             MouseButtonRight    => write!(f, "MouseButtonRight"),
@@ -276,7 +276,7 @@ impl<Fn: Copy, UserData: Copy> Copy for Callback<Fn, UserData> {}
 
 /// Tokens corresponding to various error types.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Error {
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
@@ -314,7 +314,7 @@ pub static LOG_ERRORS: Option<ErrorCallback<()>> =
 
 /// Cursor modes.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum CursorMode {
     Normal                = ffi::CURSOR_NORMAL,
     Hidden                = ffi::CURSOR_HIDDEN,
@@ -352,7 +352,7 @@ pub type GLProc = ffi::GLFWglproc;
 pub struct Glfw;
 
 /// An error that might be returned when `glfw::init` is called.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum InitError {
     /// The library was already initialized.
     AlreadyInitialized,
@@ -757,7 +757,7 @@ pub struct Monitor {
     ptr: *mut ffi::GLFWmonitor
 }
 
-impl std::fmt::Show for Monitor {
+impl std::fmt::Debug for Monitor {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "Monitor({:p})", self.ptr)
     }
@@ -843,7 +843,7 @@ impl Monitor {
 
 /// Monitor events.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum MonitorEvent {
     Connected                   = ffi::CONNECTED,
     Disconnected                = ffi::DISCONNECTED,
@@ -882,7 +882,7 @@ impl fmt::Debug for VidMode {
 }
 
 /// Window hints that can be set using the `window_hint` function.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum WindowHint {
     /// Specifies the desired bit depth of the red component of the default framebuffer.
     RedBits(u32),
@@ -990,7 +990,7 @@ pub enum WindowHint {
 
 /// Client API tokens.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ClientApiHint {
     OpenGl                   = ffi::OPENGL_API,
     OpenGlEs                 = ffi::OPENGL_ES_API,
@@ -998,7 +998,7 @@ pub enum ClientApiHint {
 
 /// Context robustness tokens.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextRobustnessHint {
     NoRobustness                = ffi::NO_ROBUSTNESS,
     NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
@@ -1007,7 +1007,7 @@ pub enum ContextRobustnessHint {
 
 /// OpenGL profile tokens.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum OpenGlProfileHint {
     Any            = ffi::OPENGL_ANY_PROFILE,
     Core           = ffi::OPENGL_CORE_PROFILE,
@@ -1015,7 +1015,7 @@ pub enum OpenGlProfileHint {
 }
 
 /// Describes the mode of a window
-#[derive(Copy, Show)]
+#[derive(Copy, Debug)]
 pub enum WindowMode<'a> {
     /// Full screen mode. Contains the monitor on which the window is displayed.
     FullScreen(&'a Monitor),
@@ -1046,7 +1046,7 @@ bitflags! {
     }
 }
 
-impl fmt::Show for Modifiers {
+impl fmt::Debug for Modifiers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (i, x) in [Shift, Control, Alt, Super].iter().filter(|x| self.contains(**x)).enumerate() {
             if i != 0 { try!(write!(f, ", ")) };
@@ -1063,7 +1063,7 @@ impl fmt::Show for Modifiers {
 pub type Scancode = c_int;
 
 /// Window event messages.
-#[derive(Copy, Clone, PartialEq, PartialOrd, Show)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub enum WindowEvent {
     Pos(i32, i32),
     Size(i32, i32),
@@ -1611,7 +1611,7 @@ pub fn make_context_current(context: Option<&Context>) {
 
 /// Joystick identifier tokens.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Show, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, FromPrimitive)]
 pub enum JoystickId {
     Joystick1       = ffi::JOYSTICK_1,
     Joystick2       = ffi::JOYSTICK_2,
