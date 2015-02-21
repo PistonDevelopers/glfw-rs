@@ -18,6 +18,8 @@
 #![crate_type = "dylib"]
 #![crate_name = "glfw"]
 
+#![feature(core)]
+#![feature(std_misc)]
 #![feature(unsafe_destructor)]
 
 #![allow(non_upper_case_globals)]
@@ -72,7 +74,7 @@ extern crate bitflags;
 
 use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_ushort, c_void};
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::mem;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::fmt;
@@ -505,7 +507,7 @@ impl Glfw {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
             f(self,
-              slice::from_raw_buf(&(ptr as *const _), count as usize).iter().map(|&ptr| {
+              slice::from_raw_parts(ptr as *const _, count as usize).iter().map(|&ptr| {
                 Monitor {
                     ptr: ptr
                 }
@@ -732,14 +734,13 @@ pub fn get_version() -> Version {
 
 /// Replacement for `String::from_raw_buf`
 pub unsafe fn string_from_c_str(c_str: *const c_char) -> String {
-    use std::ffi::c_str_to_bytes;
-    String::from_utf8_lossy(c_str_to_bytes(&c_str)).into_owned()
+    String::from_utf8_lossy(CStr::from_ptr(c_str).to_bytes()).into_owned()
 }
 
 /// Replacement for `ToCStr::with_c_str`
 pub fn with_c_str<F, T>(s: &str, f: F) -> T where F: FnOnce(*const c_char) -> T {
-    let c_str = CString::from_slice(s.as_bytes());
-    f(c_str.as_slice_with_nul().as_ptr())
+    let c_str = CString::new(s.as_bytes());
+    f(c_str.unwrap().as_bytes_with_nul().as_ptr() as *const _)
 }
 
 /// Wrapper for `glfwGetVersionString`.
@@ -794,7 +795,7 @@ impl Monitor {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            slice::from_raw_buf(&ptr, count as usize).iter().map(VidMode::from_glfw_vid_mode).collect()
+            slice::from_raw_parts(ptr, count as usize).iter().map(VidMode::from_glfw_vid_mode).collect()
         }
     }
 
@@ -815,11 +816,11 @@ impl Monitor {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    slice::from_raw_buf(&(llramp.red as *const c_ushort), llramp.size as usize)
+                red:    slice::from_raw_parts(llramp.red as *const c_ushort, llramp.size as usize)
                               .iter().map(|&x| x).collect(),
-                green:  slice::from_raw_buf(&(llramp.green as *const c_ushort), llramp.size as usize)
+                green:  slice::from_raw_parts(llramp.green as *const c_ushort, llramp.size as usize)
                               .iter().map(|&x| x).collect(),
-                blue:   slice::from_raw_buf(&(llramp.blue as *const c_ushort), llramp.size as usize)
+                blue:   slice::from_raw_parts(llramp.blue as *const c_ushort, llramp.size as usize)
                               .iter().map(|&x| x).collect(),
             }
         }
@@ -1099,7 +1100,7 @@ pub fn flush_messages<'a, Message: Send>(receiver: &'a Receiver<Message>) -> Flu
 /// `Receiver`'s queue.
 pub struct FlushedMessages<'a, Message: 'a>(&'a Receiver<Message>);
 
-impl<'a, Message: Send> Iterator for FlushedMessages<'a, Message> {
+impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
     type Item = Message;
 
     fn next(&mut self) -> Option<Message> {
@@ -1649,7 +1650,7 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(self.id as c_int, &mut count);
-            slice::from_raw_buf(&ptr, count as usize).iter().map(|&a| a as f32).collect()
+            slice::from_raw_parts(ptr, count as usize).iter().map(|&a| a as f32).collect()
         }
     }
 
@@ -1658,7 +1659,7 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(self.id as c_int, &mut count);
-            slice::from_raw_buf(&ptr, count as usize).iter().map(|&b| b as c_int).collect()
+            slice::from_raw_parts(ptr, count as usize).iter().map(|&b| b as c_int).collect()
         }
     }
 
