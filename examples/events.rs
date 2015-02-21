@@ -60,8 +60,8 @@ fn main() {
 
 fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::WindowEvent)) {
     match event {
-        glfw::WindowEvent::Pos(x, y)                      => window.set_title(format!("Time: {:?}, Window pos: ({:?}, {:?})", time, x, y).as_slice()),
-        glfw::WindowEvent::Size(w, h)                     => window.set_title(format!("Time: {:?}, Window size: ({:?}, {:?})", time, w, h).as_slice()),
+        glfw::WindowEvent::Pos(x, y)                      => window.set_title(&format!("Time: {:?}, Window pos: ({:?}, {:?})", time, x, y)),
+        glfw::WindowEvent::Size(w, h)                     => window.set_title(&format!("Time: {:?}, Window size: ({:?}, {:?})", time, w, h)),
         glfw::WindowEvent::Close                          => println!("Time: {:?}, Window close requested.", time),
         glfw::WindowEvent::Refresh                        => println!("Time: {:?}, Window refresh callback triggered.", time),
         glfw::WindowEvent::Focus(true)                    => println!("Time: {:?}, Window focus gained.", time),
@@ -71,10 +71,10 @@ fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::Win
         glfw::WindowEvent::FramebufferSize(w, h)          => println!("Time: {:?}, Framebuffer size: ({:?}, {:?})", time, w, h),
         glfw::WindowEvent::Char(character)                => println!("Time: {:?}, Character: {:?}", time, character),
         glfw::WindowEvent::MouseButton(btn, action, mods) => println!("Time: {:?}, Button: {:?}, Action: {:?}, Modifiers: [{:?}]", time, glfw::DebugAliases(btn), action, mods),
-        glfw::WindowEvent::CursorPos(xpos, ypos)          => window.set_title(format!("Time: {:?}, Cursor position: ({:?}, {:?})", time, xpos, ypos).as_slice()),
+        glfw::WindowEvent::CursorPos(xpos, ypos)          => window.set_title(&format!("Time: {:?}, Cursor position: ({:?}, {:?})", time, xpos, ypos)),
         glfw::WindowEvent::CursorEnter(true)              => println!("Time: {:?}, Cursor entered window.", time),
         glfw::WindowEvent::CursorEnter(false)             => println!("Time: {:?}, Cursor left window.", time),
-        glfw::WindowEvent::Scroll(x, y)                   => window.set_title(format!("Time: {:?}, Scroll offset: ({:?}, {:?})", time, x, y).as_slice()),
+        glfw::WindowEvent::Scroll(x, y)                   => window.set_title(&format!("Time: {:?}, Scroll offset: ({:?}, {:?})", time, x, y)),
         glfw::WindowEvent::Key(key, scancode, action, mods) => {
             println!("Time: {:?}, Key: {:?}, ScanCode: {:?}, Action: {:?}, Modifiers: [{:?}]", time, key, scancode, action, mods);
             match (key, action) {
