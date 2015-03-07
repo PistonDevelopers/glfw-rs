@@ -43,7 +43,7 @@ macro_rules! callback(
         }
 
         pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
-            let mut boxed_cb = Some(box f as Box<Object<Args> + 'static>);
+            let mut boxed_cb = Some(Box::new(f) as Box<Object<Args> + 'static>);
             CALLBACK_KEY.with(|cb| {
                 *cb.borrow_mut() = boxed_cb.take();
             });
