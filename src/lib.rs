@@ -1098,7 +1098,10 @@ pub fn flush_messages<'a, Message: Send>(receiver: &'a Receiver<Message>) -> Flu
 
 /// An iterator that yeilds until no more messages are contained in the
 /// `Receiver`'s queue.
-pub struct FlushedMessages<'a, Message: 'a>(&'a Receiver<Message>);
+pub struct FlushedMessages<'a, Message: 'a + Send>(&'a Receiver<Message>);
+
+unsafe impl<'a, Message: 'a + Send> Send for FlushedMessages<'a, Message> {
+}
 
 impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
     type Item = Message;
