@@ -20,7 +20,6 @@
 
 #![feature(core)]
 #![feature(std_misc)]
-#![feature(unsafe_destructor)]
 
 #![allow(non_upper_case_globals)]
 
@@ -269,12 +268,11 @@ impl fmt::Debug for DebugAliases<MouseButton> {
     }
 }
 
+#[derive(Copy, Clone)]
 pub struct Callback<Fn, UserData> {
     pub f: Fn,
     pub data: UserData,
 }
-
-impl<Fn: Copy, UserData: Copy> Copy for Callback<Fn, UserData> {}
 
 /// Tokens corresponding to various error types.
 #[repr(i32)]
@@ -324,7 +322,7 @@ pub enum CursorMode {
 }
 
 /// Describes a single video mode.
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct VidMode {
     pub width:        u32,
     pub height:       u32,
@@ -507,11 +505,11 @@ impl Glfw {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
             f(self,
-              slice::from_raw_parts(ptr as *const _, count as usize).iter().map(|&ptr| {
+              &slice::from_raw_parts(ptr as *const _, count as usize).iter().map(|&ptr| {
                 Monitor {
                     ptr: ptr
                 }
-            }).collect::<Vec<Monitor>>().as_slice())
+            }).collect::<Vec<Monitor>>())
         }
     }
 
@@ -1016,7 +1014,7 @@ pub enum OpenGlProfileHint {
 }
 
 /// Describes the mode of a window
-#[derive(Copy, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum WindowMode<'a> {
     /// Full screen mode. Contains the monitor on which the window is displayed.
     FullScreen(&'a Monitor),
@@ -1530,7 +1528,6 @@ impl Window {
     }
 }
 
-#[unsafe_destructor]
 impl Drop for Window {
     /// Closes the window and performs the necessary cleanups. This will block
     /// until all associated `RenderContext`s were also dropped, and emit a
@@ -1636,7 +1633,7 @@ pub enum JoystickId {
 }
 
 /// A joystick handle.
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct Joystick {
     pub id: JoystickId,
     pub glfw: Glfw,
