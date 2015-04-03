@@ -20,7 +20,6 @@
 
 #![feature(core)]
 #![feature(std_misc)]
-#![feature(unsafe_destructor)]
 
 #![allow(non_upper_case_globals)]
 
@@ -1529,7 +1528,6 @@ impl Window {
     }
 }
 
-#[unsafe_destructor]
 impl Drop for Window {
     /// Closes the window and performs the necessary cleanups. This will block
     /// until all associated `RenderContext`s were also dropped, and emit a
