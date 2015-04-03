@@ -298,6 +298,7 @@ pub enum GLFWwindow {}
 #[allow(missing_copy_implementations)]
 pub enum GLFWcursor {}
 
+#[derive(Copy, Clone)]
 #[repr(C)]
 pub struct GLFWgammaramp {
     pub red:    *mut c_ushort,
@@ -305,8 +306,6 @@ pub struct GLFWgammaramp {
     pub blue:   *mut c_ushort,
     pub size:   c_uint,
 }
-
-impl Copy for GLFWgammaramp {}
 
 #[allow(missing_copy_implementations)]
 #[repr(C)]
