@@ -18,9 +18,6 @@
 #![crate_type = "dylib"]
 #![crate_name = "glfw"]
 
-#![feature(core)]
-#![feature(std_misc)]
-
 #![allow(non_upper_case_globals)]
 
 //! An ideomatic wrapper for the GLFW library.
@@ -395,6 +392,12 @@ impl fmt::Display for InitError {
 /// - If an initialization error occured within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
 pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) -> Result<Glfw, InitError> {
+    // Helper to convert unsafe extern "C" fn to (safe) extern "C" fn.
+    extern "C" fn glfw_terminate() {
+        unsafe {
+            ffi::glfwTerminate();
+        }
+    }
     use std::sync::{Once, ONCE_INIT};
     static mut INIT: Once = ONCE_INIT;
     let mut result = Err(InitError::AlreadyInitialized);
@@ -409,9 +412,8 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
             }
             if ffi::glfwInit() == ffi::TRUE {
                 result = Ok(());
-                std::rt::at_exit(|| {
-                    ffi::glfwTerminate()
-                });
+                // TODO: When (if?) std::rt::at_exit() stabilizes, prefer to use it.
+                libc::atexit(glfw_terminate);
             } else {
                 result = Err(InitError::Internal);
             }
@@ -800,7 +802,13 @@ impl Monitor {
     /// Wrapper for `glfwGetVideoMode`.
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
-            ffi::glfwGetVideoMode(self.ptr).as_ref().map(|v| VidMode::from_glfw_vid_mode(v))
+            // TODO: Can be returned to as_ref + map as in previous commit when (if?) as_ref stabilizes.
+            let ptr = ffi::glfwGetVideoMode(self.ptr);
+            if ptr.is_null() {
+                None
+            } else {
+                Some(VidMode::from_glfw_vid_mode(&*ptr))
+            }
         }
     }
 
