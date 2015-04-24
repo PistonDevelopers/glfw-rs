@@ -100,7 +100,7 @@ pub enum Action {
 
 /// Input keys.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Key {
     Space                    = ffi::KEY_SPACE,
     Apostrophe               = ffi::KEY_APOSTROPHE,
@@ -228,7 +228,7 @@ pub enum Key {
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     Button1                = ffi::MOUSE_BUTTON_1,
@@ -702,11 +702,6 @@ impl Glfw {
         with_c_str(procname, |procname| {
             unsafe { ffi::glfwGetProcAddress(procname) }
         })
-    }
-
-    #[deprecated="Use Window::get_proc_address or Glfw::get_proc_address_raw"]
-    pub fn get_proc_address(&self, procname: &str) -> GLProc {
-        self.get_proc_address_raw(procname)
     }
 
     /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
@@ -1620,7 +1615,7 @@ pub fn make_context_current(context: Option<&Context>) {
 
 /// Joystick identifier tokens.
 #[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum JoystickId {
     Joystick1       = ffi::JOYSTICK_1,
     Joystick2       = ffi::JOYSTICK_2,
