@@ -299,6 +299,7 @@ pub enum GLFWwindow {}
 pub enum GLFWcursor {}
 
 #[derive(Copy, Clone)]
+#[allow(raw_pointer_derive)]
 #[repr(C)]
 pub struct GLFWgammaramp {
     pub red:    *mut c_ushort,
