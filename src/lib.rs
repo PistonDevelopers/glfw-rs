@@ -1048,20 +1048,6 @@ bitflags! {
     }
 }
 
-impl fmt::Debug for Modifiers {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for (i, x) in [Shift, Control, Alt, Super].iter().filter(|x| self.contains(**x)).enumerate() {
-            if i != 0 { try!(write!(f, ", ")) };
-            if      *x == Shift   { try!(write!(f, "Shift"   )) }
-            else if *x == Control { try!(write!(f, "Control" )) }
-            else if *x == Alt     { try!(write!(f, "Alt"     )) }
-            else if *x == Super   { try!(write!(f, "Super"   )) }
-            else                  { try!(write!(f, "???"     )) }
-        }
-        Ok(())
-    }
-}
-
 pub type Scancode = c_int;
 
 /// Window event messages.
