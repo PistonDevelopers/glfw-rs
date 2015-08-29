@@ -27,7 +27,7 @@ extern {}
 #[link(name = "gdi32")]
 extern {}
 
-#[cfg(target_os="linux")]
+#[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly"))]
 #[link(name = "X11")]
 #[link(name = "GL")]
 #[link(name = "Xxf86vm")]
