@@ -16,6 +16,8 @@ semver = "*"
 log = "*"
 bitflags = "*"
 libc = "*"
+enum_primitive = "*"
+num = "*"
 
 [dependencies.glfw-sys]
 glfw-sys = "*"

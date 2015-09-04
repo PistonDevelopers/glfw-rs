@@ -67,6 +67,9 @@ extern crate libc;
 extern crate log;
 #[macro_use]
 extern crate bitflags;
+#[macro_use]
+extern crate enum_primitive;
+extern crate num;
 
 use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_ushort, c_void};
@@ -98,6 +101,7 @@ pub enum Action {
     Repeat                       = ffi::REPEAT,
 }
 
+enum_from_primitive! {
 /// Input keys.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -224,6 +228,7 @@ pub enum Key {
     RightSuper               = ffi::KEY_RIGHT_SUPER,
     Menu                     = ffi::KEY_MENU,
 }
+}
 
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
 /// `MouseButtonMiddle` aliases are supplied for convenience.
@@ -241,6 +246,29 @@ pub enum MouseButton {
     Button6                = ffi::MOUSE_BUTTON_6,
     Button7                = ffi::MOUSE_BUTTON_7,
     Button8                = ffi::MOUSE_BUTTON_8,
+}
+
+// We can't use `enum_from_primitive!` for MouseButton due to
+// https://github.com/andersk/enum_primitive-rs/issues/2
+// We implement FromPrimitive manually instead.
+impl num::FromPrimitive for MouseButton {
+    fn from_i64(n: i64) -> Option<MouseButton> {
+        use MouseButton::*;
+        match n {
+            0 => Some(Button1),
+            1 => Some(Button2),
+            2 => Some(Button3),
+            3 => Some(Button4),
+            4 => Some(Button5),
+            5 => Some(Button6),
+            6 => Some(Button7),
+            7 => Some(Button8),
+            _ => None
+        }
+    }
+    fn from_u64(n: u64) -> Option<MouseButton> {
+        Self::from_i64(n as i64)
+    }
 }
 
 /// Formats the type using aliases rather than the default variant names.
@@ -1599,6 +1627,7 @@ pub fn make_context_current(context: Option<&Context>) {
     }
 }
 
+enum_from_primitive! {
 /// Joystick identifier tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -1619,6 +1648,7 @@ pub enum JoystickId {
     Joystick14      = ffi::JOYSTICK_14,
     Joystick15      = ffi::JOYSTICK_15,
     Joystick16      = ffi::JOYSTICK_16,
+}
 }
 
 /// A joystick handle.
