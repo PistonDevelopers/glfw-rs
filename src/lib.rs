@@ -365,7 +365,7 @@ pub struct GammaRamp {
 }
 
 /// An OpenGL process address.
-pub type GLProc = ffi::GLFWglproc;
+pub type GLProc = *const ();
 
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
@@ -728,7 +728,7 @@ impl Glfw {
     pub fn get_proc_address_raw(&self, procname: &str) -> GLProc {
         debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
         with_c_str(procname, |procname| {
-            unsafe { ffi::glfwGetProcAddress(procname) }
+            unsafe { ffi::glfwGetProcAddress(procname) as GLProc }
         })
     }
 
