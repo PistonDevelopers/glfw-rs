@@ -644,7 +644,7 @@ impl Glfw {
                 Window {
                     ptr: ptr,
                     glfw: self.clone(),
-                    is_shared: share.is_none(),
+                    is_shared: share.is_some(),
                     drop_sender: Some(drop_sender),
                     drop_receiver: drop_receiver
                 },
@@ -1561,14 +1561,14 @@ impl Drop for Window {
             let _ = self.drop_receiver.recv();
         }
 
-        if !self.is_shared {
-            unsafe { ffi::glfwDestroyWindow(self.ptr); }
-        }
-
         if !self.ptr.is_null() {
             unsafe {
                 let _: Box<Sender<(f64, WindowEvent)>> = mem::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
             }
+        }
+
+        if !self.is_shared {
+            unsafe { ffi::glfwDestroyWindow(self.ptr); }
         }
     }
 }
