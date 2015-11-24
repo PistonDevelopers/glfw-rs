@@ -1,6 +1,6 @@
 [package]
 name = "glfw"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["The glfw-rs developers."]
 description = "GLFW3 bindings and idiomatic wrapper for Rust."
 keywords = ["windowing", "opengl"]
@@ -20,5 +20,5 @@ enum_primitive = "0.1"
 num = "0.1"
 
 [dependencies.glfw-sys]
-glfw-sys = "*"
+glfw-sys = "3.1"
 optional = true
