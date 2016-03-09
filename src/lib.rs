@@ -38,6 +38,7 @@
 //!
 //!     // Make the window's context current
 //!     window.make_current();
+//!     window.set_key_polling(true);
 //!
 //!     // Loop until the user closes the window
 //!     while !window.should_close() {
