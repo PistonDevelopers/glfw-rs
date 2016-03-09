@@ -1096,7 +1096,7 @@ pub enum WindowEvent {
     Char(char),
 }
 
-/// Returns an iterator that yeilds until no more messages are contained in the
+/// Returns an iterator that yields until no more messages are contained in the
 /// `Receiver`'s queue. This is useful for event handling where the blocking
 /// behaviour of `Receiver::iter` is undesirable.
 ///
@@ -1111,7 +1111,7 @@ pub fn flush_messages<'a, Message: Send>(receiver: &'a Receiver<Message>) -> Flu
     FlushedMessages(receiver)
 }
 
-/// An iterator that yeilds until no more messages are contained in the
+/// An iterator that yields until no more messages are contained in the
 /// `Receiver`'s queue.
 pub struct FlushedMessages<'a, Message: 'a + Send>(&'a Receiver<Message>);
 
