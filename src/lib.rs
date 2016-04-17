@@ -1069,11 +1069,11 @@ impl<'a> WindowMode<'a> {
 
 bitflags! {
     #[doc = "Key modifiers"]
-    flags Modifiers: c_int {
-        const Shift       = ffi::MOD_SHIFT,
-        const Control     = ffi::MOD_CONTROL,
-        const Alt         = ffi::MOD_ALT,
-        const Super       = ffi::MOD_SUPER
+    pub flags Modifiers: ::libc::c_int {
+        const Shift       = ::ffi::MOD_SHIFT,
+        const Control     = ::ffi::MOD_CONTROL,
+        const Alt         = ::ffi::MOD_ALT,
+        const Super       = ::ffi::MOD_SUPER
     }
 }
 
