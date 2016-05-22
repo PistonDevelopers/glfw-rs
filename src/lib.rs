@@ -1133,7 +1133,7 @@ impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
 
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
-    pub ptr: *mut ffi::GLFWwindow,
+    ptr: *mut ffi::GLFWwindow,
     pub glfw: Glfw,
     pub is_shared: bool,
     /// A `Sender` that can be cloned out to child `RenderContext`s.
