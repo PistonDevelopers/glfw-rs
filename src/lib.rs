@@ -81,6 +81,7 @@ use std::fmt;
 use std::marker::Send;
 use std::ptr;
 use std::slice;
+use std::path::PathBuf;
 use semver::Version;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -1080,7 +1081,7 @@ bitflags! {
 pub type Scancode = c_int;
 
 /// Window event messages.
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+#[derive(Clone, PartialEq, PartialOrd, Debug)]
 pub enum WindowEvent {
     Pos(i32, i32),
     Size(i32, i32),
@@ -1095,6 +1096,7 @@ pub enum WindowEvent {
     Scroll(f64, f64),
     Key(Key, Scancode, Action, Modifiers),
     Char(char),
+    FileDrop(Vec<PathBuf>),
 }
 
 /// Returns an iterator that yields until no more messages are contained in the
@@ -1378,6 +1380,7 @@ impl Window {
         self.set_cursor_pos_polling(should_poll);
         self.set_cursor_enter_polling(should_poll);
         self.set_scroll_polling(should_poll);
+        self.set_drag_and_drop_polling(should_poll);
     }
 
     /// Wrapper for `glfwSetWindowSizeCallback`.
@@ -1408,6 +1411,11 @@ impl Window {
     /// Wrapper for `glfwSetFramebufferSizeCallback`.
     pub fn set_framebuffer_size_polling(&mut self, should_poll: bool) {
         set_window_callback!(self, should_poll, glfwSetFramebufferSizeCallback, framebuffer_size_callback);
+    }
+
+    /// Wrapper for `glfwSetFramebufferSizeCallback`.
+    pub fn set_drag_and_drop_polling(&mut self, should_poll: bool) {
+        set_window_callback!(self, should_poll, glfwSetDropCallback, drop_callback);
     }
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
