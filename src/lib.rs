@@ -1096,7 +1096,7 @@ pub enum WindowEvent {
     Scroll(f64, f64),
     Key(Key, Scancode, Action, Modifiers),
     Char(char),
-    Dropped(Vec<PathBuf>),
+    FileDrop(Vec<PathBuf>),
 }
 
 /// Returns an iterator that yields until no more messages are contained in the
