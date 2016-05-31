@@ -88,5 +88,6 @@ fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::Win
                 _ => {}
             }
         }
+        glfw::WindowEvent::FileDrop(paths)                => println!("Time: {:?}, Files dropped: {:?}", time, paths),
     }
 }
