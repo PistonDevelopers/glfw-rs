@@ -1,6 +1,6 @@
 [package]
 name = "glfw"
-version = "0.7.0"
+version = "0.8.0"
 authors = ["The glfw-rs developers."]
 description = "GLFW3 bindings and idiomatic wrapper for Rust."
 keywords = ["windowing", "opengl"]
