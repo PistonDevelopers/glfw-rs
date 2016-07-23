@@ -1162,7 +1162,7 @@ impl Window {
     /// current context, it will make it the current context.
     ///
     /// Wrapper for `glfwGetProcAddress`.
-    pub fn get_proc_address(&mut self, procname: &str) -> GLProc {
+    pub fn get_proc_address(&self, procname: &str) -> GLProc {
         if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
             self.make_current();
         }
