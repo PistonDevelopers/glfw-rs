@@ -1603,7 +1603,7 @@ pub trait Context {
     /// updates before swapping the buffers.
     ///
     /// Wrapper for `glfwSwapBuffers`.
-    fn swap_buffers(&mut self) {
+    fn swap_buffers(&self) {
         let ptr = self.window_ptr();
         unsafe { ffi::glfwSwapBuffers(ptr); }
     }
@@ -1614,7 +1614,7 @@ pub trait Context {
     }
 
     /// Wrapper for `glfwMakeContextCurrent`
-    fn make_current(&mut self) {
+    fn make_current(&self) {
         let ptr = self.window_ptr();
         unsafe { ffi::glfwMakeContextCurrent(ptr); }
     }
