@@ -20,5 +20,5 @@ enum_primitive = "0.1"
 num = "0.1"
 
 [dependencies.glfw-sys]
-version = "3.1.3"
+version = "3.2"
 optional = true
