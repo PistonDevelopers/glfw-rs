@@ -378,7 +378,8 @@ extern "C" {
 
     pub fn glfwPollEvents();
     pub fn glfwWaitEvents();
-    pub fn glfwPostEmptyEvent(); // TODO: Not yet exposed
+    pub fn glfwWaitEventsTimeout(timeout: c_double);
+    pub fn glfwPostEmptyEvent();
 
     pub fn glfwGetInputMode(window: *mut GLFWwindow, mode: c_int) -> c_int;
     pub fn glfwSetInputMode(window: *mut GLFWwindow, mode: c_int, value: c_int);

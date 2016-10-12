@@ -687,6 +687,24 @@ impl Glfw {
         unsafe { ffi::glfwWaitEvents(); }
     }
 
+    /// Sleep until at least one event has been recieved, or until the specified
+    /// timeout is reached, and then perform the equivalent of `Glfw::poll_events`.
+    /// Timeout is specified in seconds.
+    ///
+    /// Wrapper for `glfwWaitEventsTimeout`.
+    pub fn wait_events_timeout(&mut self, timeout: f64) {
+        unsafe { ffi::glfwWaitEventsTimeout(timeout); }
+    }
+
+    /// Posts an empty event from the current thread to the event queue, causing
+    /// `wait_events` or `wait_events_timeout` to return.
+    /// If no windows exist, this function returns immediately.
+    ///
+    /// Wrapper for `glfwPostEmptyEvent`.
+    pub fn post_empty_event(&mut self) {
+        unsafe { ffi::glfwPostEmptyEvent(); }
+    }
+
     /// Returns the current value of the GLFW timer. Unless the timer has been
     /// set using `glfw::set_time`, the timer measures time elapsed since GLFW
     /// was initialized.
