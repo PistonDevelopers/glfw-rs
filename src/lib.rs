@@ -1300,12 +1300,12 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowAspectRatio`.
-    fn set_aspect_ratio(&mut self, numer: u32, denum: u32) {
+    pub fn set_aspect_ratio(&mut self, numer: u32, denum: u32) {
         unsafe { ffi::glfwSetWindowAspectRatio(self.ptr, numer as c_int, denum as c_int) }
     }
 
     /// Wrapper for `glfwSetWindowSizeLimits`.
-    fn set_size_limits(&mut self, minwidth: u32, minheight: u32, maxwidth: u32, maxheight: u32) {
+    pub fn set_size_limits(&mut self, minwidth: u32, minheight: u32, maxwidth: u32, maxheight: u32) {
         unsafe { ffi::glfwSetWindowSizeLimits(self.ptr , minwidth as c_int, minheight as c_int, maxwidth as c_int, maxheight as c_int) }
     }
 
