@@ -384,6 +384,14 @@ pub struct GammaRamp {
     pub blue:   Vec<c_ushort>,
 }
 
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum ContextReleaseBehavior {
+    Any                   = ffi::ANY_RELEASE_BEHAVIOR,
+    Flush                 = ffi::RELEASE_BEHAVIOR_FLUSH,
+    None                  = ffi::RELEASE_BEHAVIOR_NONE
+}
+
 /// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
 
@@ -594,37 +602,41 @@ impl Glfw {
     /// ~~~
     pub fn window_hint(&mut self, hint: WindowHint) {
         match hint {
-            WindowHint::RedBits(bits)                   => unsafe { ffi::glfwWindowHint(ffi::RED_BITS,              bits as c_int) },
-            WindowHint::GreenBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS,            bits as c_int) },
-            WindowHint::BlueBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS,             bits as c_int) },
-            WindowHint::AlphaBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS,            bits as c_int) },
-            WindowHint::DepthBits(bits)                 => unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS,            bits as c_int) },
-            WindowHint::StencilBits(bits)               => unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS,          bits as c_int) },
-            WindowHint::AccumRedBits(bits)              => unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS,        bits as c_int) },
-            WindowHint::AccumGreenBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS,      bits as c_int) },
-            WindowHint::AccumBlueBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS,       bits as c_int) },
-            WindowHint::AccumAlphaBits(bits)            => unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS,      bits as c_int) },
-            WindowHint::AuxBuffers(num_buffers)         => unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS,           num_buffers as c_int) },
-            WindowHint::Stereo(is_stereo)               => unsafe { ffi::glfwWindowHint(ffi::STEREO,                is_stereo as c_int) },
-            WindowHint::Samples(num_samples)            => unsafe { ffi::glfwWindowHint(ffi::SAMPLES,               num_samples as c_int) },
-            WindowHint::SRgbCapable(is_capable)         => unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE,          is_capable as c_int) },
-            WindowHint::RefreshRate(rate)               => unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE,          rate as c_int) },
-            WindowHint::ClientApi(api)                  => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,            api as c_int) },
-            WindowHint::ContextVersionMajor(major)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int) },
-            WindowHint::ContextVersionMinor(minor)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
-            WindowHint::ContextVersion(major, minor)    => unsafe {
+            WindowHint::RedBits(bits)                    => unsafe { ffi::glfwWindowHint(ffi::RED_BITS,                 bits as c_int) },
+            WindowHint::GreenBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS,               bits as c_int) },
+            WindowHint::BlueBits(bits)                   => unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS,                bits as c_int) },
+            WindowHint::AlphaBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS,               bits as c_int) },
+            WindowHint::DepthBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS,               bits as c_int) },
+            WindowHint::StencilBits(bits)                => unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS,             bits as c_int) },
+            WindowHint::AccumRedBits(bits)               => unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS,           bits as c_int) },
+            WindowHint::AccumGreenBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS,         bits as c_int) },
+            WindowHint::AccumBlueBits(bits)              => unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS,          bits as c_int) },
+            WindowHint::AccumAlphaBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS,         bits as c_int) },
+            WindowHint::AuxBuffers(num_buffers)          => unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS,              num_buffers as c_int) },
+            WindowHint::Stereo(is_stereo)                => unsafe { ffi::glfwWindowHint(ffi::STEREO,                   is_stereo as c_int) },
+            WindowHint::Samples(num_samples)             => unsafe { ffi::glfwWindowHint(ffi::SAMPLES,                  num_samples as c_int) },
+            WindowHint::SRgbCapable(is_capable)          => unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE,             is_capable as c_int) },
+            WindowHint::RefreshRate(rate)                => unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE,             rate as c_int) },
+            WindowHint::ClientApi(api)                   => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,               api as c_int) },
+            WindowHint::ContextVersionMajor(major)       => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR,    major as c_int) },
+            WindowHint::ContextVersionMinor(minor)       => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR,    minor as c_int) },
+            WindowHint::ContextVersion(major, minor)     => unsafe {
                 ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
                 ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int)
             },
-            WindowHint::ContextRobustness(robustness)   => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS,    robustness as c_int) },
-            WindowHint::OpenGlForwardCompat(is_compat)  => unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int) },
-            WindowHint::OpenGlDebugContext(is_debug)    => unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT,  is_debug as c_int) },
-            WindowHint::OpenGlProfile(profile)          => unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE,        profile as c_int) },
-            WindowHint::Resizable(is_resizable)         => unsafe { ffi::glfwWindowHint(ffi::RESIZABLE,             is_resizable as c_int) },
-            WindowHint::Visible(is_visible)             => unsafe { ffi::glfwWindowHint(ffi::VISIBLE,               is_visible as c_int) },
-            WindowHint::Decorated(is_decorated)         => unsafe { ffi::glfwWindowHint(ffi::DECORATED,             is_decorated as c_int) },
-            WindowHint::AutoIconify(auto_iconify)       => unsafe { ffi::glfwWindowHint(ffi::AUTO_ICONIFY,          auto_iconify as c_int) },
-            WindowHint::Floating(is_floating)           => unsafe { ffi::glfwWindowHint(ffi::FLOATING,              is_floating as c_int) },
+            WindowHint::ContextRobustness(robustness)    => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS,       robustness as c_int) },
+            WindowHint::OpenGlForwardCompat(is_compat)   => unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT,    is_compat as c_int) },
+            WindowHint::OpenGlDebugContext(is_debug)     => unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT,     is_debug as c_int) },
+            WindowHint::OpenGlProfile(profile)           => unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE,           profile as c_int) },
+            WindowHint::Resizable(is_resizable)          => unsafe { ffi::glfwWindowHint(ffi::RESIZABLE,                is_resizable as c_int) },
+            WindowHint::Visible(is_visible)              => unsafe { ffi::glfwWindowHint(ffi::VISIBLE,                  is_visible as c_int) },
+            WindowHint::Decorated(is_decorated)          => unsafe { ffi::glfwWindowHint(ffi::DECORATED,                is_decorated as c_int) },
+            WindowHint::AutoIconify(auto_iconify)        => unsafe { ffi::glfwWindowHint(ffi::AUTO_ICONIFY,             auto_iconify as c_int) },
+            WindowHint::Floating(is_floating)            => unsafe { ffi::glfwWindowHint(ffi::FLOATING,                 is_floating as c_int) },
+            WindowHint::ContextNoError(is_no_error)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_NO_ERROR,         is_no_error as c_int) },
+            WindowHint::ContextCreationApi(has_api)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     has_api as c_int) },
+            WindowHint::ContextReleaseBehavior(behavior) => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int) },
+            WindowHint::DoubleBuffer(is_dbuffered)       => unsafe { ffi::glfwWindowHint(ffi::DOUBLEBUFFER,             is_dbuffered as c_int) },
         }
     }
 
@@ -1066,6 +1078,20 @@ pub enum WindowHint {
     ///
     /// This hint is ignored for full screen windows.
     Floating(bool),
+    /// Specifies whether the OpenGL or OpenGL ES contexts do not emit errors,
+    /// allowing for better performance in some situations.
+    ContextNoError(bool),
+    /// Specifies whether a new context can be created at runtime
+    ContextCreationApi(bool),
+    /// Specifies the behavior of the OpenGL pipeline when a context is transferred between threads
+    ContextReleaseBehavior(ContextReleaseBehavior),
+    /// Specifies whether the framebuffer should be double buffered.
+    ///
+    /// You nearly always want to use double buffering.
+    ///
+    /// Note that this will make `swap_buffers` do nothing useful,
+    /// and your scene will have to be displayed some other way.
+    DoubleBuffer(bool)
 }
 
 /// Client API tokens.
@@ -1180,6 +1206,13 @@ impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
             _ => None,
         }
     }
+}
+
+/// Checks is the Vulkan API is supported by calling `glfwVulkanSupported`
+///
+/// Note that GLFW must be compiled with `GLFW_INCLUDE_VULKAN`
+pub fn vulkan_supported() -> bool {
+    unsafe { ffi::glfwVulkanSupported() == ffi::TRUE }
 }
 
 /// A struct that wraps a `*GLFWwindow` handle.

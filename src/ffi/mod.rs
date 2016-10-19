@@ -233,7 +233,7 @@ pub const STEREO                       : c_int = 0x0002100C;
 pub const SAMPLES                      : c_int = 0x0002100D;
 pub const SRGB_CAPABLE                 : c_int = 0x0002100E;
 pub const REFRESH_RATE                 : c_int = 0x0002100F;
-pub const DOUBLEBUFFER                 : c_int = 0x00021010; // TODO: Not yet exposed
+pub const DOUBLEBUFFER                 : c_int = 0x00021010;
 
 pub const CLIENT_API                   : c_int = 0x00022001;
 pub const CONTEXT_VERSION_MAJOR        : c_int = 0x00022002;
@@ -243,7 +243,9 @@ pub const CONTEXT_ROBUSTNESS           : c_int = 0x00022005;
 pub const OPENGL_FORWARD_COMPAT        : c_int = 0x00022006;
 pub const OPENGL_DEBUG_CONTEXT         : c_int = 0x00022007;
 pub const OPENGL_PROFILE               : c_int = 0x00022008;
-pub const CONTEXT_RELEASE_BEHAVIOR     : c_int = 0x00022009; // TODO: Not yet exposed
+pub const CONTEXT_RELEASE_BEHAVIOR     : c_int = 0x00022009;
+pub const CONTEXT_NO_ERROR             : c_int = 0x0002200A;
+pub const CONTEXT_CREATION_API         : c_int = 0x0002200B;
 
 pub const NO_API                       : c_int = 0x00000000;
 pub const OPENGL_API                   : c_int = 0x00030001;
@@ -265,9 +267,9 @@ pub const CURSOR_NORMAL                : c_int = 0x00034001;
 pub const CURSOR_HIDDEN                : c_int = 0x00034002;
 pub const CURSOR_DISABLED              : c_int = 0x00034003;
 
-pub const ANY_RELEASE_BEHAVIOR         : c_int = 0; // TODO: Not yet exposed
-pub const RELEASE_BEHAVIOR_FLUSH       : c_int = 0x00035001; // TODO: Not yet exposed
-pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002; // TODO: Not yet exposed
+pub const ANY_RELEASE_BEHAVIOR         : c_int = 0;
+pub const RELEASE_BEHAVIOR_FLUSH       : c_int = 0x00035001;
+pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002;
 
 pub const ARROW_CURSOR                 : c_int = 0x00036001; // TODO: Not yet exposed
 pub const IBEAM_CURSOR                 : c_int = 0x00036002; // TODO: Not yet exposed
