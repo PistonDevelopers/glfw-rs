@@ -64,6 +64,7 @@
 
 extern crate semver;
 extern crate libc;
+extern crate vk_sys;
 #[macro_use]
 extern crate log;
 #[macro_use]

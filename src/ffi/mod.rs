@@ -21,6 +21,14 @@
 use libc::{c_char, c_double, c_float, c_int, c_ulonglong};
 use libc::{c_uchar, c_uint, c_ushort, c_void};
 
+use vk_sys::{
+    Instance as VkInstance,
+    PhysicalDevice as VkPhysicalDevice,
+    AllocationCallbacks as VkAllocationCallbacks,
+    Result as VkResult,
+    SurfaceKHR as VkSurfaceKHR
+};
+
 mod link;
 
 pub const FALSE                        : c_int = 0;
@@ -274,6 +282,7 @@ pub const DISCONNECTED                 : c_int = 0x00040002;
 pub const DONT_CARE                    : c_int = -1; // TODO: Not yet exposed
 
 pub type GLFWglproc             = *const c_void;
+pub type GLFWvkproc             = *const c_void;
 
 pub type GLFWerrorfun           = extern "C" fn(c_int, *const c_char);
 pub type GLFWwindowposfun       = extern "C" fn(*mut GLFWwindow, c_int, c_int);
@@ -435,6 +444,14 @@ extern "C" {
     pub fn glfwGetTimerValue() -> c_ulonglong; //uint64_t
     pub fn glfwGetTimerFrequency() -> c_ulonglong; //uint64_t
     pub fn glfwSetJoystickCallback(cbjoy: Option<GLFWjoystickfun>) -> Option<GLFWjoystickfun>;
+
+    // Vulkan support
+
+    pub fn glfwVulkanSupported() -> c_int;
+    pub fn glfwGetRequiredInstanceExtensions(count: *mut c_int) -> *const *const c_char;
+    pub fn glfwGetInstanceProcAddress(instance: VkInstance, procname: *const c_char) -> GLFWvkproc;
+    pub fn glfwGetPhysicalDevicePresentationSupport(instance: VkInstance, device: VkPhysicalDevice, queuefamily: c_int) -> c_int;
+    pub fn glfwCreateWindowSurface(instance: VkInstance, window: *mut GLFWwindow, allocator: *const VkAllocationCallbacks, surface: *mut VkSurfaceKHR) -> VkResult;
 
     // native APIs
 
