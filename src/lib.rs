@@ -114,16 +114,16 @@ pub enum Key {
     Minus                    = ffi::KEY_MINUS,
     Period                   = ffi::KEY_PERIOD,
     Slash                    = ffi::KEY_SLASH,
-    Num0                        = ffi::KEY_0,
-    Num1                        = ffi::KEY_1,
-    Num2                        = ffi::KEY_2,
-    Num3                        = ffi::KEY_3,
-    Num4                        = ffi::KEY_4,
-    Num5                        = ffi::KEY_5,
-    Num6                        = ffi::KEY_6,
-    Num7                        = ffi::KEY_7,
-    Num8                        = ffi::KEY_8,
-    Num9                        = ffi::KEY_9,
+    Num0                     = ffi::KEY_0,
+    Num1                     = ffi::KEY_1,
+    Num2                     = ffi::KEY_2,
+    Num3                     = ffi::KEY_3,
+    Num4                     = ffi::KEY_4,
+    Num5                     = ffi::KEY_5,
+    Num6                     = ffi::KEY_6,
+    Num7                     = ffi::KEY_7,
+    Num8                     = ffi::KEY_8,
+    Num9                     = ffi::KEY_9,
     Semicolon                = ffi::KEY_SEMICOLON,
     Equal                    = ffi::KEY_EQUAL,
     A                        = ffi::KEY_A,
@@ -230,6 +230,23 @@ pub enum Key {
     RightSuper               = ffi::KEY_RIGHT_SUPER,
     Menu                     = ffi::KEY_MENU,
 }
+}
+
+/// Wrapper around 'glfwGetKeyName`
+pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
+    unsafe {
+        string_from_c_str(ffi::glfwGetKeyName(match key {
+            Some(k) => k as c_int,
+            None => ffi::KEY_UNKNOWN
+        }, scancode.unwrap_or(ffi::KEY_UNKNOWN)))
+    }
+}
+
+impl Key {
+    /// Wrapper around 'glfwGetKeyName` without scancode
+    pub fn name(&self) -> String {
+        key_name(Some(*self), None)
+    }
 }
 
 /// Mouse buttons. The `MouseButtonLeft`, `MouseButtonRight`, and
@@ -594,8 +611,10 @@ impl Glfw {
             WindowHint::ClientApi(api)                  => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,            api as c_int) },
             WindowHint::ContextVersionMajor(major)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int) },
             WindowHint::ContextVersionMinor(minor)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
-            WindowHint::ContextVersion(major, minor)    => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
-                                                        ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int) },
+            WindowHint::ContextVersion(major, minor)    => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
+                ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int)
+            },
             WindowHint::ContextRobustness(robustness)   => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS,    robustness as c_int) },
             WindowHint::OpenGlForwardCompat(is_compat)  => unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int) },
             WindowHint::OpenGlDebugContext(is_debug)    => unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT,  is_debug as c_int) },
@@ -719,6 +738,16 @@ impl Glfw {
     /// Wrapper for `glfwSetTime`.
     pub fn set_time(&mut self, time: f64) {
         unsafe { ffi::glfwSetTime(time as c_double); }
+    }
+
+    /// Wrapper for `glfwGetTimerValue`.
+    pub fn get_timer_value() -> u64 {
+        unsafe { ffi::glfwGetTimerValue() as u64 }
+    }
+
+    /// Wrapper for `glfwGetTimerFrequency`
+    pub fn get_timer_frquency() -> u64 {
+        unsafe { ffi::glfwGetTimerFrequency() as u64 }
     }
 
     /// Sets the number of screen updates to wait before swapping the buffers of
@@ -1042,6 +1071,7 @@ pub enum WindowHint {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ClientApiHint {
+    NoApi                    = ffi::NO_API,
     OpenGl                   = ffi::OPENGL_API,
     OpenGlEs                 = ffi::OPENGL_ES_API,
 }
@@ -1268,6 +1298,16 @@ impl Window {
         }
     }
 
+    /// Wrapper for `glfwSetWindowAspectRatio`.
+    fn set_aspect_ratio(&mut self, numer: u32, denum: u32) {
+        unsafe { ffi::glfwSetWindowAspectRatio(self.ptr, numer as c_int, denum as c_int) }
+    }
+
+    /// Wrapper for `glfwSetWindowSizeLimits`.
+    fn set_size_limits(&mut self, minwidth: u32, minheight: u32, maxwidth: u32, maxheight: u32) {
+        unsafe { ffi::glfwSetWindowSizeLimits(self.ptr , minwidth as c_int, minheight as c_int, maxwidth as c_int, maxheight as c_int) }
+    }
+
     /// Wrapper for `glfwIconifyWindow`.
     pub fn iconify(&mut self) {
         unsafe { ffi::glfwIconifyWindow(self.ptr); }
@@ -1319,6 +1359,11 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `ICONIFIED`.
     pub fn is_iconified(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::ICONIFIED) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwGetWindowattrib` called with `MAXIMIZED`.
+    pub fn is_maximized(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::MAXIMIZED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `CLIENT_API`.

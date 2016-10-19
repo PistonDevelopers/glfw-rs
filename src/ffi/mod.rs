@@ -18,7 +18,7 @@
 
 #![allow(bad_style)] // yeah yeah, but it's ffi
 
-use libc::{c_char, c_double, c_float, c_int};
+use libc::{c_char, c_double, c_float, c_int, c_ulonglong};
 use libc::{c_uchar, c_uint, c_ushort, c_void};
 
 mod link;
@@ -29,6 +29,8 @@ pub const TRUE                         : c_int = 1;
 pub const RELEASE                      : c_int = 0;
 pub const PRESS                        : c_int = 1;
 pub const REPEAT                       : c_int = 2;
+
+pub const KEY_UNKNOWN                  : c_int = -1;
 
 pub const KEY_SPACE                    : c_int = 32;
 pub const KEY_APOSTROPHE               : c_int = 39;
@@ -206,6 +208,7 @@ pub const VISIBLE                      : c_int = 0x00020004;
 pub const DECORATED                    : c_int = 0x00020005;
 pub const AUTO_ICONIFY                 : c_int = 0x00020006;
 pub const FLOATING                     : c_int = 0x00020007;
+pub const MAXIMIZED                    : c_int = 0x00020008;
 
 pub const RED_BITS                     : c_int = 0x00021001;
 pub const GREEN_BITS                   : c_int = 0x00021002;
@@ -234,6 +237,7 @@ pub const OPENGL_DEBUG_CONTEXT         : c_int = 0x00022007;
 pub const OPENGL_PROFILE               : c_int = 0x00022008;
 pub const CONTEXT_RELEASE_BEHAVIOR     : c_int = 0x00022009; // TODO: Not yet exposed
 
+pub const NO_API                       : c_int = 0x00000000;
 pub const OPENGL_API                   : c_int = 0x00030001;
 pub const OPENGL_ES_API                : c_int = 0x00030002;
 
@@ -288,6 +292,7 @@ pub type GLFWcharfun            = extern "C" fn(*mut GLFWwindow, c_uint);
 pub type GLFWcharmodsfun        = extern "C" fn(*mut GLFWwindow, c_uint, c_int); // TODO: Not yet exposed
 pub type GLFWdropfun            = extern "C" fn(*mut GLFWwindow, c_int, *mut *const c_char); // TODO: Not yet exposed
 pub type GLFWmonitorfun         = extern "C" fn(*mut GLFWmonitor, c_int);
+pub type GLFWjoystickfun        = extern "C" fn(c_int, c_int);
 
 #[allow(missing_copy_implementations)]
 pub enum GLFWmonitor {}
@@ -417,6 +422,19 @@ extern "C" {
     pub fn glfwSwapInterval(interval: c_int);
     pub fn glfwExtensionSupported(extension: *const c_char) -> c_int;
     pub fn glfwGetProcAddress(procname: *const c_char) -> GLFWglproc;
+
+    // Added in 3.2
+
+    pub fn glfwSetWindowAspectRatio(window: *mut GLFWwindow, numer: c_int, denum: c_int);
+    pub fn glfwSetWindowSizeLimits(window: *mut GLFWwindow, minwidth: c_int, minheight: c_int, maxwidth: c_int, maxheight: c_int);
+    pub fn glfwFocusWindow(window: *mut GLFWwindow);
+    pub fn glfwMaximizeWindow(window: *mut GLFWwindow);
+    pub fn glfwSetWindowMonitor(window: *mut GLFWwindow, monitor: *mut GLFWmonitor, xpos: c_int, ypos: c_int, width: c_int, height: c_int, refresh_rate: c_int);
+    pub fn glfwSetWindowIcon(window: *mut GLFWwindow, count: c_int, images: *const GLFWimage);
+    pub fn glfwGetKeyName(key: c_int, scancode: c_int) -> *const c_char;
+    pub fn glfwGetTimerValue() -> c_ulonglong; //uint64_t
+    pub fn glfwGetTimerFrequency() -> c_ulonglong; //uint64_t
+    pub fn glfwSetJoystickCallback(cbjoy: Option<GLFWjoystickfun>) -> Option<GLFWjoystickfun>;
 
     // native APIs
 
