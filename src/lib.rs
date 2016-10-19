@@ -1089,7 +1089,7 @@ pub enum WindowHint {
     ///
     /// You nearly always want to use double buffering.
     ///
-    /// Note that this will make `swap_buffers` do nothing useful,
+    /// Note that setting this to false will make `swap_buffers` do nothing useful,
     /// and your scene will have to be displayed some other way.
     DoubleBuffer(bool)
 }
