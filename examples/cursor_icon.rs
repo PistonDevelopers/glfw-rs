@@ -30,16 +30,13 @@ fn main() {
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
-    //Place cursor variable here so it doesn't Drop until the program ends
-    let cursor;
-
     if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
         //Resize icon while preserving aspect ratio
         let resized_icon = imageops::resize(&icon, 32, icon.height() / icon.width() * 32, image::imageops::Lanczos3);
 
-        cursor = glfw::Cursor::create(resized_icon, 0, 0);
+        let cursor = glfw::Cursor::create(resized_icon, 0, 0);
 
-        window.set_cursor(Some(&cursor));
+        window.set_cursor(Some(cursor));
     }
 
     while !window.should_close() {
