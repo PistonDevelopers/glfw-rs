@@ -371,14 +371,25 @@ pub enum CursorMode {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum StandardCursor {
+    /// The regular arrow cursor shape.
     Arrow                 = ffi::ARROW_CURSOR,
+    /// The text input I-beam cursor shape.
     IBeam                 = ffi::IBEAM_CURSOR,
+    /// The crosshair shape.
     Crosshair             = ffi::CROSSHAIR_CURSOR,
+    /// The hand shape.
     Hand                  = ffi::HAND_CURSOR,
+    /// The horizontal resize arrow shape.
     HResize               = ffi::HRESIZE_CURSOR,
+    /// The vertical resize arrow shape.
     VResize               = ffi::VRESIZE_CURSOR
 }
 
+/// Represents a window cursor that can be used to display any
+/// of the standard cursors or load a custom cursor from an image.
+///
+/// Note that the cursor object has a lifetime and will not display
+/// correctly after it has been dropped.
 pub struct Cursor {
     ptr: *mut ffi::GLFWcursor
 }
@@ -390,12 +401,21 @@ impl Drop for Cursor {
 }
 
 impl Cursor {
+    /// Create a new cursor using `glfwCreateStandardCursor`
     pub fn standard(cursor: StandardCursor) -> Cursor {
         Cursor {
             ptr: unsafe { ffi::glfwCreateStandardCursor(cursor as c_int) }
         }
     }
 
+    /// Creates a new cursor from the image provided via `glfwCreateCursor`
+    ///
+    /// Note that the cursor image will be the same size as the image provided,
+    /// so scaling it beforehand may be required.
+    ///
+    /// The cursor hotspot is specified in pixels, relative to the upper-left
+    /// corner of the cursor image. Like all other coordinate systems in GLFW,
+    /// the X-axis points to the right and the Y-axis points down.
     #[cfg(feature = "image")]
     pub fn create(image: image::RgbaImage, x_hotspot: u32, y_hotspot: u32) -> Cursor {
         let (width, height) = image.dimensions();
@@ -413,6 +433,16 @@ impl Cursor {
         }
     }
 
+    /// Creates a new cursor from the pixels provided via `glfwCreateCursor`
+    ///
+    /// The height of the image is calculated automatically from the width and pixel data.
+    ///
+    /// Note that the cursor image will be the same size as the image provided,
+    /// so scaling it beforehand may be required.
+    ///
+    /// The cursor hotspot is specified in pixels, relative to the upper-left
+    /// corner of the cursor image. Like all other coordinate systems in GLFW,
+    /// the X-axis points to the right and the Y-axis points down.
     pub fn create_from_pixels(pixels: Vec<u32>, width: u32, x_hotspot: u32, y_hotspot: u32) -> Cursor {
         let height = pixels.len() as u32 / width;
 
@@ -446,14 +476,18 @@ pub struct GammaRamp {
     pub blue:   Vec<c_ushort>,
 }
 
+/// `ContextReleaseBehavior` specifies the release behavior to be used by the context.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextReleaseBehavior {
     Any                   = ffi::ANY_RELEASE_BEHAVIOR,
+    /// `Flush` tells the context to flush the pipeline whenever the context is released from being the current one.
     Flush                 = ffi::RELEASE_BEHAVIOR_FLUSH,
+    /// `None` tells the context to NOT flush the pipeline on release
     None                  = ffi::RELEASE_BEHAVIOR_NONE
 }
 
+/// Specifies the API to use to create the context
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextCreationApi {
@@ -461,15 +495,27 @@ pub enum ContextCreationApi {
     Egl                   = ffi::EGL_CONTEXT_API
 }
 
+/// Specifies how the context should handle swapping the buffers.
+///
+/// i.e. the number of screen updates to wait from the time
+/// `glfwSwapBuffers`/`context.swap_buffers`
+/// was called before swapping the buffers and returning.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum SwapInterval {
+    /// Specifies no waits
     None,
+    /// If either of the `WGL_EXT_swap_control_tear` and `GLX_EXT_swap_control_tear` extensions
+    /// are enabled, allows the adaptively swap the frame. Sometimes called Adaptive V-sync
     Adaptive,
+    /// Synchronizes the buffers every N frames. Set to 1 for V-sync
     Sync(u32)
 }
 
 /// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
+
+// A Vulkan process address
+pub type VKProc = ffi::GLFWvkproc;
 
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
@@ -772,7 +818,8 @@ impl Glfw {
                     glfw: self.clone(),
                     is_shared: share.is_some(),
                     drop_sender: Some(drop_sender),
-                    drop_receiver: drop_receiver
+                    drop_receiver: drop_receiver,
+                    current_cursor: None
                 },
                 receiver,
             ))
@@ -1317,6 +1364,9 @@ pub struct Window {
     /// on the `drop_receiver` will result in an `Err(std::comm::Disconnected)`,
     /// indicating that it is safe to drop the `Window`.
     drop_receiver: Receiver<()>,
+    /// This is here to allow owning the current Cursor object instead
+    /// of forcing the user to take care of its lifetime.
+    current_cursor: Option<Cursor>
 }
 
 macro_rules! set_window_callback {
@@ -1559,6 +1609,7 @@ impl Window {
         set_window_callback!(self, should_poll, glfwSetWindowPosCallback, window_pos_callback);
     }
 
+    /// Starts or stops polling for all available events
     pub fn set_all_polling(&mut self, should_poll: bool) {
         self.set_pos_polling(should_poll);
         self.set_size_polling(should_poll);
@@ -1622,15 +1673,38 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetCursor` using `Cursor`
-    pub fn set_cursor(&mut self, cursor: Option<&Cursor>) {
+    ///
+    /// The window will take ownership of the cursor, and will not Drop it
+    /// until it is replaced or the window itself is destroyed.
+    ///
+    /// Returns the previously set Cursor or None if no cursor was set.
+    pub fn set_cursor(&mut self, cursor: Option<Cursor>) -> Option<Cursor> {
+        let previous = mem::replace(&mut self.current_cursor, cursor);
+
         unsafe {
-            ffi::glfwSetCursor(self.ptr, match cursor {
+            ffi::glfwSetCursor(self.ptr, match self.current_cursor {
                 Some(ref cursor) => cursor.ptr,
                 None => ptr::null_mut()
             })
         }
+
+        previous
     }
 
+    /// Sets the window icon from the given images by called `glfwSetWindowIcon`
+    ///
+    /// Multiple images can be specified for allowing the OS to choose the best size where necessary.
+    ///
+    /// Example:
+    /// ```
+    ///if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
+    ///    window.set_icon(vec![
+    ///        imageops::resize(&icon, 16, 16, image::imageops::Lanczos3),
+    ///        imageops::resize(&icon, 32, 32, image::imageops::Lanczos3),
+    ///        imageops::resize(&icon, 48, 48, image::imageops::Lanczos3)
+    ///    ]);
+    ///}
+    /// ```
     #[cfg(feature = "image")]
     pub fn set_icon(&mut self, images: Vec<image::RgbaImage>) {
         // When the images are turned into Vecs, the lifetimes of them go into the Vec lifetime
@@ -1654,6 +1728,13 @@ impl Window {
         }
     }
 
+    /// Sets the window icon via `glfwSetWindowIcon` from a set a set of vectors
+    /// containing pixels in RGBA format (one pixel per 32-bit integer)
+    ///
+    /// For each image in the vector of images, the first element is the pixel data itself,
+    /// and the second element is the width of the image in pixels.
+    ///
+    /// The height is calculated automatically from the width and size of the pixel vector.
     pub fn set_icon_from_pixels(&mut self, pixels: Vec<(Vec<u32>, u32)>) {
         let glfw_images: Vec<ffi::GLFWimage> = pixels.iter().map(|ref data| {
             ffi::GLFWimage {
