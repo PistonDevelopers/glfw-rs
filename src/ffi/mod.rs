@@ -21,6 +21,7 @@
 use libc::{c_char, c_double, c_float, c_int, c_ulonglong};
 use libc::{c_uchar, c_uint, c_ushort, c_void};
 
+#[cfg(feature = "vulkan")]
 use vk_sys::{
     Instance as VkInstance,
     PhysicalDevice as VkPhysicalDevice,
@@ -287,6 +288,8 @@ pub const DISCONNECTED                 : c_int = 0x00040002;
 pub const DONT_CARE                    : c_int = -1; //negative one is the correct value
 
 pub type GLFWglproc             = *const c_void;
+
+#[cfg(feature = "vulkan")]
 pub type GLFWvkproc             = *const c_void;
 
 pub type GLFWerrorfun           = extern "C" fn(c_int, *const c_char);
@@ -453,10 +456,15 @@ extern "C" {
 
     // Vulkan support
 
+    #[cfg(feature = "vulkan")]
     pub fn glfwVulkanSupported() -> c_int;
+    #[cfg(feature = "vulkan")]
     pub fn glfwGetRequiredInstanceExtensions(count: *mut c_uint) -> *const *const c_char;
+    #[cfg(feature = "vulkan")]
     pub fn glfwGetInstanceProcAddress(instance: VkInstance, procname: *const c_char) -> GLFWvkproc;
+    #[cfg(feature = "vulkan")]
     pub fn glfwGetPhysicalDevicePresentationSupport(instance: VkInstance, device: VkPhysicalDevice, queuefamily: c_int) -> c_int;
+    #[cfg(feature = "vulkan")]
     pub fn glfwCreateWindowSurface(instance: VkInstance, window: *mut GLFWwindow, allocator: *const VkAllocationCallbacks, surface: *mut VkSurfaceKHR) -> VkResult;
 
     // native APIs

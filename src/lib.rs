@@ -64,6 +64,7 @@
 
 extern crate semver;
 extern crate libc;
+#[cfg(feature = "vulkan")]
 extern crate vk_sys;
 #[macro_use]
 extern crate log;
@@ -87,6 +88,7 @@ use std::slice;
 use std::path::PathBuf;
 use semver::Version;
 
+#[cfg(feature = "vulkan")]
 use vk_sys::Instance as VkInstance;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -517,6 +519,7 @@ pub enum SwapInterval {
 pub type GLProc = ffi::GLFWglproc;
 
 // A Vulkan process address
+#[cfg(feature = "vulkan")]
 pub type VkProc = ffi::GLFWvkproc;
 
 /// A token from which to call various GLFW functions. It can be obtained by
@@ -696,6 +699,7 @@ impl Glfw {
     }
 
     /// Queries Vulkan support via `glfwVulkanSupported`
+    #[cfg(feature = "vulkan")]
     pub fn vulkan_supported(&self) -> bool {
         unsafe { ffi::glfwVulkanSupported() == ffi::TRUE }
     }
@@ -938,6 +942,7 @@ impl Glfw {
     /// additional extensions you can pass this list directly to the `VkInstanceCreateInfo` struct.
     ///
     /// Will return `None` if the API is unavailable.
+    #[cfg(feature = "vulkan")]
     pub fn get_required_instance_extensions(&self) -> Option<Vec<String>> {
         let mut len: c_uint = 0;
 
@@ -966,6 +971,7 @@ impl Glfw {
         })
     }
 
+    #[cfg(feature = "vulkan")]
     pub fn get_instance_proc_address_raw(&self, instance: VkInstance, procname: &str) -> VkProc {
         debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
         with_c_str(procname, |procname| {
@@ -1439,6 +1445,7 @@ impl Window {
     /// If Vulkan is not available on the machine, this function returns `NULL`
     ///
     /// Wrapper for `glfwGetInstanceProcAddress`
+    #[cfg(feature = "vulkan")]
     pub fn get_instance_proc_address(&mut self, instance: VkInstance, procname: &str) -> VkProc {
         if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
             self.make_current();
