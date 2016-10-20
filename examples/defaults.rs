@@ -34,8 +34,10 @@ fn main() {
     println!("OpenGL forward compatible: {:?}",  window.is_opengl_forward_compat());
     println!("OpenGL debug context: {:?}",       window.is_opengl_debug_context());
     println!("OpenGL profile: {:?}",             window.get_opengl_profile());
+    #[cfg(feature = "vulkan")]
     println!("Vulkan supported: {:?}",           glfw.vulkan_supported());
-    println!("Vulkan extensions required: {:?}", glfw.get_required_instance_extensions().unwrap_or(vec![]));
+    #[cfg(feature = "vulkan")]
+    println!("Vulkan required extensions: {:?}", glfw.get_required_instance_extensions().unwrap_or(vec![]));
 
     let gl_params = [
         (gl::RED_BITS,          None,   "red bits"          ),
