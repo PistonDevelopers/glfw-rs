@@ -402,36 +402,28 @@ impl Cursor {
 
         let image_data = image.into_vec();
 
-        let ptr = unsafe {
-            let glfw_image = ffi::GLFWimage {
-                width: width as c_int,
-                height: height as c_int,
-                pixels: image_data.as_ptr() as *const c_uchar
-            };
-
-            ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int)
+        let glfw_image = ffi::GLFWimage {
+            width: width as c_int,
+            height: height as c_int,
+            pixels: image_data.as_ptr() as *const c_uchar
         };
 
         Cursor {
-            ptr: ptr
+            ptr: unsafe { ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int) }
         }
     }
 
     pub fn create_from_pixels(pixels: Vec<u32>, width: u32, x_hotspot: u32, y_hotspot: u32) -> Cursor {
         let height = pixels.len() as u32 / width;
 
-        let ptr = unsafe {
-            let glfw_image = ffi::GLFWimage {
-                width: width as c_int,
-                height: height as c_int,
-                pixels: pixels.as_ptr() as *const c_uchar
-            };
-
-            ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int)
+        let glfw_image = ffi::GLFWimage {
+            width: width as c_int,
+            height: height as c_int,
+            pixels: pixels.as_ptr() as *const c_uchar
         };
 
         Cursor {
-            ptr: ptr
+            ptr: unsafe { ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int) }
         }
     }
 }
@@ -1453,6 +1445,11 @@ impl Window {
         unsafe { ffi::glfwRestoreWindow(self.ptr); }
     }
 
+    /// Wrapper for `glfwMaximizeWindow`
+    pub fn maximize(&mut self) {
+        unsafe { ffi::glfwMaximizeWindow(self.ptr) }
+    }
+
     /// Wrapper for `glfwShowWindow`.
     pub fn show(&mut self) {
         unsafe { ffi::glfwShowWindow(self.ptr); }
@@ -1626,12 +1623,50 @@ impl Window {
         unsafe { ffi::glfwSetInputMode(self.ptr, ffi::CURSOR, mode as c_int); }
     }
 
+    /// Wrapper for `glfwSetCursor` using `Cursor`
     pub fn set_cursor(&mut self, cursor: Option<&Cursor>) {
         unsafe {
             ffi::glfwSetCursor(self.ptr, match cursor {
                 Some(ref cursor) => cursor.ptr,
                 None => ptr::null_mut()
             })
+        }
+    }
+
+    #[cfg(feature = "image")]
+    pub fn set_icon(&mut self, images: Vec<image::RgbaImage>) {
+        // When the images are turned into Vecs, the lifetimes of them go into the Vec lifetime
+        // So they need to be kept until the function ends.
+        let image_data : Vec<(Vec<_>, u32, u32)> = images.into_iter().map(|image| {
+            let (width, height) = image.dimensions();
+
+            (image.into_vec(), width, height)
+        }).collect();
+
+        let glfw_images: Vec<ffi::GLFWimage> = image_data.iter().map(|ref data| {
+            ffi::GLFWimage {
+                width:  data.1 as c_int,
+                height: data.2 as c_int,
+                pixels: data.0.as_ptr() as *const c_uchar
+            }
+        }).collect();
+
+        unsafe {
+            ffi::glfwSetWindowIcon(self.ptr, glfw_images.len() as c_int, glfw_images.as_ptr() as *const ffi::GLFWimage)
+        }
+    }
+
+    pub fn set_icon_from_pixels(&mut self, pixels: Vec<(Vec<u32>, u32)>) {
+        let glfw_images: Vec<ffi::GLFWimage> = pixels.iter().map(|ref data| {
+            ffi::GLFWimage {
+                width: data.1 as c_int,
+                height: (data.0.len() as u32 / data.1) as c_int,
+                pixels: data.0.as_ptr() as *const c_uchar
+            }
+        }).collect();
+
+        unsafe {
+            ffi::glfwSetWindowIcon(self.ptr, glfw_images.len() as c_int, glfw_images.as_ptr() as *const ffi::GLFWimage)
         }
     }
 
