@@ -87,6 +87,8 @@ use std::slice;
 use std::path::PathBuf;
 use semver::Version;
 
+use vk_sys::Instance as VkInstance;
+
 /// Alias to `MouseButton1`, supplied for improved clarity.
 pub use self::MouseButton::Button1 as MouseButtonLeft;
 /// Alias to `MouseButton2`, supplied for improved clarity.
@@ -515,7 +517,7 @@ pub enum SwapInterval {
 pub type GLProc = ffi::GLFWglproc;
 
 // A Vulkan process address
-pub type VKProc = ffi::GLFWvkproc;
+pub type VkProc = ffi::GLFWvkproc;
 
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
@@ -961,6 +963,13 @@ impl Glfw {
         debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
         with_c_str(procname, |procname| {
             unsafe { ffi::glfwGetProcAddress(procname) }
+        })
+    }
+
+    pub fn get_instance_proc_address_raw(&self, instance: VkInstance, procname: &str) -> VkProc {
+        debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
+        with_c_str(procname, |procname| {
+            unsafe { ffi::glfwGetInstanceProcAddress(instance, procname) }
         })
     }
 
@@ -1416,6 +1425,26 @@ impl Window {
         }
 
         self.glfw.get_proc_address_raw(procname)
+    }
+
+    /// This function returns the address of the specified Vulkan core or extension function
+    /// for the specified instance. If instance is set to NULL it can return any function
+    /// exported from the Vulkan loader, including at least the following functions:
+    ///
+    /// * `vkEnumerateInstanceExtensionProperties`
+    /// * `vkEnumerateInstanceLayerProperties`
+    /// * `vkCreateInstance`
+    /// * `vkGetInstanceProcAddr`
+    ///
+    /// If Vulkan is not available on the machine, this function returns `NULL`
+    ///
+    /// Wrapper for `glfwGetInstanceProcAddress`
+    pub fn get_instance_proc_address(&mut self, instance: VkInstance, procname: &str) -> VkProc {
+        if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
+            self.make_current();
+        }
+
+        self.glfw.get_instance_proc_address_raw(instance, procname)
     }
 
     /// Wrapper for `glfwCreateWindow`.
