@@ -337,12 +337,13 @@ pub struct GLFWvidmode {
     pub refreshRate: c_int,
 }
 
+/// Pixels are 4-bytes each, RGBA
 #[allow(missing_copy_implementations)]
 #[repr(C)]
 pub struct GLFWimage {
     pub width: c_int,
     pub height: c_int,
-    pub pixels: *mut c_uchar,
+    pub pixels: *const c_uchar,
 }
 
 // C function bindings
