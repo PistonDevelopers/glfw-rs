@@ -25,7 +25,7 @@ fn main() {
 
     window.set_key_polling(true);
     window.make_current();
-    glfw.set_swap_interval(1);
+    glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
     while !window.should_close() {
         glfw.poll_events();
