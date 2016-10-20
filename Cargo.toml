@@ -24,5 +24,9 @@ version = "^3.2"
 optional = true
 version = "^0.2"
 
+[dependencies.image]
+optional = true
+version = "^0.10"
+
 [features]
 default = ["glfw-sys", "vk-sys"]
