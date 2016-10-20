@@ -1,7 +1,7 @@
 [package]
 authors = ["The glfw-rs developers."]
 description = "GLFW3 bindings and idiomatic wrapper for Rust."
-keywords = ["windowing", "opengl"]
+keywords = ["windowing", "opengl", "vulkan"]
 license = "Apache-2.0"
 name = "glfw"
 readme = "README.md"
@@ -29,4 +29,6 @@ optional = true
 version = "^0.10"
 
 [features]
-default = ["glfw-sys", "vk-sys"]
+all = ["image", "vulkan"]
+vulkan = ["vk-sys"]
+default = ["glfw-sys"]
