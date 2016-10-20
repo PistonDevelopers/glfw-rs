@@ -34,6 +34,7 @@ fn main() {
     println!("OpenGL forward compatible: {:?}", window.is_opengl_forward_compat());
     println!("OpenGL debug context: {:?}",      window.is_opengl_debug_context());
     println!("OpenGL profile: {:?}",            window.get_opengl_profile());
+    println!("Vulkan supported: {:?}",          glfw.vulkan_supported());
 
     let gl_params = [
         (gl::RED_BITS,          None,   "red bits"          ),
