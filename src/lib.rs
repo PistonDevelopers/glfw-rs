@@ -77,7 +77,9 @@ extern crate num;
 extern crate image;
 
 use libc::{c_char, c_double, c_float, c_int};
-use libc::{c_ushort, c_void, c_uchar, c_uint};
+use libc::{c_ushort, c_void, c_uchar};
+#[cfg(feature = "vulkan")]
+use libc::c_uint;
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::sync::mpsc::{channel, Receiver, Sender};
