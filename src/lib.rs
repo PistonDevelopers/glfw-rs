@@ -75,8 +75,8 @@ extern crate num;
 #[cfg(feature = "image")]
 extern crate image;
 
-use libc::{c_char, c_double, c_float, c_int, c_uchar};
-use libc::{c_ushort, c_void};
+use libc::{c_char, c_double, c_float, c_int};
+use libc::{c_ushort, c_void, c_uchar, c_uint};
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::sync::mpsc::{channel, Receiver, Sender};
@@ -926,6 +926,31 @@ impl Glfw {
                 ffi::glfwExtensionSupported(extension) == ffi::TRUE
             })
         }
+    }
+
+    /// Wrapper for `glfwGetRequiredInstanceExtensions`
+    ///
+    /// This function returns a Vector of names of Vulkan instance extensions
+    /// required by GLFW for creating Vulkan surfaces for GLFW windows. If successful,
+    /// the list will always contains `VK_KHR_surface`, so if you don't require any
+    /// additional extensions you can pass this list directly to the `VkInstanceCreateInfo` struct.
+    ///
+    /// Will return `None` if the API is unavailable.
+    pub fn get_required_instance_extensions(&self) -> Option<Vec<String>> {
+        let mut len: c_uint = 0;
+
+        unsafe {
+            let raw_extensions: *const *const c_char = ffi::glfwGetRequiredInstanceExtensions(&mut len as *mut c_uint);
+
+            if !raw_extensions.is_null() {
+                return Some(slice::from_raw_parts(raw_extensions, len as usize)
+                    .iter()
+                    .map(|extensions| string_from_c_str(*extensions))
+                    .collect());
+            }
+        }
+
+        None
     }
 
     /// Returns the address of the specified client API or extension function if
