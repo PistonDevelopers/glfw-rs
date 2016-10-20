@@ -72,8 +72,10 @@ extern crate bitflags;
 #[macro_use]
 extern crate enum_primitive;
 extern crate num;
+#[cfg(feature = "image")]
+extern crate image;
 
-use libc::{c_char, c_double, c_float, c_int};
+use libc::{c_char, c_double, c_float, c_int, c_uchar};
 use libc::{c_ushort, c_void};
 use std::ffi::{CStr, CString};
 use std::mem;
@@ -364,6 +366,74 @@ pub enum CursorMode {
     Normal                = ffi::CURSOR_NORMAL,
     Hidden                = ffi::CURSOR_HIDDEN,
     Disabled              = ffi::CURSOR_DISABLED,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum StandardCursor {
+    Arrow                 = ffi::ARROW_CURSOR,
+    IBeam                 = ffi::IBEAM_CURSOR,
+    Crosshair             = ffi::CROSSHAIR_CURSOR,
+    Hand                  = ffi::HAND_CURSOR,
+    HResize               = ffi::HRESIZE_CURSOR,
+    VResize               = ffi::VRESIZE_CURSOR
+}
+
+pub struct Cursor {
+    ptr: *mut ffi::GLFWcursor
+}
+
+impl Drop for Cursor {
+    fn drop(&mut self) {
+        unsafe { ffi::glfwDestroyCursor(self.ptr) }
+    }
+}
+
+impl Cursor {
+    pub fn standard(cursor: StandardCursor) -> Cursor {
+        Cursor {
+            ptr: unsafe { ffi::glfwCreateStandardCursor(cursor as c_int) }
+        }
+    }
+
+    #[cfg(feature = "image")]
+    pub fn create(image: image::RgbaImage, x_hotspot: u32, y_hotspot: u32) -> Cursor {
+        let (width, height) = image.dimensions();
+
+        let image_data = image.into_vec();
+
+        let ptr = unsafe {
+            let glfw_image = ffi::GLFWimage {
+                width: width as c_int,
+                height: height as c_int,
+                pixels: image_data.as_ptr() as *const c_uchar
+            };
+
+            ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int)
+        };
+
+        Cursor {
+            ptr: ptr
+        }
+    }
+
+    pub fn create_from_pixels(pixels: Vec<u32>, width: u32, x_hotspot: u32, y_hotspot: u32) -> Cursor {
+        let height = pixels.len() as u32 / width;
+
+        let ptr = unsafe {
+            let glfw_image = ffi::GLFWimage {
+                width: width as c_int,
+                height: height as c_int,
+                pixels: pixels.as_ptr() as *const c_uchar
+            };
+
+            ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int)
+        };
+
+        Cursor {
+            ptr: ptr
+        }
+    }
 }
 
 /// Describes a single video mode.
@@ -1541,6 +1611,15 @@ impl Window {
     /// Wrapper for `glfwSetInputMode` called with `CURSOR`.
     pub fn set_cursor_mode(&mut self, mode: CursorMode) {
         unsafe { ffi::glfwSetInputMode(self.ptr, ffi::CURSOR, mode as c_int); }
+    }
+
+    pub fn set_cursor(&mut self, cursor: Option<&Cursor>) {
+        unsafe {
+            ffi::glfwSetCursor(self.ptr, match cursor {
+                Some(ref cursor) => cursor.ptr,
+                None => ptr::null_mut()
+            })
+        }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_KEYS`.
