@@ -469,6 +469,13 @@ pub enum ContextCreationApi {
     Egl                   = ffi::EGL_CONTEXT_API
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum SwapInterval {
+    None,
+    Adaptive,
+    Sync(u32)
+}
+
 /// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
 
@@ -855,8 +862,14 @@ impl Glfw {
     /// the current context and returning from `Window::swap_buffers`.
     ///
     /// Wrapper for `glfwSwapInterval`.
-    pub fn set_swap_interval(&mut self, interval: u32) {
-        unsafe { ffi::glfwSwapInterval(interval as c_int); }
+    pub fn set_swap_interval(&mut self, interval: SwapInterval) {
+        unsafe {
+            ffi::glfwSwapInterval(match interval {
+                SwapInterval::None           =>  0       as c_int,
+                SwapInterval::Adaptive       => -1       as c_int,
+                SwapInterval::Sync(interval) => interval as c_int
+            })
+        }
     }
 
     /// Returns `true` if the specified OpenGL or context creation API extension
