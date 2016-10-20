@@ -1721,6 +1721,7 @@ impl Window {
     /// Multiple images can be specified for allowing the OS to choose the best size where necessary.
     ///
     /// Example:
+    ///
     /// ```
     ///if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
     ///    window.set_icon(vec![
