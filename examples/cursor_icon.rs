@@ -32,7 +32,7 @@ fn main() {
 
     if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
         //Resize icon while preserving aspect ratio
-        let resized_icon = imageops::resize(&icon, 32, icon.height() / icon.width() * 32, image::imageops::Lanczos3);
+        let resized_icon = imageops::resize(&icon, 32, icon.height() / icon.width() * 32, image::imageops::Nearest);
 
         let cursor = glfw::Cursor::create(resized_icon, 0, 0);
 

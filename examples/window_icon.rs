@@ -33,9 +33,9 @@ fn main() {
     if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
         //Set the icon to be multiple sizes of the same icon to account for scaling
         window.set_icon(vec![
-            imageops::resize(&icon, 16, 16, image::imageops::Lanczos3),
-            imageops::resize(&icon, 32, 32, image::imageops::Lanczos3),
-            imageops::resize(&icon, 48, 48, image::imageops::Lanczos3)
+            imageops::resize(&icon, 16, 16, image::imageops::Nearest),
+            imageops::resize(&icon, 32, 32, image::imageops::Nearest),
+            imageops::resize(&icon, 48, 48, image::imageops::Nearest)
         ]);
     }
 
