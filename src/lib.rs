@@ -392,6 +392,13 @@ pub enum ContextReleaseBehavior {
     None                  = ffi::RELEASE_BEHAVIOR_NONE
 }
 
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum ContextCreationApi {
+    Native                = ffi::NATIVE_CONTEXT_API,
+    Egl                   = ffi::EGL_CONTEXT_API
+}
+
 /// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
 
@@ -601,22 +608,33 @@ impl Glfw {
     /// glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
     /// ~~~
     pub fn window_hint(&mut self, hint: WindowHint) {
+        //This is just a simple function to unwrap the option and convert it to `c_int` or use `GLFW_DONT_CARE`,
+        //then call `glfwWindowHint` with the result. It was required because `GLFW_DONT_CARE` is signed,
+        //so `value.unwrap_or(ffi::DONT_CARE)` wouldn't work because of the type difference.
+        #[inline(always)]
+        unsafe fn dont_care_hint(hint: c_int, value: Option<u32>) {
+            ffi::glfwWindowHint(hint, match value {
+                Some(v) => v as c_int,
+                None => ffi::DONT_CARE
+            })
+        }
+
         match hint {
-            WindowHint::RedBits(bits)                    => unsafe { ffi::glfwWindowHint(ffi::RED_BITS,                 bits as c_int) },
-            WindowHint::GreenBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::GREEN_BITS,               bits as c_int) },
-            WindowHint::BlueBits(bits)                   => unsafe { ffi::glfwWindowHint(ffi::BLUE_BITS,                bits as c_int) },
-            WindowHint::AlphaBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::ALPHA_BITS,               bits as c_int) },
-            WindowHint::DepthBits(bits)                  => unsafe { ffi::glfwWindowHint(ffi::DEPTH_BITS,               bits as c_int) },
-            WindowHint::StencilBits(bits)                => unsafe { ffi::glfwWindowHint(ffi::STENCIL_BITS,             bits as c_int) },
-            WindowHint::AccumRedBits(bits)               => unsafe { ffi::glfwWindowHint(ffi::ACCUM_RED_BITS,           bits as c_int) },
-            WindowHint::AccumGreenBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_GREEN_BITS,         bits as c_int) },
-            WindowHint::AccumBlueBits(bits)              => unsafe { ffi::glfwWindowHint(ffi::ACCUM_BLUE_BITS,          bits as c_int) },
-            WindowHint::AccumAlphaBits(bits)             => unsafe { ffi::glfwWindowHint(ffi::ACCUM_ALPHA_BITS,         bits as c_int) },
-            WindowHint::AuxBuffers(num_buffers)          => unsafe { ffi::glfwWindowHint(ffi::AUX_BUFFERS,              num_buffers as c_int) },
+            WindowHint::RedBits(bits)                    => unsafe { dont_care_hint(ffi::RED_BITS,                      bits) },
+            WindowHint::GreenBits(bits)                  => unsafe { dont_care_hint(ffi::GREEN_BITS,                    bits) },
+            WindowHint::BlueBits(bits)                   => unsafe { dont_care_hint(ffi::BLUE_BITS,                     bits) },
+            WindowHint::AlphaBits(bits)                  => unsafe { dont_care_hint(ffi::ALPHA_BITS,                    bits) },
+            WindowHint::DepthBits(bits)                  => unsafe { dont_care_hint(ffi::DEPTH_BITS,                    bits) },
+            WindowHint::StencilBits(bits)                => unsafe { dont_care_hint(ffi::STENCIL_BITS,                  bits) },
+            WindowHint::AccumRedBits(bits)               => unsafe { dont_care_hint(ffi::ACCUM_RED_BITS,                bits) },
+            WindowHint::AccumGreenBits(bits)             => unsafe { dont_care_hint(ffi::ACCUM_GREEN_BITS,              bits) },
+            WindowHint::AccumBlueBits(bits)              => unsafe { dont_care_hint(ffi::ACCUM_BLUE_BITS,               bits) },
+            WindowHint::AccumAlphaBits(bits)             => unsafe { dont_care_hint(ffi::ACCUM_ALPHA_BITS,              bits) },
+            WindowHint::AuxBuffers(num_buffers)          => unsafe { dont_care_hint(ffi::AUX_BUFFERS,                   num_buffers) },
+            WindowHint::Samples(num_samples)             => unsafe { dont_care_hint(ffi::SAMPLES,                       num_samples) },
+            WindowHint::RefreshRate(rate)                => unsafe { dont_care_hint(ffi::REFRESH_RATE,                  rate) },
             WindowHint::Stereo(is_stereo)                => unsafe { ffi::glfwWindowHint(ffi::STEREO,                   is_stereo as c_int) },
-            WindowHint::Samples(num_samples)             => unsafe { ffi::glfwWindowHint(ffi::SAMPLES,                  num_samples as c_int) },
             WindowHint::SRgbCapable(is_capable)          => unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE,             is_capable as c_int) },
-            WindowHint::RefreshRate(rate)                => unsafe { ffi::glfwWindowHint(ffi::REFRESH_RATE,             rate as c_int) },
             WindowHint::ClientApi(api)                   => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,               api as c_int) },
             WindowHint::ContextVersionMajor(major)       => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR,    major as c_int) },
             WindowHint::ContextVersionMinor(minor)       => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR,    minor as c_int) },
@@ -634,7 +652,7 @@ impl Glfw {
             WindowHint::AutoIconify(auto_iconify)        => unsafe { ffi::glfwWindowHint(ffi::AUTO_ICONIFY,             auto_iconify as c_int) },
             WindowHint::Floating(is_floating)            => unsafe { ffi::glfwWindowHint(ffi::FLOATING,                 is_floating as c_int) },
             WindowHint::ContextNoError(is_no_error)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_NO_ERROR,         is_no_error as c_int) },
-            WindowHint::ContextCreationApi(has_api)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     has_api as c_int) },
+            WindowHint::ContextCreationApi(api)          => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     api as c_int) },
             WindowHint::ContextReleaseBehavior(behavior) => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int) },
             WindowHint::DoubleBuffer(is_dbuffered)       => unsafe { ffi::glfwWindowHint(ffi::DOUBLEBUFFER,             is_dbuffered as c_int) },
         }
@@ -977,39 +995,39 @@ impl fmt::Debug for VidMode {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum WindowHint {
     /// Specifies the desired bit depth of the red component of the default framebuffer.
-    RedBits(u32),
+    RedBits(Option<u32>),
     /// Specifies the desired bit depth of the green component of the default framebuffer.
-    GreenBits(u32),
+    GreenBits(Option<u32>),
     /// Specifies the desired bit depth of the blue component of the default framebuffer.
-    BlueBits(u32),
+    BlueBits(Option<u32>),
     /// Specifies the desired bit depth of the alpha component of the default framebuffer.
-    AlphaBits(u32),
+    AlphaBits(Option<u32>),
     /// Specifies the desired bit depth of the depth component of the default framebuffer.
-    DepthBits(u32),
+    DepthBits(Option<u32>),
     /// Specifies the desired bit depth of the stencil component of the default framebuffer.
-    StencilBits(u32),
+    StencilBits(Option<u32>),
     /// Specifies the desired bit depth of the red component of the accumulation framebuffer.
-    AccumRedBits(u32),
+    AccumRedBits(Option<u32>),
     /// Specifies the desired bit depth of the green component of the accumulation framebuffer.
-    AccumGreenBits(u32),
+    AccumGreenBits(Option<u32>),
     /// Specifies the desired bit depth of the blue component of the accumulation framebuffer.
-    AccumBlueBits(u32),
+    AccumBlueBits(Option<u32>),
     /// Specifies the desired bit depth of the alpha component of the accumulation framebuffer.
-    AccumAlphaBits(u32),
+    AccumAlphaBits(Option<u32>),
     /// Specifies the desired number of auxiliary buffers.
-    AuxBuffers(u32),
+    AuxBuffers(Option<u32>),
     /// Specifies whether to use stereoscopic rendering.
     Stereo(bool),
     /// Specifies the desired number of samples to use for multisampling. Zero
     /// disables multisampling.
-    Samples(u32),
+    Samples(Option<u32>),
     /// Specifies whether the framebuffer should be sRGB capable.
     SRgbCapable(bool),
-    /// Specifies the desired refresh rate for full screen windows. If set to
-    /// zero, the highest available refresh rate will be used.
+    /// Specifies the desired refresh rate for full screen windows. If set to `None`,
+    /// the highest available refresh rate will be used.
     ///
     /// This hint is ignored for windowed mode windows.
-    RefreshRate(u32),
+    RefreshRate(Option<u32>),
     /// Specifies which `ClientApi` to create the context for.
     ClientApi(ClientApiHint),
     /// Specifies the major client API version that the created context must be
@@ -1081,8 +1099,8 @@ pub enum WindowHint {
     /// Specifies whether the OpenGL or OpenGL ES contexts do not emit errors,
     /// allowing for better performance in some situations.
     ContextNoError(bool),
-    /// Specifies whether a new context can be created at runtime
-    ContextCreationApi(bool),
+    /// Specifies which context creation API to use to create the context.
+    ContextCreationApi(ContextCreationApi),
     /// Specifies the behavior of the OpenGL pipeline when a context is transferred between threads
     ContextReleaseBehavior(ContextReleaseBehavior),
     /// Specifies whether the framebuffer should be double buffered.

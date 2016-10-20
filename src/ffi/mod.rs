@@ -271,6 +271,9 @@ pub const ANY_RELEASE_BEHAVIOR         : c_int = 0;
 pub const RELEASE_BEHAVIOR_FLUSH       : c_int = 0x00035001;
 pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002;
 
+pub const NATIVE_CONTEXT_API           : c_int = 0x00036001;
+pub const EGL_CONTEXT_API              : c_int = 0x00036002;
+
 pub const ARROW_CURSOR                 : c_int = 0x00036001; // TODO: Not yet exposed
 pub const IBEAM_CURSOR                 : c_int = 0x00036002; // TODO: Not yet exposed
 pub const CROSSHAIR_CURSOR             : c_int = 0x00036003; // TODO: Not yet exposed
@@ -281,7 +284,7 @@ pub const VRESIZE_CURSOR               : c_int = 0x00036006; // TODO: Not yet ex
 pub const CONNECTED                    : c_int = 0x00040001;
 pub const DISCONNECTED                 : c_int = 0x00040002;
 
-pub const DONT_CARE                    : c_int = -1; // TODO: Not yet exposed
+pub const DONT_CARE                    : c_int = -1; //negative one is the correct value
 
 pub type GLFWglproc             = *const c_void;
 pub type GLFWvkproc             = *const c_void;
