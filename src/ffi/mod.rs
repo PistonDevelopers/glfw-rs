@@ -454,7 +454,7 @@ extern "C" {
     // Vulkan support
 
     pub fn glfwVulkanSupported() -> c_int;
-    pub fn glfwGetRequiredInstanceExtensions(count: *mut c_int) -> *const *const c_char;
+    pub fn glfwGetRequiredInstanceExtensions(count: *mut c_uint) -> *const *const c_char;
     pub fn glfwGetInstanceProcAddress(instance: VkInstance, procname: *const c_char) -> GLFWvkproc;
     pub fn glfwGetPhysicalDevicePresentationSupport(instance: VkInstance, device: VkPhysicalDevice, queuefamily: c_int) -> c_int;
     pub fn glfwCreateWindowSurface(instance: VkInstance, window: *mut GLFWwindow, allocator: *const VkAllocationCallbacks, surface: *mut VkSurfaceKHR) -> VkResult;
