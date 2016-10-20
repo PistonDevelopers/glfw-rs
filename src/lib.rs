@@ -647,6 +647,11 @@ impl Glfw {
         }
     }
 
+    /// Queries Vulkan support via `glfwVulkanSupported`
+    pub fn vulkan_supported(&self) -> bool {
+        unsafe { ffi::glfwVulkanSupported() == ffi::TRUE }
+    }
+
     /// This is used to set the window hints for the next call to
     /// `Glfw::create_window`. The hints can be reset to their default values
     /// using calling the `Glfw::default_window_hints` function.
@@ -1299,13 +1304,6 @@ impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
             _ => None,
         }
     }
-}
-
-/// Checks is the Vulkan API is supported by calling `glfwVulkanSupported`
-///
-/// Note that GLFW must be compiled with `GLFW_INCLUDE_VULKAN`
-pub fn vulkan_supported() -> bool {
-    unsafe { ffi::glfwVulkanSupported() == ffi::TRUE }
 }
 
 /// A struct that wraps a `*GLFWwindow` handle.
