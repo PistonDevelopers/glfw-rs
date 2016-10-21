@@ -665,6 +665,14 @@ impl Glfw {
         }
     }
 
+    /// Sets the joystick callback, overwriting the previous one stored
+    pub fn set_joystick_callback<UserData: 'static>(&mut self, callback: Option<JoystickCallback<UserData>>) {
+        match callback {
+            Some(f) => callbacks::joystick::set(f),
+            None    => callbacks::joystick::unset(),
+        }
+    }
+
     /// Supplies the primary monitor to the closure provided, if it exists.
     /// This is usually the monitor where elements like the Windows task bar or
     /// the OS X menu bar is located.
@@ -2107,6 +2115,18 @@ pub struct Joystick {
     pub id: JoystickId,
     pub glfw: Glfw,
 }
+
+/// Joystick events.
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum JoystickEvent {
+    Connected                   = ffi::CONNECTED,
+    Disconnected                = ffi::DISCONNECTED,
+}
+
+/// An joystick callback. This can be supplied with some user data to be passed
+/// to the callback function when it is triggered.
+pub type JoystickCallback<UserData> = Callback<fn(JoystickId, JoystickEvent, &UserData), UserData>;
 
 impl Joystick {
     /// Wrapper for `glfwJoystickPresent`.
