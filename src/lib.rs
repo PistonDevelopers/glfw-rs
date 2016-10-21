@@ -369,6 +369,15 @@ pub fn log_errors(_: Error, description: String, _: &()) {
 pub static LOG_ERRORS: Option<ErrorCallback<()>> =
     Some(Callback { f: log_errors as fn(Error, String, &()), data: () });
 
+/// When not using the "image" library, or if you just want to,
+/// you can specify an image from its raw pixel data using this structure.
+pub struct PixelImage {
+    pub width: u32,
+    pub height: u32,
+    /// Pixels are 4 bytes each, one byte for each RGBA subpixel.
+    pub pixels: Vec<u32>
+}
+
 /// Cursor modes.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -453,13 +462,11 @@ impl Cursor {
     /// The cursor hotspot is specified in pixels, relative to the upper-left
     /// corner of the cursor image. Like all other coordinate systems in GLFW,
     /// the X-axis points to the right and the Y-axis points down.
-    pub fn create_from_pixels(pixels: Vec<u32>, width: u32, x_hotspot: u32, y_hotspot: u32) -> Cursor {
-        let height = pixels.len() as u32 / width;
-
+    pub fn create_from_pixels(image: PixelImage, x_hotspot: u32, y_hotspot: u32) -> Cursor {
         let glfw_image = ffi::GLFWimage {
-            width: width as c_int,
-            height: height as c_int,
-            pixels: pixels.as_ptr() as *const c_uchar
+            width: image.width as c_int,
+            height: image.height as c_int,
+            pixels: image.pixels.as_ptr() as *const c_uchar
         };
 
         Cursor {
@@ -1848,12 +1855,12 @@ impl Window {
     /// and the second element is the width of the image in pixels.
     ///
     /// The height is calculated automatically from the width and size of the pixel vector.
-    pub fn set_icon_from_pixels(&mut self, pixels: Vec<(Vec<u32>, u32)>) {
-        let glfw_images: Vec<ffi::GLFWimage> = pixels.iter().map(|ref data| {
+    pub fn set_icon_from_pixels(&mut self, images: Vec<PixelImage>) {
+        let glfw_images: Vec<ffi::GLFWimage> = images.iter().map(|image: &PixelImage| {
             ffi::GLFWimage {
-                width: data.1 as c_int,
-                height: (data.0.len() as u32 / data.1) as c_int,
-                pixels: data.0.as_ptr() as *const c_uchar
+                width: image.width as c_int,
+                height: image.height as c_int,
+                pixels: image.pixels.as_ptr() as *const c_uchar
             }
         }).collect();
 
