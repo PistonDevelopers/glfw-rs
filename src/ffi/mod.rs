@@ -463,7 +463,7 @@ extern "C" {
     #[cfg(feature = "vulkan")]
     pub fn glfwGetInstanceProcAddress(instance: VkInstance, procname: *const c_char) -> GLFWvkproc;
     #[cfg(feature = "vulkan")]
-    pub fn glfwGetPhysicalDevicePresentationSupport(instance: VkInstance, device: VkPhysicalDevice, queuefamily: c_int) -> c_int;
+    pub fn glfwGetPhysicalDevicePresentationSupport(instance: VkInstance, device: VkPhysicalDevice, queuefamily: c_uint) -> c_int;
     #[cfg(feature = "vulkan")]
     pub fn glfwCreateWindowSurface(instance: VkInstance, window: *mut GLFWwindow, allocator: *const VkAllocationCallbacks, surface: *mut VkSurfaceKHR) -> VkResult;
 
