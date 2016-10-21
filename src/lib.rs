@@ -1632,6 +1632,17 @@ impl Window {
         }
     }
 
+    pub fn set_monitor(&mut self, mode: WindowMode, xpos: u32, ypos: u32, width: u32, height: u32, refresh_rate: Option<u32>) {
+        let monitor_ptr = if let WindowMode::FullScreen(ref monitor) = mode { monitor.ptr } else { ptr::null_mut() };
+
+        unsafe {
+            ffi::glfwSetWindowMonitor(self.ptr, monitor_ptr, xpos as c_int, ypos as c_int, width as c_int, height as c_int, match refresh_rate {
+                Some(value) => value as c_int,
+                None => ffi::DONT_CARE
+            })
+        }
+    }
+
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
     pub fn is_focused(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::FOCUSED) == ffi::TRUE }
