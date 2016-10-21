@@ -20,15 +20,15 @@ semver = "0.2"
 optional = true
 version = "^3.2"
 
-[dependencies.vk-sys]
-optional = true
-version = "^0.2"
-
 [dependencies.image]
 optional = true
 version = "^0.10"
 
+[dependencies.vk-sys]
+optional = true
+version = "^0.2"
+
 [features]
 all = ["image", "vulkan"]
-vulkan = ["vk-sys"]
 default = ["glfw-sys"]
+vulkan = ["vk-sys"]
