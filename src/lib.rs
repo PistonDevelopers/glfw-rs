@@ -91,7 +91,11 @@ use std::path::PathBuf;
 use semver::Version;
 
 #[cfg(feature = "vulkan")]
-use vk_sys::Instance as VkInstance;
+use vk_sys::{
+    self as vk,
+    Instance as VkInstance,
+    PhysicalDevice as VkPhysicalDevice
+};
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
 pub use self::MouseButton::Button1 as MouseButtonLeft;
@@ -973,12 +977,35 @@ impl Glfw {
         })
     }
 
+    /// This function returns the address of the specified Vulkan core or extension function
+    /// for the specified instance. If instance is set to NULL it can return any function
+    /// exported from the Vulkan loader, including at least the following functions:
+    ///
+    /// * `vkEnumerateInstanceExtensionProperties`
+    /// * `vkEnumerateInstanceLayerProperties`
+    /// * `vkCreateInstance`
+    /// * `vkGetInstanceProcAddr`
+    ///
+    /// If Vulkan is not available on the machine, this function returns `NULL`
+    ///
+    /// Wrapper for `glfwGetInstanceProcAddress`
     #[cfg(feature = "vulkan")]
     pub fn get_instance_proc_address_raw(&self, instance: VkInstance, procname: &str) -> VkProc {
+        //TODO: Determine if this assertion is required? It doesn't seem to be required for vkCreateInstance,
+        //TODO: but it might be needed for other pointers.
         debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
         with_c_str(procname, |procname| {
             unsafe { ffi::glfwGetInstanceProcAddress(instance, procname) }
         })
+    }
+
+    /// This function returns whether the specified queue family of the specified
+    /// physical device supports presentation to the platform GLFW was built for.
+    ///
+    /// Wrapper for `glfwGetPhysicalDevicePresentationSupport`
+    #[cfg(feature = "vulkan")]
+    pub fn get_physical_device_presentation_support_raw(&self, instance: VkInstance, device: VkPhysicalDevice, queue_family: u32) -> bool {
+        vk::TRUE == unsafe { ffi::glfwGetPhysicalDevicePresentationSupport(instance, device, queue_family as c_uint) as u32 }
     }
 
     /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
@@ -1449,11 +1476,22 @@ impl Window {
     /// Wrapper for `glfwGetInstanceProcAddress`
     #[cfg(feature = "vulkan")]
     pub fn get_instance_proc_address(&mut self, instance: VkInstance, procname: &str) -> VkProc {
+        //TODO: Determine if setting this context as current is required? It doesn't seem to be required for vkCreateInstance,
+        //TODO: but it might be needed for other pointers.
         if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
             self.make_current();
         }
 
         self.glfw.get_instance_proc_address_raw(instance, procname)
+    }
+
+    /// This function returns whether the specified queue family of the specified
+    /// physical device supports presentation to the platform GLFW was built for.
+    ///
+    /// Wrapper for `glfwGetPhysicalDevicePresentationSupport`
+    #[cfg(feature = "vulkan")]
+    pub fn get_physical_device_presentation_support(&self, instance: VkInstance, device: VkPhysicalDevice, queue_family: u32) -> bool {
+        self.glfw.get_physical_device_presentation_support_raw(instance, device, queue_family)
     }
 
     /// Wrapper for `glfwCreateWindow`.
