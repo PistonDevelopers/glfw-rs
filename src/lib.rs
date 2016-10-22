@@ -1833,7 +1833,7 @@ impl Window {
     ///
     /// Example:
     ///
-    /// ```
+    /// ```ignore
     ///if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
     ///    window.set_icon(vec![
     ///        imageops::resize(&icon, 16, 16, image::imageops::Lanczos3),
