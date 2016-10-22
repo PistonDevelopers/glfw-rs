@@ -390,6 +390,7 @@ extern "C" {
     pub fn glfwHideWindow(window: *mut GLFWwindow);
     pub fn glfwGetWindowMonitor(window: *mut GLFWwindow) -> *mut GLFWmonitor;
     pub fn glfwGetWindowAttrib(window: *mut GLFWwindow, attrib: c_int) -> c_int;
+    pub fn glfwGetWindowFrameSize(window: *mut GLFWwindow, left: *mut c_int, top: *mut c_int, right: *mut c_int, bottom: *mut c_int);
     pub fn glfwSetWindowUserPointer(window: *mut GLFWwindow, pointer: *mut c_void);
     pub fn glfwGetWindowUserPointer(window: *mut GLFWwindow) -> *mut c_void;
     pub fn glfwSetWindowPosCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowposfun>) -> Option<GLFWwindowposfun>;

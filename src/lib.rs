@@ -1589,6 +1589,19 @@ impl Window {
         unsafe { ffi::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
     }
 
+    /// Wrapper for `glfwGetWindowFrameSize`
+    ///
+    /// Returns `(left, top, right, bottom)` edge window frame sizes, in screen coordinates.
+    pub fn get_frame_size(&self) -> (i32, i32, i32, i32) {
+        let (mut left, mut top, mut right, mut bottom): (i32, i32, i32, i32) = (0, 0, 0, 0);
+
+        unsafe {
+            ffi::glfwGetWindowFrameSize(self.ptr, &mut left as *mut c_int, &mut top as *mut c_int, &mut right as *mut c_int, &mut bottom as *mut c_int);
+        }
+
+        (left, top, right, bottom)
+    }
+
     /// Wrapper for `glfwGetFramebufferSize`.
     pub fn get_framebuffer_size(&self) -> (i32, i32) {
         unsafe {
@@ -1667,6 +1680,14 @@ impl Window {
                 None => ffi::DONT_CARE
             })
         }
+    }
+
+    /// Wrapper for `glfwFocusWindow`
+    ///
+    /// It is NOT recommended to use this function, as it steals focus from other applications
+    /// and can be extremely disruptive to the user.
+    pub fn focus(&mut self) {
+        unsafe { ffi::glfwFocusWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWindowAttrib` called with `FOCUSED`.
