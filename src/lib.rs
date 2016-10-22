@@ -20,7 +20,7 @@
 
 #![allow(non_upper_case_globals)]
 
-//! An ideomatic wrapper for the GLFW library.
+//! An idiomatic wrapper for the GLFW library.
 //!
 //! # Example
 //!
@@ -371,7 +371,7 @@ pub fn log_errors(_: Error, description: String, _: &()) {
 pub static LOG_ERRORS: Option<ErrorCallback<()>> =
     Some(Callback { f: log_errors as fn(Error, String, &()), data: () });
 
-/// When not using the "image" library, or if you just want to,
+/// When not using the `image` library, or if you just want to,
 /// you can specify an image from its raw pixel data using this structure.
 pub struct PixelImage {
     /// Width of the image in pixels
@@ -457,9 +457,7 @@ impl Cursor {
         }
     }
 
-    /// Creates a new cursor from the pixels provided via `glfwCreateCursor`
-    ///
-    /// The height of the image is calculated automatically from the width and pixel data.
+    /// Creates a new cursor from the `PixelImage` provided via `glfwCreateCursor`
     ///
     /// Note that the cursor image will be the same size as the image provided,
     /// so scaling it beforehand may be required.
@@ -554,7 +552,7 @@ pub struct Glfw;
 pub enum InitError {
     /// The library was already initialized.
     AlreadyInitialized,
-    /// An internal error occured when trying to initialize the library.
+    /// An internal error occurred when trying to initialize the library.
     Internal,
 }
 
@@ -590,7 +588,7 @@ impl fmt::Display for InitError {
 /// - If initialization was successful a `Glfw` token will be returned along
 ///   with a `Receiver` from which errors can be intercepted.
 /// - Subsequent calls to `init` will return `Err(AlreadyInitialized)`.
-/// - If an initialization error occured within the GLFW library
+/// - If an initialization error occurred within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
 pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) -> Result<Glfw, InitError> {
     // Helper to convert unsafe extern "C" fn to (safe) extern "C" fn.
@@ -882,7 +880,7 @@ impl Glfw {
         unsafe { ffi::glfwPollEvents(); }
     }
 
-    /// Sleep until at least one event has been recieved, and then perform the
+    /// Sleep until at least one event has been received, and then perform the
     /// equivalent of `Glfw::poll_events`.
     ///
     /// Wrapper for `glfwWaitEvents`.
@@ -1891,11 +1889,6 @@ impl Window {
 
     /// Sets the window icon via `glfwSetWindowIcon` from a set a set of vectors
     /// containing pixels in RGBA format (one pixel per 32-bit integer)
-    ///
-    /// For each image in the vector of images, the first element is the pixel data itself,
-    /// and the second element is the width of the image in pixels.
-    ///
-    /// The height is calculated automatically from the width and size of the pixel vector.
     pub fn set_icon_from_pixels(&mut self, images: Vec<PixelImage>) {
         let glfw_images: Vec<ffi::GLFWimage> = images.iter().map(|image: &PixelImage| {
             ffi::GLFWimage {
