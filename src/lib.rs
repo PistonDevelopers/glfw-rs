@@ -372,7 +372,9 @@ pub static LOG_ERRORS: Option<ErrorCallback<()>> =
 /// When not using the "image" library, or if you just want to,
 /// you can specify an image from its raw pixel data using this structure.
 pub struct PixelImage {
+    /// Width of the image in pixels
     pub width: u32,
+    /// Height of the image in pixels
     pub height: u32,
     /// Pixels are 4 bytes each, one byte for each RGBA subpixel.
     pub pixels: Vec<u32>
@@ -387,6 +389,7 @@ pub enum CursorMode {
     Disabled              = ffi::CURSOR_DISABLED,
 }
 
+/// Standard cursors provided by GLFW
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum StandardCursor {
@@ -531,7 +534,7 @@ pub enum SwapInterval {
 /// An OpenGL process address.
 pub type GLProc = ffi::GLFWglproc;
 
-// A Vulkan process address
+/// A Vulkan process address
 #[cfg(feature = "vulkan")]
 pub type VkProc = ffi::GLFWvkproc;
 
@@ -1385,6 +1388,7 @@ pub mod modifiers {
     }
 }
 
+/// Keyboard code returned by the OS
 pub type Scancode = c_int;
 
 /// Window event messages.
@@ -1651,6 +1655,7 @@ impl Window {
         }
     }
 
+    /// Wrapper for `glfwSetWindowMonitor`
     pub fn set_monitor(&mut self, mode: WindowMode, xpos: i32, ypos: i32, width: u32, height: u32, refresh_rate: Option<u32>) {
         let monitor_ptr = if let WindowMode::FullScreen(ref monitor) = mode { monitor.ptr } else { ptr::null_mut() };
 
