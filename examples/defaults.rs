@@ -17,6 +17,15 @@ extern crate glfw;
 
 use glfw::Context;
 
+#[cfg(feature = "vulkan")]
+fn vulkan_support(glfw: &mut glfw::Glfw) {
+    println!("Vulkan supported: {:?}",           glfw.vulkan_supported());
+    println!("Vulkan required extensions: {:?}", glfw.get_required_instance_extensions().unwrap_or(vec![]));
+}
+
+#[cfg(not(feature = "vulkan"))]
+fn vulkan_support(_: &mut glfw::Glfw) {}
+
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
@@ -34,10 +43,8 @@ fn main() {
     println!("OpenGL forward compatible: {:?}",  window.is_opengl_forward_compat());
     println!("OpenGL debug context: {:?}",       window.is_opengl_debug_context());
     println!("OpenGL profile: {:?}",             window.get_opengl_profile());
-    #[cfg(feature = "vulkan")]
-    println!("Vulkan supported: {:?}",           glfw.vulkan_supported());
-    #[cfg(feature = "vulkan")]
-    println!("Vulkan required extensions: {:?}", glfw.get_required_instance_extensions().unwrap_or(vec![]));
+
+    vulkan_support(&mut glfw);
 
     let gl_params = [
         (gl::RED_BITS,          None,   "red bits"          ),
