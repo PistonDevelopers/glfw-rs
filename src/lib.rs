@@ -885,7 +885,7 @@ impl Glfw {
         unsafe { ffi::glfwWaitEvents(); }
     }
 
-    /// Sleep until at least one event has been recieved, or until the specified
+    /// Sleep until at least one event has been received, or until the specified
     /// timeout is reached, and then perform the equivalent of `Glfw::poll_events`.
     /// Timeout is specified in seconds.
     ///
@@ -1372,13 +1372,16 @@ impl<'a> WindowMode<'a> {
     }
 }
 
-bitflags! {
-    #[doc = "Key modifiers"]
-    pub flags Modifiers: ::libc::c_int {
-        const Shift       = ::ffi::MOD_SHIFT,
-        const Control     = ::ffi::MOD_CONTROL,
-        const Alt         = ::ffi::MOD_ALT,
-        const Super       = ::ffi::MOD_SUPER
+/// Key modifiers (e.g., Shift, Control, Alt, Super)
+pub mod modifiers {
+    bitflags! {
+        #[doc = "Key modifiers"]
+        pub flags Modifiers: ::libc::c_int {
+            const Shift       = ::ffi::MOD_SHIFT,
+            const Control     = ::ffi::MOD_CONTROL,
+            const Alt         = ::ffi::MOD_ALT,
+            const Super       = ::ffi::MOD_SUPER
+        }
     }
 }
 
@@ -1394,12 +1397,13 @@ pub enum WindowEvent {
     Focus(bool),
     Iconify(bool),
     FramebufferSize(i32, i32),
-    MouseButton(MouseButton, Action, Modifiers),
+    MouseButton(MouseButton, Action, modifiers::Modifiers),
     CursorPos(f64, f64),
     CursorEnter(bool),
     Scroll(f64, f64),
-    Key(Key, Scancode, Action, Modifiers),
+    Key(Key, Scancode, Action, modifiers::Modifiers),
     Char(char),
+    CharModifiers(char, modifiers::Modifiers),
     FileDrop(Vec<PathBuf>),
 }
 
@@ -1647,7 +1651,7 @@ impl Window {
         }
     }
 
-    pub fn set_monitor(&mut self, mode: WindowMode, xpos: u32, ypos: u32, width: u32, height: u32, refresh_rate: Option<u32>) {
+    pub fn set_monitor(&mut self, mode: WindowMode, xpos: i32, ypos: i32, width: u32, height: u32, refresh_rate: Option<u32>) {
         let monitor_ptr = if let WindowMode::FullScreen(ref monitor) = mode { monitor.ptr } else { ptr::null_mut() };
 
         unsafe {
@@ -1930,6 +1934,11 @@ impl Window {
     /// Wrapper for `glfwSetCharCallback`.
     pub fn set_char_polling(&mut self, should_poll: bool) {
         set_window_callback!(self, should_poll, glfwSetCharCallback, char_callback);
+    }
+
+    /// Wrapper for `glfwSetCharModsCallback`
+    pub fn set_char_mods_polling(&mut self, should_poll: bool) {
+        set_window_callback!(self, should_poll, glfwSetCharModsCallback, char_mods_callback);
     }
 
     /// Wrapper for `glfwSetMouseButtonCallback`.
