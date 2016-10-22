@@ -242,6 +242,7 @@ pub enum Key {
     RightAlt                 = ffi::KEY_RIGHT_ALT,
     RightSuper               = ffi::KEY_RIGHT_SUPER,
     Menu                     = ffi::KEY_MENU,
+    Unknown                  = ffi::KEY_UNKNOWN
 }
 }
 
@@ -1756,6 +1757,7 @@ impl Window {
         self.set_framebuffer_size_polling(should_poll);
         self.set_key_polling(should_poll);
         self.set_char_polling(should_poll);
+        self.set_char_mods_polling(should_poll);
         self.set_mouse_button_polling(should_poll);
         self.set_cursor_pos_polling(should_poll);
         self.set_cursor_enter_polling(should_poll);
