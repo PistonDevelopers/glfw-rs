@@ -345,6 +345,7 @@ pub enum Error {
     VersionUnavailable          = ffi::VERSION_UNAVAILABLE,
     PlatformError               = ffi::PLATFORM_ERROR,
     FormatUnavailable           = ffi::FORMAT_UNAVAILABLE,
+    NoWindowContext             = ffi::NO_WINDOW_CONTEXT,
 }
 
 /// An error callback. This can be supplied with some user data to be passed to

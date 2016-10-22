@@ -209,6 +209,7 @@ pub const API_UNAVAILABLE              : c_int = 0x00010006;
 pub const VERSION_UNAVAILABLE          : c_int = 0x00010007;
 pub const PLATFORM_ERROR               : c_int = 0x00010008;
 pub const FORMAT_UNAVAILABLE           : c_int = 0x00010009;
+pub const NO_WINDOW_CONTEXT            : c_int = 0x0001000A;
 
 pub const FOCUSED                      : c_int = 0x00020001;
 pub const ICONIFIED                    : c_int = 0x00020002;
