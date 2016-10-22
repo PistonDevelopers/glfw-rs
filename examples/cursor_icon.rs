@@ -12,14 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #![cfg(feature = "image")]
+
 extern crate glfw;
 extern crate image;
 
 use glfw::{Action, Context, Key};
-use image::DynamicImage;
-use image::imageops;
+
+use image::{DynamicImage, open as open_image};
+use image::imageops::{resize, Nearest};
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -31,9 +32,9 @@ fn main() {
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
-    if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
+    if let DynamicImage::ImageRgba8(icon) = open_image("examples/icon.png").unwrap() {
         //Resize icon while preserving aspect ratio
-        let resized_icon = imageops::resize(&icon, 32, icon.height() / icon.width() * 32, image::imageops::Nearest);
+        let resized_icon = resize(&icon, 32, icon.height() / icon.width() * 32, Nearest);
 
         let cursor = glfw::Cursor::create(resized_icon, 0, 0);
 

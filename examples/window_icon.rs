@@ -12,14 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #![cfg(feature = "image")]
+
 extern crate glfw;
 extern crate image;
 
+use image::{DynamicImage, open as open_image};
+use image::imageops::{resize, Nearest};
+
 use glfw::{Action, Context, Key};
-use image::DynamicImage;
-use image::imageops;
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -31,12 +32,12 @@ fn main() {
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
-    if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
+    if let DynamicImage::ImageRgba8(icon) = open_image("examples/icon.png").unwrap() {
         //Set the icon to be multiple sizes of the same icon to account for scaling
         window.set_icon(vec![
-            imageops::resize(&icon, 16, 16, image::imageops::Nearest),
-            imageops::resize(&icon, 32, 32, image::imageops::Nearest),
-            imageops::resize(&icon, 48, 48, image::imageops::Nearest)
+            resize(&icon, 16, 16, Nearest),
+            resize(&icon, 32, 32, Nearest),
+            resize(&icon, 48, 48, Nearest)
         ]);
     }
 
