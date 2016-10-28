@@ -38,6 +38,7 @@ fn main() {
     window.set_framebuffer_size_polling(true);
     window.set_key_polling(true);
     window.set_char_polling(true);
+    window.set_char_mods_polling(true);
     window.set_mouse_button_polling(true);
     window.set_cursor_pos_polling(true);
     window.set_cursor_enter_polling(true);
