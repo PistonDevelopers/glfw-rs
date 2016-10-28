@@ -28,6 +28,10 @@ version = "^0.10"
 optional = true
 version = "^0.2"
 
+[dev-dependencies]
+vk-sys = "^0.2"
+image = "^0.10"
+
 [features]
 all = ["image", "vulkan"]
 default = ["glfw-sys"]
