@@ -59,6 +59,15 @@
 //!     }
 //! }
 //! ~~~
+//!
+//! # Cargo Features
+//!
+//! Use the `vulkan` feature flag to enable all Vulkan functions and types.
+//!
+//! Use the `image` feature flag to enable use of the [`image`](https://github.com/PistonDevelopers/image) library for cursors and icons.
+//!
+//! Use the `all` feature flag to enable both at the same time.
+//!
 
 // TODO: Document differences between GLFW and glfw-rs
 
