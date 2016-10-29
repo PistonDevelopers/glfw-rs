@@ -24,9 +24,9 @@ before_install:
   - sudo apt-get update -qq
 install: sudo apt-get install cmake libXxf86vm-dev libxinerama-dev libxcursor-dev
 script:
-  - cargo build
-  - cargo test
-  - cargo doc
+  - cargo build --features "all"
+  - cargo test --features "all"
+  - cargo doc --features "all"
 after_script:
   # the doc directory needs to be in the root for rust-ci
   - mv target/doc doc

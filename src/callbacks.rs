@@ -25,7 +25,7 @@ use std::path::PathBuf;
 
 use super::*;
 
-macro_rules! callback(
+macro_rules! callback (
     (
         type Args = ($($arg:ident: $arg_ty:ty),*);
         type Callback = $Callback:ident;
@@ -105,13 +105,28 @@ pub mod monitor {
     );
 }
 
+pub mod joystick {
+    use libc::{c_int};
+    use std::cell::RefCell;
+    use std::mem;
+
+    callback!(
+        type Args = (joystick_id: ::JoystickId, event: ::JoystickEvent);
+        type Callback = JoystickCallback;
+        let ext_set = |cb| unsafe { ::ffi::glfwSetJoystickCallback(cb) };
+        fn callback(joystick_id: c_int, event: c_int) {
+            (mem::transmute(joystick_id), mem::transmute(event))
+        }
+    );
+}
+
 unsafe fn get_sender<'a>(window: &'a *mut ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {
     mem::transmute(ffi::glfwGetWindowUserPointer(*window))
 }
 
 // Note that this macro creates a static function pointer rather than a plain function.
 // This makes it more ergonomic to embed in an Option; see set_window_callback! in lib.rs
-macro_rules! window_callback(
+macro_rules! window_callback (
     (fn $name:ident () => $event:ident) => (
         pub static $name: (extern "C" fn(window: *mut ffi::GLFWwindow)) = {
             extern "C" fn actual_callback(window: *mut ffi::GLFWwindow) {
@@ -137,10 +152,11 @@ window_callback!(fn window_refresh_callback()                                   
 window_callback!(fn window_focus_callback(focused: c_int)                                   => Focus(focused == ffi::TRUE));
 window_callback!(fn window_iconify_callback(iconified: c_int)                               => Iconify(iconified == ffi::TRUE));
 window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => FramebufferSize(width as i32, height as i32));
-window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton(mem::transmute(button), mem::transmute(action), Modifiers::from_bits(mods).unwrap()));
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton(mem::transmute(button), mem::transmute(action), modifiers::Modifiers::from_bits(mods).unwrap()));
 window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => CursorPos(xpos as f64, ypos as f64));
 window_callback!(fn cursor_enter_callback(entered: c_int)                                   => CursorEnter(entered == ffi::TRUE));
 window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => Scroll(xpos as f64, ypos as f64));
-window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key(mem::transmute(key), scancode, mem::transmute(action), Modifiers::from_bits(mods).unwrap()));
+window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key(mem::transmute(key), scancode, mem::transmute(action), modifiers::Modifiers::from_bits(mods).unwrap()));
 window_callback!(fn char_callback(character: c_uint)                                        => Char(::std::char::from_u32(character).unwrap()));
-window_callback!(fn drop_callback(num_paths: c_int, paths: *mut *const c_char)            => FileDrop(slice::from_raw_parts(paths, num_paths as usize).iter().map(|path| PathBuf::from(str::from_utf8(CStr::from_ptr(*path).to_bytes()).unwrap().to_string())).collect()));
+window_callback!(fn char_mods_callback(character: c_uint, mods: c_int)                      => CharModifiers(::std::char::from_u32(character).unwrap(), modifiers::Modifiers::from_bits(mods).unwrap()));
+window_callback!(fn drop_callback(num_paths: c_int, paths: *mut *const c_char)              => FileDrop(slice::from_raw_parts(paths, num_paths as usize).iter().map(|path| PathBuf::from(str::from_utf8(CStr::from_ptr(*path).to_bytes()).unwrap().to_string())).collect()));

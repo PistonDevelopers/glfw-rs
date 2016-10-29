@@ -1,4 +1,4 @@
-// Copyright 2013 The GLFW-RS Developers. For a full listing of the authors,
+// Copyright 2016 The GLFW-RS Developers. For a full listing of the authors,
 // refer to the AUTHORS file at the top-level directory of this distribution.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +12,34 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#![cfg(feature = "image")]
 
 extern crate glfw;
+extern crate image;
 
 use glfw::{Action, Context, Key};
+
+use image::{DynamicImage, open as open_image};
+use image::imageops::{resize, Nearest};
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(400, 400, "English 日本語 русский язык 官話", glfw::WindowMode::Windowed)
-        .expect("Failed to create GLFW window.");
+    let (mut window, events) = glfw.create_window(600, 600, "Cursor Icon Testing", glfw::WindowMode::Windowed)
+                                   .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
     window.make_current();
     glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
+
+    if let DynamicImage::ImageRgba8(icon) = open_image("examples/icon.png").unwrap() {
+        //Resize icon while preserving aspect ratio
+        let resized_icon = resize(&icon, 32, icon.height() / icon.width() * 32, Nearest);
+
+        let cursor = glfw::Cursor::create(resized_icon, 0, 0);
+
+        window.set_cursor(Some(cursor));
+    }
 
     while !window.should_close() {
         glfw.poll_events();

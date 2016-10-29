@@ -38,6 +38,7 @@ fn main() {
     window.set_framebuffer_size_polling(true);
     window.set_key_polling(true);
     window.set_char_polling(true);
+    window.set_char_mods_polling(true);
     window.set_mouse_button_polling(true);
     window.set_cursor_pos_polling(true);
     window.set_cursor_enter_polling(true);
@@ -70,6 +71,7 @@ fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::Win
         glfw::WindowEvent::Iconify(false)                 => println!("Time: {:?}, Window was maximised.", time),
         glfw::WindowEvent::FramebufferSize(w, h)          => println!("Time: {:?}, Framebuffer size: ({:?}, {:?})", time, w, h),
         glfw::WindowEvent::Char(character)                => println!("Time: {:?}, Character: {:?}", time, character),
+        glfw::WindowEvent::CharModifiers(character, mods) => println!("Time: {:?}, Character: {:?}, Modifiers: [{:?}]", time, character, mods),
         glfw::WindowEvent::MouseButton(btn, action, mods) => println!("Time: {:?}, Button: {:?}, Action: {:?}, Modifiers: [{:?}]", time, glfw::DebugAliases(btn), action, mods),
         glfw::WindowEvent::CursorPos(xpos, ypos)          => window.set_title(&format!("Time: {:?}, Cursor position: ({:?}, {:?})", time, xpos, ypos)),
         glfw::WindowEvent::CursorEnter(true)              => println!("Time: {:?}, Cursor entered window.", time),

@@ -1,4 +1,4 @@
-// Copyright 2013-2014 The GLFW-RS Developers. For a full listing of the authors,
+// Copyright 2013-2016 The GLFW-RS Developers. For a full listing of the authors,
 // refer to the AUTHORS file at the top-level directory of this distribution.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,17 @@
 
 #![allow(bad_style)] // yeah yeah, but it's ffi
 
-use libc::{c_char, c_double, c_float, c_int};
+use libc::{c_char, c_double, c_float, c_int, c_ulonglong};
 use libc::{c_uchar, c_uint, c_ushort, c_void};
+
+#[cfg(feature = "vulkan")]
+use vk_sys::{
+    Instance as VkInstance,
+    PhysicalDevice as VkPhysicalDevice,
+    AllocationCallbacks as VkAllocationCallbacks,
+    Result as VkResult,
+    SurfaceKHR as VkSurfaceKHR
+};
 
 mod link;
 
@@ -29,6 +38,8 @@ pub const TRUE                         : c_int = 1;
 pub const RELEASE                      : c_int = 0;
 pub const PRESS                        : c_int = 1;
 pub const REPEAT                       : c_int = 2;
+
+pub const KEY_UNKNOWN                  : c_int = -1;
 
 pub const KEY_SPACE                    : c_int = 32;
 pub const KEY_APOSTROPHE               : c_int = 39;
@@ -198,6 +209,7 @@ pub const API_UNAVAILABLE              : c_int = 0x00010006;
 pub const VERSION_UNAVAILABLE          : c_int = 0x00010007;
 pub const PLATFORM_ERROR               : c_int = 0x00010008;
 pub const FORMAT_UNAVAILABLE           : c_int = 0x00010009;
+pub const NO_WINDOW_CONTEXT            : c_int = 0x0001000A;
 
 pub const FOCUSED                      : c_int = 0x00020001;
 pub const ICONIFIED                    : c_int = 0x00020002;
@@ -206,6 +218,7 @@ pub const VISIBLE                      : c_int = 0x00020004;
 pub const DECORATED                    : c_int = 0x00020005;
 pub const AUTO_ICONIFY                 : c_int = 0x00020006;
 pub const FLOATING                     : c_int = 0x00020007;
+pub const MAXIMIZED                    : c_int = 0x00020008;
 
 pub const RED_BITS                     : c_int = 0x00021001;
 pub const GREEN_BITS                   : c_int = 0x00021002;
@@ -222,7 +235,7 @@ pub const STEREO                       : c_int = 0x0002100C;
 pub const SAMPLES                      : c_int = 0x0002100D;
 pub const SRGB_CAPABLE                 : c_int = 0x0002100E;
 pub const REFRESH_RATE                 : c_int = 0x0002100F;
-pub const DOUBLEBUFFER                 : c_int = 0x00021010; // TODO: Not yet exposed
+pub const DOUBLEBUFFER                 : c_int = 0x00021010;
 
 pub const CLIENT_API                   : c_int = 0x00022001;
 pub const CONTEXT_VERSION_MAJOR        : c_int = 0x00022002;
@@ -232,8 +245,11 @@ pub const CONTEXT_ROBUSTNESS           : c_int = 0x00022005;
 pub const OPENGL_FORWARD_COMPAT        : c_int = 0x00022006;
 pub const OPENGL_DEBUG_CONTEXT         : c_int = 0x00022007;
 pub const OPENGL_PROFILE               : c_int = 0x00022008;
-pub const CONTEXT_RELEASE_BEHAVIOR     : c_int = 0x00022009; // TODO: Not yet exposed
+pub const CONTEXT_RELEASE_BEHAVIOR     : c_int = 0x00022009;
+pub const CONTEXT_NO_ERROR             : c_int = 0x0002200A;
+pub const CONTEXT_CREATION_API         : c_int = 0x0002200B;
 
+pub const NO_API                       : c_int = 0x00000000;
 pub const OPENGL_API                   : c_int = 0x00030001;
 pub const OPENGL_ES_API                : c_int = 0x00030002;
 
@@ -253,9 +269,12 @@ pub const CURSOR_NORMAL                : c_int = 0x00034001;
 pub const CURSOR_HIDDEN                : c_int = 0x00034002;
 pub const CURSOR_DISABLED              : c_int = 0x00034003;
 
-pub const ANY_RELEASE_BEHAVIOR         : c_int = 0; // TODO: Not yet exposed
-pub const RELEASE_BEHAVIOR_FLUSH       : c_int = 0x00035001; // TODO: Not yet exposed
-pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002; // TODO: Not yet exposed
+pub const ANY_RELEASE_BEHAVIOR         : c_int = 0;
+pub const RELEASE_BEHAVIOR_FLUSH       : c_int = 0x00035001;
+pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002;
+
+pub const NATIVE_CONTEXT_API           : c_int = 0x00036001;
+pub const EGL_CONTEXT_API              : c_int = 0x00036002;
 
 pub const ARROW_CURSOR                 : c_int = 0x00036001; // TODO: Not yet exposed
 pub const IBEAM_CURSOR                 : c_int = 0x00036002; // TODO: Not yet exposed
@@ -267,9 +286,12 @@ pub const VRESIZE_CURSOR               : c_int = 0x00036006; // TODO: Not yet ex
 pub const CONNECTED                    : c_int = 0x00040001;
 pub const DISCONNECTED                 : c_int = 0x00040002;
 
-pub const DONT_CARE                    : c_int = -1; // TODO: Not yet exposed
+pub const DONT_CARE                    : c_int = -1; //negative one is the correct value
 
 pub type GLFWglproc             = *const c_void;
+
+#[cfg(feature = "vulkan")]
+pub type GLFWvkproc             = *const c_void;
 
 pub type GLFWerrorfun           = extern "C" fn(c_int, *const c_char);
 pub type GLFWwindowposfun       = extern "C" fn(*mut GLFWwindow, c_int, c_int);
@@ -288,6 +310,7 @@ pub type GLFWcharfun            = extern "C" fn(*mut GLFWwindow, c_uint);
 pub type GLFWcharmodsfun        = extern "C" fn(*mut GLFWwindow, c_uint, c_int); // TODO: Not yet exposed
 pub type GLFWdropfun            = extern "C" fn(*mut GLFWwindow, c_int, *mut *const c_char); // TODO: Not yet exposed
 pub type GLFWmonitorfun         = extern "C" fn(*mut GLFWmonitor, c_int);
+pub type GLFWjoystickfun        = extern "C" fn(c_int, c_int);
 
 #[allow(missing_copy_implementations)]
 pub enum GLFWmonitor {}
@@ -318,12 +341,13 @@ pub struct GLFWvidmode {
     pub refreshRate: c_int,
 }
 
+/// Pixels are 4-bytes each, RGBA
 #[allow(missing_copy_implementations)]
 #[repr(C)]
 pub struct GLFWimage {
     pub width: c_int,
     pub height: c_int,
-    pub pixels: *mut c_uchar,
+    pub pixels: *const c_uchar,
 }
 
 // C function bindings
@@ -366,6 +390,7 @@ extern "C" {
     pub fn glfwHideWindow(window: *mut GLFWwindow);
     pub fn glfwGetWindowMonitor(window: *mut GLFWwindow) -> *mut GLFWmonitor;
     pub fn glfwGetWindowAttrib(window: *mut GLFWwindow, attrib: c_int) -> c_int;
+    pub fn glfwGetWindowFrameSize(window: *mut GLFWwindow, left: *mut c_int, top: *mut c_int, right: *mut c_int, bottom: *mut c_int);
     pub fn glfwSetWindowUserPointer(window: *mut GLFWwindow, pointer: *mut c_void);
     pub fn glfwGetWindowUserPointer(window: *mut GLFWwindow) -> *mut c_void;
     pub fn glfwSetWindowPosCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowposfun>) -> Option<GLFWwindowposfun>;
@@ -417,6 +442,32 @@ extern "C" {
     pub fn glfwSwapInterval(interval: c_int);
     pub fn glfwExtensionSupported(extension: *const c_char) -> c_int;
     pub fn glfwGetProcAddress(procname: *const c_char) -> GLFWglproc;
+
+    // Added in 3.2
+
+    pub fn glfwSetWindowAspectRatio(window: *mut GLFWwindow, numer: c_int, denum: c_int);
+    pub fn glfwSetWindowSizeLimits(window: *mut GLFWwindow, minwidth: c_int, minheight: c_int, maxwidth: c_int, maxheight: c_int);
+    pub fn glfwFocusWindow(window: *mut GLFWwindow);
+    pub fn glfwMaximizeWindow(window: *mut GLFWwindow);
+    pub fn glfwSetWindowMonitor(window: *mut GLFWwindow, monitor: *mut GLFWmonitor, xpos: c_int, ypos: c_int, width: c_int, height: c_int, refresh_rate: c_int);
+    pub fn glfwSetWindowIcon(window: *mut GLFWwindow, count: c_int, images: *const GLFWimage);
+    pub fn glfwGetKeyName(key: c_int, scancode: c_int) -> *const c_char;
+    pub fn glfwGetTimerValue() -> c_ulonglong; //uint64_t
+    pub fn glfwGetTimerFrequency() -> c_ulonglong; //uint64_t
+    pub fn glfwSetJoystickCallback(cbjoy: Option<GLFWjoystickfun>) -> Option<GLFWjoystickfun>;
+
+    // Vulkan support
+
+    #[cfg(feature = "vulkan")]
+    pub fn glfwVulkanSupported() -> c_int;
+    #[cfg(feature = "vulkan")]
+    pub fn glfwGetRequiredInstanceExtensions(count: *mut c_uint) -> *const *const c_char;
+    #[cfg(feature = "vulkan")]
+    pub fn glfwGetInstanceProcAddress(instance: VkInstance, procname: *const c_char) -> GLFWvkproc;
+    #[cfg(feature = "vulkan")]
+    pub fn glfwGetPhysicalDevicePresentationSupport(instance: VkInstance, device: VkPhysicalDevice, queuefamily: c_uint) -> c_int;
+    #[cfg(feature = "vulkan")]
+    pub fn glfwCreateWindowSurface(instance: VkInstance, window: *mut GLFWwindow, allocator: *const VkAllocationCallbacks, surface: *mut VkSurfaceKHR) -> VkResult;
 
     // native APIs
 

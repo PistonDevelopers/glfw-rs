@@ -25,7 +25,7 @@ fn main() {
 
     window.set_key_polling(true);
     window.make_current();
-    glfw.set_swap_interval(1);
+    glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
     while !window.should_close() {
         glfw.poll_events();
@@ -36,10 +36,10 @@ fn main() {
 }
 
 #[cfg(target_os = "macos")]
-static NATIVE_MOD: glfw::Modifiers = glfw::Super;
+static NATIVE_MOD: glfw::modifiers::Modifiers = glfw::modifiers::Super;
 
 #[cfg(not(target_os = "macos"))]
-static NATIVE_MOD: glfw::Modifiers = glfw::Control;
+static NATIVE_MOD: glfw::modifiers::Modifiers = glfw::modifiers::Control;
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
