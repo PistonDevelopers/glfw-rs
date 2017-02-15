@@ -93,6 +93,7 @@ use std::ffi::{CStr, CString};
 use std::mem;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::fmt;
+use std::error;
 use std::marker::Send;
 use std::ptr;
 use std::slice;
@@ -357,6 +358,31 @@ pub enum Error {
     NoWindowContext             = ffi::NO_WINDOW_CONTEXT,
 }
 
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use std::error::Error;
+
+        f.write_str(self.description())
+    }
+}
+
+impl error::Error for Error {
+    fn description(&self) -> &str {
+        match *self {
+            Error::NotInitialized => "NotInitialized",
+            Error::NoCurrentContext => "NoCurrentContext",
+            Error::InvalidEnum => "InvalidEnum",
+            Error::InvalidValue => "InvalidValue",
+            Error::OutOfMemory => "OutOfMemory",
+            Error::ApiUnavailable => "ApiUnavailable",
+            Error::VersionUnavailable => "VersionUnavailable",
+            Error::PlatformError => "PlatformError",
+            Error::FormatUnavailable => "FormatUnavailable",
+            Error::NoWindowContext => "NoWindowContext",
+        }
+    }
+}
+
 /// An error callback. This can be supplied with some user data to be passed to
 /// the callback function when it is triggered.
 pub type ErrorCallback<UserData> = Callback<fn(Error, String, &UserData), UserData>;
@@ -566,8 +592,19 @@ pub enum InitError {
 }
 
 impl fmt::Display for InitError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "InitError: {:?}", *self)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use std::error::Error;
+
+        f.write_str(self.description())
+    }
+}
+
+impl error::Error for InitError {
+    fn description(&self) -> &str {
+        match *self {
+            InitError::AlreadyInitialized => "Already Initialized",
+            InitError::Internal => "Internal Initialization Error",
+        }
     }
 }
 
@@ -2205,27 +2242,27 @@ pub fn make_context_current(context: Option<&Context>) {
 }
 
 enum_from_primitive! {
-/// Joystick identifier tokens.
-#[repr(i32)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub enum JoystickId {
-    Joystick1       = ffi::JOYSTICK_1,
-    Joystick2       = ffi::JOYSTICK_2,
-    Joystick3       = ffi::JOYSTICK_3,
-    Joystick4       = ffi::JOYSTICK_4,
-    Joystick5       = ffi::JOYSTICK_5,
-    Joystick6       = ffi::JOYSTICK_6,
-    Joystick7       = ffi::JOYSTICK_7,
-    Joystick8       = ffi::JOYSTICK_8,
-    Joystick9       = ffi::JOYSTICK_9,
-    Joystick10      = ffi::JOYSTICK_10,
-    Joystick11      = ffi::JOYSTICK_11,
-    Joystick12      = ffi::JOYSTICK_12,
-    Joystick13      = ffi::JOYSTICK_13,
-    Joystick14      = ffi::JOYSTICK_14,
-    Joystick15      = ffi::JOYSTICK_15,
-    Joystick16      = ffi::JOYSTICK_16,
-}
+    /// Joystick identifier tokens.
+    #[repr(i32)]
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+    pub enum JoystickId {
+        Joystick1       = ffi::JOYSTICK_1,
+        Joystick2       = ffi::JOYSTICK_2,
+        Joystick3       = ffi::JOYSTICK_3,
+        Joystick4       = ffi::JOYSTICK_4,
+        Joystick5       = ffi::JOYSTICK_5,
+        Joystick6       = ffi::JOYSTICK_6,
+        Joystick7       = ffi::JOYSTICK_7,
+        Joystick8       = ffi::JOYSTICK_8,
+        Joystick9       = ffi::JOYSTICK_9,
+        Joystick10      = ffi::JOYSTICK_10,
+        Joystick11      = ffi::JOYSTICK_11,
+        Joystick12      = ffi::JOYSTICK_12,
+        Joystick13      = ffi::JOYSTICK_13,
+        Joystick14      = ffi::JOYSTICK_14,
+        Joystick15      = ffi::JOYSTICK_15,
+        Joystick16      = ffi::JOYSTICK_16,
+    }
 }
 
 /// A joystick handle.
