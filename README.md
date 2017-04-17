@@ -125,5 +125,4 @@ or [post an issue](https://github.com/bjz/glfw-rs/issues/new) on Github.
 - [sebcrozet/kiss3d](https://github.com/sebcrozet/kiss3d)
 - [Jeaye/q3](https://github.com/Jeaye/q3)
 - [cyndis/rsmc](https://github.com/cyndis/rsmc/)
-- [mozilla/servo](https://github.com/mozilla/servo)
-- [ozkriff/marauder](https://github.com/ozkriff/marauder/)
+- [ozkriff/zoc](https://github.com/ozkriff/zoc)
