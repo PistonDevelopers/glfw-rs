@@ -1577,7 +1577,7 @@ impl Window {
     /// current context, it will make it the current context.
     ///
     /// Wrapper for `glfwGetProcAddress`.
-    pub fn get_proc_address(&mut self, procname: &str) -> GLProc {
+    pub fn get_proc_address(&self, procname: &str) -> GLProc {
         if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
             self.make_current();
         }
@@ -2208,7 +2208,7 @@ pub trait Context {
     /// updates before swapping the buffers.
     ///
     /// Wrapper for `glfwSwapBuffers`.
-    fn swap_buffers(&mut self) {
+    fn swap_buffers(&self) {
         let ptr = self.window_ptr();
         unsafe { ffi::glfwSwapBuffers(ptr); }
     }
@@ -2219,7 +2219,7 @@ pub trait Context {
     }
 
     /// Wrapper for `glfwMakeContextCurrent`
-    fn make_current(&mut self) {
+    fn make_current(&self) {
         let ptr = self.window_ptr();
         unsafe { ffi::glfwMakeContextCurrent(ptr); }
     }
