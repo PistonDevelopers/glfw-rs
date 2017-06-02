@@ -36,3 +36,4 @@ image = "^0.13"
 all = ["image", "vulkan"]
 default = ["glfw-sys"]
 vulkan = ["vk-sys"]
+terminate_manually = []
