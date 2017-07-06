@@ -276,12 +276,12 @@ pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002;
 pub const NATIVE_CONTEXT_API           : c_int = 0x00036001;
 pub const EGL_CONTEXT_API              : c_int = 0x00036002;
 
-pub const ARROW_CURSOR                 : c_int = 0x00036001; // TODO: Not yet exposed
-pub const IBEAM_CURSOR                 : c_int = 0x00036002; // TODO: Not yet exposed
-pub const CROSSHAIR_CURSOR             : c_int = 0x00036003; // TODO: Not yet exposed
-pub const HAND_CURSOR                  : c_int = 0x00036004; // TODO: Not yet exposed
-pub const HRESIZE_CURSOR               : c_int = 0x00036005; // TODO: Not yet exposed
-pub const VRESIZE_CURSOR               : c_int = 0x00036006; // TODO: Not yet exposed
+pub const ARROW_CURSOR                 : c_int = 0x00036001;
+pub const IBEAM_CURSOR                 : c_int = 0x00036002;
+pub const CROSSHAIR_CURSOR             : c_int = 0x00036003;
+pub const HAND_CURSOR                  : c_int = 0x00036004;
+pub const HRESIZE_CURSOR               : c_int = 0x00036005;
+pub const VRESIZE_CURSOR               : c_int = 0x00036006;
 
 pub const CONNECTED                    : c_int = 0x00040001;
 pub const DISCONNECTED                 : c_int = 0x00040002;
@@ -412,10 +412,10 @@ extern "C" {
     pub fn glfwGetMouseButton(window: *mut GLFWwindow, button: c_int) -> c_int;
     pub fn glfwGetCursorPos(window: *mut GLFWwindow, xpos: *mut c_double, ypos: *mut c_double);
     pub fn glfwSetCursorPos(window: *mut GLFWwindow, xpos: c_double, ypos: c_double);
-    pub fn glfwCreateCursor(image: *const GLFWimage, xhot: c_int, yhot: c_int) -> *mut GLFWcursor; // TODO: Not yet exposed
-    pub fn glfwCreateStandardCursor(shape: c_int) -> *mut GLFWcursor; // TODO: Not yet exposed
-    pub fn glfwDestroyCursor(cursor: *mut GLFWcursor); // TODO: Not yet exposed
-    pub fn glfwSetCursor(window: *mut GLFWwindow, cursor: *mut GLFWcursor); // TODO: Not yet exposed
+    pub fn glfwCreateCursor(image: *const GLFWimage, xhot: c_int, yhot: c_int) -> *mut GLFWcursor;
+    pub fn glfwCreateStandardCursor(shape: c_int) -> *mut GLFWcursor;
+    pub fn glfwDestroyCursor(cursor: *mut GLFWcursor);
+    pub fn glfwSetCursor(window: *mut GLFWwindow, cursor: *mut GLFWcursor);
     pub fn glfwSetKeyCallback(window: *mut GLFWwindow, cbfun: Option<GLFWkeyfun>) -> Option<GLFWkeyfun>;
     pub fn glfwSetCharCallback(window: *mut GLFWwindow, cbfun: Option<GLFWcharfun>) -> Option<GLFWcharfun>;
     pub fn glfwSetCharModsCallback(window: *mut GLFWwindow, cbfun: Option<GLFWcharmodsfun>) -> Option<GLFWcharmodsfun>; // TODO: Not yet exposed
