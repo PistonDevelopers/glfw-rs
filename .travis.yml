@@ -14,20 +14,16 @@
 # limitations under the License.
 
 language: rust
-env:
-  global:
-    - LD_LIBRARY_PATH: /usr/local/lib
-    - secure: d0ai0sK6NFiz+822DaAKAGcJXjC6dBFLGOjqjACcsoqDtRH85HR9IVUnwCsNVPvH05frEutD5Ebd9SzrjqPriTNnzM0iwZZBxHgiHV+SAYcL/D+qyeEAB/IYU5jZxjYgq/6fHA2VhXI56rGqBRwoXe1sLsEAaTfDmo9gVi6xhQo=  echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
-before_install:
-  # install a newer cmake since at this time Travis only has version 2.8.7
-  - yes | sudo add-apt-repository ppa:kubuntu-ppa/backports
-  - sudo apt-get update -qq
-install: sudo apt-get install cmake libXxf86vm-dev libxinerama-dev libxcursor-dev
+addons:
+  apt:
+    sources:
+      - kubuntu-backports
+    packages:
+      - libxinerama-dev
+      - libxcursor-dev
+      - xorg-dev
 script:
   - cargo build --features "all"
   - cargo test --features "all"
   - cargo doc --features "all"
-after_script:
-  # the doc directory needs to be in the root for rust-ci
-  - mv target/doc doc
-  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
+
