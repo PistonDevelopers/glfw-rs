@@ -92,28 +92,6 @@ git = "https://github.com/bjz/glfw-rs.git"
 default-features = false
 ~~~
 
-### A note about Travis CI
-
-You may encounter the following error when attempting to build your project on Travis:
-
-~~~
-CMake Error at CMakeLists.txt:3 (cmake_minimum_required):
-  CMake 2.8.9 or higher is required.  You are running version 2.8.7
-~~~
-
-This is because Travis CI _still_ hasn't updated their CMake version almost a year since the issue
-was reported (See travis-ci/travis-ci#2030). Because of this, you will need to [add the following
-build commands](https://github.com/travis-ci/travis-ci/issues/2030#issuecomment-49210009) to your
-`.travis.yml`:
-
-~~~yml
-before_install:
-  # install a newer cmake since at this time Travis only has version 2.8.7
-  - yes | sudo add-apt-repository ppa:kalakris/cmake
-  - sudo apt-get update -qq
-install: sudo apt-get install cmake
-~~~
-
 ## Support
 
 Contact `bjz` on irc.mozilla.org [#rust](http://mibbit.com/?server=irc.mozilla.org&channel=%23rust)
