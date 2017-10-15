@@ -6,10 +6,10 @@ license = "Apache-2.0"
 name = "glfw"
 readme = "README.md"
 repository = "https://github.com/bjz/glfw-rs"
-version = "0.18.0"
+version = "0.19.0"
 
 [dependencies]
-bitflags = "0.9.1"
+bitflags = "1.0.0"
 enum_primitive = "0.1"
 libc = "0.2"
 log = "0.3"
@@ -22,7 +22,7 @@ version = "^3.2"
 
 [dependencies.image]
 optional = true
-version = "^0.16"
+version = "^0.17"
 
 [dependencies.vk-sys]
 optional = true
@@ -30,7 +30,7 @@ version = "^0.2"
 
 [dev-dependencies]
 vk-sys = "^0.2"
-image = "^0.16"
+image = "^0.17"
 
 [features]
 all = ["image", "vulkan"]
