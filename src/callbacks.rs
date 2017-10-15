@@ -152,11 +152,11 @@ window_callback!(fn window_refresh_callback()                                   
 window_callback!(fn window_focus_callback(focused: c_int)                                   => Focus(focused == ffi::TRUE));
 window_callback!(fn window_iconify_callback(iconified: c_int)                               => Iconify(iconified == ffi::TRUE));
 window_callback!(fn framebuffer_size_callback(width: c_int, height: c_int)                  => FramebufferSize(width as i32, height as i32));
-window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton(mem::transmute(button), mem::transmute(action), modifiers::Modifiers::from_bits(mods).unwrap()));
+window_callback!(fn mouse_button_callback(button: c_int, action: c_int, mods: c_int)        => MouseButton(mem::transmute(button), mem::transmute(action), Modifiers::from_bits(mods).unwrap()));
 window_callback!(fn cursor_pos_callback(xpos: c_double, ypos: c_double)                     => CursorPos(xpos as f64, ypos as f64));
 window_callback!(fn cursor_enter_callback(entered: c_int)                                   => CursorEnter(entered == ffi::TRUE));
 window_callback!(fn scroll_callback(xpos: c_double, ypos: c_double)                         => Scroll(xpos as f64, ypos as f64));
-window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key(mem::transmute(key), scancode, mem::transmute(action), modifiers::Modifiers::from_bits(mods).unwrap()));
+window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mods: c_int)   => Key(mem::transmute(key), scancode, mem::transmute(action), Modifiers::from_bits(mods).unwrap()));
 window_callback!(fn char_callback(character: c_uint)                                        => Char(::std::char::from_u32(character).unwrap()));
-window_callback!(fn char_mods_callback(character: c_uint, mods: c_int)                      => CharModifiers(::std::char::from_u32(character).unwrap(), modifiers::Modifiers::from_bits(mods).unwrap()));
+window_callback!(fn char_mods_callback(character: c_uint, mods: c_int)                      => CharModifiers(::std::char::from_u32(character).unwrap(), Modifiers::from_bits(mods).unwrap()));
 window_callback!(fn drop_callback(num_paths: c_int, paths: *mut *const c_char)              => FileDrop(slice::from_raw_parts(paths, num_paths as usize).iter().map(|path| PathBuf::from(str::from_utf8(CStr::from_ptr(*path).to_bytes()).unwrap().to_string())).collect()));

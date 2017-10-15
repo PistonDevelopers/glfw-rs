@@ -1476,15 +1476,13 @@ impl<'a> WindowMode<'a> {
 }
 
 /// Key modifiers (e.g., Shift, Control, Alt, Super)
-pub mod modifiers {
-    bitflags! {
-        #[doc = "Key modifiers"]
-        pub struct Modifiers: ::libc::c_int {
-            const Shift       = ::ffi::MOD_SHIFT;
-            const Control     = ::ffi::MOD_CONTROL;
-            const Alt         = ::ffi::MOD_ALT;
-            const Super       = ::ffi::MOD_SUPER;
-        }
+bitflags! {
+    #[doc = "Key modifiers"]
+    pub struct Modifiers: ::libc::c_int {
+        const Shift       = ::ffi::MOD_SHIFT;
+        const Control     = ::ffi::MOD_CONTROL;
+        const Alt         = ::ffi::MOD_ALT;
+        const Super       = ::ffi::MOD_SUPER;
     }
 }
 
@@ -1501,13 +1499,13 @@ pub enum WindowEvent {
     Focus(bool),
     Iconify(bool),
     FramebufferSize(i32, i32),
-    MouseButton(MouseButton, Action, modifiers::Modifiers),
+    MouseButton(MouseButton, Action, Modifiers),
     CursorPos(f64, f64),
     CursorEnter(bool),
     Scroll(f64, f64),
-    Key(Key, Scancode, Action, modifiers::Modifiers),
+    Key(Key, Scancode, Action, Modifiers),
     Char(char),
-    CharModifiers(char, modifiers::Modifiers),
+    CharModifiers(char, Modifiers),
     FileDrop(Vec<PathBuf>),
 }
 
