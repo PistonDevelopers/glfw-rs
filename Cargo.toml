@@ -6,13 +6,13 @@ license = "Apache-2.0"
 name = "glfw"
 readme = "README.md"
 repository = "https://github.com/bjz/glfw-rs"
-version = "0.20.0"
+version = "0.21.0"
 
 [dependencies]
 bitflags = "1.0.0"
 enum_primitive = "0.1"
 libc = "0.2"
-log = "0.3"
+log = "0.4"
 num = "0.1"
 semver = "0.2"
 
