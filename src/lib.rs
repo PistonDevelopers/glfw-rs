@@ -1028,7 +1028,7 @@ impl Glfw {
     }
 
     /// Wrapper for `glfwGetTimerFrequency`
-    pub fn get_timer_frquency() -> u64 {
+    pub fn get_timer_frequency() -> u64 {
         unsafe { ffi::glfwGetTimerFrequency() as u64 }
     }
 
