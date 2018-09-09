@@ -901,6 +901,7 @@ impl Glfw {
             WindowHint::Decorated(is_decorated)          => unsafe { ffi::glfwWindowHint(ffi::DECORATED,                is_decorated as c_int) },
             WindowHint::AutoIconify(auto_iconify)        => unsafe { ffi::glfwWindowHint(ffi::AUTO_ICONIFY,             auto_iconify as c_int) },
             WindowHint::Floating(is_floating)            => unsafe { ffi::glfwWindowHint(ffi::FLOATING,                 is_floating as c_int) },
+            WindowHint::Focused(is_focused)              => unsafe { ffi::glfwWindowHint(ffi::FOCUSED,                  is_focused as c_int) },
             WindowHint::ContextNoError(is_no_error)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_NO_ERROR,         is_no_error as c_int) },
             WindowHint::ContextCreationApi(api)          => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     api as c_int) },
             WindowHint::ContextReleaseBehavior(behavior) => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int) },
@@ -1410,6 +1411,10 @@ pub enum WindowHint {
     ///
     /// This hint is ignored for full screen windows.
     Floating(bool),
+    /// Specifies whether the windowed mode window will be given input focus when created.
+    ///
+    /// This hint is ignored for full screen and initially hidden windows.
+    Focused(bool),
     /// Specifies whether the OpenGL or OpenGL ES contexts do not emit errors,
     /// allowing for better performance in some situations.
     ContextNoError(bool),
