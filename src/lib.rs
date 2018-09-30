@@ -257,6 +257,23 @@ pub enum Key {
 }
 
 /// Wrapper around 'glfwGetKeyName`
+pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<String> {
+    unsafe {
+        let key_ptr =
+            ffi::glfwGetKeyName(match key {
+                Some(k) => k as c_int,
+                None => ffi::KEY_UNKNOWN
+            }, scancode.unwrap_or(ffi::KEY_UNKNOWN));
+        if key_ptr.is_null() {
+            None
+        } else {
+            Some(string_from_c_str(key_ptr))
+        }
+    }
+}
+
+/// Wrapper around 'glfwGetKeyName`
+#[deprecated(since = "0.16.0", note = "'key_name' can cause a segfault, use 'get_key_name' instead")]
 pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
     unsafe {
         string_from_c_str(ffi::glfwGetKeyName(match key {
@@ -268,8 +285,15 @@ pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
 
 impl Key {
     /// Wrapper around 'glfwGetKeyName` without scancode
+    #[deprecated(since = "0.16.0", note = "Key method 'name' can cause a segfault, use 'get_name' instead")]
     pub fn name(&self) -> String {
+        #[allow(deprecated)]
         key_name(Some(*self), None)
+    }
+
+    /// Wrapper around 'glfwGetKeyName` without scancode
+    pub fn get_name(&self) -> Option<String> {
+	    get_key_name(Some(*self), None)
     }
 }
 
