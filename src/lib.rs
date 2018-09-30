@@ -657,14 +657,27 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
             }
             if ffi::glfwInit() == ffi::TRUE {
                 result = Ok(());
-                // TODO: When (if?) std::rt::at_exit() stabilizes, prefer to use it.
-                libc::atexit(glfw_terminate);
+                if !(cfg!(feature = "terminate_manually")) {
+                    // TODO: When (if?) std::rt::at_exit() stabilizes, prefer to use it.
+                    libc::atexit(glfw_terminate);
+                }
             } else {
                 result = Err(InitError::Internal);
             }
         })
     }
     result.map(|_| Glfw)
+}
+
+/// Manually terminate the GLFW library. This must be called on the main
+/// platform thread. It's not necessary to call this function unless you have
+/// enabled the `terminate_manually` feature. 
+///
+/// Wrapper for 'glfwTerminate'.
+pub fn terminate() {
+    unsafe {
+        ffi::glfwTerminate();
+    }
 }
 
 impl Glfw {
