@@ -681,14 +681,27 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
             }
             if ffi::glfwInit() == ffi::TRUE {
                 result = Ok(());
-                // TODO: When (if?) std::rt::at_exit() stabilizes, prefer to use it.
-                libc::atexit(glfw_terminate);
+                if !(cfg!(feature = "terminate_manually")) {
+                    // TODO: When (if?) std::rt::at_exit() stabilizes, prefer to use it.
+                    libc::atexit(glfw_terminate);
+                }
             } else {
                 result = Err(InitError::Internal);
             }
         })
     }
     result.map(|_| Glfw)
+}
+
+/// Manually terminate the GLFW library. This must be called on the main
+/// platform thread. It's not necessary to call this function unless you have
+/// enabled the `terminate_manually` feature. 
+///
+/// Wrapper for 'glfwTerminate'.
+pub fn terminate() {
+    unsafe {
+        ffi::glfwTerminate();
+    }
 }
 
 impl Glfw {
@@ -925,6 +938,7 @@ impl Glfw {
             WindowHint::Decorated(is_decorated)          => unsafe { ffi::glfwWindowHint(ffi::DECORATED,                is_decorated as c_int) },
             WindowHint::AutoIconify(auto_iconify)        => unsafe { ffi::glfwWindowHint(ffi::AUTO_ICONIFY,             auto_iconify as c_int) },
             WindowHint::Floating(is_floating)            => unsafe { ffi::glfwWindowHint(ffi::FLOATING,                 is_floating as c_int) },
+            WindowHint::Focused(is_focused)              => unsafe { ffi::glfwWindowHint(ffi::FOCUSED,                  is_focused as c_int) },
             WindowHint::ContextNoError(is_no_error)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_NO_ERROR,         is_no_error as c_int) },
             WindowHint::ContextCreationApi(api)          => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     api as c_int) },
             WindowHint::ContextReleaseBehavior(behavior) => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int) },
@@ -1052,7 +1066,7 @@ impl Glfw {
     }
 
     /// Wrapper for `glfwGetTimerFrequency`
-    pub fn get_timer_frquency() -> u64 {
+    pub fn get_timer_frequency() -> u64 {
         unsafe { ffi::glfwGetTimerFrequency() as u64 }
     }
 
@@ -1434,6 +1448,10 @@ pub enum WindowHint {
     ///
     /// This hint is ignored for full screen windows.
     Floating(bool),
+    /// Specifies whether the windowed mode window will be given input focus when created.
+    ///
+    /// This hint is ignored for full screen and initially hidden windows.
+    Focused(bool),
     /// Specifies whether the OpenGL or OpenGL ES contexts do not emit errors,
     /// allowing for better performance in some situations.
     ContextNoError(bool),
@@ -1500,15 +1518,13 @@ impl<'a> WindowMode<'a> {
 }
 
 /// Key modifiers (e.g., Shift, Control, Alt, Super)
-pub mod modifiers {
-    bitflags! {
-        #[doc = "Key modifiers"]
-        pub flags Modifiers: ::libc::c_int {
-            const Shift       = ::ffi::MOD_SHIFT,
-            const Control     = ::ffi::MOD_CONTROL,
-            const Alt         = ::ffi::MOD_ALT,
-            const Super       = ::ffi::MOD_SUPER
-        }
+bitflags! {
+    #[doc = "Key modifiers"]
+    pub struct Modifiers: ::libc::c_int {
+        const Shift       = ::ffi::MOD_SHIFT;
+        const Control     = ::ffi::MOD_CONTROL;
+        const Alt         = ::ffi::MOD_ALT;
+        const Super       = ::ffi::MOD_SUPER;
     }
 }
 
@@ -1525,13 +1541,13 @@ pub enum WindowEvent {
     Focus(bool),
     Iconify(bool),
     FramebufferSize(i32, i32),
-    MouseButton(MouseButton, Action, modifiers::Modifiers),
+    MouseButton(MouseButton, Action, Modifiers),
     CursorPos(f64, f64),
     CursorEnter(bool),
     Scroll(f64, f64),
-    Key(Key, Scancode, Action, modifiers::Modifiers),
+    Key(Key, Scancode, Action, Modifiers),
     Char(char),
-    CharModifiers(char, modifiers::Modifiers),
+    CharModifiers(char, Modifiers),
     FileDrop(Vec<PathBuf>),
 }
 
