@@ -1147,9 +1147,6 @@ impl Glfw {
     /// Wrapper for `glfwGetInstanceProcAddress`
     #[cfg(feature = "vulkan")]
     pub fn get_instance_proc_address_raw(&self, instance: VkInstance, procname: &str) -> VkProc {
-        //TODO: Determine if this assertion is required? It doesn't seem to be required for vkCreateInstance,
-        //TODO: but it might be needed for other pointers.
-        debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
         with_c_str(procname, |procname| {
             unsafe { ffi::glfwGetInstanceProcAddress(instance, procname) }
         })
