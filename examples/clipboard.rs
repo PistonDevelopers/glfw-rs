@@ -50,8 +50,8 @@ fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
                 }
                 if (key == Key::V) && mods.contains(NATIVE_MOD) {
                     match window.get_clipboard_string() {
-                        ref s if !s.is_empty() => println!("Clipboard contains \"{:?}\"", *s),
-                        _                      => println!("Clipboard does not contain a string"),
+                        Some(ref s) if !s.is_empty() => println!("Clipboard contains \"{:?}\"", *s),
+                        _                            => println!("Clipboard does not contain a string"),
                     }
                 }
                 if (key == Key::C) && mods.contains(NATIVE_MOD) {

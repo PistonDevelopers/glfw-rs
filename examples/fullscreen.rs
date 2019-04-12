@@ -59,7 +59,7 @@ fn main() {
 
                             window.set_monitor(glfw::WindowMode::FullScreen(&monitor), 0, 0, mode.width, mode.height, Some(mode.refresh_rate));
 
-                            println!("{}x{} fullscreen enabled at {}Hz on monitor {}", mode.width, mode.height, mode.refresh_rate, monitor.get_name());
+                            println!("{}x{} fullscreen enabled at {}Hz on monitor {}", mode.width, mode.height, mode.refresh_rate, monitor.get_name().unwrap());
                         });
                     }
 

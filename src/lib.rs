@@ -259,16 +259,10 @@ pub enum Key {
 /// Wrapper around 'glfwGetKeyName`
 pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<String> {
     unsafe {
-        let key_ptr =
-            ffi::glfwGetKeyName(match key {
-                Some(k) => k as c_int,
-                None => ffi::KEY_UNKNOWN
-            }, scancode.unwrap_or(ffi::KEY_UNKNOWN));
-        if key_ptr.is_null() {
-            None
-        } else {
-            Some(string_from_c_str(key_ptr))
-        }
+        string_from_nullable_c_str(ffi::glfwGetKeyName(match key {
+            Some(k) => k as c_int,
+            None => ffi::KEY_UNKNOWN
+        }, scancode.unwrap_or(ffi::KEY_UNKNOWN)))
     }
 }
 
@@ -1189,6 +1183,15 @@ pub unsafe fn string_from_c_str(c_str: *const c_char) -> String {
     String::from_utf8_lossy(CStr::from_ptr(c_str).to_bytes()).into_owned()
 }
 
+/// Like `string_from_c_str`, but handles null pointers correctly
+pub unsafe fn string_from_nullable_c_str(c_str: *const c_char) -> Option<String> {
+    if c_str.is_null() {
+        None
+    } else {
+        Some(string_from_c_str(c_str))
+    }
+}
+
 /// Replacement for `ToCStr::with_c_str`
 pub fn with_c_str<F, T>(s: &str, f: F) -> T where F: FnOnce(*const c_char) -> T {
     let c_str = CString::new(s.as_bytes());
@@ -1238,8 +1241,8 @@ impl Monitor {
     }
 
     /// Wrapper for `glfwGetMonitorName`.
-    pub fn get_name(&self) -> String {
-        unsafe { string_from_c_str(ffi::glfwGetMonitorName(self.ptr)) }
+    pub fn get_name(&self) -> Option<String> {
+        unsafe { string_from_nullable_c_str(ffi::glfwGetMonitorName(self.ptr)) }
     }
 
     /// Wrapper for `glfwGetVideoModes`.
@@ -2155,8 +2158,8 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetClipboardString`.
-    pub fn get_clipboard_string(&self) -> String {
-        unsafe { string_from_c_str(ffi::glfwGetClipboardString(self.ptr)) }
+    pub fn get_clipboard_string(&self) -> Option<String> {
+        unsafe { string_from_nullable_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
 
     /// Wrapper for `glfwGetWin32Window`
@@ -2346,7 +2349,7 @@ impl Joystick {
     }
 
     /// Wrapper for `glfwGetJoystickName`.
-    pub fn get_name(&self) -> String {
-        unsafe { string_from_c_str(ffi::glfwGetJoystickName(self.id as c_int)) }
+    pub fn get_name(&self) -> Option<String> {
+        unsafe { string_from_nullable_c_str(ffi::glfwGetJoystickName(self.id as c_int)) }
     }
 }
