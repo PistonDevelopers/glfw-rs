@@ -168,6 +168,8 @@ pub const MOD_SHIFT                    : c_int = 0x0001;
 pub const MOD_CONTROL                  : c_int = 0x0002;
 pub const MOD_ALT                      : c_int = 0x0004;
 pub const MOD_SUPER                    : c_int = 0x0008;
+pub const MOD_CAPS_LOCK                : c_int = 0x0010;
+pub const MOD_NUM_LOCK                 : c_int = 0x0020;
 
 pub const JOYSTICK_1                   : c_int = 0;
 pub const JOYSTICK_2                   : c_int = 1;
@@ -200,6 +202,47 @@ pub const MOUSE_BUTTON_RIGHT           : c_int = MOUSE_BUTTON_2;
 pub const MOUSE_BUTTON_MIDDLE          : c_int = MOUSE_BUTTON_3;
 pub const MOUSE_BUTTON_LAST            : c_int = MOUSE_BUTTON_8;
 
+// TODO
+pub const HAT_CENTERED                 : c_int = 0b0000;
+pub const HAT_UP                       : c_int = 0b0001;
+pub const HAT_RIGHT                    : c_int = 0b0010;
+pub const HAT_DOWN                     : c_int = 0b0100;
+pub const HAT_LEFT                     : c_int = 0b1000;
+pub const HAT_RIGHT_UP                 : c_int = HAT_RIGHT | HAT_UP;
+pub const HAT_RIGHT_DOWN               : c_int = HAT_RIGHT | HAT_DOWN;
+pub const HAT_LEFT_UP                  : c_int = HAT_LEFT | HAT_UP;
+pub const HAT_LEFT_DOWN                : c_int = HAT_LEFT | HAT_DOWN;
+
+pub const GAMEPAD_BUTTON_A             : c_int = 0;
+pub const GAMEPAD_BUTTON_B             : c_int = 1;
+pub const GAMEPAD_BUTTON_X             : c_int = 2;
+pub const GAMEPAD_BUTTON_Y             : c_int = 3;
+pub const GAMEPAD_BUTTON_LEFT_BUMPER   : c_int = 4;
+pub const GAMEPAD_BUTTON_RIGHT_BUMPER  : c_int = 5;
+pub const GAMEPAD_BUTTON_BACK          : c_int = 6;
+pub const GAMEPAD_BUTTON_START         : c_int = 7;
+pub const GAMEPAD_BUTTON_GUIDE         : c_int = 8;
+pub const GAMEPAD_BUTTON_LEFT_THUMB    : c_int = 9;
+pub const GAMEPAD_BUTTON_RIGHT_THUMB   : c_int = 10;
+pub const GAMEPAD_BUTTON_DPAD_UP       : c_int = 11;
+pub const GAMEPAD_BUTTON_DPAD_RIGHT    : c_int = 12;
+pub const GAMEPAD_BUTTON_DPAD_DOWN     : c_int = 13;
+pub const GAMEPAD_BUTTON_DPAD_LEFT     : c_int = 14;
+pub const GAMEPAD_BUTTON_DPAD_LAST     : c_int = GAMEPAD_BUTTON_DPAD_LEFT;
+pub const GAMEPAD_BUTTON_DPAD_CROSS    : c_int = GAMEPAD_BUTTON_A;
+pub const GAMEPAD_BUTTON_DPAD_CIRCLE   : c_int = GAMEPAD_BUTTON_B;
+pub const GAMEPAD_BUTTON_DPAD_SQUARE   : c_int = GAMEPAD_BUTTON_X;
+pub const GAMEPAD_BUTTON_DPAD_TRIANGLE : c_int = GAMEPAD_BUTTON_Y;
+
+pub const GAMEPAD_AXIS_LEFT_X          : c_int = 0;
+pub const GAMEPAD_AXIS_LEFT_Y          : c_int = 1;
+pub const GAMEPAD_AXIS_RIGHT_X         : c_int = 2;
+pub const GAMEPAD_AXIS_RIGHT_Y         : c_int = 3;
+pub const GAMEPAD_AXIS_LEFT_TRIGGER    : c_int = 4;
+pub const GAMEPAD_AXIS_RIGHT_TRIGGER   : c_int = 5;
+pub const GAMEPAD_AXIS_LAST            : c_int = GAMEPAD_AXIS_RIGHT_TRIGGER;
+
+pub const NO_ERROR                     : c_int = 0;
 pub const NOT_INITIALIZED              : c_int = 0x00010001;
 pub const NO_CURRENT_CONTEXT           : c_int = 0x00010002;
 pub const INVALID_ENUM                 : c_int = 0x00010003;
@@ -219,6 +262,10 @@ pub const DECORATED                    : c_int = 0x00020005;
 pub const AUTO_ICONIFY                 : c_int = 0x00020006;
 pub const FLOATING                     : c_int = 0x00020007;
 pub const MAXIMIZED                    : c_int = 0x00020008;
+pub const CENTER_CURSOR                : c_int = 0x00020009;
+pub const TRANSPARENT_FRAMEBUFFER      : c_int = 0x0002000A; // TODO: attribute
+pub const HOVERED                      : c_int = 0x0002000B; // TODO: attribute
+pub const FOCUS_ON_SHOW                : c_int = 0x0002000C; // TODO: attribute
 
 pub const RED_BITS                     : c_int = 0x00021001;
 pub const GREEN_BITS                   : c_int = 0x00021002;
@@ -248,6 +295,14 @@ pub const OPENGL_PROFILE               : c_int = 0x00022008;
 pub const CONTEXT_RELEASE_BEHAVIOR     : c_int = 0x00022009;
 pub const CONTEXT_NO_ERROR             : c_int = 0x0002200A;
 pub const CONTEXT_CREATION_API         : c_int = 0x0002200B;
+pub const SCALE_TO_MONITOR             : c_int = 0x0002200C;
+
+pub const COCOA_RETINA_FRAMEBUFFER     : c_int = 0x00023001;
+pub const COCOA_FRAME_NAME             : c_int = 0x00023002;
+pub const COCOA_GRAPHICS_SWITCHING     : c_int = 0x00023003;
+
+pub const X11_CLASS_NAME               : c_int = 0x00024001;
+pub const X11_INSTANCE_NAME            : c_int = 0x00024002;
 
 pub const NO_API                       : c_int = 0x00000000;
 pub const OPENGL_API                   : c_int = 0x00030001;
@@ -264,6 +319,8 @@ pub const OPENGL_COMPAT_PROFILE        : c_int = 0x00032002;
 pub const CURSOR                       : c_int = 0x00033001;
 pub const STICKY_KEYS                  : c_int = 0x00033002;
 pub const STICKY_MOUSE_BUTTONS         : c_int = 0x00033003;
+pub const LOCK_KEY_MODS                : c_int = 0x00033004;
+pub const RAW_MOUSE_MOTION             : c_int = 0x00033005;
 
 pub const CURSOR_NORMAL                : c_int = 0x00034001;
 pub const CURSOR_HIDDEN                : c_int = 0x00034002;
@@ -275,6 +332,7 @@ pub const RELEASE_BEHAVIOR_NONE        : c_int = 0x00035002;
 
 pub const NATIVE_CONTEXT_API           : c_int = 0x00036001;
 pub const EGL_CONTEXT_API              : c_int = 0x00036002;
+pub const OSMESA_CONTEXT_API           : c_int = 0x00036003;
 
 pub const ARROW_CURSOR                 : c_int = 0x00036001;
 pub const IBEAM_CURSOR                 : c_int = 0x00036002;
@@ -288,29 +346,36 @@ pub const DISCONNECTED                 : c_int = 0x00040002;
 
 pub const DONT_CARE                    : c_int = -1; //negative one is the correct value
 
-pub type GLFWglproc             = *const c_void;
+// TODO
+pub const JOYSTICK_HAT_BUTTONS         : c_int = 0x00050001;
+pub const COCOA_CHDIR_RESOURCES        : c_int = 0x00051001;
+pub const COCOA_MENUBAR                : c_int = 0x00051002;
+
+pub type GLFWglproc                = *const c_void;
 
 #[cfg(feature = "vulkan")]
-pub type GLFWvkproc             = *const c_void;
+pub type GLFWvkproc                = *const c_void;
 
-pub type GLFWerrorfun           = extern "C" fn(c_int, *const c_char);
-pub type GLFWwindowposfun       = extern "C" fn(*mut GLFWwindow, c_int, c_int);
-pub type GLFWwindowsizefun      = extern "C" fn(*mut GLFWwindow, c_int, c_int);
-pub type GLFWwindowclosefun     = extern "C" fn(*mut GLFWwindow);
-pub type GLFWwindowrefreshfun   = extern "C" fn(*mut GLFWwindow);
-pub type GLFWwindowfocusfun     = extern "C" fn(*mut GLFWwindow, c_int);
-pub type GLFWwindowiconifyfun   = extern "C" fn(*mut GLFWwindow, c_int);
-pub type GLFWframebuffersizefun = extern "C" fn(*mut GLFWwindow, c_int, c_int);
-pub type GLFWmousebuttonfun     = extern "C" fn(*mut GLFWwindow, c_int, c_int, c_int);
-pub type GLFWcursorposfun       = extern "C" fn(*mut GLFWwindow, c_double, c_double);
-pub type GLFWcursorenterfun     = extern "C" fn(*mut GLFWwindow, c_int);
-pub type GLFWscrollfun          = extern "C" fn(*mut GLFWwindow, c_double, c_double);
-pub type GLFWkeyfun             = extern "C" fn(*mut GLFWwindow, c_int, c_int, c_int, c_int);
-pub type GLFWcharfun            = extern "C" fn(*mut GLFWwindow, c_uint);
-pub type GLFWcharmodsfun        = extern "C" fn(*mut GLFWwindow, c_uint, c_int); // TODO: Not yet exposed
-pub type GLFWdropfun            = extern "C" fn(*mut GLFWwindow, c_int, *mut *const c_char); // TODO: Not yet exposed
-pub type GLFWmonitorfun         = extern "C" fn(*mut GLFWmonitor, c_int);
-pub type GLFWjoystickfun        = extern "C" fn(c_int, c_int);
+pub type GLFWerrorfun              = extern "C" fn(c_int, *const c_char);
+pub type GLFWwindowposfun          = extern "C" fn(*mut GLFWwindow, c_int, c_int);
+pub type GLFWwindowsizefun         = extern "C" fn(*mut GLFWwindow, c_int, c_int);
+pub type GLFWwindowclosefun        = extern "C" fn(*mut GLFWwindow);
+pub type GLFWwindowrefreshfun      = extern "C" fn(*mut GLFWwindow);
+pub type GLFWwindowfocusfun        = extern "C" fn(*mut GLFWwindow, c_int);
+pub type GLFWwindowiconifyfun      = extern "C" fn(*mut GLFWwindow, c_int);
+pub type GLFWframebuffersizefun    = extern "C" fn(*mut GLFWwindow, c_int, c_int);
+pub type GLFWmousebuttonfun        = extern "C" fn(*mut GLFWwindow, c_int, c_int, c_int);
+pub type GLFWcursorposfun          = extern "C" fn(*mut GLFWwindow, c_double, c_double);
+pub type GLFWcursorenterfun        = extern "C" fn(*mut GLFWwindow, c_int);
+pub type GLFWscrollfun             = extern "C" fn(*mut GLFWwindow, c_double, c_double);
+pub type GLFWkeyfun                = extern "C" fn(*mut GLFWwindow, c_int, c_int, c_int, c_int);
+pub type GLFWcharfun               = extern "C" fn(*mut GLFWwindow, c_uint);
+pub type GLFWcharmodsfun           = extern "C" fn(*mut GLFWwindow, c_uint, c_int); // TODO: Not yet exposed
+pub type GLFWdropfun               = extern "C" fn(*mut GLFWwindow, c_int, *mut *const c_char); // TODO: Not yet exposed
+pub type GLFWmonitorfun            = extern "C" fn(*mut GLFWmonitor, c_int);
+pub type GLFWjoystickfun           = extern "C" fn(c_int, c_int);
+pub type GLFWwindowmaximizefun     = extern "C" fn(*mut GLFWwindow, c_int); // TODO: Not yet exposed
+pub type GLFWwindowcontentscalefun = extern "C" fn(*mut GLFWwindow, c_float, c_float); // TODO: Not yet exposed
 
 #[allow(missing_copy_implementations)]
 pub enum GLFWmonitor {}
@@ -348,6 +413,13 @@ pub struct GLFWimage {
     pub width: c_int,
     pub height: c_int,
     pub pixels: *const c_uchar,
+}
+
+#[allow(missing_copy_implementations)]
+#[repr(C)]
+pub struct GLFWgamepadstate {
+    pub buttons: [c_uchar; 15],
+    pub axes:    [c_float; 6],
 }
 
 // C function bindings
@@ -455,6 +527,33 @@ extern "C" {
     pub fn glfwGetTimerValue() -> c_ulonglong; //uint64_t
     pub fn glfwGetTimerFrequency() -> c_ulonglong; //uint64_t
     pub fn glfwSetJoystickCallback(cbjoy: Option<GLFWjoystickfun>) -> Option<GLFWjoystickfun>;
+
+    // Added in 3.3
+
+    pub fn glfwInitHint(hint: c_int, value: c_int); // TODO
+    pub fn glfwGetError(description: *mut *const c_char) -> c_int; // TODO
+    pub fn glfwGetMonitorWorkarea(monitor: *mut GLFWmonitor, xpos: *mut c_int, ypos: *mut c_int, width: *mut c_int, height: *mut c_int); // TODO
+    pub fn glfwGetMonitorContentScale(monitor: *mut GLFWmonitor, xscale: *mut c_float, yscale: *mut c_float); // TODO
+    pub fn glfwGetMonitorUserPointer(monitor: *mut GLFWmonitor) -> *mut c_void; // TODO
+    pub fn glfwSetMonitorUserPointer(monitor: *mut GLFWmonitor, pointer: *mut c_void); // TODO
+    pub fn glfwWindowHintString(hint: c_int, value: *const c_char);
+    pub fn glfwGetWindowContentScale(window: *mut GLFWwindow, xscale: *mut c_float, yscale: *mut c_float); // TODO
+    pub fn glfwGetWindowOpacity(window: *mut GLFWwindow) -> c_float; // TODO
+    pub fn glfwSetWindowOpacity(window: *mut GLFWwindow, opacity: c_float); // TODO
+    pub fn glfwRequestWindowAttention(window: *mut GLFWwindow); // TODO
+    pub fn glfwSetWindowAttrib(window: *mut GLFWwindow, attrib: c_int, value: c_int); // TODO
+    pub fn glfwSetWindowMaximizeCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowmaximizefun>) -> Option<GLFWwindowmaximizefun>; // TODO
+    pub fn glfwGetWindowContentScaleCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowcontentscalefun>) -> Option<GLFWwindowcontentscalefun>; // TODO
+    pub fn glfwRawMouseMotionSupported() -> c_int; // TODO
+    pub fn glfwGetKeyScancode(key: c_int) -> c_int; // TODO
+    pub fn glfwGetJoystickHats(jid: c_int, count: *mut c_int) -> *const c_uchar; // TODO
+    pub fn glfwGetJoystickGUID(jid: c_int) -> *const c_char; // TODO
+    pub fn glfwGetJoystickUserPointer(jid: c_int) -> *mut c_void; // TODO
+    pub fn glfwSetJoystickUserPointer(jid: c_int, pointer: *mut c_void); // TODO
+    pub fn glfwJoystickIsGamepad(jid: c_int) -> c_int; // TODO
+    pub fn glfwUpdateGamepadMappings(string: *const c_char) -> c_int; // TODO
+    pub fn glfwGetGamepadName(jid: c_int) -> *const c_char; // TODO
+    pub fn glfwGetGamepadState(jid: c_int, state: *mut GLFWgamepadstate) -> c_int; // TODO
 
     // Vulkan support
 

@@ -364,6 +364,7 @@ pub struct Callback<Fn, UserData> {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Error {
+    NoError                     = ffi::NO_ERROR,
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
     InvalidEnum                 = ffi::INVALID_ENUM,
@@ -387,6 +388,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn description(&self) -> &str {
         match *self {
+            Error::NoError => "NoError",
             Error::NotInitialized => "NotInitialized",
             Error::NoCurrentContext => "NoCurrentContext",
             Error::InvalidEnum => "InvalidEnum",
@@ -565,7 +567,8 @@ pub enum ContextReleaseBehavior {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextCreationApi {
     Native                = ffi::NATIVE_CONTEXT_API,
-    Egl                   = ffi::EGL_CONTEXT_API
+    Egl                   = ffi::EGL_CONTEXT_API,
+    OsMesa                = ffi::OSMESA_CONTEXT_API,
 }
 
 /// Specifies how the context should handle swapping the buffers.
@@ -900,6 +903,18 @@ impl Glfw {
             })
         }
 
+        #[inline(always)]
+        unsafe fn string_hint(hint: c_int, value: Option<String>) {
+            let value = if let Some(value) = &value {
+                value.as_str()
+            } else {
+                ""
+            };
+            with_c_str(value, |value| {
+                ffi::glfwWindowHintString(hint, value)
+            })
+        }
+
         match hint {
             WindowHint::RedBits(bits)                    => unsafe { dont_care_hint(ffi::RED_BITS,                      bits) },
             WindowHint::GreenBits(bits)                  => unsafe { dont_care_hint(ffi::GREEN_BITS,                    bits) },
@@ -937,6 +952,15 @@ impl Glfw {
             WindowHint::ContextCreationApi(api)          => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     api as c_int) },
             WindowHint::ContextReleaseBehavior(behavior) => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int) },
             WindowHint::DoubleBuffer(is_dbuffered)       => unsafe { ffi::glfwWindowHint(ffi::DOUBLEBUFFER,             is_dbuffered as c_int) },
+            WindowHint::CenterCursor(center_cursor) => unsafe { ffi::glfwWindowHint(ffi::CENTER_CURSOR, center_cursor as c_int) },
+            WindowHint::TransparentFramebuffer(is_transparent) => unsafe { ffi::glfwWindowHint(ffi::TRANSPARENT_FRAMEBUFFER, is_transparent as c_int) },
+            WindowHint::FocusOnShow(focus) => unsafe { ffi::glfwWindowHint(ffi::FOCUS_ON_SHOW, focus as c_int) },
+            WindowHint::ScaleToMonitor(scale) => unsafe { ffi::glfwWindowHint(ffi::SCALE_TO_MONITOR, scale as c_int) },
+            WindowHint::CocoaRetinaFramebuffer(retina_fb) => unsafe { ffi::glfwWindowHint(ffi::COCOA_RETINA_FRAMEBUFFER, retina_fb as c_int) },
+            WindowHint::CocoaFrameName(name) => unsafe { string_hint(ffi::COCOA_FRAME_NAME, name) }
+            WindowHint::CocoaGraphicsSwitching(graphics_switching) => unsafe { ffi::glfwWindowHint(ffi::COCOA_GRAPHICS_SWITCHING, graphics_switching as c_int) },
+            WindowHint::X11ClassName(class_name) => unsafe { string_hint(ffi::X11_CLASS_NAME, class_name) },
+            WindowHint::X11InstanceName(instance_name) => unsafe { string_hint(ffi::X11_INSTANCE_NAME, instance_name) },
         }
     }
 
@@ -1344,7 +1368,7 @@ impl fmt::Debug for VidMode {
 }
 
 /// Window hints that can be set using the `window_hint` function.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum WindowHint {
     /// Specifies the desired bit depth of the red component of the default framebuffer.
     RedBits(Option<u32>),
@@ -1465,7 +1489,50 @@ pub enum WindowHint {
     ///
     /// Note that setting this to false will make `swap_buffers` do nothing useful,
     /// and your scene will have to be displayed some other way.
-    DoubleBuffer(bool)
+    DoubleBuffer(bool),
+    /// Speficies whether the cursor should be centered over newly created full screen windows.
+    ///
+    /// This hint is ignored for windowed mode windows.
+    CenterCursor(bool),
+    /// Specifies whether the window framebuffer will be transparent.
+    ///
+    /// If enabled and supported by the system, the window framebuffer alpha channel will be used to
+    /// combine the framebuffer with the background. This does not affect window decorations.
+    TransparentFramebuffer(bool),
+    /// Specifies whether the window will be given input focus when `Window::show` is called.
+    FocusOnShow(bool),
+    /// Specifies whether the window content area should be resized based on the monitor current scale
+    /// of any monitor it is placed on.
+    ///
+    /// This includes the initial placement when the window is created.
+    ScaleToMonitor(bool),
+    /// Specifies whether to use full resolution framebuffers on Retina displays.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaRetinaFramebuffer(bool),
+    /// Specifies the UTF-8 encoded name to use for autosaving the window frame, or if empty disables
+    /// frame autosaving for the window.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaFrameName(Option<String>),
+    /// Specifies whether to in participate in Automatic Graphics Switching, i.e. to allow the system
+    /// to choose the integrated GPU for the OpenGL context and move it between GPUs if necessary or
+    /// whether to force it to always run on the discrete GPU.
+    ///
+    /// Simpler programs and tools may want to enable this to save power, while games and other
+    /// applications performing advanced rendering will want to leave it disabled.
+    //
+    //  A bundled application that wishes to participate in Automatic Graphics Switching should also
+    // declare this in its `Info.plist` by setting the `NSSupportsAutomaticGraphicsSwitching` key to
+    // `true`.
+    ///
+    /// This only affects systems with both integrated and discrete GPUs. This is ignored on platforms
+    /// besides macOS.
+    CocoaGraphicsSwitching(bool),
+    /// Specifies the desired ASCII-encoded class part of the ICCCM `WM_CLASS` window property.
+    X11ClassName(Option<String>),
+    /// Specifies the desired ASCII-encoded instance part of the ICCCM `WM_CLASS` window property.
+    X11InstanceName(Option<String>),
 }
 
 /// Client API tokens.
@@ -1525,6 +1592,8 @@ bitflags! {
         const Control     = ::ffi::MOD_CONTROL;
         const Alt         = ::ffi::MOD_ALT;
         const Super       = ::ffi::MOD_SUPER;
+        const CapsLock    = ::ffi::MOD_CAPS_LOCK;
+        const NumLock     = ::ffi::MOD_NUM_LOCK;
     }
 }
 
@@ -2086,6 +2155,26 @@ impl Window {
     /// Wrapper for `glfwSetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     pub fn set_sticky_mouse_buttons(&mut self, value: bool) {
         unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS, value as c_int); }
+    }
+
+    /// Wrapper for `glfwGetInputMode` called with `LOCK_KEY_MODS`
+    pub fn does_store_lock_key_mods(&self) -> bool {
+        unsafe { ffi::glfwGetInputMode(self.ptr, ffi::LOCK_KEY_MODS) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetInputMode` called with `LOCK_KEY_MODS`
+    pub fn set_store_lock_key_mods(&mut self, value: bool) {
+        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::LOCK_KEY_MODS, value as c_int) }
+    }
+
+    /// Wrapper for `glfwGetInputMode` called with `RAW_MOUSE_MOTION`
+    pub fn uses_raw_mouse_motion(&self) -> bool {
+        unsafe { ffi::glfwGetInputMode(self.ptr, ffi::RAW_MOUSE_MOTION) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetInputMode` called with `RAW_MOUSE_MOTION`
+    pub fn set_raw_mouse_motion(&mut self, value: bool) {
+        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::RAW_MOUSE_MOTION, value as c_int) }
     }
 
     /// Wrapper for `glfwGetKey`.
