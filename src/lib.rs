@@ -1239,6 +1239,24 @@ impl Glfw {
     pub fn supports_raw_motion(&self) -> bool {
         unsafe { ffi::glfwRawMouseMotionSupported() == ffi::TRUE }
     }
+
+    /// Parses the specified ASCII encoded string and updates the internal list with any gamepad
+    /// mappings it finds. This string may contain either a single gamepad mapping or many mappings
+    /// separated by newlines. The parser supports the full format of the `gamecontrollerdb.txt`
+    /// source file including empty lines and comments.
+    ///
+    /// Wrapper for `glfwUpdateGamepadMappings`.
+    ///
+    /// # Returns
+    ///
+    /// `true` if successful, or `false` if an error occured.
+    pub fn update_gamepad_mappings(&self, mappings: &str) -> bool {
+        unsafe {
+            let c_str = CString::new(mappings.as_bytes());
+            let ptr = c_str.unwrap().as_bytes_with_nul().as_ptr() as *const c_char;
+            ffi::glfwUpdateGamepadMappings(ptr) == ffi::TRUE
+        }
+    }
 }
 
 /// Wrapper for `glfwGetVersion`.
@@ -2561,11 +2579,66 @@ enum_from_primitive! {
     }
 }
 
+enum_from_primitive! {
+    /// Button identifier tokens.
+    #[repr(i32)]
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+    pub enum GamepadButton {
+        ButtonA           = ffi::GAMEPAD_BUTTON_A,
+        ButtonB           = ffi::GAMEPAD_BUTTON_B,
+        ButtonX           = ffi::GAMEPAD_BUTTON_X,
+        ButtonY           = ffi::GAMEPAD_BUTTON_Y,
+        ButtonLeftBumper  = ffi::GAMEPAD_BUTTON_LEFT_BUMPER,
+        ButtonRightBumper = ffi::GAMEPAD_BUTTON_RIGHT_BUMPER,
+        ButtonBack        = ffi::GAMEPAD_BUTTON_BACK,
+        ButtonStart       = ffi::GAMEPAD_BUTTON_START,
+        ButtonGuide       = ffi::GAMEPAD_BUTTON_GUIDE,
+        ButtonLeftThumb   = ffi::GAMEPAD_BUTTON_LEFT_THUMB,
+        ButtonRightThumb  = ffi::GAMEPAD_BUTTON_RIGHT_THUMB,
+        ButtonDpadUp      = ffi::GAMEPAD_BUTTON_DPAD_UP,
+        ButtonDpadRight   = ffi::GAMEPAD_BUTTON_DPAD_RIGHT,
+        ButtonDpadDown    = ffi::GAMEPAD_BUTTON_DPAD_DOWN,
+        ButtonDpadLeft    = ffi::GAMEPAD_BUTTON_DPAD_LEFT,
+    }
+}
+
+enum_from_primitive! {
+    /// Axis identifier tokens.
+    #[repr(i32)]
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+    pub enum GamepadAxis {
+        AxisLeftX        = ffi::GAMEPAD_AXIS_LEFT_X,
+        AxisLeftY        = ffi::GAMEPAD_AXIS_LEFT_Y,
+        AxisRightX       = ffi::GAMEPAD_AXIS_RIGHT_X,
+        AxisRightY       = ffi::GAMEPAD_AXIS_RIGHT_Y,
+        AxisLeftTrigger  = ffi::GAMEPAD_AXIS_LEFT_TRIGGER,
+        AxisRightTrigger = ffi::GAMEPAD_AXIS_RIGHT_TRIGGER,
+    }
+}
+
+/// Joystick hats.
+bitflags! {
+    #[doc = "Joystick hats."]
+    pub struct JoystickHats: ::libc::c_int {
+        const Centered = ::ffi::HAT_CENTERED;
+        const Up       = ::ffi::HAT_UP;
+        const Right    = ::ffi::HAT_RIGHT;
+        const Down     = ::ffi::HAT_DOWN;
+        const Left     = ::ffi::HAT_LEFT;
+    }
+}
+
 /// A joystick handle.
 #[derive(Copy, Clone)]
 pub struct Joystick {
     pub id: JoystickId,
     pub glfw: Glfw,
+}
+
+/// State of a gamepad.
+pub struct GamepadState {
+    buttons: [Action; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize],
+    axes: [f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize],
 }
 
 /// Joystick events.
@@ -2604,8 +2677,74 @@ impl Joystick {
         }
     }
 
+    /// Wrapper for `glfwGetJoystickHats`.
+    pub fn get_hats(&self) -> Vec<JoystickHats> {
+        unsafe {
+            let mut count = 0;
+            let ptr = ffi::glfwGetJoystickHats(self.id as c_int, &mut count);
+            slice::from_raw_parts(ptr, count as usize).iter().map(|&b| mem::transmute(b as c_int)).collect()
+        }
+    }
+
     /// Wrapper for `glfwGetJoystickName`.
     pub fn get_name(&self) -> Option<String> {
         unsafe { string_from_nullable_c_str(ffi::glfwGetJoystickName(self.id as c_int)) }
+    }
+
+    /// Wrapper for `glfwGetJoystickGUID`.
+    pub fn get_guid(&self) -> Option<String> {
+        unsafe { string_from_nullable_c_str(ffi::glfwGetJoystickGUID(self.id as c_int)) }
+    }
+
+    /// Wrapper for `glfwJoystickIsGamepad`.
+    pub fn is_gamepad(&self) -> bool {
+        unsafe { ffi::glfwJoystickIsGamepad(self.id as c_int) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwGetGamepadName`.
+    pub fn get_gamepad_name(&self) -> Option<String> {
+        unsafe { string_from_nullable_c_str(ffi::glfwGetGamepadName(self.id as c_int)) }
+    }
+
+    /// Wrapper for `glfwGetGamepadState`.
+    pub fn get_gamepad_state(&self) -> Option<GamepadState> {
+        unsafe {
+            let mut state = ffi::GLFWgamepadstate {
+                buttons: [0; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize],
+                axes: [0_f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize],
+            };
+            if ffi::glfwGetGamepadState(self.id as c_int, &mut state) == ffi::TRUE {
+                Some(state.into())
+            } else {
+                None
+            }
+        }
+    }
+}
+
+impl From<ffi::GLFWgamepadstate> for GamepadState {
+    fn from(state: ffi::GLFWgamepadstate) -> Self {
+        let mut buttons = [Action::Release; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize];
+        let mut axes = [0_f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize];
+        unsafe {
+            state.buttons.iter().map(|&b| mem::transmute(b as c_int))
+                .zip(buttons.iter_mut()).for_each(|(a, b)| *b = a);
+        }
+        state.axes.iter().map(|&f| f as f32)
+            .zip(axes.iter_mut()).for_each(|(a, b)| *b = a);
+        Self {
+            buttons,
+            axes,
+        }
+    }
+}
+
+impl GamepadState {
+    pub fn get_button_state(&self, button: GamepadButton) -> Action {
+        self.buttons[button as usize]
+    }
+
+    pub fn get_axis(&self, axis: GamepadAxis) -> f32 {
+        self.axes[axis as usize]
     }
 }

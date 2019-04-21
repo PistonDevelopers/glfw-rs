@@ -202,12 +202,11 @@ pub const MOUSE_BUTTON_RIGHT           : c_int = MOUSE_BUTTON_2;
 pub const MOUSE_BUTTON_MIDDLE          : c_int = MOUSE_BUTTON_3;
 pub const MOUSE_BUTTON_LAST            : c_int = MOUSE_BUTTON_8;
 
-// TODO
-pub const HAT_CENTERED                 : c_int = 0b0000;
-pub const HAT_UP                       : c_int = 0b0001;
-pub const HAT_RIGHT                    : c_int = 0b0010;
-pub const HAT_DOWN                     : c_int = 0b0100;
-pub const HAT_LEFT                     : c_int = 0b1000;
+pub const HAT_CENTERED                 : c_int = 0x0000;
+pub const HAT_UP                       : c_int = 0x0001;
+pub const HAT_RIGHT                    : c_int = 0x0002;
+pub const HAT_DOWN                     : c_int = 0x0004;
+pub const HAT_LEFT                     : c_int = 0x0008;
 pub const HAT_RIGHT_UP                 : c_int = HAT_RIGHT | HAT_UP;
 pub const HAT_RIGHT_DOWN               : c_int = HAT_RIGHT | HAT_DOWN;
 pub const HAT_LEFT_UP                  : c_int = HAT_LEFT | HAT_UP;
@@ -228,11 +227,11 @@ pub const GAMEPAD_BUTTON_DPAD_UP       : c_int = 11;
 pub const GAMEPAD_BUTTON_DPAD_RIGHT    : c_int = 12;
 pub const GAMEPAD_BUTTON_DPAD_DOWN     : c_int = 13;
 pub const GAMEPAD_BUTTON_DPAD_LEFT     : c_int = 14;
-pub const GAMEPAD_BUTTON_DPAD_LAST     : c_int = GAMEPAD_BUTTON_DPAD_LEFT;
-pub const GAMEPAD_BUTTON_DPAD_CROSS    : c_int = GAMEPAD_BUTTON_A;
-pub const GAMEPAD_BUTTON_DPAD_CIRCLE   : c_int = GAMEPAD_BUTTON_B;
-pub const GAMEPAD_BUTTON_DPAD_SQUARE   : c_int = GAMEPAD_BUTTON_X;
-pub const GAMEPAD_BUTTON_DPAD_TRIANGLE : c_int = GAMEPAD_BUTTON_Y;
+pub const GAMEPAD_BUTTON_LAST          : c_int = GAMEPAD_BUTTON_DPAD_LEFT;
+pub const GAMEPAD_BUTTON_CROSS         : c_int = GAMEPAD_BUTTON_A;
+pub const GAMEPAD_BUTTON_CIRCLE        : c_int = GAMEPAD_BUTTON_B;
+pub const GAMEPAD_BUTTON_SQUARE        : c_int = GAMEPAD_BUTTON_X;
+pub const GAMEPAD_BUTTON_TRIANGLE      : c_int = GAMEPAD_BUTTON_Y;
 
 pub const GAMEPAD_AXIS_LEFT_X          : c_int = 0;
 pub const GAMEPAD_AXIS_LEFT_Y          : c_int = 1;
@@ -417,8 +416,8 @@ pub struct GLFWimage {
 #[allow(missing_copy_implementations)]
 #[repr(C)]
 pub struct GLFWgamepadstate {
-    pub buttons: [c_uchar; 15],
-    pub axes:    [c_float; 6],
+    pub buttons: [c_uchar; (GAMEPAD_BUTTON_LAST + 1) as usize],
+    pub axes:    [c_float; (GAMEPAD_AXIS_LAST + 1) as usize],
 }
 
 // C function bindings
@@ -545,14 +544,14 @@ extern "C" {
     pub fn glfwSetWindowContentScaleCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowcontentscalefun>) -> Option<GLFWwindowcontentscalefun>;
     pub fn glfwRawMouseMotionSupported() -> c_int;
     pub fn glfwGetKeyScancode(key: c_int) -> c_int;
-    pub fn glfwGetJoystickHats(jid: c_int, count: *mut c_int) -> *const c_uchar; // TODO
-    pub fn glfwGetJoystickGUID(jid: c_int) -> *const c_char; // TODO
+    pub fn glfwGetJoystickHats(jid: c_int, count: *mut c_int) -> *const c_uchar;
+    pub fn glfwGetJoystickGUID(jid: c_int) -> *const c_char;
     pub fn glfwGetJoystickUserPointer(jid: c_int) -> *mut c_void; // TODO
     pub fn glfwSetJoystickUserPointer(jid: c_int, pointer: *mut c_void); // TODO
-    pub fn glfwJoystickIsGamepad(jid: c_int) -> c_int; // TODO
-    pub fn glfwUpdateGamepadMappings(string: *const c_char) -> c_int; // TODO
-    pub fn glfwGetGamepadName(jid: c_int) -> *const c_char; // TODO
-    pub fn glfwGetGamepadState(jid: c_int, state: *mut GLFWgamepadstate) -> c_int; // TODO
+    pub fn glfwJoystickIsGamepad(jid: c_int) -> c_int;
+    pub fn glfwUpdateGamepadMappings(string: *const c_char) -> c_int;
+    pub fn glfwGetGamepadName(jid: c_int) -> *const c_char;
+    pub fn glfwGetGamepadState(jid: c_int, state: *mut GLFWgamepadstate) -> c_int;
 
     // Vulkan support
 
