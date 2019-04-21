@@ -1696,6 +1696,8 @@ pub enum WindowEvent {
     Char(char),
     CharModifiers(char, Modifiers),
     FileDrop(Vec<PathBuf>),
+    Maximize(bool),
+    ContentScale(f32, f32),
 }
 
 /// Returns an iterator that yields until no more messages are contained in the
@@ -2145,6 +2147,8 @@ impl Window {
         self.set_cursor_enter_polling(should_poll);
         self.set_scroll_polling(should_poll);
         self.set_drag_and_drop_polling(should_poll);
+        self.set_maximize_polling(should_poll);
+        self.set_content_scale_polling(should_poll);
     }
 
     /// Wrapper for `glfwSetWindowSizeCallback`.
@@ -2180,6 +2184,16 @@ impl Window {
     /// Wrapper for `glfwSetFramebufferSizeCallback`.
     pub fn set_drag_and_drop_polling(&mut self, should_poll: bool) {
         set_window_callback!(self, should_poll, glfwSetDropCallback, drop_callback);
+    }
+
+    /// Wrapper for `glfwSetWindowMaximizeCallback`.
+    pub fn set_maximize_polling(&mut self, should_poll: bool) {
+        set_window_callback!(self, should_poll, glfwSetWindowMaximizeCallback, window_maximize_callback);
+    }
+
+    /// Wrapper for `glfwSetWindowContentScaleCallback`.
+    pub fn set_content_scale_polling(&mut self, should_poll: bool) {
+        set_window_callback!(self, should_poll, glfwSetWindowContentScaleCallback, window_content_scale_callback);
     }
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.

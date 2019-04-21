@@ -373,8 +373,8 @@ pub type GLFWcharmodsfun           = extern "C" fn(*mut GLFWwindow, c_uint, c_in
 pub type GLFWdropfun               = extern "C" fn(*mut GLFWwindow, c_int, *mut *const c_char); // TODO: Not yet exposed
 pub type GLFWmonitorfun            = extern "C" fn(*mut GLFWmonitor, c_int);
 pub type GLFWjoystickfun           = extern "C" fn(c_int, c_int);
-pub type GLFWwindowmaximizefun     = extern "C" fn(*mut GLFWwindow, c_int); // TODO: Not yet exposed
-pub type GLFWwindowcontentscalefun = extern "C" fn(*mut GLFWwindow, c_float, c_float); // TODO: Not yet exposed
+pub type GLFWwindowmaximizefun     = extern "C" fn(*mut GLFWwindow, c_int);
+pub type GLFWwindowcontentscalefun = extern "C" fn(*mut GLFWwindow, c_float, c_float);
 
 #[allow(missing_copy_implementations)]
 pub enum GLFWmonitor {}
@@ -541,8 +541,8 @@ extern "C" {
     pub fn glfwSetWindowOpacity(window: *mut GLFWwindow, opacity: c_float);
     pub fn glfwRequestWindowAttention(window: *mut GLFWwindow);
     pub fn glfwSetWindowAttrib(window: *mut GLFWwindow, attrib: c_int, value: c_int);
-    pub fn glfwSetWindowMaximizeCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowmaximizefun>) -> Option<GLFWwindowmaximizefun>; // TODO
-    pub fn glfwGetWindowContentScaleCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowcontentscalefun>) -> Option<GLFWwindowcontentscalefun>; // TODO
+    pub fn glfwSetWindowMaximizeCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowmaximizefun>) -> Option<GLFWwindowmaximizefun>;
+    pub fn glfwSetWindowContentScaleCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowcontentscalefun>) -> Option<GLFWwindowcontentscalefun>;
     pub fn glfwRawMouseMotionSupported() -> c_int;
     pub fn glfwGetKeyScancode(key: c_int) -> c_int;
     pub fn glfwGetJoystickHats(jid: c_int, count: *mut c_int) -> *const c_uchar; // TODO

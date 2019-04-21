@@ -160,3 +160,5 @@ window_callback!(fn key_callback(key: c_int, scancode: c_int, action: c_int, mod
 window_callback!(fn char_callback(character: c_uint)                                        => Char(::std::char::from_u32(character).unwrap()));
 window_callback!(fn char_mods_callback(character: c_uint, mods: c_int)                      => CharModifiers(::std::char::from_u32(character).unwrap(), Modifiers::from_bits(mods).unwrap()));
 window_callback!(fn drop_callback(num_paths: c_int, paths: *mut *const c_char)              => FileDrop(slice::from_raw_parts(paths, num_paths as usize).iter().map(|path| PathBuf::from(str::from_utf8(CStr::from_ptr(*path).to_bytes()).unwrap().to_string())).collect()));
+window_callback!(fn window_maximize_callback(maximized: c_int)                              => Maximize(maximized == ffi::TRUE));
+window_callback!(fn window_content_scale_callback(xscale: c_float, yscale: c_float)         => ContentScale(xscale as f32, yscale as f32));
