@@ -263,9 +263,9 @@ pub const AUTO_ICONIFY                 : c_int = 0x00020006;
 pub const FLOATING                     : c_int = 0x00020007;
 pub const MAXIMIZED                    : c_int = 0x00020008;
 pub const CENTER_CURSOR                : c_int = 0x00020009;
-pub const TRANSPARENT_FRAMEBUFFER      : c_int = 0x0002000A; // TODO: attribute
-pub const HOVERED                      : c_int = 0x0002000B; // TODO: attribute
-pub const FOCUS_ON_SHOW                : c_int = 0x0002000C; // TODO: attribute
+pub const TRANSPARENT_FRAMEBUFFER      : c_int = 0x0002000A;
+pub const HOVERED                      : c_int = 0x0002000B;
+pub const FOCUS_ON_SHOW                : c_int = 0x0002000C;
 
 pub const RED_BITS                     : c_int = 0x00021001;
 pub const GREEN_BITS                   : c_int = 0x00021002;
@@ -533,18 +533,18 @@ extern "C" {
     pub fn glfwInitHint(hint: c_int, value: c_int); // TODO
     pub fn glfwGetError(description: *mut *const c_char) -> c_int; // TODO
     pub fn glfwGetMonitorWorkarea(monitor: *mut GLFWmonitor, xpos: *mut c_int, ypos: *mut c_int, width: *mut c_int, height: *mut c_int); // TODO
-    pub fn glfwGetMonitorContentScale(monitor: *mut GLFWmonitor, xscale: *mut c_float, yscale: *mut c_float); // TODO
+    pub fn glfwGetMonitorContentScale(monitor: *mut GLFWmonitor, xscale: *mut c_float, yscale: *mut c_float);
     pub fn glfwGetMonitorUserPointer(monitor: *mut GLFWmonitor) -> *mut c_void; // TODO
     pub fn glfwSetMonitorUserPointer(monitor: *mut GLFWmonitor, pointer: *mut c_void); // TODO
     pub fn glfwWindowHintString(hint: c_int, value: *const c_char);
-    pub fn glfwGetWindowContentScale(window: *mut GLFWwindow, xscale: *mut c_float, yscale: *mut c_float); // TODO
-    pub fn glfwGetWindowOpacity(window: *mut GLFWwindow) -> c_float; // TODO
-    pub fn glfwSetWindowOpacity(window: *mut GLFWwindow, opacity: c_float); // TODO
-    pub fn glfwRequestWindowAttention(window: *mut GLFWwindow); // TODO
-    pub fn glfwSetWindowAttrib(window: *mut GLFWwindow, attrib: c_int, value: c_int); // TODO
+    pub fn glfwGetWindowContentScale(window: *mut GLFWwindow, xscale: *mut c_float, yscale: *mut c_float);
+    pub fn glfwGetWindowOpacity(window: *mut GLFWwindow) -> c_float;
+    pub fn glfwSetWindowOpacity(window: *mut GLFWwindow, opacity: c_float);
+    pub fn glfwRequestWindowAttention(window: *mut GLFWwindow);
+    pub fn glfwSetWindowAttrib(window: *mut GLFWwindow, attrib: c_int, value: c_int);
     pub fn glfwSetWindowMaximizeCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowmaximizefun>) -> Option<GLFWwindowmaximizefun>; // TODO
     pub fn glfwGetWindowContentScaleCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowcontentscalefun>) -> Option<GLFWwindowcontentscalefun>; // TODO
-    pub fn glfwRawMouseMotionSupported() -> c_int; // TODO
+    pub fn glfwRawMouseMotionSupported() -> c_int;
     pub fn glfwGetKeyScancode(key: c_int) -> c_int; // TODO
     pub fn glfwGetJoystickHats(jid: c_int, count: *mut c_int) -> *const c_uchar; // TODO
     pub fn glfwGetJoystickGUID(jid: c_int) -> *const c_char; // TODO

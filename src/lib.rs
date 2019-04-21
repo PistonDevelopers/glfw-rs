@@ -1183,6 +1183,11 @@ impl Glfw {
     pub fn get_joystick(&self, id: JoystickId) -> Joystick {
         Joystick { id: id, glfw: self.clone() }
     }
+
+    /// Wrapper for `glfwRawMouseMotionSupported`.
+    pub fn supports_raw_motion(&self) -> bool {
+        unsafe { ffi::glfwRawMouseMotionSupported() == ffi::TRUE }
+    }
 }
 
 /// Wrapper for `glfwGetVersion`.
@@ -1323,6 +1328,16 @@ impl Monitor {
                     size:   ramp.red.len() as u32,
                 }
             );
+        }
+    }
+
+    /// Wrapper for `glfwGetMonitorContentScale`.
+    pub fn get_content_scale(&self) -> (f32, f32) {
+        unsafe {
+            let mut xscale = 0.0_f32;
+            let mut yscale = 0.0_f32;
+            ffi::glfwGetMonitorContentScale(self.ptr, &mut xscale, &mut yscale);
+            (xscale, yscale)
         }
     }
 }
@@ -1985,6 +2000,11 @@ impl Window {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::RESIZABLE) == ffi::TRUE }
     }
 
+    /// Wrapper for `glfwSetWindowAttrib` called with `RESIZABLE`.
+    pub fn set_resizable(&mut self, resizable: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::RESIZABLE, resizable as c_int) }
+    }
+
     /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
     pub fn is_visible(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::VISIBLE) == ffi::TRUE }
@@ -1993,6 +2013,51 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
     pub fn is_decorated(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::DECORATED) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `DECORATED`.
+    pub fn set_decorated(&mut self, decorated: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::DECORATED, decorated as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `AUTO_ICONIFY`.
+    pub fn is_auto_iconify(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::AUTO_ICONIFY) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `AUTO_ICONIFY`.
+    pub fn set_auto_iconify(&mut self, auto_iconify: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::AUTO_ICONIFY, auto_iconify as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `FLOATING`.
+    pub fn is_floating(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::FLOATING) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `FLOATING`.
+    pub fn set_floating(&mut self, floating: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::FLOATING, floating as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `TRANSPARENT_FRAMEBUFFER`.
+    pub fn is_framebuffer_transparent(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::TRANSPARENT_FRAMEBUFFER) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `FOCUS_ON_SHOW`.
+    pub fn is_focus_on_show(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::FOCUS_ON_SHOW) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `FOCUS_ON_SHOW`.
+    pub fn set_focus_on_show(&mut self, focus_on_show: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::FOCUS_ON_SHOW, focus_on_show as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `HOVERED`.
+    pub fn is_hovered(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::HOVERED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
@@ -2249,6 +2314,31 @@ impl Window {
     /// Wrapper for `glfwGetClipboardString`.
     pub fn get_clipboard_string(&self) -> Option<String> {
         unsafe { string_from_nullable_c_str(ffi::glfwGetClipboardString(self.ptr)) }
+    }
+
+    /// Wrapper for 'glfwGetWindowOpacity'.
+    pub fn get_opacity(&self) -> f32 {
+        unsafe { ffi::glfwGetWindowOpacity(self.ptr) }
+    }
+
+    /// Wrapper for 'glfwSetWindowOpacity'.
+    pub fn set_opacity(&mut self, opacity: f32) {
+        unsafe { ffi::glfwSetWindowOpacity(self.ptr, opacity) }
+    }
+
+    /// Wrapper for `glfwRequestWindowAttention`.
+    pub fn request_attention(&mut self) {
+        unsafe { ffi::glfwRequestWindowAttention(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetWindowContentScale`.
+    pub fn get_content_scale(&self) -> (f32, f32) {
+        unsafe {
+            let mut xscale = 0.0_f32;
+            let mut yscale = 0.0_f32;
+            ffi::glfwGetWindowContentScale(self.ptr, &mut xscale, &mut yscale);
+            (xscale, yscale)
+        }
     }
 
     /// Wrapper for `glfwGetWin32Window`
