@@ -346,7 +346,6 @@ pub const DISCONNECTED                 : c_int = 0x00040002;
 
 pub const DONT_CARE                    : c_int = -1; //negative one is the correct value
 
-// TODO
 pub const JOYSTICK_HAT_BUTTONS         : c_int = 0x00050001;
 pub const COCOA_CHDIR_RESOURCES        : c_int = 0x00051001;
 pub const COCOA_MENUBAR                : c_int = 0x00051002;
@@ -530,9 +529,9 @@ extern "C" {
 
     // Added in 3.3
 
-    pub fn glfwInitHint(hint: c_int, value: c_int); // TODO
+    pub fn glfwInitHint(hint: c_int, value: c_int);
     pub fn glfwGetError(description: *mut *const c_char) -> c_int; // TODO
-    pub fn glfwGetMonitorWorkarea(monitor: *mut GLFWmonitor, xpos: *mut c_int, ypos: *mut c_int, width: *mut c_int, height: *mut c_int); // TODO
+    pub fn glfwGetMonitorWorkarea(monitor: *mut GLFWmonitor, xpos: *mut c_int, ypos: *mut c_int, width: *mut c_int, height: *mut c_int);
     pub fn glfwGetMonitorContentScale(monitor: *mut GLFWmonitor, xscale: *mut c_float, yscale: *mut c_float);
     pub fn glfwGetMonitorUserPointer(monitor: *mut GLFWmonitor) -> *mut c_void; // TODO
     pub fn glfwSetMonitorUserPointer(monitor: *mut GLFWmonitor, pointer: *mut c_void); // TODO
@@ -545,7 +544,7 @@ extern "C" {
     pub fn glfwSetWindowMaximizeCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowmaximizefun>) -> Option<GLFWwindowmaximizefun>; // TODO
     pub fn glfwGetWindowContentScaleCallback(window: *mut GLFWwindow, cbfun: Option<GLFWwindowcontentscalefun>) -> Option<GLFWwindowcontentscalefun>; // TODO
     pub fn glfwRawMouseMotionSupported() -> c_int;
-    pub fn glfwGetKeyScancode(key: c_int) -> c_int; // TODO
+    pub fn glfwGetKeyScancode(key: c_int) -> c_int;
     pub fn glfwGetJoystickHats(jid: c_int, count: *mut c_int) -> *const c_uchar; // TODO
     pub fn glfwGetJoystickGUID(jid: c_int) -> *const c_char; // TODO
     pub fn glfwGetJoystickUserPointer(jid: c_int) -> *mut c_void; // TODO

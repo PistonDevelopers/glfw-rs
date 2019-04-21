@@ -277,6 +277,19 @@ pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
     }
 }
 
+/// Wrapper around `glfwGetKeyScancode`.
+pub fn get_key_scancode(key: Option<Key>) -> Option<Scancode> {
+    unsafe {
+        match ffi::glfwGetKeyScancode(match key {
+            Some(key) => key as c_int,
+            None => ffi::KEY_UNKNOWN,
+        }) {
+            ffi::KEY_UNKNOWN => None,
+            scancode => Some(scancode as Scancode),
+        }
+    }
+}
+
 impl Key {
     /// Wrapper around 'glfwGetKeyName` without scancode
     #[deprecated(since = "0.16.0", note = "Key method 'name' can cause a segfault, use 'get_name' instead")]
@@ -288,6 +301,11 @@ impl Key {
     /// Wrapper around 'glfwGetKeyName` without scancode
     pub fn get_name(&self) -> Option<String> {
 	    get_key_name(Some(*self), None)
+    }
+
+    /// Wrapper around `glfwGetKeyScancode`.
+    pub fn get_scancode(&self) -> Option<Scancode> {
+        get_key_scancode(Some(*self))
     }
 }
 
@@ -626,6 +644,39 @@ impl error::Error for InitError {
             InitError::AlreadyInitialized => "Already Initialized",
             InitError::Internal => "Internal Initialization Error",
         }
+    }
+}
+
+/// Initialization hints that can be set using the `init_hint` function.
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum InitHint {
+    /// Specifies whether to also expose joystick hats as buttons, for compatibility with ealier
+    /// versions of GLFW that did not have `glfwGetJoystickHats`.
+    JoystickHatButtons(bool),
+    /// Specifies whether to set the current directory to the application to the `Contents/Resources`
+    /// subdirectory of the application's bundle, if present.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaChdirResources(bool),
+    /// Specifies whether to create a basic menu bar, either from a nib or manually, when the first
+    /// window is created, which is when AppKit is initialized.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaMenubar(bool),
+}
+
+/// Sets hints for the next initialization of GLFW.
+///
+/// The values you set hints to are never reset by GLFW, but they only take effect during
+/// initialization. Once GLFW has been initialized, any values you set will be ignored until the
+/// library is terminated and initialized again.
+///
+/// Wrapper for `glfwInitHint`.
+pub fn init_hint(hint: InitHint) {
+    match hint {
+        InitHint::JoystickHatButtons(joystick_hat_buttons) => unsafe { ffi::glfwInitHint(ffi::JOYSTICK_HAT_BUTTONS, joystick_hat_buttons as c_int) },
+        InitHint::CocoaChdirResources(chdir) => unsafe { ffi::glfwInitHint(ffi::COCOA_CHDIR_RESOURCES, chdir as c_int) },
+        InitHint::CocoaMenubar(menubar) => unsafe { ffi::glfwInitHint(ffi::COCOA_MENUBAR, menubar as c_int) },
     }
 }
 
@@ -1338,6 +1389,18 @@ impl Monitor {
             let mut yscale = 0.0_f32;
             ffi::glfwGetMonitorContentScale(self.ptr, &mut xscale, &mut yscale);
             (xscale, yscale)
+        }
+    }
+
+    /// Wrapper for `glfwGetMonitorWorkarea`.
+    pub fn get_workarea(&self) -> (i32, i32, i32, i32) {
+        unsafe {
+            let mut xpos = 0;
+            let mut ypos = 0;
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetMonitorWorkarea(self.ptr, &mut xpos, &mut ypos, &mut width, &mut height);
+            (xpos, ypos, width, height)
         }
     }
 }
