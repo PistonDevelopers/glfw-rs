@@ -277,6 +277,19 @@ pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
     }
 }
 
+/// Wrapper around `glfwGetKeyScancode`.
+pub fn get_key_scancode(key: Option<Key>) -> Option<Scancode> {
+    unsafe {
+        match ffi::glfwGetKeyScancode(match key {
+            Some(key) => key as c_int,
+            None => ffi::KEY_UNKNOWN,
+        }) {
+            ffi::KEY_UNKNOWN => None,
+            scancode => Some(scancode as Scancode),
+        }
+    }
+}
+
 impl Key {
     /// Wrapper around 'glfwGetKeyName` without scancode
     #[deprecated(since = "0.16.0", note = "Key method 'name' can cause a segfault, use 'get_name' instead")]
@@ -288,6 +301,11 @@ impl Key {
     /// Wrapper around 'glfwGetKeyName` without scancode
     pub fn get_name(&self) -> Option<String> {
 	    get_key_name(Some(*self), None)
+    }
+
+    /// Wrapper around `glfwGetKeyScancode`.
+    pub fn get_scancode(&self) -> Option<Scancode> {
+        get_key_scancode(Some(*self))
     }
 }
 
@@ -364,6 +382,7 @@ pub struct Callback<Fn, UserData> {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Error {
+    NoError                     = ffi::NO_ERROR,
     NotInitialized              = ffi::NOT_INITIALIZED,
     NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
     InvalidEnum                 = ffi::INVALID_ENUM,
@@ -387,6 +406,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn description(&self) -> &str {
         match *self {
+            Error::NoError => "NoError",
             Error::NotInitialized => "NotInitialized",
             Error::NoCurrentContext => "NoCurrentContext",
             Error::InvalidEnum => "InvalidEnum",
@@ -565,7 +585,8 @@ pub enum ContextReleaseBehavior {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextCreationApi {
     Native                = ffi::NATIVE_CONTEXT_API,
-    Egl                   = ffi::EGL_CONTEXT_API
+    Egl                   = ffi::EGL_CONTEXT_API,
+    OsMesa                = ffi::OSMESA_CONTEXT_API,
 }
 
 /// Specifies how the context should handle swapping the buffers.
@@ -623,6 +644,39 @@ impl error::Error for InitError {
             InitError::AlreadyInitialized => "Already Initialized",
             InitError::Internal => "Internal Initialization Error",
         }
+    }
+}
+
+/// Initialization hints that can be set using the `init_hint` function.
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum InitHint {
+    /// Specifies whether to also expose joystick hats as buttons, for compatibility with ealier
+    /// versions of GLFW that did not have `glfwGetJoystickHats`.
+    JoystickHatButtons(bool),
+    /// Specifies whether to set the current directory to the application to the `Contents/Resources`
+    /// subdirectory of the application's bundle, if present.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaChdirResources(bool),
+    /// Specifies whether to create a basic menu bar, either from a nib or manually, when the first
+    /// window is created, which is when AppKit is initialized.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaMenubar(bool),
+}
+
+/// Sets hints for the next initialization of GLFW.
+///
+/// The values you set hints to are never reset by GLFW, but they only take effect during
+/// initialization. Once GLFW has been initialized, any values you set will be ignored until the
+/// library is terminated and initialized again.
+///
+/// Wrapper for `glfwInitHint`.
+pub fn init_hint(hint: InitHint) {
+    match hint {
+        InitHint::JoystickHatButtons(joystick_hat_buttons) => unsafe { ffi::glfwInitHint(ffi::JOYSTICK_HAT_BUTTONS, joystick_hat_buttons as c_int) },
+        InitHint::CocoaChdirResources(chdir) => unsafe { ffi::glfwInitHint(ffi::COCOA_CHDIR_RESOURCES, chdir as c_int) },
+        InitHint::CocoaMenubar(menubar) => unsafe { ffi::glfwInitHint(ffi::COCOA_MENUBAR, menubar as c_int) },
     }
 }
 
@@ -900,6 +954,18 @@ impl Glfw {
             })
         }
 
+        #[inline(always)]
+        unsafe fn string_hint(hint: c_int, value: Option<String>) {
+            let value = if let Some(value) = &value {
+                value.as_str()
+            } else {
+                ""
+            };
+            with_c_str(value, |value| {
+                ffi::glfwWindowHintString(hint, value)
+            })
+        }
+
         match hint {
             WindowHint::RedBits(bits)                    => unsafe { dont_care_hint(ffi::RED_BITS,                      bits) },
             WindowHint::GreenBits(bits)                  => unsafe { dont_care_hint(ffi::GREEN_BITS,                    bits) },
@@ -937,6 +1003,15 @@ impl Glfw {
             WindowHint::ContextCreationApi(api)          => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     api as c_int) },
             WindowHint::ContextReleaseBehavior(behavior) => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int) },
             WindowHint::DoubleBuffer(is_dbuffered)       => unsafe { ffi::glfwWindowHint(ffi::DOUBLEBUFFER,             is_dbuffered as c_int) },
+            WindowHint::CenterCursor(center_cursor) => unsafe { ffi::glfwWindowHint(ffi::CENTER_CURSOR, center_cursor as c_int) },
+            WindowHint::TransparentFramebuffer(is_transparent) => unsafe { ffi::glfwWindowHint(ffi::TRANSPARENT_FRAMEBUFFER, is_transparent as c_int) },
+            WindowHint::FocusOnShow(focus) => unsafe { ffi::glfwWindowHint(ffi::FOCUS_ON_SHOW, focus as c_int) },
+            WindowHint::ScaleToMonitor(scale) => unsafe { ffi::glfwWindowHint(ffi::SCALE_TO_MONITOR, scale as c_int) },
+            WindowHint::CocoaRetinaFramebuffer(retina_fb) => unsafe { ffi::glfwWindowHint(ffi::COCOA_RETINA_FRAMEBUFFER, retina_fb as c_int) },
+            WindowHint::CocoaFrameName(name) => unsafe { string_hint(ffi::COCOA_FRAME_NAME, name) }
+            WindowHint::CocoaGraphicsSwitching(graphics_switching) => unsafe { ffi::glfwWindowHint(ffi::COCOA_GRAPHICS_SWITCHING, graphics_switching as c_int) },
+            WindowHint::X11ClassName(class_name) => unsafe { string_hint(ffi::X11_CLASS_NAME, class_name) },
+            WindowHint::X11InstanceName(instance_name) => unsafe { string_hint(ffi::X11_INSTANCE_NAME, instance_name) },
         }
     }
 
@@ -1159,6 +1234,29 @@ impl Glfw {
     pub fn get_joystick(&self, id: JoystickId) -> Joystick {
         Joystick { id: id, glfw: self.clone() }
     }
+
+    /// Wrapper for `glfwRawMouseMotionSupported`.
+    pub fn supports_raw_motion(&self) -> bool {
+        unsafe { ffi::glfwRawMouseMotionSupported() == ffi::TRUE }
+    }
+
+    /// Parses the specified ASCII encoded string and updates the internal list with any gamepad
+    /// mappings it finds. This string may contain either a single gamepad mapping or many mappings
+    /// separated by newlines. The parser supports the full format of the `gamecontrollerdb.txt`
+    /// source file including empty lines and comments.
+    ///
+    /// Wrapper for `glfwUpdateGamepadMappings`.
+    ///
+    /// # Returns
+    ///
+    /// `true` if successful, or `false` if an error occured.
+    pub fn update_gamepad_mappings(&self, mappings: &str) -> bool {
+        unsafe {
+            let c_str = CString::new(mappings.as_bytes());
+            let ptr = c_str.unwrap().as_bytes_with_nul().as_ptr() as *const c_char;
+            ffi::glfwUpdateGamepadMappings(ptr) == ffi::TRUE
+        }
+    }
 }
 
 /// Wrapper for `glfwGetVersion`.
@@ -1301,6 +1399,28 @@ impl Monitor {
             );
         }
     }
+
+    /// Wrapper for `glfwGetMonitorContentScale`.
+    pub fn get_content_scale(&self) -> (f32, f32) {
+        unsafe {
+            let mut xscale = 0.0_f32;
+            let mut yscale = 0.0_f32;
+            ffi::glfwGetMonitorContentScale(self.ptr, &mut xscale, &mut yscale);
+            (xscale, yscale)
+        }
+    }
+
+    /// Wrapper for `glfwGetMonitorWorkarea`.
+    pub fn get_workarea(&self) -> (i32, i32, i32, i32) {
+        unsafe {
+            let mut xpos = 0;
+            let mut ypos = 0;
+            let mut width = 0;
+            let mut height = 0;
+            ffi::glfwGetMonitorWorkarea(self.ptr, &mut xpos, &mut ypos, &mut width, &mut height);
+            (xpos, ypos, width, height)
+        }
+    }
 }
 
 /// Monitor events.
@@ -1344,7 +1464,7 @@ impl fmt::Debug for VidMode {
 }
 
 /// Window hints that can be set using the `window_hint` function.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum WindowHint {
     /// Specifies the desired bit depth of the red component of the default framebuffer.
     RedBits(Option<u32>),
@@ -1465,7 +1585,50 @@ pub enum WindowHint {
     ///
     /// Note that setting this to false will make `swap_buffers` do nothing useful,
     /// and your scene will have to be displayed some other way.
-    DoubleBuffer(bool)
+    DoubleBuffer(bool),
+    /// Speficies whether the cursor should be centered over newly created full screen windows.
+    ///
+    /// This hint is ignored for windowed mode windows.
+    CenterCursor(bool),
+    /// Specifies whether the window framebuffer will be transparent.
+    ///
+    /// If enabled and supported by the system, the window framebuffer alpha channel will be used to
+    /// combine the framebuffer with the background. This does not affect window decorations.
+    TransparentFramebuffer(bool),
+    /// Specifies whether the window will be given input focus when `Window::show` is called.
+    FocusOnShow(bool),
+    /// Specifies whether the window content area should be resized based on the monitor current scale
+    /// of any monitor it is placed on.
+    ///
+    /// This includes the initial placement when the window is created.
+    ScaleToMonitor(bool),
+    /// Specifies whether to use full resolution framebuffers on Retina displays.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaRetinaFramebuffer(bool),
+    /// Specifies the UTF-8 encoded name to use for autosaving the window frame, or if empty disables
+    /// frame autosaving for the window.
+    ///
+    /// This is ignored on platforms besides macOS.
+    CocoaFrameName(Option<String>),
+    /// Specifies whether to in participate in Automatic Graphics Switching, i.e. to allow the system
+    /// to choose the integrated GPU for the OpenGL context and move it between GPUs if necessary or
+    /// whether to force it to always run on the discrete GPU.
+    ///
+    /// Simpler programs and tools may want to enable this to save power, while games and other
+    /// applications performing advanced rendering will want to leave it disabled.
+    //
+    //  A bundled application that wishes to participate in Automatic Graphics Switching should also
+    // declare this in its `Info.plist` by setting the `NSSupportsAutomaticGraphicsSwitching` key to
+    // `true`.
+    ///
+    /// This only affects systems with both integrated and discrete GPUs. This is ignored on platforms
+    /// besides macOS.
+    CocoaGraphicsSwitching(bool),
+    /// Specifies the desired ASCII-encoded class part of the ICCCM `WM_CLASS` window property.
+    X11ClassName(Option<String>),
+    /// Specifies the desired ASCII-encoded instance part of the ICCCM `WM_CLASS` window property.
+    X11InstanceName(Option<String>),
 }
 
 /// Client API tokens.
@@ -1525,6 +1688,8 @@ bitflags! {
         const Control     = ::ffi::MOD_CONTROL;
         const Alt         = ::ffi::MOD_ALT;
         const Super       = ::ffi::MOD_SUPER;
+        const CapsLock    = ::ffi::MOD_CAPS_LOCK;
+        const NumLock     = ::ffi::MOD_NUM_LOCK;
     }
 }
 
@@ -1549,6 +1714,8 @@ pub enum WindowEvent {
     Char(char),
     CharModifiers(char, Modifiers),
     FileDrop(Vec<PathBuf>),
+    Maximize(bool),
+    ContentScale(f32, f32),
 }
 
 /// Returns an iterator that yields until no more messages are contained in the
@@ -1916,6 +2083,11 @@ impl Window {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::RESIZABLE) == ffi::TRUE }
     }
 
+    /// Wrapper for `glfwSetWindowAttrib` called with `RESIZABLE`.
+    pub fn set_resizable(&mut self, resizable: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::RESIZABLE, resizable as c_int) }
+    }
+
     /// Wrapper for `glfwGetWindowAttrib` called with `VISIBLE`.
     pub fn is_visible(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::VISIBLE) == ffi::TRUE }
@@ -1924,6 +2096,51 @@ impl Window {
     /// Wrapper for `glfwGetWindowAttrib` called with `DECORATED`.
     pub fn is_decorated(&self) -> bool {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::DECORATED) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `DECORATED`.
+    pub fn set_decorated(&mut self, decorated: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::DECORATED, decorated as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `AUTO_ICONIFY`.
+    pub fn is_auto_iconify(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::AUTO_ICONIFY) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `AUTO_ICONIFY`.
+    pub fn set_auto_iconify(&mut self, auto_iconify: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::AUTO_ICONIFY, auto_iconify as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `FLOATING`.
+    pub fn is_floating(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::FLOATING) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `FLOATING`.
+    pub fn set_floating(&mut self, floating: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::FLOATING, floating as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `TRANSPARENT_FRAMEBUFFER`.
+    pub fn is_framebuffer_transparent(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::TRANSPARENT_FRAMEBUFFER) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `FOCUS_ON_SHOW`.
+    pub fn is_focus_on_show(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::FOCUS_ON_SHOW) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowAttrib` called with `FOCUS_ON_SHOW`.
+    pub fn set_focus_on_show(&mut self, focus_on_show: bool) {
+        unsafe { ffi::glfwSetWindowAttrib(self.ptr, ffi::FOCUS_ON_SHOW, focus_on_show as c_int) }
+    }
+
+    /// Wrapper for `glfwGetWindowAttrib` called with `HOVERED`.
+    pub fn is_hovered(&self) -> bool {
+        unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::HOVERED) == ffi::TRUE }
     }
 
     /// Wrapper for `glfwSetWindowPosCallback`.
@@ -1948,6 +2165,8 @@ impl Window {
         self.set_cursor_enter_polling(should_poll);
         self.set_scroll_polling(should_poll);
         self.set_drag_and_drop_polling(should_poll);
+        self.set_maximize_polling(should_poll);
+        self.set_content_scale_polling(should_poll);
     }
 
     /// Wrapper for `glfwSetWindowSizeCallback`.
@@ -1983,6 +2202,16 @@ impl Window {
     /// Wrapper for `glfwSetFramebufferSizeCallback`.
     pub fn set_drag_and_drop_polling(&mut self, should_poll: bool) {
         set_window_callback!(self, should_poll, glfwSetDropCallback, drop_callback);
+    }
+
+    /// Wrapper for `glfwSetWindowMaximizeCallback`.
+    pub fn set_maximize_polling(&mut self, should_poll: bool) {
+        set_window_callback!(self, should_poll, glfwSetWindowMaximizeCallback, window_maximize_callback);
+    }
+
+    /// Wrapper for `glfwSetWindowContentScaleCallback`.
+    pub fn set_content_scale_polling(&mut self, should_poll: bool) {
+        set_window_callback!(self, should_poll, glfwSetWindowContentScaleCallback, window_content_scale_callback);
     }
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
@@ -2088,6 +2317,26 @@ impl Window {
         unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS, value as c_int); }
     }
 
+    /// Wrapper for `glfwGetInputMode` called with `LOCK_KEY_MODS`
+    pub fn does_store_lock_key_mods(&self) -> bool {
+        unsafe { ffi::glfwGetInputMode(self.ptr, ffi::LOCK_KEY_MODS) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetInputMode` called with `LOCK_KEY_MODS`
+    pub fn set_store_lock_key_mods(&mut self, value: bool) {
+        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::LOCK_KEY_MODS, value as c_int) }
+    }
+
+    /// Wrapper for `glfwGetInputMode` called with `RAW_MOUSE_MOTION`
+    pub fn uses_raw_mouse_motion(&self) -> bool {
+        unsafe { ffi::glfwGetInputMode(self.ptr, ffi::RAW_MOUSE_MOTION) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetInputMode` called with `RAW_MOUSE_MOTION`
+    pub fn set_raw_mouse_motion(&mut self, value: bool) {
+        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::RAW_MOUSE_MOTION, value as c_int) }
+    }
+
     /// Wrapper for `glfwGetKey`.
     pub fn get_key(&self, key: Key) -> Action {
         unsafe { mem::transmute(ffi::glfwGetKey(self.ptr, key as c_int)) }
@@ -2160,6 +2409,31 @@ impl Window {
     /// Wrapper for `glfwGetClipboardString`.
     pub fn get_clipboard_string(&self) -> Option<String> {
         unsafe { string_from_nullable_c_str(ffi::glfwGetClipboardString(self.ptr)) }
+    }
+
+    /// Wrapper for 'glfwGetWindowOpacity'.
+    pub fn get_opacity(&self) -> f32 {
+        unsafe { ffi::glfwGetWindowOpacity(self.ptr) }
+    }
+
+    /// Wrapper for 'glfwSetWindowOpacity'.
+    pub fn set_opacity(&mut self, opacity: f32) {
+        unsafe { ffi::glfwSetWindowOpacity(self.ptr, opacity) }
+    }
+
+    /// Wrapper for `glfwRequestWindowAttention`.
+    pub fn request_attention(&mut self) {
+        unsafe { ffi::glfwRequestWindowAttention(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetWindowContentScale`.
+    pub fn get_content_scale(&self) -> (f32, f32) {
+        unsafe {
+            let mut xscale = 0.0_f32;
+            let mut yscale = 0.0_f32;
+            ffi::glfwGetWindowContentScale(self.ptr, &mut xscale, &mut yscale);
+            (xscale, yscale)
+        }
     }
 
     /// Wrapper for `glfwGetWin32Window`
@@ -2305,11 +2579,66 @@ enum_from_primitive! {
     }
 }
 
+enum_from_primitive! {
+    /// Button identifier tokens.
+    #[repr(i32)]
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+    pub enum GamepadButton {
+        ButtonA           = ffi::GAMEPAD_BUTTON_A,
+        ButtonB           = ffi::GAMEPAD_BUTTON_B,
+        ButtonX           = ffi::GAMEPAD_BUTTON_X,
+        ButtonY           = ffi::GAMEPAD_BUTTON_Y,
+        ButtonLeftBumper  = ffi::GAMEPAD_BUTTON_LEFT_BUMPER,
+        ButtonRightBumper = ffi::GAMEPAD_BUTTON_RIGHT_BUMPER,
+        ButtonBack        = ffi::GAMEPAD_BUTTON_BACK,
+        ButtonStart       = ffi::GAMEPAD_BUTTON_START,
+        ButtonGuide       = ffi::GAMEPAD_BUTTON_GUIDE,
+        ButtonLeftThumb   = ffi::GAMEPAD_BUTTON_LEFT_THUMB,
+        ButtonRightThumb  = ffi::GAMEPAD_BUTTON_RIGHT_THUMB,
+        ButtonDpadUp      = ffi::GAMEPAD_BUTTON_DPAD_UP,
+        ButtonDpadRight   = ffi::GAMEPAD_BUTTON_DPAD_RIGHT,
+        ButtonDpadDown    = ffi::GAMEPAD_BUTTON_DPAD_DOWN,
+        ButtonDpadLeft    = ffi::GAMEPAD_BUTTON_DPAD_LEFT,
+    }
+}
+
+enum_from_primitive! {
+    /// Axis identifier tokens.
+    #[repr(i32)]
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+    pub enum GamepadAxis {
+        AxisLeftX        = ffi::GAMEPAD_AXIS_LEFT_X,
+        AxisLeftY        = ffi::GAMEPAD_AXIS_LEFT_Y,
+        AxisRightX       = ffi::GAMEPAD_AXIS_RIGHT_X,
+        AxisRightY       = ffi::GAMEPAD_AXIS_RIGHT_Y,
+        AxisLeftTrigger  = ffi::GAMEPAD_AXIS_LEFT_TRIGGER,
+        AxisRightTrigger = ffi::GAMEPAD_AXIS_RIGHT_TRIGGER,
+    }
+}
+
+/// Joystick hats.
+bitflags! {
+    #[doc = "Joystick hats."]
+    pub struct JoystickHats: ::libc::c_int {
+        const Centered = ::ffi::HAT_CENTERED;
+        const Up       = ::ffi::HAT_UP;
+        const Right    = ::ffi::HAT_RIGHT;
+        const Down     = ::ffi::HAT_DOWN;
+        const Left     = ::ffi::HAT_LEFT;
+    }
+}
+
 /// A joystick handle.
 #[derive(Copy, Clone)]
 pub struct Joystick {
     pub id: JoystickId,
     pub glfw: Glfw,
+}
+
+/// State of a gamepad.
+pub struct GamepadState {
+    buttons: [Action; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize],
+    axes: [f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize],
 }
 
 /// Joystick events.
@@ -2348,8 +2677,74 @@ impl Joystick {
         }
     }
 
+    /// Wrapper for `glfwGetJoystickHats`.
+    pub fn get_hats(&self) -> Vec<JoystickHats> {
+        unsafe {
+            let mut count = 0;
+            let ptr = ffi::glfwGetJoystickHats(self.id as c_int, &mut count);
+            slice::from_raw_parts(ptr, count as usize).iter().map(|&b| mem::transmute(b as c_int)).collect()
+        }
+    }
+
     /// Wrapper for `glfwGetJoystickName`.
     pub fn get_name(&self) -> Option<String> {
         unsafe { string_from_nullable_c_str(ffi::glfwGetJoystickName(self.id as c_int)) }
+    }
+
+    /// Wrapper for `glfwGetJoystickGUID`.
+    pub fn get_guid(&self) -> Option<String> {
+        unsafe { string_from_nullable_c_str(ffi::glfwGetJoystickGUID(self.id as c_int)) }
+    }
+
+    /// Wrapper for `glfwJoystickIsGamepad`.
+    pub fn is_gamepad(&self) -> bool {
+        unsafe { ffi::glfwJoystickIsGamepad(self.id as c_int) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwGetGamepadName`.
+    pub fn get_gamepad_name(&self) -> Option<String> {
+        unsafe { string_from_nullable_c_str(ffi::glfwGetGamepadName(self.id as c_int)) }
+    }
+
+    /// Wrapper for `glfwGetGamepadState`.
+    pub fn get_gamepad_state(&self) -> Option<GamepadState> {
+        unsafe {
+            let mut state = ffi::GLFWgamepadstate {
+                buttons: [0; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize],
+                axes: [0_f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize],
+            };
+            if ffi::glfwGetGamepadState(self.id as c_int, &mut state) == ffi::TRUE {
+                Some(state.into())
+            } else {
+                None
+            }
+        }
+    }
+}
+
+impl From<ffi::GLFWgamepadstate> for GamepadState {
+    fn from(state: ffi::GLFWgamepadstate) -> Self {
+        let mut buttons = [Action::Release; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize];
+        let mut axes = [0_f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize];
+        unsafe {
+            state.buttons.iter().map(|&b| mem::transmute(b as c_int))
+                .zip(buttons.iter_mut()).for_each(|(a, b)| *b = a);
+        }
+        state.axes.iter().map(|&f| f as f32)
+            .zip(axes.iter_mut()).for_each(|(a, b)| *b = a);
+        Self {
+            buttons,
+            axes,
+        }
+    }
+}
+
+impl GamepadState {
+    pub fn get_button_state(&self, button: GamepadButton) -> Action {
+        self.buttons[button as usize]
+    }
+
+    pub fn get_axis(&self, axis: GamepadAxis) -> f32 {
+        self.axes[axis as usize]
     }
 }

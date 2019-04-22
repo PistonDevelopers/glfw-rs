@@ -43,6 +43,8 @@ fn main() {
     window.set_cursor_pos_polling(true);
     window.set_cursor_enter_polling(true);
     window.set_scroll_polling(true);
+    window.set_maximize_polling(true);
+    window.set_content_scale_polling(true);
 
     // Alternatively, all event types may be set to poll at once. Note that
     // in this example, this call is redundant as all events have been set
@@ -91,5 +93,7 @@ fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::Win
             }
         }
         glfw::WindowEvent::FileDrop(paths)                => println!("Time: {:?}, Files dropped: {:?}", time, paths),
+        glfw::WindowEvent::Maximize(maximized) => println!("Time: {:?}, Window maximized: {:?}.", time, maximized),
+        glfw::WindowEvent::ContentScale(xscale, yscale) => println!("Time: {:?}, Content scale x: {:?}, Content scale y: {:?}", time, xscale, yscale),
     }
 }
