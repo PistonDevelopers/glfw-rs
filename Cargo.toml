@@ -10,10 +10,8 @@ version = "0.28.0"
 
 [dependencies]
 bitflags = "1.0.0"
-enum_primitive = "0.1"
 libc = "0.2"
 log = "0.4"
-num = "0.2"
 semver = "0.2"
 
 [dependencies.glfw-sys]

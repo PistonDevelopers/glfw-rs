@@ -79,9 +79,6 @@ extern crate vk_sys;
 extern crate log;
 #[macro_use]
 extern crate bitflags;
-#[macro_use]
-extern crate enum_primitive;
-extern crate num;
 #[cfg(feature = "image")]
 extern crate image;
 
@@ -126,7 +123,6 @@ pub enum Action {
     Repeat                       = ffi::REPEAT,
 }
 
-enum_from_primitive! {
 /// Input keys.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -254,7 +250,6 @@ pub enum Key {
     Menu                     = ffi::KEY_MENU,
     Unknown                  = ffi::KEY_UNKNOWN
 }
-}
 
 /// Wrapper around 'glfwGetKeyName`
 pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<String> {
@@ -325,29 +320,6 @@ pub enum MouseButton {
     Button6                = ffi::MOUSE_BUTTON_6,
     Button7                = ffi::MOUSE_BUTTON_7,
     Button8                = ffi::MOUSE_BUTTON_8,
-}
-
-// We can't use `enum_from_primitive!` for MouseButton due to
-// https://github.com/andersk/enum_primitive-rs/issues/2
-// We implement FromPrimitive manually instead.
-impl num::FromPrimitive for MouseButton {
-    fn from_i64(n: i64) -> Option<MouseButton> {
-        use MouseButton::*;
-        match n {
-            0 => Some(Button1),
-            1 => Some(Button2),
-            2 => Some(Button3),
-            3 => Some(Button4),
-            4 => Some(Button5),
-            5 => Some(Button6),
-            6 => Some(Button7),
-            7 => Some(Button8),
-            _ => None
-        }
-    }
-    fn from_u64(n: u64) -> Option<MouseButton> {
-        Self::from_i64(n as i64)
-    }
 }
 
 /// Formats the type using aliases rather than the default variant names.
@@ -2555,65 +2527,59 @@ pub fn make_context_current(context: Option<&Context>) {
     }
 }
 
-enum_from_primitive! {
-    /// Joystick identifier tokens.
-    #[repr(i32)]
-    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-    pub enum JoystickId {
-        Joystick1       = ffi::JOYSTICK_1,
-        Joystick2       = ffi::JOYSTICK_2,
-        Joystick3       = ffi::JOYSTICK_3,
-        Joystick4       = ffi::JOYSTICK_4,
-        Joystick5       = ffi::JOYSTICK_5,
-        Joystick6       = ffi::JOYSTICK_6,
-        Joystick7       = ffi::JOYSTICK_7,
-        Joystick8       = ffi::JOYSTICK_8,
-        Joystick9       = ffi::JOYSTICK_9,
-        Joystick10      = ffi::JOYSTICK_10,
-        Joystick11      = ffi::JOYSTICK_11,
-        Joystick12      = ffi::JOYSTICK_12,
-        Joystick13      = ffi::JOYSTICK_13,
-        Joystick14      = ffi::JOYSTICK_14,
-        Joystick15      = ffi::JOYSTICK_15,
-        Joystick16      = ffi::JOYSTICK_16,
-    }
+/// Joystick identifier tokens.
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum JoystickId {
+    Joystick1       = ffi::JOYSTICK_1,
+    Joystick2       = ffi::JOYSTICK_2,
+    Joystick3       = ffi::JOYSTICK_3,
+    Joystick4       = ffi::JOYSTICK_4,
+    Joystick5       = ffi::JOYSTICK_5,
+    Joystick6       = ffi::JOYSTICK_6,
+    Joystick7       = ffi::JOYSTICK_7,
+    Joystick8       = ffi::JOYSTICK_8,
+    Joystick9       = ffi::JOYSTICK_9,
+    Joystick10      = ffi::JOYSTICK_10,
+    Joystick11      = ffi::JOYSTICK_11,
+    Joystick12      = ffi::JOYSTICK_12,
+    Joystick13      = ffi::JOYSTICK_13,
+    Joystick14      = ffi::JOYSTICK_14,
+    Joystick15      = ffi::JOYSTICK_15,
+    Joystick16      = ffi::JOYSTICK_16,
 }
 
-enum_from_primitive! {
-    /// Button identifier tokens.
-    #[repr(i32)]
-    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-    pub enum GamepadButton {
-        ButtonA           = ffi::GAMEPAD_BUTTON_A,
-        ButtonB           = ffi::GAMEPAD_BUTTON_B,
-        ButtonX           = ffi::GAMEPAD_BUTTON_X,
-        ButtonY           = ffi::GAMEPAD_BUTTON_Y,
-        ButtonLeftBumper  = ffi::GAMEPAD_BUTTON_LEFT_BUMPER,
-        ButtonRightBumper = ffi::GAMEPAD_BUTTON_RIGHT_BUMPER,
-        ButtonBack        = ffi::GAMEPAD_BUTTON_BACK,
-        ButtonStart       = ffi::GAMEPAD_BUTTON_START,
-        ButtonGuide       = ffi::GAMEPAD_BUTTON_GUIDE,
-        ButtonLeftThumb   = ffi::GAMEPAD_BUTTON_LEFT_THUMB,
-        ButtonRightThumb  = ffi::GAMEPAD_BUTTON_RIGHT_THUMB,
-        ButtonDpadUp      = ffi::GAMEPAD_BUTTON_DPAD_UP,
-        ButtonDpadRight   = ffi::GAMEPAD_BUTTON_DPAD_RIGHT,
-        ButtonDpadDown    = ffi::GAMEPAD_BUTTON_DPAD_DOWN,
-        ButtonDpadLeft    = ffi::GAMEPAD_BUTTON_DPAD_LEFT,
-    }
+/// Button identifier tokens.
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum GamepadButton {
+    ButtonA           = ffi::GAMEPAD_BUTTON_A,
+    ButtonB           = ffi::GAMEPAD_BUTTON_B,
+    ButtonX           = ffi::GAMEPAD_BUTTON_X,
+    ButtonY           = ffi::GAMEPAD_BUTTON_Y,
+    ButtonLeftBumper  = ffi::GAMEPAD_BUTTON_LEFT_BUMPER,
+    ButtonRightBumper = ffi::GAMEPAD_BUTTON_RIGHT_BUMPER,
+    ButtonBack        = ffi::GAMEPAD_BUTTON_BACK,
+    ButtonStart       = ffi::GAMEPAD_BUTTON_START,
+    ButtonGuide       = ffi::GAMEPAD_BUTTON_GUIDE,
+    ButtonLeftThumb   = ffi::GAMEPAD_BUTTON_LEFT_THUMB,
+    ButtonRightThumb  = ffi::GAMEPAD_BUTTON_RIGHT_THUMB,
+    ButtonDpadUp      = ffi::GAMEPAD_BUTTON_DPAD_UP,
+    ButtonDpadRight   = ffi::GAMEPAD_BUTTON_DPAD_RIGHT,
+    ButtonDpadDown    = ffi::GAMEPAD_BUTTON_DPAD_DOWN,
+    ButtonDpadLeft    = ffi::GAMEPAD_BUTTON_DPAD_LEFT,
 }
 
-enum_from_primitive! {
-    /// Axis identifier tokens.
-    #[repr(i32)]
-    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-    pub enum GamepadAxis {
-        AxisLeftX        = ffi::GAMEPAD_AXIS_LEFT_X,
-        AxisLeftY        = ffi::GAMEPAD_AXIS_LEFT_Y,
-        AxisRightX       = ffi::GAMEPAD_AXIS_RIGHT_X,
-        AxisRightY       = ffi::GAMEPAD_AXIS_RIGHT_Y,
-        AxisLeftTrigger  = ffi::GAMEPAD_AXIS_LEFT_TRIGGER,
-        AxisRightTrigger = ffi::GAMEPAD_AXIS_RIGHT_TRIGGER,
-    }
+/// Axis identifier tokens.
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum GamepadAxis {
+    AxisLeftX        = ffi::GAMEPAD_AXIS_LEFT_X,
+    AxisLeftY        = ffi::GAMEPAD_AXIS_LEFT_Y,
+    AxisRightX       = ffi::GAMEPAD_AXIS_RIGHT_X,
+    AxisRightY       = ffi::GAMEPAD_AXIS_RIGHT_Y,
+    AxisLeftTrigger  = ffi::GAMEPAD_AXIS_LEFT_TRIGGER,
+    AxisRightTrigger = ffi::GAMEPAD_AXIS_RIGHT_TRIGGER,
 }
 
 /// Joystick hats.
