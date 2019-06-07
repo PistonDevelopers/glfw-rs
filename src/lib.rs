@@ -322,6 +322,16 @@ pub enum MouseButton {
     Button8                = ffi::MOUSE_BUTTON_8,
 }
 
+impl MouseButton {
+    fn from_i32(n: i32) -> Option<MouseButton> {
+        if n >= 0 && n <= ffi::MOUSE_BUTTON_LAST {
+            Some(unsafe { mem::transmute(n) })
+        } else {
+            None
+        }
+    }
+}
+
 /// Formats the type using aliases rather than the default variant names.
 ///
 /// # Example
@@ -2549,6 +2559,16 @@ pub enum JoystickId {
     Joystick16      = ffi::JOYSTICK_16,
 }
 
+impl JoystickId {
+    fn from_i32(n: i32) -> Option<JoystickId> {
+        if n >= 0 && n <= ffi::JOYSTICK_LAST {
+            Some(unsafe { mem::transmute(n) })
+        } else {
+            None
+        }
+    }
+}
+
 /// Button identifier tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -2570,6 +2590,16 @@ pub enum GamepadButton {
     ButtonDpadLeft    = ffi::GAMEPAD_BUTTON_DPAD_LEFT,
 }
 
+impl GamepadButton {
+    fn from_i32(n: i32) -> Option<GamepadButton> {
+        if n >= 0 && n <= ffi::GAMEPAD_BUTTON_LAST {
+            Some(unsafe { mem::transmute(n) })
+        } else {
+            None
+        }
+    }
+}
+
 /// Axis identifier tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -2580,6 +2610,16 @@ pub enum GamepadAxis {
     AxisRightY       = ffi::GAMEPAD_AXIS_RIGHT_Y,
     AxisLeftTrigger  = ffi::GAMEPAD_AXIS_LEFT_TRIGGER,
     AxisRightTrigger = ffi::GAMEPAD_AXIS_RIGHT_TRIGGER,
+}
+
+impl GamepadAxis {
+    fn from_i32(n: i32) -> Option<GamepadAxis> {
+        if n >= 0 && n <= ffi::GAMEPAD_AXIS_LAST {
+            Some(unsafe { mem::transmute(n) })
+        } else {
+            None
+        }
+    }
 }
 
 /// Joystick hats.
