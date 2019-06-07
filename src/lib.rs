@@ -323,7 +323,8 @@ pub enum MouseButton {
 }
 
 impl MouseButton {
-    fn from_i32(n: i32) -> Option<MouseButton> {
+    /// Converts from `i32`.
+    pub fn from_i32(n: i32) -> Option<MouseButton> {
         if n >= 0 && n <= ffi::MOUSE_BUTTON_LAST {
             Some(unsafe { mem::transmute(n) })
         } else {
@@ -725,7 +726,7 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
 
 /// Manually terminate the GLFW library. This must be called on the main
 /// platform thread. It's not necessary to call this function unless you have
-/// enabled the `terminate_manually` feature. 
+/// enabled the `terminate_manually` feature.
 ///
 /// Wrapper for 'glfwTerminate'.
 pub fn terminate() {
@@ -2560,7 +2561,8 @@ pub enum JoystickId {
 }
 
 impl JoystickId {
-    fn from_i32(n: i32) -> Option<JoystickId> {
+    /// Converts from `i32`.
+    pub fn from_i32(n: i32) -> Option<JoystickId> {
         if n >= 0 && n <= ffi::JOYSTICK_LAST {
             Some(unsafe { mem::transmute(n) })
         } else {
@@ -2591,7 +2593,8 @@ pub enum GamepadButton {
 }
 
 impl GamepadButton {
-    fn from_i32(n: i32) -> Option<GamepadButton> {
+    /// Converts from `i32`.
+    pub fn from_i32(n: i32) -> Option<GamepadButton> {
         if n >= 0 && n <= ffi::GAMEPAD_BUTTON_LAST {
             Some(unsafe { mem::transmute(n) })
         } else {
@@ -2613,7 +2616,8 @@ pub enum GamepadAxis {
 }
 
 impl GamepadAxis {
-    fn from_i32(n: i32) -> Option<GamepadAxis> {
+    /// Converts from `i32`.
+    pub fn from_i32(n: i32) -> Option<GamepadAxis> {
         if n >= 0 && n <= ffi::GAMEPAD_AXIS_LAST {
             Some(unsafe { mem::transmute(n) })
         } else {
