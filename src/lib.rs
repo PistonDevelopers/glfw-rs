@@ -1663,9 +1663,8 @@ impl<'a> WindowMode<'a> {
     }
 }
 
-/// Key modifiers (e.g., Shift, Control, Alt, Super)
 bitflags! {
-    #[doc = "Key modifiers"]
+    #[doc = "Key modifiers (e.g., Shift, Control, Alt, Super)"]
     pub struct Modifiers: ::libc::c_int {
         const Shift       = ::ffi::MOD_SHIFT;
         const Control     = ::ffi::MOD_CONTROL;
@@ -2626,7 +2625,6 @@ impl GamepadAxis {
     }
 }
 
-/// Joystick hats.
 bitflags! {
     #[doc = "Joystick hats."]
     pub struct JoystickHats: ::libc::c_int {
