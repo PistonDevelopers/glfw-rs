@@ -1070,12 +1070,37 @@ impl Glfw {
         unsafe { ffi::glfwPollEvents(); }
     }
 
+    /// Immediately process the received events. The *unbuffered* variant differs by allowing
+    /// inspection of events *prior* to their associated native callback returning. This also
+    /// provides a way to synchronously respond to the event. Events returned by the closure
+    /// are delivered to the channel receiver just as if `poll_events` was called. Returning
+    /// `None` from the closure will drop the event.
+    ///
+    /// Wrapper for `glfwPollEvents`.
+    pub fn poll_events_unbuffered<F>(&mut self, f: F) where F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+        let _unset_handler_guard = unsafe {
+            crate::callbacks::unbuffered::set_handler(f)
+        };
+        self.poll_events();
+    }
+
     /// Sleep until at least one event has been received, and then perform the
     /// equivalent of `Glfw::poll_events`.
     ///
     /// Wrapper for `glfwWaitEvents`.
     pub fn wait_events(&mut self) {
         unsafe { ffi::glfwWaitEvents(); }
+    }
+
+    /// Sleep until at least one event has been received, and then perform the
+    /// equivalent of `Glfw::poll_events_unbuffered`.
+    ///
+    /// Wrapper for `glfwWaitEvents`.
+    pub fn wait_events_unbuffered<F>(&mut self, f: F) where F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+        let _unset_handler_guard = unsafe {
+            crate::callbacks::unbuffered::set_handler(f)
+        };
+        self.wait_events();
     }
 
     /// Sleep until at least one event has been received, or until the specified
@@ -1085,6 +1110,18 @@ impl Glfw {
     /// Wrapper for `glfwWaitEventsTimeout`.
     pub fn wait_events_timeout(&mut self, timeout: f64) {
         unsafe { ffi::glfwWaitEventsTimeout(timeout); }
+    }
+
+    /// Sleep until at least one event has been received, or until the specified
+    /// timeout is reached, and then perform the equivalent of `Glfw::poll_events_unbuffered`.
+    /// Timeout is specified in seconds.
+    ///
+    /// Wrapper for `glfwWaitEventsTimeout`.
+    pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, f: F) where F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+        let _unset_handler_guard = unsafe {
+            crate::callbacks::unbuffered::set_handler(f)
+        };
+        self.wait_events_timeout(timeout);
     }
 
     /// Posts an empty event from the current thread to the event queue, causing
@@ -2518,6 +2555,23 @@ pub trait Context {
     fn make_current(&mut self) {
         let ptr = self.window_ptr();
         unsafe { ffi::glfwMakeContextCurrent(ptr); }
+    }
+
+    /// Wrapper for `glfwWindowShouldClose`.
+    fn should_close(&self) -> bool {
+        let ptr = self.window_ptr();
+        unsafe { ffi::glfwWindowShouldClose(ptr) == ffi::TRUE }
+    }
+
+    /// Wrapper for `glfwSetWindowShouldClose`.
+    fn set_should_close(&mut self, value: bool) {
+        let ptr = self.window_ptr();
+        unsafe { ffi::glfwSetWindowShouldClose(ptr, value as c_int); }
+    }
+
+    /// Wrapper for `glfwPostEmptyEvent`.
+    fn post_empty_event(&self) {
+        unsafe { ffi::glfwPostEmptyEvent() }
     }
 }
 
