@@ -126,10 +126,10 @@ unsafe fn get_sender<'a>(window: &'a *mut ffi::GLFWwindow) -> &'a Sender<(f64, W
 
 pub mod unbuffered {
     use std::cell::RefCell;
-    use crate::WindowEvent;
+    use crate::{WindowEvent, WindowId};
 
     type CallbackPtr = *mut std::ffi::c_void;
-    type HandlerFn = fn(event: (f64, WindowEvent), callback_ptr: CallbackPtr) -> Option<(f64, WindowEvent)>;
+    type HandlerFn = fn(window_id: WindowId, event: (f64, WindowEvent), callback_ptr: CallbackPtr) -> Option<(f64, WindowEvent)>;
 
     thread_local! {
         static HANDLER: RefCell<Option<(HandlerFn, CallbackPtr)>> = RefCell::new(None);
@@ -145,10 +145,10 @@ pub mod unbuffered {
         }
     }
 
-    pub unsafe fn handle(event: (f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+    pub unsafe fn handle(window_id: WindowId, event: (f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
         HANDLER.with(|ref_cell| {
             if let Some((handler, callback_ptr)) = *ref_cell.borrow() {
-                handler(event, callback_ptr)
+                handler(window_id, event, callback_ptr)
             } else {
                 Some(event)
             }
@@ -157,15 +157,15 @@ pub mod unbuffered {
 
     pub unsafe fn set_handler<F>(mut callback: F) -> UnsetHandlerGuard
     where
-        F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
     {
-        fn handler<F>(event: (f64, WindowEvent), callback_ptr: CallbackPtr) -> Option<(f64, WindowEvent)>
+        fn handler<F>(window_id: WindowId, event: (f64, WindowEvent), callback_ptr: CallbackPtr) -> Option<(f64, WindowEvent)>
         where
-            F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
         {
             unsafe {
                 let callback: &mut F = &mut *(callback_ptr as *mut F);
-                callback(event)
+                callback(window_id, event)
             }
         }
         HANDLER.with(|ref_cell| {
@@ -185,7 +185,7 @@ macro_rules! window_callback (
             extern "C" fn actual_callback(window: *mut ffi::GLFWwindow) {
                 unsafe {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$event);
-                    if let Some(event) = unbuffered::handle(event) {
+                    if let Some(event) = unbuffered::handle(window as WindowId, event) {
                         get_sender(&window).send(event).unwrap();
                     }
                 }
@@ -198,7 +198,7 @@ macro_rules! window_callback (
             extern "C" fn actual_callback(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
                 unsafe {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$event($($arg_conv),*));
-                    if let Some(event) = unbuffered::handle(event) {
+                    if let Some(event) = unbuffered::handle(window as WindowId, event) {
                         get_sender(&window).send(event).unwrap();
                     }
                 }

@@ -39,11 +39,15 @@ fn main() {
     });
 
     while !window.should_close() {
-        glfw.poll_events_unbuffered(|event| {
+        glfw.poll_events_unbuffered(|window_id, event| {
+            // Multiple windows may be identified by their `window_id`
+            assert_eq!(window.window_id(), window_id);
+
             // Intercept the close request and reset the flag
             if let (_, WindowEvent::Close) = event {
                 window.set_should_close(false);
             };
+
             // Forward the event to the render thread via the `events` receiver
             // to be processed asynchronously from the main event loop thread.
             // Returning `None` here would consume the event.

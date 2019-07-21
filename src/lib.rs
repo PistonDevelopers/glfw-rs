@@ -114,6 +114,9 @@ pub use self::MouseButton::Button3 as MouseButtonMiddle;
 pub mod ffi;
 mod callbacks;
 
+/// Unique identifier for a `Window`.
+pub type WindowId = usize;
+
 /// Input actions.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -1077,7 +1080,10 @@ impl Glfw {
     /// `None` from the closure will drop the event.
     ///
     /// Wrapper for `glfwPollEvents`.
-    pub fn poll_events_unbuffered<F>(&mut self, f: F) where F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+    pub fn poll_events_unbuffered<F>(&mut self, f: F)
+        where
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+    {
         let _unset_handler_guard = unsafe {
             crate::callbacks::unbuffered::set_handler(f)
         };
@@ -1096,7 +1102,10 @@ impl Glfw {
     /// equivalent of `Glfw::poll_events_unbuffered`.
     ///
     /// Wrapper for `glfwWaitEvents`.
-    pub fn wait_events_unbuffered<F>(&mut self, f: F) where F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+    pub fn wait_events_unbuffered<F>(&mut self, f: F)
+        where
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+    {
         let _unset_handler_guard = unsafe {
             crate::callbacks::unbuffered::set_handler(f)
         };
@@ -1117,7 +1126,10 @@ impl Glfw {
     /// Timeout is specified in seconds.
     ///
     /// Wrapper for `glfwWaitEventsTimeout`.
-    pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, f: F) where F: FnMut((f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+    pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, f: F)
+        where
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+    {
         let _unset_handler_guard = unsafe {
             crate::callbacks::unbuffered::set_handler(f)
         };
@@ -2535,6 +2547,11 @@ unsafe impl Send for RenderContext {}
 pub trait Context {
     /// Returns the pointer to the underlying `GLFWwindow`.
     fn window_ptr(&self) -> *mut ffi::GLFWwindow;
+
+    /// Returns the unique identifier for this window.
+    fn window_id(&self) -> WindowId {
+        self.window_ptr() as WindowId
+    }
 
     /// Swaps the front and back buffers of the window. If the swap interval is
     /// greater than zero, the GPU driver waits the specified number of screen
