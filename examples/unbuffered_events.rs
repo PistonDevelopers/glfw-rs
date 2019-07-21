@@ -39,7 +39,7 @@ fn main() {
     });
 
     while !window.should_close() {
-        glfw.poll_events_unbuffered(|window_id, event| {
+        glfw.wait_events_unbuffered(|window_id, event| {
             // Multiple windows may be identified by their `window_id`
             assert_eq!(window.window_id(), window_id);
 
