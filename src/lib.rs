@@ -701,8 +701,8 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
             ffi::glfwTerminate();
         }
     }
-    use std::sync::{Once, ONCE_INIT};
-    static mut INIT: Once = ONCE_INIT;
+    use std::sync::Once;
+    static mut INIT: Once = Once::new();
     let mut result = Err(InitError::AlreadyInitialized);
     unsafe {
         INIT.call_once(|| {
@@ -2595,7 +2595,7 @@ impl Context for RenderContext {
 }
 
 /// Wrapper for `glfwMakeContextCurrent`.
-pub fn make_context_current(context: Option<&Context>) {
+pub fn make_context_current(context: Option<&dyn Context>) {
     match context {
         Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
         None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
