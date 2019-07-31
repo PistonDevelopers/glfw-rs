@@ -23,7 +23,7 @@ addons:
       - libxcursor-dev
       - xorg-dev
 script:
-  - cargo build --features "all"
-  - cargo test --features "all"
-  - cargo doc --features "all"
+  - cargo build --all-features
+  - cargo test --all-features
+  - cargo doc --all-features
 
