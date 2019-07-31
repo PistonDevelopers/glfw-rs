@@ -32,7 +32,7 @@ macro_rules! callback (
         let ext_set = $ext_set:expr;
         fn callback($($ext_arg:ident: $ext_arg_ty:ty),*) $call:expr
     ) => (
-        thread_local!(static CALLBACK_KEY: RefCell<Option<Box<Object<Args> + 'static>>> = RefCell::new(None));
+        thread_local!(static CALLBACK_KEY: RefCell<Option<Box<dyn Object<Args> + 'static>>> = RefCell::new(None));
 
         type Args = ($($arg_ty),*,);
 
@@ -47,7 +47,7 @@ macro_rules! callback (
         }
 
         pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
-            let mut boxed_cb = Some(Box::new(f) as Box<Object<Args> + 'static>);
+            let mut boxed_cb = Some(Box::new(f) as Box<dyn Object<Args> + 'static>);
             CALLBACK_KEY.with(|cb| {
                 *cb.borrow_mut() = boxed_cb.take();
             });
