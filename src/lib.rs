@@ -800,7 +800,7 @@ impl Glfw {
     /// # Example
     ///
     /// ~~~ignore
-    /// let (window, events) = glfw.with_primary_monitor(|m| {
+    /// let (window, events) = glfw.with_primary_monitor(|_, m| {
     ///     glfw.create_window(300, 300, "Hello this is window",
     ///         m.map_or(glfw::WindowMode::Windowed, |m| glfw::FullScreen(m)))
     /// }).expect("Failed to create GLFW window.");
@@ -847,7 +847,7 @@ impl Glfw {
     /// # Example
     ///
     /// ~~~ignore
-    /// glfw.with_connected_monitors(|monitors| {
+    /// glfw.with_connected_monitors(|_, monitors| {
     ///     for monitor in monitors.iter() {
     ///         println!("{}: {}", monitor.get_name(), monitor.get_video_mode());
     ///     }
@@ -874,7 +874,7 @@ impl Glfw {
     /// # Example
     ///
     /// ~~~ignore
-    /// glfw.with_connected_monitors(|monitors| {
+    /// glfw.with_connected_monitors(|_, monitors| {
     ///     for monitor in monitors.iter() {
     ///         println!("{}: {}", monitor.get_name(), monitor.get_video_mode());
     ///     }
