@@ -2224,7 +2224,7 @@ impl Window {
         set_window_callback!(self, should_poll, glfwSetFramebufferSizeCallback, framebuffer_size_callback);
     }
 
-    /// Wrapper for `glfwSetFramebufferSizeCallback`.
+    /// Wrapper for `glfwSetDropCallback`.
     pub fn set_drag_and_drop_polling(&mut self, should_poll: bool) {
         set_window_callback!(self, should_poll, glfwSetDropCallback, drop_callback);
     }
