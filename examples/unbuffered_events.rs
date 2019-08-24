@@ -62,6 +62,7 @@ fn handle_window_event(render_context: &mut RenderContext, event: glfw::WindowEv
     match event {
         glfw::WindowEvent::Close | glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
             render_context.set_should_close(true);
+            render_context.post_empty_event();
         }
         _ => {}
     }
