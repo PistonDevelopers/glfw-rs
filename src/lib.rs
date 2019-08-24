@@ -81,11 +81,16 @@ extern crate log;
 extern crate bitflags;
 #[cfg(feature = "image")]
 extern crate image;
+extern crate raw_window_handle;
+#[cfg(all(target_os="macos"))]
+#[macro_use]
+extern crate objc;
 
 use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_ushort, c_void, c_uchar};
 #[cfg(feature = "vulkan")]
 use libc::c_uint;
+use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::sync::mpsc::{channel, Receiver, Sender};
@@ -2592,6 +2597,63 @@ impl Context for Window {
 
 impl Context for RenderContext {
     fn window_ptr(&self) -> *mut ffi::GLFWwindow { self.ptr }
+}
+
+unsafe impl HasRawWindowHandle for Window {
+    fn raw_window_handle(&self) -> RawWindowHandle {
+        raw_window_handle(self)
+    }
+}
+
+unsafe impl HasRawWindowHandle for RenderContext {
+    fn raw_window_handle(&self) -> RawWindowHandle {
+        raw_window_handle(self)
+    }
+}
+
+fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
+    #[cfg(target_family = "windows")]
+    {
+        use raw_window_handle::windows::WindowsHandle;
+        let hwnd = unsafe {
+            ffi::glfwGetWin32Window(context.window_ptr())
+        };
+        RawWindowHandle::Windows(WindowsHandle {
+            hwnd,
+            ..WindowsHandle::empty()
+        })
+    }
+
+    #[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly"))]
+    {
+        use raw_window_handle::unix::X11Handle;
+        let (window, display) = unsafe {
+            let window = ffi::glfwGetX11Window(context.window_ptr());
+            let display = ffi::glfwGetX11Display();
+            (window as std::os::raw::c_ulong, display)
+        };
+        RawWindowHandle::X11(X11Handle {
+            window,
+            display,
+            ..X11Handle::empty()
+        })
+    }
+
+    #[cfg(target_os="macos")]
+    {
+        use raw_window_handle::macos::MacOSHandle;
+        let (ns_window, ns_view) = unsafe {
+            let ns_window: *mut objc::runtime::Object = ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
+            let ns_view: *mut objc::runtime::Object = objc::msg_send![ns_window, contentView];
+            assert_ne!(ns_view, std::ptr::null_mut());
+            (ns_window as *mut std::ffi::c_void, ns_view as *mut std::ffi::c_void)
+        };
+        RawWindowHandle::MacOS(MacOSHandle {
+            ns_window,
+            ns_view,
+            ..MacOSHandle::empty()
+        })
+    }
 }
 
 /// Wrapper for `glfwMakeContextCurrent`.
