@@ -1080,12 +1080,12 @@ impl Glfw {
     /// `None` from the closure will drop the event.
     ///
     /// Wrapper for `glfwPollEvents`.
-    pub fn poll_events_unbuffered<F>(&mut self, f: F)
+    pub fn poll_events_unbuffered<F>(&mut self, mut f: F)
         where
             F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
     {
         let _unset_handler_guard = unsafe {
-            crate::callbacks::unbuffered::set_handler(f)
+            crate::callbacks::unbuffered::set_handler(&mut f)
         };
         self.poll_events();
     }
@@ -1102,12 +1102,12 @@ impl Glfw {
     /// equivalent of `Glfw::poll_events_unbuffered`.
     ///
     /// Wrapper for `glfwWaitEvents`.
-    pub fn wait_events_unbuffered<F>(&mut self, f: F)
+    pub fn wait_events_unbuffered<F>(&mut self, mut f: F)
         where
             F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
     {
         let _unset_handler_guard = unsafe {
-            crate::callbacks::unbuffered::set_handler(f)
+            crate::callbacks::unbuffered::set_handler(&mut f)
         };
         self.wait_events();
     }
@@ -1126,12 +1126,12 @@ impl Glfw {
     /// Timeout is specified in seconds.
     ///
     /// Wrapper for `glfwWaitEventsTimeout`.
-    pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, f: F)
+    pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, mut f: F)
         where
             F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
     {
         let _unset_handler_guard = unsafe {
-            crate::callbacks::unbuffered::set_handler(f)
+            crate::callbacks::unbuffered::set_handler(&mut f)
         };
         self.wait_events_timeout(timeout);
     }
