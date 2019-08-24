@@ -155,7 +155,7 @@ pub mod unbuffered {
         })
     }
 
-    pub unsafe fn set_handler<F>(mut callback: F) -> UnsetHandlerGuard
+    pub unsafe fn set_handler<F>(callback: &mut F) -> UnsetHandlerGuard
     where
         F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
     {
@@ -169,7 +169,7 @@ pub mod unbuffered {
             }
         }
         HANDLER.with(|ref_cell| {
-            let callback_ptr = (&mut callback) as *mut F as CallbackPtr;
+            let callback_ptr = callback as *mut F as CallbackPtr;
             *ref_cell.borrow_mut() = Some((handler::<F>, callback_ptr));
         });
         UnsetHandlerGuard { _private: () }
