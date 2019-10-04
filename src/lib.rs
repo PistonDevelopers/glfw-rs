@@ -100,6 +100,7 @@ use std::marker::Send;
 use std::ptr;
 use std::slice;
 use std::path::PathBuf;
+use std::sync::Once;
 use semver::Version;
 
 #[cfg(feature = "vulkan")]
@@ -671,6 +672,8 @@ pub fn init_hint(hint: InitHint) {
     }
 }
 
+static mut INIT: Once = Once::new();
+
 /// Initializes the GLFW library. This must be called on the main platform
 /// thread.
 ///
@@ -704,10 +707,9 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
     extern "C" fn glfw_terminate() {
         unsafe {
             ffi::glfwTerminate();
+            INIT = Once::new();
         }
     }
-    use std::sync::Once;
-    static mut INIT: Once = Once::new();
     let mut result = Err(InitError::AlreadyInitialized);
     unsafe {
         INIT.call_once(|| {
@@ -740,6 +742,7 @@ pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) ->
 pub fn terminate() {
     unsafe {
         ffi::glfwTerminate();
+        INIT = Once::new();
     }
 }
 
