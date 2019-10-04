@@ -100,7 +100,7 @@ use std::marker::Send;
 use std::ptr;
 use std::slice;
 use std::path::PathBuf;
-use std::sync::Once;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use semver::Version;
 
 #[cfg(feature = "vulkan")]
@@ -604,19 +604,21 @@ pub type GLProc = ffi::GLFWglproc;
 #[cfg(feature = "vulkan")]
 pub type VkProc = ffi::GLFWvkproc;
 
+/// Counts for (Calling glfwInit) - (Calling glfwTerminate)
+/// It uses for "global" refference counting for Glfw.
+static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
+
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
 /// only be initialized on the main platform thread. Whilst this might make
 /// performing some operations harder, this is to ensure thread safety is enforced
-/// statically. The context can be safely cloned or implicitly copied if need be
-/// for convenience.
-#[derive(Copy, Clone)]
+/// statically.
 pub struct Glfw;
 
 /// An error that might be returned when `glfw::init` is called.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum InitError {
-    /// The library was already initialized.
+    /// Deprecated. not occurs.
     AlreadyInitialized,
     /// An internal error occurred when trying to initialize the library.
     Internal,
@@ -672,8 +674,6 @@ pub fn init_hint(hint: InitHint) {
     }
 }
 
-static mut INIT: Once = Once::new();
-
 /// Initializes the GLFW library. This must be called on the main platform
 /// thread.
 ///
@@ -699,50 +699,27 @@ static mut INIT: Once = Once::new();
 ///
 /// - If initialization was successful a `Glfw` token will be returned along
 ///   with a `Receiver` from which errors can be intercepted.
-/// - Subsequent calls to `init` will return `Err(AlreadyInitialized)`.
+/// - Subsequent calls to `init` will return `Glfw` token immediately.
 /// - If an initialization error occurred within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
-pub fn init<UserData: 'static>(mut callback: Option<ErrorCallback<UserData>>) -> Result<Glfw, InitError> {
-    // Helper to convert unsafe extern "C" fn to (safe) extern "C" fn.
-    extern "C" fn glfw_terminate() {
-        unsafe {
-            ffi::glfwTerminate();
-            INIT = Once::new();
-        }
+pub fn init<UserData: 'static>(
+    mut callback: Option<ErrorCallback<UserData>>,
+) -> Result<Glfw, InitError> {
+    // Initialize the error callback if it was supplied. This is done
+    // before `ffi::glfwInit` because errors could occur during
+    // initialization.
+    match callback.take() {
+        Some(f) => callbacks::error::set(f),
+        None => callbacks::error::unset(),
     }
-    let mut result = Err(InitError::AlreadyInitialized);
-    unsafe {
-        INIT.call_once(|| {
-            // Initialize the error callback if it was supplied. This is done
-            // before `ffi::glfwInit` because errors could occur during
-            // initialization.
-            match callback.take() {
-                Some(f) => callbacks::error::set(f),
-                None    => callbacks::error::unset(),
-            }
-            if ffi::glfwInit() == ffi::TRUE {
-                result = Ok(());
-                if !(cfg!(feature = "terminate_manually")) {
-                    // TODO: When (if?) std::rt::at_exit() stabilizes, prefer to use it.
-                    libc::atexit(glfw_terminate);
-                }
-            } else {
-                result = Err(InitError::Internal);
-            }
-        })
-    }
-    result.map(|_| Glfw)
-}
-
-/// Manually terminate the GLFW library. This must be called on the main
-/// platform thread. It's not necessary to call this function unless you have
-/// enabled the `terminate_manually` feature.
-///
-/// Wrapper for 'glfwTerminate'.
-pub fn terminate() {
-    unsafe {
-        ffi::glfwTerminate();
-        INIT = Once::new();
+    // initialize GLFW.
+    // FYI: multiple not terminated ffi::glfwInit() returns ffi::TRUE immediately.
+    // https://www.glfw.org/docs/latest/group__init.html#ga317aac130a235ab08c6db0834907d85e
+    if unsafe { ffi::glfwInit() } == ffi::TRUE {
+        REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
+        Ok(Glfw)
+    } else {
+        Err(InitError::Internal)
     }
 }
 
@@ -1295,6 +1272,22 @@ impl Glfw {
             let c_str = CString::new(mappings.as_bytes());
             let ptr = c_str.unwrap().as_bytes_with_nul().as_ptr() as *const c_char;
             ffi::glfwUpdateGamepadMappings(ptr) == ffi::TRUE
+        }
+    }
+}
+
+impl Clone for Glfw {
+    fn clone(&self) -> Self {
+        REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
+        Glfw
+    }
+}
+
+impl Drop for Glfw {
+    fn drop(&mut self) {
+        let old_diff = REF_COUNT_FOR_GLFW.fetch_sub(1, Ordering::SeqCst);
+        if old_diff == 1 {
+            unsafe { ffi::glfwTerminate(); }
         }
     }
 }
@@ -2767,7 +2760,7 @@ bitflags! {
 }
 
 /// A joystick handle.
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct Joystick {
     pub id: JoystickId,
     pub glfw: Glfw,
