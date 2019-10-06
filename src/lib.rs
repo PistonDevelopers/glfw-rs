@@ -618,7 +618,7 @@ pub struct Glfw;
 /// An error that might be returned when `glfw::init` is called.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum InitError {
-    /// Deprecated. not occurs.
+    /// Deprecated. Does not occur.
     AlreadyInitialized,
     /// An internal error occurred when trying to initialize the library.
     Internal,
