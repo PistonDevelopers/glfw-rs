@@ -35,7 +35,7 @@ fn main() {
         },
 
         #[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly"))]
-        RawWindowHandle::X11(handle) => {
+        RawWindowHandle::Xlib(handle) => {
             println!("raw handle: {:?}", handle)
         },
 

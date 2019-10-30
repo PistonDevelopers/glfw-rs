@@ -2622,16 +2622,16 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
 
     #[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly"))]
     {
-        use raw_window_handle::unix::X11Handle;
+        use raw_window_handle::unix::XlibHandle;
         let (window, display) = unsafe {
             let window = ffi::glfwGetX11Window(context.window_ptr());
             let display = ffi::glfwGetX11Display();
             (window as std::os::raw::c_ulong, display)
         };
-        RawWindowHandle::X11(X11Handle {
+        RawWindowHandle::Xlib(XlibHandle {
             window,
             display,
-            ..X11Handle::empty()
+            ..XlibHandle::empty()
         })
     }
 
