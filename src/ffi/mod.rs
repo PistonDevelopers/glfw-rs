@@ -577,4 +577,8 @@ extern "C" {
     #[cfg(target_os="linux")] pub fn glfwGetX11Window(window: *mut GLFWwindow) -> *mut c_void;
     #[cfg(target_os="linux")] pub fn glfwGetX11Display() -> *mut c_void;
     #[cfg(target_os="linux")] pub fn glfwGetGLXContext(window: *mut GLFWwindow) -> *mut c_void;
+
+    #[cfg(target_os="freebsd")] pub fn glfwGetX11Window(window: *mut GLFWwindow) -> *mut c_void;
+    #[cfg(target_os="freebsd")] pub fn glfwGetX11Display() -> *mut c_void;
+    #[cfg(target_os="freebsd")] pub fn glfwGetGLXContext(window: *mut GLFWwindow) -> *mut c_void;
 }
