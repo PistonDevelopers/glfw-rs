@@ -19,8 +19,11 @@ use glfw::Context;
 
 #[cfg(feature = "vulkan")]
 fn vulkan_support(glfw: &mut glfw::Glfw) {
-    println!("Vulkan supported: {:?}",           glfw.vulkan_supported());
-    println!("Vulkan required extensions: {:?}", glfw.get_required_instance_extensions().unwrap_or(vec![]));
+    println!("Vulkan supported: {:?}", glfw.vulkan_supported());
+    println!(
+        "Vulkan required extensions: {:?}",
+        glfw.get_required_instance_extensions().unwrap_or(vec![])
+    );
 }
 
 #[cfg(not(feature = "vulkan"))]
@@ -31,7 +34,8 @@ fn main() {
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
 
-    let (mut window, _) = glfw.create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
+    let (mut window, _) = glfw
+        .create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.make_current();
@@ -39,32 +43,36 @@ fn main() {
     let (width, height) = window.get_size();
     println!("window size: ({:?}, {:?})", width, height);
 
-    println!("Context version: {:?}",            window.get_context_version());
-    println!("OpenGL forward compatible: {:?}",  window.is_opengl_forward_compat());
-    println!("OpenGL debug context: {:?}",       window.is_opengl_debug_context());
-    println!("OpenGL profile: {:?}",             window.get_opengl_profile());
+    println!("Context version: {:?}", window.get_context_version());
+    println!(
+        "OpenGL forward compatible: {:?}",
+        window.is_opengl_forward_compat()
+    );
+    println!(
+        "OpenGL debug context: {:?}",
+        window.is_opengl_debug_context()
+    );
+    println!("OpenGL profile: {:?}", window.get_opengl_profile());
 
     vulkan_support(&mut glfw);
 
     let gl_params = [
-        (gl::RED_BITS,          None,   "red bits"          ),
-        (gl::GREEN_BITS,        None,   "green bits"        ),
-        (gl::BLUE_BITS,         None,   "blue bits"         ),
-        (gl::ALPHA_BITS,        None,   "alpha bits"        ),
-        (gl::DEPTH_BITS,        None,   "depth bits"        ),
-        (gl::STENCIL_BITS,      None,   "stencil bits"      ),
-        (gl::ACCUM_RED_BITS,    None,   "accum red bits"    ),
-        (gl::ACCUM_GREEN_BITS,  None,   "accum green bits"  ),
-        (gl::ACCUM_BLUE_BITS,   None,   "accum blue bits"   ),
-        (gl::ACCUM_ALPHA_BITS,  None,   "accum alpha bits"  ),
-        (gl::STEREO,            None,   "stereo"            ),
-        (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
+        (gl::RED_BITS, None, "red bits"),
+        (gl::GREEN_BITS, None, "green bits"),
+        (gl::BLUE_BITS, None, "blue bits"),
+        (gl::ALPHA_BITS, None, "alpha bits"),
+        (gl::DEPTH_BITS, None, "depth bits"),
+        (gl::STENCIL_BITS, None, "stencil bits"),
+        (gl::ACCUM_RED_BITS, None, "accum red bits"),
+        (gl::ACCUM_GREEN_BITS, None, "accum green bits"),
+        (gl::ACCUM_BLUE_BITS, None, "accum blue bits"),
+        (gl::ACCUM_ALPHA_BITS, None, "accum alpha bits"),
+        (gl::STEREO, None, "stereo"),
+        (gl::SAMPLES_ARB, Some("GL_ARB_multisample"), "FSAA samples"),
     ];
 
     for &(param, ext, name) in gl_params.iter() {
-        if ext.map_or(true, |s| {
-            glfw.extension_supported(s)
-        }) {
+        if ext.map_or(true, |s| glfw.extension_supported(s)) {
             let value = 0;
             unsafe { gl::GetIntegerv(param, &value) };
             println!("OpenGL {:?}: {:?}", name, value);
@@ -76,28 +84,28 @@ mod gl {
     extern crate libc;
 
     #[cfg(target_os = "macos")]
-    #[link(name="OpenGL", kind="framework")]
-    extern { }
+    #[link(name = "OpenGL", kind = "framework")]
+    extern "C" {}
 
     #[cfg(target_os = "linux")]
-    #[link(name="GL")]
-    extern { }
+    #[link(name = "GL")]
+    extern "C" {}
 
     pub type GLenum = libc::c_uint;
-    pub type GLint  = libc::c_int;
+    pub type GLint = libc::c_int;
 
-    pub static RED_BITS              : GLenum = 0x0D52;
-    pub static GREEN_BITS            : GLenum = 0x0D53;
-    pub static BLUE_BITS             : GLenum = 0x0D54;
-    pub static ALPHA_BITS            : GLenum = 0x0D55;
-    pub static DEPTH_BITS            : GLenum = 0x0D56;
-    pub static STENCIL_BITS          : GLenum = 0x0D57;
-    pub static ACCUM_RED_BITS        : GLenum = 0x0D58;
-    pub static ACCUM_GREEN_BITS      : GLenum = 0x0D59;
-    pub static ACCUM_BLUE_BITS       : GLenum = 0x0D5A;
-    pub static ACCUM_ALPHA_BITS      : GLenum = 0x0D5B;
-    pub static STEREO                : GLenum = 0x0C33;
-    pub static SAMPLES_ARB           : GLenum = 0x80A9;
+    pub static RED_BITS: GLenum = 0x0D52;
+    pub static GREEN_BITS: GLenum = 0x0D53;
+    pub static BLUE_BITS: GLenum = 0x0D54;
+    pub static ALPHA_BITS: GLenum = 0x0D55;
+    pub static DEPTH_BITS: GLenum = 0x0D56;
+    pub static STENCIL_BITS: GLenum = 0x0D57;
+    pub static ACCUM_RED_BITS: GLenum = 0x0D58;
+    pub static ACCUM_GREEN_BITS: GLenum = 0x0D59;
+    pub static ACCUM_BLUE_BITS: GLenum = 0x0D5A;
+    pub static ACCUM_ALPHA_BITS: GLenum = 0x0D5B;
+    pub static STEREO: GLenum = 0x0C33;
+    pub static SAMPLES_ARB: GLenum = 0x80A9;
 
     #[inline(never)]
     #[allow(non_snake_case)]

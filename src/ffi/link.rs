@@ -15,34 +15,34 @@
 
 #[cfg(feature = "glfw-sys")]
 #[link(name = "glfw3", kind = "static")]
-extern {}
+extern "C" {}
 
 #[cfg(not(feature = "glfw-sys"))]
 // leaving off `kind = static` allows for the specification of a dynamic library if desired
 #[cfg(target_family = "unix")]
 #[link(name = "glfw")]
-extern {}
+extern "C" {}
 
 #[cfg(not(feature = "glfw-sys"))]
 #[cfg(target_family = "windows")]
 #[link(name = "glfw3")]
-extern {}
+extern "C" {}
 
-#[cfg(target_os="windows")]
+#[cfg(target_os = "windows")]
 #[link(name = "opengl32")]
 #[link(name = "gdi32")]
 #[link(name = "user32")]
 #[link(name = "shell32")]
-extern {}
+extern "C" {}
 
-#[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly"))]
+#[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"))]
 #[link(name = "X11")]
-extern {}
+extern "C" {}
 
-#[cfg(target_os="macos")]
+#[cfg(target_os = "macos")]
 #[link(name = "Cocoa", kind = "framework")]
 #[link(name = "OpenGL", kind = "framework")]
 #[link(name = "IOKit", kind = "framework")]
 #[link(name = "CoreFoundation", kind = "framework")]
 #[link(name = "QuartzCore", kind = "framework")]
-extern {}
+extern "C" {}

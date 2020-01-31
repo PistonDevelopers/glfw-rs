@@ -22,8 +22,14 @@ use glfw::{Action, Context, Key};
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(600, 400, "Press F11 to toggle Fullscreen (it will be blank)", glfw::WindowMode::Windowed)
-                                   .expect("Failed to create GLFW window.");
+    let (mut window, events) = glfw
+        .create_window(
+            600,
+            400,
+            "Press F11 to toggle Fullscreen (it will be blank)",
+            glfw::WindowMode::Windowed,
+        )
+        .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
     window.make_current();
@@ -46,8 +52,18 @@ fn main() {
                 //F11 is pretty standard for fullscreen
                 glfw::WindowEvent::Key(Key::F11, _, Action::Press, _) => {
                     if is_fullscreen {
-                        window.set_monitor(glfw::WindowMode::Windowed, last_pos.0, last_pos.1, last_size.0 as u32, last_size.1 as u32, None);
-                        println!("Window restored to {:?} at location {:?}", last_size, last_pos);
+                        window.set_monitor(
+                            glfw::WindowMode::Windowed,
+                            last_pos.0,
+                            last_pos.1,
+                            last_size.0 as u32,
+                            last_size.1 as u32,
+                            None,
+                        );
+                        println!(
+                            "Window restored to {:?} at location {:?}",
+                            last_size, last_pos
+                        );
                     } else {
                         last_pos = window.get_pos();
                         last_size = window.get_size();
@@ -57,9 +73,22 @@ fn main() {
 
                             let mode = monitor.get_video_mode().unwrap();
 
-                            window.set_monitor(glfw::WindowMode::FullScreen(&monitor), 0, 0, mode.width, mode.height, Some(mode.refresh_rate));
+                            window.set_monitor(
+                                glfw::WindowMode::FullScreen(&monitor),
+                                0,
+                                0,
+                                mode.width,
+                                mode.height,
+                                Some(mode.refresh_rate),
+                            );
 
-                            println!("{}x{} fullscreen enabled at {}Hz on monitor {}", mode.width, mode.height, mode.refresh_rate, monitor.get_name().unwrap());
+                            println!(
+                                "{}x{} fullscreen enabled at {}Hz on monitor {}",
+                                mode.width,
+                                mode.height,
+                                mode.refresh_rate,
+                                monitor.get_name().unwrap()
+                            );
                         });
                     }
 

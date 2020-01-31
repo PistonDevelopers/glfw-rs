@@ -15,13 +15,13 @@
 
 //! Private callback support functions.
 
-use libc::{c_double, c_int, c_uint, c_char};
-use std::slice;
+use libc::{c_char, c_double, c_int, c_uint};
 use std::ffi::CStr;
-use std::str;
 use std::mem;
-use std::sync::mpsc::Sender;
 use std::path::PathBuf;
+use std::slice;
+use std::str;
+use std::sync::mpsc::Sender;
 
 use super::*;
 
@@ -73,7 +73,7 @@ macro_rules! callback (
 );
 
 pub mod error {
-    use libc::{c_int, c_char};
+    use libc::{c_char, c_int};
     use std::cell::RefCell;
     use std::mem;
 
@@ -88,7 +88,7 @@ pub mod error {
 }
 
 pub mod monitor {
-    use libc::{c_int};
+    use libc::c_int;
     use std::cell::RefCell;
     use std::mem;
 
@@ -106,7 +106,7 @@ pub mod monitor {
 }
 
 pub mod joystick {
-    use libc::{c_int};
+    use libc::c_int;
     use std::cell::RefCell;
     use std::mem;
 
@@ -125,17 +125,23 @@ unsafe fn get_sender<'a>(window: &'a *mut ffi::GLFWwindow) -> &'a Sender<(f64, W
 }
 
 pub mod unbuffered {
-    use std::cell::RefCell;
     use crate::{WindowEvent, WindowId};
+    use std::cell::RefCell;
 
     type CallbackPtr = *mut std::ffi::c_void;
-    type HandlerFn = fn(window_id: WindowId, event: (f64, WindowEvent), callback_ptr: CallbackPtr) -> Option<(f64, WindowEvent)>;
+    type HandlerFn = fn(
+        window_id: WindowId,
+        event: (f64, WindowEvent),
+        callback_ptr: CallbackPtr,
+    ) -> Option<(f64, WindowEvent)>;
 
     thread_local! {
         static HANDLER: RefCell<Option<(HandlerFn, CallbackPtr)>> = RefCell::new(None);
     }
 
-    pub struct UnsetHandlerGuard { _private: () }
+    pub struct UnsetHandlerGuard {
+        _private: (),
+    }
 
     impl Drop for UnsetHandlerGuard {
         fn drop(&mut self) {
@@ -145,7 +151,10 @@ pub mod unbuffered {
         }
     }
 
-    pub unsafe fn handle(window_id: WindowId, event: (f64, WindowEvent)) -> Option<(f64, WindowEvent)> {
+    pub unsafe fn handle(
+        window_id: WindowId,
+        event: (f64, WindowEvent),
+    ) -> Option<(f64, WindowEvent)> {
         HANDLER.with(|ref_cell| {
             if let Some((handler, callback_ptr)) = *ref_cell.borrow() {
                 handler(window_id, event, callback_ptr)
@@ -157,11 +166,15 @@ pub mod unbuffered {
 
     pub unsafe fn set_handler<F>(callback: &mut F) -> UnsetHandlerGuard
     where
-        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
-        fn handler<F>(window_id: WindowId, event: (f64, WindowEvent), callback_ptr: CallbackPtr) -> Option<(f64, WindowEvent)>
+        fn handler<F>(
+            window_id: WindowId,
+            event: (f64, WindowEvent),
+            callback_ptr: CallbackPtr,
+        ) -> Option<(f64, WindowEvent)>
         where
-            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
         {
             unsafe {
                 let callback: &mut F = &mut *(callback_ptr as *mut F);
@@ -175,7 +188,6 @@ pub mod unbuffered {
         UnsetHandlerGuard { _private: () }
     }
 }
-
 
 // Note that this macro creates a static function pointer rather than a plain function.
 // This makes it more ergonomic to embed in an Option; see set_window_callback! in lib.rs

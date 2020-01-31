@@ -20,7 +20,13 @@ use glfw::{Action, Context, Key};
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(400, 400, "English 日本語 русский язык 官話", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(
+            400,
+            400,
+            "English 日本語 русский язык 官話",
+            glfw::WindowMode::Windowed,
+        )
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
@@ -37,9 +43,7 @@ fn main() {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-            window.set_should_close(true)
-        }
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
         _ => {}
     }
 }

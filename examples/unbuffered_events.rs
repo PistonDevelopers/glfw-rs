@@ -15,12 +15,13 @@
 
 extern crate glfw;
 
-use glfw::{Action, Context, Key, WindowEvent, RenderContext};
+use glfw::{Action, Context, Key, RenderContext, WindowEvent};
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_all_polling(true);

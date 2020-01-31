@@ -22,7 +22,13 @@ fn main() {
 
     glfw.window_hint(glfw::WindowHint::Resizable(true));
 
-    let (mut window, events) = glfw.create_window(800, 600, "Hello, I am a window.", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(
+            800,
+            600,
+            "Hello, I am a window.",
+            glfw::WindowMode::Windowed,
+        )
         .expect("Failed to create GLFW window.");
 
     window.set_sticky_keys(true);
@@ -63,24 +69,55 @@ fn main() {
 
 fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::WindowEvent)) {
     match event {
-        glfw::WindowEvent::Pos(x, y)                      => window.set_title(&format!("Time: {:?}, Window pos: ({:?}, {:?})", time, x, y)),
-        glfw::WindowEvent::Size(w, h)                     => window.set_title(&format!("Time: {:?}, Window size: ({:?}, {:?})", time, w, h)),
-        glfw::WindowEvent::Close                          => println!("Time: {:?}, Window close requested.", time),
-        glfw::WindowEvent::Refresh                        => println!("Time: {:?}, Window refresh callback triggered.", time),
-        glfw::WindowEvent::Focus(true)                    => println!("Time: {:?}, Window focus gained.", time),
-        glfw::WindowEvent::Focus(false)                   => println!("Time: {:?}, Window focus lost.", time),
-        glfw::WindowEvent::Iconify(true)                  => println!("Time: {:?}, Window was minimised", time),
-        glfw::WindowEvent::Iconify(false)                 => println!("Time: {:?}, Window was maximised.", time),
-        glfw::WindowEvent::FramebufferSize(w, h)          => println!("Time: {:?}, Framebuffer size: ({:?}, {:?})", time, w, h),
-        glfw::WindowEvent::Char(character)                => println!("Time: {:?}, Character: {:?}", time, character),
-        glfw::WindowEvent::CharModifiers(character, mods) => println!("Time: {:?}, Character: {:?}, Modifiers: [{:?}]", time, character, mods),
-        glfw::WindowEvent::MouseButton(btn, action, mods) => println!("Time: {:?}, Button: {:?}, Action: {:?}, Modifiers: [{:?}]", time, glfw::DebugAliases(btn), action, mods),
-        glfw::WindowEvent::CursorPos(xpos, ypos)          => window.set_title(&format!("Time: {:?}, Cursor position: ({:?}, {:?})", time, xpos, ypos)),
-        glfw::WindowEvent::CursorEnter(true)              => println!("Time: {:?}, Cursor entered window.", time),
-        glfw::WindowEvent::CursorEnter(false)             => println!("Time: {:?}, Cursor left window.", time),
-        glfw::WindowEvent::Scroll(x, y)                   => window.set_title(&format!("Time: {:?}, Scroll offset: ({:?}, {:?})", time, x, y)),
+        glfw::WindowEvent::Pos(x, y) => {
+            window.set_title(&format!("Time: {:?}, Window pos: ({:?}, {:?})", time, x, y))
+        }
+        glfw::WindowEvent::Size(w, h) => window.set_title(&format!(
+            "Time: {:?}, Window size: ({:?}, {:?})",
+            time, w, h
+        )),
+        glfw::WindowEvent::Close => println!("Time: {:?}, Window close requested.", time),
+        glfw::WindowEvent::Refresh => {
+            println!("Time: {:?}, Window refresh callback triggered.", time)
+        }
+        glfw::WindowEvent::Focus(true) => println!("Time: {:?}, Window focus gained.", time),
+        glfw::WindowEvent::Focus(false) => println!("Time: {:?}, Window focus lost.", time),
+        glfw::WindowEvent::Iconify(true) => println!("Time: {:?}, Window was minimised", time),
+        glfw::WindowEvent::Iconify(false) => println!("Time: {:?}, Window was maximised.", time),
+        glfw::WindowEvent::FramebufferSize(w, h) => {
+            println!("Time: {:?}, Framebuffer size: ({:?}, {:?})", time, w, h)
+        }
+        glfw::WindowEvent::Char(character) => {
+            println!("Time: {:?}, Character: {:?}", time, character)
+        }
+        glfw::WindowEvent::CharModifiers(character, mods) => println!(
+            "Time: {:?}, Character: {:?}, Modifiers: [{:?}]",
+            time, character, mods
+        ),
+        glfw::WindowEvent::MouseButton(btn, action, mods) => println!(
+            "Time: {:?}, Button: {:?}, Action: {:?}, Modifiers: [{:?}]",
+            time,
+            glfw::DebugAliases(btn),
+            action,
+            mods
+        ),
+        glfw::WindowEvent::CursorPos(xpos, ypos) => window.set_title(&format!(
+            "Time: {:?}, Cursor position: ({:?}, {:?})",
+            time, xpos, ypos
+        )),
+        glfw::WindowEvent::CursorEnter(true) => {
+            println!("Time: {:?}, Cursor entered window.", time)
+        }
+        glfw::WindowEvent::CursorEnter(false) => println!("Time: {:?}, Cursor left window.", time),
+        glfw::WindowEvent::Scroll(x, y) => window.set_title(&format!(
+            "Time: {:?}, Scroll offset: ({:?}, {:?})",
+            time, x, y
+        )),
         glfw::WindowEvent::Key(key, scancode, action, mods) => {
-            println!("Time: {:?}, Key: {:?}, ScanCode: {:?}, Action: {:?}, Modifiers: [{:?}]", time, key, scancode, action, mods);
+            println!(
+                "Time: {:?}, Key: {:?}, ScanCode: {:?}, Action: {:?}, Modifiers: [{:?}]",
+                time, key, scancode, action, mods
+            );
             match (key, action) {
                 (Key::Escape, Action::Press) => window.set_should_close(true),
                 (Key::R, Action::Press) => {
@@ -92,8 +129,15 @@ fn handle_window_event(window: &mut glfw::Window, (time, event): (f64, glfw::Win
                 _ => {}
             }
         }
-        glfw::WindowEvent::FileDrop(paths)                => println!("Time: {:?}, Files dropped: {:?}", time, paths),
-        glfw::WindowEvent::Maximize(maximized) => println!("Time: {:?}, Window maximized: {:?}.", time, maximized),
-        glfw::WindowEvent::ContentScale(xscale, yscale) => println!("Time: {:?}, Content scale x: {:?}, Content scale y: {:?}", time, xscale, yscale),
+        glfw::WindowEvent::FileDrop(paths) => {
+            println!("Time: {:?}, Files dropped: {:?}", time, paths)
+        }
+        glfw::WindowEvent::Maximize(maximized) => {
+            println!("Time: {:?}, Window maximized: {:?}.", time, maximized)
+        }
+        glfw::WindowEvent::ContentScale(xscale, yscale) => println!(
+            "Time: {:?}, Content scale x: {:?}, Content scale y: {:?}",
+            time, xscale, yscale
+        ),
     }
 }

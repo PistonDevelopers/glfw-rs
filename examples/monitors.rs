@@ -26,10 +26,18 @@ fn main() {
         }
     });
 
-    let (mut window, events) = glfw.with_primary_monitor(|glfw, m| {
-        glfw.create_window(300, 300, "Hello this is window",
-            m.map_or(glfw::WindowMode::Windowed, |m| glfw::WindowMode::FullScreen(m)))
-    }).expect("Failed to create GLFW window.");
+    let (mut window, events) = glfw
+        .with_primary_monitor(|glfw, m| {
+            glfw.create_window(
+                300,
+                300,
+                "Hello this is window",
+                m.map_or(glfw::WindowMode::Windowed, |m| {
+                    glfw::WindowMode::FullScreen(m)
+                }),
+            )
+        })
+        .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
     window.make_current();
@@ -44,9 +52,7 @@ fn main() {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-            window.set_should_close(true)
-        }
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
         _ => {}
     }
 }
