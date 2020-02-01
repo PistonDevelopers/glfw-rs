@@ -2611,11 +2611,14 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
         use raw_window_handle::windows::WindowsHandle;
-        let hwnd = unsafe {
-            ffi::glfwGetWin32Window(context.window_ptr())
+        let (hwnd, hinstance) = unsafe {
+            let hwnd = ffi::glfwGetWin32Window(context.window_ptr());
+            let hinstance = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null());
+            (hwnd, hinstance as _)
         };
         RawWindowHandle::Windows(WindowsHandle {
             hwnd,
+            hinstance,
             ..WindowsHandle::empty()
         })
     }
