@@ -19,14 +19,15 @@ extern crate image;
 
 use glfw::{Action, Context, Key};
 
-use image::{DynamicImage, open as open_image};
 use image::imageops::{resize, Nearest};
+use image::{open as open_image, DynamicImage};
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(600, 600, "Cursor Icon Testing", glfw::WindowMode::Windowed)
-                                   .expect("Failed to create GLFW window.");
+    let (mut window, events) = glfw
+        .create_window(600, 600, "Cursor Icon Testing", glfw::WindowMode::Windowed)
+        .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
     window.make_current();
@@ -51,9 +52,7 @@ fn main() {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-            window.set_should_close(true)
-        }
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
         _ => {}
     }
 }

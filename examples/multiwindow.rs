@@ -18,13 +18,13 @@ extern crate glfw;
 use glfw::{Action, Key};
 use std::sync::mpsc::Receiver;
 
-type WindowInstance = (glfw::Window, Receiver<(f64,glfw::WindowEvent)>);
+type WindowInstance = (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
 type WindowVector = Vec<WindowInstance>;
 
 fn add_window(glfw: &glfw::Glfw, window_vector: &mut WindowVector) {
-    let (mut window, events) = glfw.create_window(
-        300, 300, "Hello this is window", glfw::WindowMode::Windowed
-    ).expect("Failed to create GLFW window.");
+    let (mut window, events) = glfw
+        .create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
+        .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
     window_vector.push((window, events));
@@ -32,9 +32,7 @@ fn add_window(glfw: &glfw::Glfw, window_vector: &mut WindowVector) {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-            window.set_should_close(true)
-        }
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
         _ => {}
     }
 }
@@ -49,12 +47,11 @@ fn main() {
 
     // Loop until we no longer have any open windows
     while !windows.is_empty() {
-
         // Wait for messages
         glfw.wait_events();
 
         // Process message queues for all windows
-        for &mut(ref mut window, ref events) in &mut windows {
+        for &mut (ref mut window, ref events) in &mut windows {
             for (_, event) in glfw::flush_messages(events) {
                 handle_window_event(window, event);
             }
@@ -64,4 +61,3 @@ fn main() {
         windows.retain(|&(ref window, _)| !window.should_close());
     }
 }
-

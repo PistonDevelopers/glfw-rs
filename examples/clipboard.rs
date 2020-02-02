@@ -20,7 +20,8 @@ use glfw::{Action, Context, Key};
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(300, 300, "Clipboard Test", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(300, 300, "Clipboard Test", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
@@ -51,7 +52,7 @@ fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
                 if (key == Key::V) && mods.contains(NATIVE_MOD) {
                     match window.get_clipboard_string() {
                         Some(ref s) if !s.is_empty() => println!("Clipboard contains \"{:?}\"", *s),
-                        _                            => println!("Clipboard does not contain a string"),
+                        _ => println!("Clipboard does not contain a string"),
                     }
                 }
                 if (key == Key::C) && mods.contains(NATIVE_MOD) {

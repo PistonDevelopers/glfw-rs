@@ -22,29 +22,24 @@ use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
     window.make_current();
 
     match window.raw_window_handle() {
-        #[cfg(target_os="windows")]
-        RawWindowHandle::Windows(handle) => {
-            println!("raw handle: {:?}", handle)
-        },
+        #[cfg(target_os = "windows")]
+        RawWindowHandle::Windows(handle) => println!("raw handle: {:?}", handle),
 
-        #[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly"))]
-        RawWindowHandle::Xlib(handle) => {
-            println!("raw handle: {:?}", handle)
-        },
+        #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"))]
+        RawWindowHandle::Xlib(handle) => println!("raw handle: {:?}", handle),
 
-        #[cfg(target_os="macos")]
-        RawWindowHandle::MacOS(handle) => {
-            println!("raw handle: {:?}", handle)
-        },
+        #[cfg(target_os = "macos")]
+        RawWindowHandle::MacOS(handle) => println!("raw handle: {:?}", handle),
 
-        _ => unimplemented!()
+        _ => unimplemented!(),
     }
 
     while !window.should_close() {
@@ -57,9 +52,7 @@ fn main() {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-            window.set_should_close(true)
-        }
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
         _ => {}
     }
 }

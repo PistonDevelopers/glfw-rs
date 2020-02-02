@@ -17,17 +17,13 @@
 extern crate glfw;
 extern crate vk_sys;
 
-use std::os::raw::c_void;
 use std::mem;
+use std::os::raw::c_void;
 use std::ptr;
 
 use vk_sys::{
-    self as vk,
-    EntryPoints,
-    InstancePointers,
-    InstanceCreateInfo,
-    Instance as VkInstance,
-    Result as VkResult
+    self as vk, EntryPoints, Instance as VkInstance, InstanceCreateInfo, InstancePointers,
+    Result as VkResult,
 };
 
 use glfw::Context;
@@ -37,8 +33,9 @@ fn main() {
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
 
-    let (mut window, _) = glfw.create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
-                              .expect("Failed to create GLFW window.");
+    let (mut window, _) = glfw
+        .create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
+        .expect("Failed to create GLFW window.");
 
     window.make_current();
 
@@ -86,12 +83,14 @@ unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
         ppEnabledLayerNames: ptr::null(),
         //These two should use the extensions returned by window.get_required_instance_extensions
         enabledExtensionCount: 0,
-        ppEnabledExtensionNames: ptr::null()
+        ppEnabledExtensionNames: ptr::null(),
     };
 
-    let res: VkResult = entry_points.CreateInstance(&info as *const InstanceCreateInfo,
-                                                    ptr::null(),
-                                                    &mut instance as *mut VkInstance);
+    let res: VkResult = entry_points.CreateInstance(
+        &info as *const InstanceCreateInfo,
+        ptr::null(),
+        &mut instance as *mut VkInstance,
+    );
 
     assert_eq!(res, vk::SUCCESS);
 

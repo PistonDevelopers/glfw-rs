@@ -17,7 +17,6 @@
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
 #![crate_name = "glfw"]
-
 #![allow(non_upper_case_globals)]
 
 //! An idiomatic wrapper for the GLFW library.
@@ -71,8 +70,8 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-extern crate semver;
 extern crate libc;
+extern crate semver;
 #[cfg(feature = "vulkan")]
 extern crate vk_sys;
 #[macro_use]
@@ -82,33 +81,29 @@ extern crate bitflags;
 #[cfg(feature = "image")]
 extern crate image;
 extern crate raw_window_handle;
-#[cfg(all(target_os="macos"))]
+#[cfg(all(target_os = "macos"))]
 #[macro_use]
 extern crate objc;
 
-use libc::{c_char, c_double, c_float, c_int};
-use libc::{c_ushort, c_void, c_uchar};
 #[cfg(feature = "vulkan")]
 use libc::c_uint;
+use libc::{c_char, c_double, c_float, c_int};
+use libc::{c_uchar, c_ushort, c_void};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use std::ffi::{CStr, CString};
-use std::mem;
-use std::sync::mpsc::{channel, Receiver, Sender};
-use std::fmt;
+use semver::Version;
 use std::error;
+use std::ffi::{CStr, CString};
+use std::fmt;
 use std::marker::Send;
+use std::mem;
+use std::path::PathBuf;
 use std::ptr;
 use std::slice;
-use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use semver::Version;
+use std::sync::mpsc::{channel, Receiver, Sender};
 
 #[cfg(feature = "vulkan")]
-use vk_sys::{
-    self as vk,
-    Instance as VkInstance,
-    PhysicalDevice as VkPhysicalDevice
-};
+use vk_sys::{self as vk, Instance as VkInstance, PhysicalDevice as VkPhysicalDevice};
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
 pub use self::MouseButton::Button1 as MouseButtonLeft;
@@ -117,8 +112,8 @@ pub use self::MouseButton::Button2 as MouseButtonRight;
 /// Alias to `MouseButton3`, supplied for improved clarity.
 pub use self::MouseButton::Button3 as MouseButtonMiddle;
 
-pub mod ffi;
 mod callbacks;
+pub mod ffi;
 
 /// Unique identifier for a `Window`.
 pub type WindowId = usize;
@@ -127,157 +122,166 @@ pub type WindowId = usize;
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Action {
-    Release                      = ffi::RELEASE,
-    Press                        = ffi::PRESS,
-    Repeat                       = ffi::REPEAT,
+    Release = ffi::RELEASE,
+    Press = ffi::PRESS,
+    Repeat = ffi::REPEAT,
 }
 
 /// Input keys.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Key {
-    Space                    = ffi::KEY_SPACE,
-    Apostrophe               = ffi::KEY_APOSTROPHE,
-    Comma                    = ffi::KEY_COMMA,
-    Minus                    = ffi::KEY_MINUS,
-    Period                   = ffi::KEY_PERIOD,
-    Slash                    = ffi::KEY_SLASH,
-    Num0                     = ffi::KEY_0,
-    Num1                     = ffi::KEY_1,
-    Num2                     = ffi::KEY_2,
-    Num3                     = ffi::KEY_3,
-    Num4                     = ffi::KEY_4,
-    Num5                     = ffi::KEY_5,
-    Num6                     = ffi::KEY_6,
-    Num7                     = ffi::KEY_7,
-    Num8                     = ffi::KEY_8,
-    Num9                     = ffi::KEY_9,
-    Semicolon                = ffi::KEY_SEMICOLON,
-    Equal                    = ffi::KEY_EQUAL,
-    A                        = ffi::KEY_A,
-    B                        = ffi::KEY_B,
-    C                        = ffi::KEY_C,
-    D                        = ffi::KEY_D,
-    E                        = ffi::KEY_E,
-    F                        = ffi::KEY_F,
-    G                        = ffi::KEY_G,
-    H                        = ffi::KEY_H,
-    I                        = ffi::KEY_I,
-    J                        = ffi::KEY_J,
-    K                        = ffi::KEY_K,
-    L                        = ffi::KEY_L,
-    M                        = ffi::KEY_M,
-    N                        = ffi::KEY_N,
-    O                        = ffi::KEY_O,
-    P                        = ffi::KEY_P,
-    Q                        = ffi::KEY_Q,
-    R                        = ffi::KEY_R,
-    S                        = ffi::KEY_S,
-    T                        = ffi::KEY_T,
-    U                        = ffi::KEY_U,
-    V                        = ffi::KEY_V,
-    W                        = ffi::KEY_W,
-    X                        = ffi::KEY_X,
-    Y                        = ffi::KEY_Y,
-    Z                        = ffi::KEY_Z,
-    LeftBracket              = ffi::KEY_LEFT_BRACKET,
-    Backslash                = ffi::KEY_BACKSLASH,
-    RightBracket             = ffi::KEY_RIGHT_BRACKET,
-    GraveAccent              = ffi::KEY_GRAVE_ACCENT,
-    World1                   = ffi::KEY_WORLD_1,
-    World2                   = ffi::KEY_WORLD_2,
+    Space = ffi::KEY_SPACE,
+    Apostrophe = ffi::KEY_APOSTROPHE,
+    Comma = ffi::KEY_COMMA,
+    Minus = ffi::KEY_MINUS,
+    Period = ffi::KEY_PERIOD,
+    Slash = ffi::KEY_SLASH,
+    Num0 = ffi::KEY_0,
+    Num1 = ffi::KEY_1,
+    Num2 = ffi::KEY_2,
+    Num3 = ffi::KEY_3,
+    Num4 = ffi::KEY_4,
+    Num5 = ffi::KEY_5,
+    Num6 = ffi::KEY_6,
+    Num7 = ffi::KEY_7,
+    Num8 = ffi::KEY_8,
+    Num9 = ffi::KEY_9,
+    Semicolon = ffi::KEY_SEMICOLON,
+    Equal = ffi::KEY_EQUAL,
+    A = ffi::KEY_A,
+    B = ffi::KEY_B,
+    C = ffi::KEY_C,
+    D = ffi::KEY_D,
+    E = ffi::KEY_E,
+    F = ffi::KEY_F,
+    G = ffi::KEY_G,
+    H = ffi::KEY_H,
+    I = ffi::KEY_I,
+    J = ffi::KEY_J,
+    K = ffi::KEY_K,
+    L = ffi::KEY_L,
+    M = ffi::KEY_M,
+    N = ffi::KEY_N,
+    O = ffi::KEY_O,
+    P = ffi::KEY_P,
+    Q = ffi::KEY_Q,
+    R = ffi::KEY_R,
+    S = ffi::KEY_S,
+    T = ffi::KEY_T,
+    U = ffi::KEY_U,
+    V = ffi::KEY_V,
+    W = ffi::KEY_W,
+    X = ffi::KEY_X,
+    Y = ffi::KEY_Y,
+    Z = ffi::KEY_Z,
+    LeftBracket = ffi::KEY_LEFT_BRACKET,
+    Backslash = ffi::KEY_BACKSLASH,
+    RightBracket = ffi::KEY_RIGHT_BRACKET,
+    GraveAccent = ffi::KEY_GRAVE_ACCENT,
+    World1 = ffi::KEY_WORLD_1,
+    World2 = ffi::KEY_WORLD_2,
 
-    Escape                   = ffi::KEY_ESCAPE,
-    Enter                    = ffi::KEY_ENTER,
-    Tab                      = ffi::KEY_TAB,
-    Backspace                = ffi::KEY_BACKSPACE,
-    Insert                   = ffi::KEY_INSERT,
-    Delete                   = ffi::KEY_DELETE,
-    Right                    = ffi::KEY_RIGHT,
-    Left                     = ffi::KEY_LEFT,
-    Down                     = ffi::KEY_DOWN,
-    Up                       = ffi::KEY_UP,
-    PageUp                   = ffi::KEY_PAGE_UP,
-    PageDown                 = ffi::KEY_PAGE_DOWN,
-    Home                     = ffi::KEY_HOME,
-    End                      = ffi::KEY_END,
-    CapsLock                 = ffi::KEY_CAPS_LOCK,
-    ScrollLock               = ffi::KEY_SCROLL_LOCK,
-    NumLock                  = ffi::KEY_NUM_LOCK,
-    PrintScreen              = ffi::KEY_PRINT_SCREEN,
-    Pause                    = ffi::KEY_PAUSE,
-    F1                       = ffi::KEY_F1,
-    F2                       = ffi::KEY_F2,
-    F3                       = ffi::KEY_F3,
-    F4                       = ffi::KEY_F4,
-    F5                       = ffi::KEY_F5,
-    F6                       = ffi::KEY_F6,
-    F7                       = ffi::KEY_F7,
-    F8                       = ffi::KEY_F8,
-    F9                       = ffi::KEY_F9,
-    F10                      = ffi::KEY_F10,
-    F11                      = ffi::KEY_F11,
-    F12                      = ffi::KEY_F12,
-    F13                      = ffi::KEY_F13,
-    F14                      = ffi::KEY_F14,
-    F15                      = ffi::KEY_F15,
-    F16                      = ffi::KEY_F16,
-    F17                      = ffi::KEY_F17,
-    F18                      = ffi::KEY_F18,
-    F19                      = ffi::KEY_F19,
-    F20                      = ffi::KEY_F20,
-    F21                      = ffi::KEY_F21,
-    F22                      = ffi::KEY_F22,
-    F23                      = ffi::KEY_F23,
-    F24                      = ffi::KEY_F24,
-    F25                      = ffi::KEY_F25,
-    Kp0                      = ffi::KEY_KP_0,
-    Kp1                      = ffi::KEY_KP_1,
-    Kp2                      = ffi::KEY_KP_2,
-    Kp3                      = ffi::KEY_KP_3,
-    Kp4                      = ffi::KEY_KP_4,
-    Kp5                      = ffi::KEY_KP_5,
-    Kp6                      = ffi::KEY_KP_6,
-    Kp7                      = ffi::KEY_KP_7,
-    Kp8                      = ffi::KEY_KP_8,
-    Kp9                      = ffi::KEY_KP_9,
-    KpDecimal                = ffi::KEY_KP_DECIMAL,
-    KpDivide                 = ffi::KEY_KP_DIVIDE,
-    KpMultiply               = ffi::KEY_KP_MULTIPLY,
-    KpSubtract               = ffi::KEY_KP_SUBTRACT,
-    KpAdd                    = ffi::KEY_KP_ADD,
-    KpEnter                  = ffi::KEY_KP_ENTER,
-    KpEqual                  = ffi::KEY_KP_EQUAL,
-    LeftShift                = ffi::KEY_LEFT_SHIFT,
-    LeftControl              = ffi::KEY_LEFT_CONTROL,
-    LeftAlt                  = ffi::KEY_LEFT_ALT,
-    LeftSuper                = ffi::KEY_LEFT_SUPER,
-    RightShift               = ffi::KEY_RIGHT_SHIFT,
-    RightControl             = ffi::KEY_RIGHT_CONTROL,
-    RightAlt                 = ffi::KEY_RIGHT_ALT,
-    RightSuper               = ffi::KEY_RIGHT_SUPER,
-    Menu                     = ffi::KEY_MENU,
-    Unknown                  = ffi::KEY_UNKNOWN
+    Escape = ffi::KEY_ESCAPE,
+    Enter = ffi::KEY_ENTER,
+    Tab = ffi::KEY_TAB,
+    Backspace = ffi::KEY_BACKSPACE,
+    Insert = ffi::KEY_INSERT,
+    Delete = ffi::KEY_DELETE,
+    Right = ffi::KEY_RIGHT,
+    Left = ffi::KEY_LEFT,
+    Down = ffi::KEY_DOWN,
+    Up = ffi::KEY_UP,
+    PageUp = ffi::KEY_PAGE_UP,
+    PageDown = ffi::KEY_PAGE_DOWN,
+    Home = ffi::KEY_HOME,
+    End = ffi::KEY_END,
+    CapsLock = ffi::KEY_CAPS_LOCK,
+    ScrollLock = ffi::KEY_SCROLL_LOCK,
+    NumLock = ffi::KEY_NUM_LOCK,
+    PrintScreen = ffi::KEY_PRINT_SCREEN,
+    Pause = ffi::KEY_PAUSE,
+    F1 = ffi::KEY_F1,
+    F2 = ffi::KEY_F2,
+    F3 = ffi::KEY_F3,
+    F4 = ffi::KEY_F4,
+    F5 = ffi::KEY_F5,
+    F6 = ffi::KEY_F6,
+    F7 = ffi::KEY_F7,
+    F8 = ffi::KEY_F8,
+    F9 = ffi::KEY_F9,
+    F10 = ffi::KEY_F10,
+    F11 = ffi::KEY_F11,
+    F12 = ffi::KEY_F12,
+    F13 = ffi::KEY_F13,
+    F14 = ffi::KEY_F14,
+    F15 = ffi::KEY_F15,
+    F16 = ffi::KEY_F16,
+    F17 = ffi::KEY_F17,
+    F18 = ffi::KEY_F18,
+    F19 = ffi::KEY_F19,
+    F20 = ffi::KEY_F20,
+    F21 = ffi::KEY_F21,
+    F22 = ffi::KEY_F22,
+    F23 = ffi::KEY_F23,
+    F24 = ffi::KEY_F24,
+    F25 = ffi::KEY_F25,
+    Kp0 = ffi::KEY_KP_0,
+    Kp1 = ffi::KEY_KP_1,
+    Kp2 = ffi::KEY_KP_2,
+    Kp3 = ffi::KEY_KP_3,
+    Kp4 = ffi::KEY_KP_4,
+    Kp5 = ffi::KEY_KP_5,
+    Kp6 = ffi::KEY_KP_6,
+    Kp7 = ffi::KEY_KP_7,
+    Kp8 = ffi::KEY_KP_8,
+    Kp9 = ffi::KEY_KP_9,
+    KpDecimal = ffi::KEY_KP_DECIMAL,
+    KpDivide = ffi::KEY_KP_DIVIDE,
+    KpMultiply = ffi::KEY_KP_MULTIPLY,
+    KpSubtract = ffi::KEY_KP_SUBTRACT,
+    KpAdd = ffi::KEY_KP_ADD,
+    KpEnter = ffi::KEY_KP_ENTER,
+    KpEqual = ffi::KEY_KP_EQUAL,
+    LeftShift = ffi::KEY_LEFT_SHIFT,
+    LeftControl = ffi::KEY_LEFT_CONTROL,
+    LeftAlt = ffi::KEY_LEFT_ALT,
+    LeftSuper = ffi::KEY_LEFT_SUPER,
+    RightShift = ffi::KEY_RIGHT_SHIFT,
+    RightControl = ffi::KEY_RIGHT_CONTROL,
+    RightAlt = ffi::KEY_RIGHT_ALT,
+    RightSuper = ffi::KEY_RIGHT_SUPER,
+    Menu = ffi::KEY_MENU,
+    Unknown = ffi::KEY_UNKNOWN,
 }
 
 /// Wrapper around 'glfwGetKeyName`
 pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<String> {
     unsafe {
-        string_from_nullable_c_str(ffi::glfwGetKeyName(match key {
-            Some(k) => k as c_int,
-            None => ffi::KEY_UNKNOWN
-        }, scancode.unwrap_or(ffi::KEY_UNKNOWN)))
+        string_from_nullable_c_str(ffi::glfwGetKeyName(
+            match key {
+                Some(k) => k as c_int,
+                None => ffi::KEY_UNKNOWN,
+            },
+            scancode.unwrap_or(ffi::KEY_UNKNOWN),
+        ))
     }
 }
 
 /// Wrapper around 'glfwGetKeyName`
-#[deprecated(since = "0.16.0", note = "'key_name' can cause a segfault, use 'get_key_name' instead")]
+#[deprecated(
+    since = "0.16.0",
+    note = "'key_name' can cause a segfault, use 'get_key_name' instead"
+)]
 pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
     unsafe {
-        string_from_c_str(ffi::glfwGetKeyName(match key {
-            Some(k) => k as c_int,
-            None => ffi::KEY_UNKNOWN
-        }, scancode.unwrap_or(ffi::KEY_UNKNOWN)))
+        string_from_c_str(ffi::glfwGetKeyName(
+            match key {
+                Some(k) => k as c_int,
+                None => ffi::KEY_UNKNOWN,
+            },
+            scancode.unwrap_or(ffi::KEY_UNKNOWN),
+        ))
     }
 }
 
@@ -296,7 +300,10 @@ pub fn get_key_scancode(key: Option<Key>) -> Option<Scancode> {
 
 impl Key {
     /// Wrapper around 'glfwGetKeyName` without scancode
-    #[deprecated(since = "0.16.0", note = "Key method 'name' can cause a segfault, use 'get_name' instead")]
+    #[deprecated(
+        since = "0.16.0",
+        note = "Key method 'name' can cause a segfault, use 'get_name' instead"
+    )]
     pub fn name(&self) -> String {
         #[allow(deprecated)]
         key_name(Some(*self), None)
@@ -304,7 +311,7 @@ impl Key {
 
     /// Wrapper around 'glfwGetKeyName` without scancode
     pub fn get_name(&self) -> Option<String> {
-	    get_key_name(Some(*self), None)
+        get_key_name(Some(*self), None)
     }
 
     /// Wrapper around `glfwGetKeyScancode`.
@@ -319,16 +326,16 @@ impl Key {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
-    Button1                = ffi::MOUSE_BUTTON_1,
+    Button1 = ffi::MOUSE_BUTTON_1,
     /// The right mouse button. A `MouseButtonRight` alias is provided to improve clarity.
-    Button2                = ffi::MOUSE_BUTTON_2,
+    Button2 = ffi::MOUSE_BUTTON_2,
     /// The middle mouse button. A `MouseButtonMiddle` alias is provided to improve clarity.
-    Button3                = ffi::MOUSE_BUTTON_3,
-    Button4                = ffi::MOUSE_BUTTON_4,
-    Button5                = ffi::MOUSE_BUTTON_5,
-    Button6                = ffi::MOUSE_BUTTON_6,
-    Button7                = ffi::MOUSE_BUTTON_7,
-    Button8                = ffi::MOUSE_BUTTON_8,
+    Button3 = ffi::MOUSE_BUTTON_3,
+    Button4 = ffi::MOUSE_BUTTON_4,
+    Button5 = ffi::MOUSE_BUTTON_5,
+    Button6 = ffi::MOUSE_BUTTON_6,
+    Button7 = ffi::MOUSE_BUTTON_7,
+    Button8 = ffi::MOUSE_BUTTON_8,
 }
 
 impl MouseButton {
@@ -356,10 +363,10 @@ impl fmt::Debug for DebugAliases<MouseButton> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let DebugAliases(button) = *self;
         match button {
-            MouseButtonLeft     => write!(f, "MouseButtonLeft"),
-            MouseButtonRight    => write!(f, "MouseButtonRight"),
-            MouseButtonMiddle   => write!(f, "MouseButtonMiddle"),
-            button              => button.fmt(f),
+            MouseButtonLeft => write!(f, "MouseButtonLeft"),
+            MouseButtonRight => write!(f, "MouseButtonRight"),
+            MouseButtonMiddle => write!(f, "MouseButtonMiddle"),
+            button => button.fmt(f),
         }
     }
 }
@@ -374,17 +381,17 @@ pub struct Callback<Fn, UserData> {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Error {
-    NoError                     = ffi::NO_ERROR,
-    NotInitialized              = ffi::NOT_INITIALIZED,
-    NoCurrentContext            = ffi::NO_CURRENT_CONTEXT,
-    InvalidEnum                 = ffi::INVALID_ENUM,
-    InvalidValue                = ffi::INVALID_VALUE,
-    OutOfMemory                 = ffi::OUT_OF_MEMORY,
-    ApiUnavailable              = ffi::API_UNAVAILABLE,
-    VersionUnavailable          = ffi::VERSION_UNAVAILABLE,
-    PlatformError               = ffi::PLATFORM_ERROR,
-    FormatUnavailable           = ffi::FORMAT_UNAVAILABLE,
-    NoWindowContext             = ffi::NO_WINDOW_CONTEXT,
+    NoError = ffi::NO_ERROR,
+    NotInitialized = ffi::NOT_INITIALIZED,
+    NoCurrentContext = ffi::NO_CURRENT_CONTEXT,
+    InvalidEnum = ffi::INVALID_ENUM,
+    InvalidValue = ffi::INVALID_VALUE,
+    OutOfMemory = ffi::OUT_OF_MEMORY,
+    ApiUnavailable = ffi::API_UNAVAILABLE,
+    VersionUnavailable = ffi::VERSION_UNAVAILABLE,
+    PlatformError = ffi::PLATFORM_ERROR,
+    FormatUnavailable = ffi::FORMAT_UNAVAILABLE,
+    NoWindowContext = ffi::NO_WINDOW_CONTEXT,
 }
 
 impl fmt::Display for Error {
@@ -423,8 +430,10 @@ pub fn fail_on_errors(_: Error, description: String, _: &()) {
 }
 
 /// A callback that triggers a task failure when an error is encountered.
-pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> =
-    Some(Callback { f: fail_on_errors as fn(Error, String, &()), data: () });
+pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> = Some(Callback {
+    f: fail_on_errors as fn(Error, String, &()),
+    data: (),
+});
 
 /// The function to be used with the `LOG_ERRORS` callback.
 pub fn log_errors(_: Error, description: String, _: &()) {
@@ -433,8 +442,10 @@ pub fn log_errors(_: Error, description: String, _: &()) {
 
 /// A callback that logs each error as it is encountered without triggering a
 /// task failure.
-pub static LOG_ERRORS: Option<ErrorCallback<()>> =
-    Some(Callback { f: log_errors as fn(Error, String, &()), data: () });
+pub static LOG_ERRORS: Option<ErrorCallback<()>> = Some(Callback {
+    f: log_errors as fn(Error, String, &()),
+    data: (),
+});
 
 /// When not using the `image` library, or if you just want to,
 /// you can specify an image from its raw pixel data using this structure.
@@ -444,16 +455,16 @@ pub struct PixelImage {
     /// Height of the image in pixels
     pub height: u32,
     /// Pixels are 4 bytes each, one byte for each RGBA subpixel.
-    pub pixels: Vec<u32>
+    pub pixels: Vec<u32>,
 }
 
 /// Cursor modes.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum CursorMode {
-    Normal                = ffi::CURSOR_NORMAL,
-    Hidden                = ffi::CURSOR_HIDDEN,
-    Disabled              = ffi::CURSOR_DISABLED,
+    Normal = ffi::CURSOR_NORMAL,
+    Hidden = ffi::CURSOR_HIDDEN,
+    Disabled = ffi::CURSOR_DISABLED,
 }
 
 /// Standard cursors provided by GLFW
@@ -461,17 +472,17 @@ pub enum CursorMode {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum StandardCursor {
     /// The regular arrow cursor shape.
-    Arrow                 = ffi::ARROW_CURSOR,
+    Arrow = ffi::ARROW_CURSOR,
     /// The text input I-beam cursor shape.
-    IBeam                 = ffi::IBEAM_CURSOR,
+    IBeam = ffi::IBEAM_CURSOR,
     /// The crosshair shape.
-    Crosshair             = ffi::CROSSHAIR_CURSOR,
+    Crosshair = ffi::CROSSHAIR_CURSOR,
     /// The hand shape.
-    Hand                  = ffi::HAND_CURSOR,
+    Hand = ffi::HAND_CURSOR,
     /// The horizontal resize arrow shape.
-    HResize               = ffi::HRESIZE_CURSOR,
+    HResize = ffi::HRESIZE_CURSOR,
     /// The vertical resize arrow shape.
-    VResize               = ffi::VRESIZE_CURSOR
+    VResize = ffi::VRESIZE_CURSOR,
 }
 
 /// Represents a window cursor that can be used to display any
@@ -480,7 +491,7 @@ pub enum StandardCursor {
 /// Note that the cursor object has a lifetime and will not display
 /// correctly after it has been dropped.
 pub struct Cursor {
-    ptr: *mut ffi::GLFWcursor
+    ptr: *mut ffi::GLFWcursor,
 }
 
 impl Drop for Cursor {
@@ -493,7 +504,7 @@ impl Cursor {
     /// Create a new cursor using `glfwCreateStandardCursor`
     pub fn standard(cursor: StandardCursor) -> Cursor {
         Cursor {
-            ptr: unsafe { ffi::glfwCreateStandardCursor(cursor as c_int) }
+            ptr: unsafe { ffi::glfwCreateStandardCursor(cursor as c_int) },
         }
     }
 
@@ -514,11 +525,17 @@ impl Cursor {
         let glfw_image = ffi::GLFWimage {
             width: width as c_int,
             height: height as c_int,
-            pixels: image_data.as_ptr() as *const c_uchar
+            pixels: image_data.as_ptr() as *const c_uchar,
         };
 
         Cursor {
-            ptr: unsafe { ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int) }
+            ptr: unsafe {
+                ffi::glfwCreateCursor(
+                    &glfw_image as *const ffi::GLFWimage,
+                    x_hotspot as c_int,
+                    y_hotspot as c_int,
+                )
+            },
         }
     }
 
@@ -534,11 +551,17 @@ impl Cursor {
         let glfw_image = ffi::GLFWimage {
             width: image.width as c_int,
             height: image.height as c_int,
-            pixels: image.pixels.as_ptr() as *const c_uchar
+            pixels: image.pixels.as_ptr() as *const c_uchar,
         };
 
         Cursor {
-            ptr: unsafe { ffi::glfwCreateCursor(&glfw_image as *const ffi::GLFWimage, x_hotspot as c_int, y_hotspot as c_int) }
+            ptr: unsafe {
+                ffi::glfwCreateCursor(
+                    &glfw_image as *const ffi::GLFWimage,
+                    x_hotspot as c_int,
+                    y_hotspot as c_int,
+                )
+            },
         }
     }
 }
@@ -546,39 +569,39 @@ impl Cursor {
 /// Describes a single video mode.
 #[derive(Copy, Clone)]
 pub struct VidMode {
-    pub width:        u32,
-    pub height:       u32,
-    pub red_bits:     u32,
-    pub green_bits:   u32,
-    pub blue_bits:    u32,
+    pub width: u32,
+    pub height: u32,
+    pub red_bits: u32,
+    pub green_bits: u32,
+    pub blue_bits: u32,
     pub refresh_rate: u32,
 }
 
 /// Describes the gamma ramp of a monitor.
 pub struct GammaRamp {
-    pub red:    Vec<c_ushort>,
-    pub green:  Vec<c_ushort>,
-    pub blue:   Vec<c_ushort>,
+    pub red: Vec<c_ushort>,
+    pub green: Vec<c_ushort>,
+    pub blue: Vec<c_ushort>,
 }
 
 /// `ContextReleaseBehavior` specifies the release behavior to be used by the context.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextReleaseBehavior {
-    Any                   = ffi::ANY_RELEASE_BEHAVIOR,
+    Any = ffi::ANY_RELEASE_BEHAVIOR,
     /// `Flush` tells the context to flush the pipeline whenever the context is released from being the current one.
-    Flush                 = ffi::RELEASE_BEHAVIOR_FLUSH,
+    Flush = ffi::RELEASE_BEHAVIOR_FLUSH,
     /// `None` tells the context to NOT flush the pipeline on release
-    None                  = ffi::RELEASE_BEHAVIOR_NONE
+    None = ffi::RELEASE_BEHAVIOR_NONE,
 }
 
 /// Specifies the API to use to create the context
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextCreationApi {
-    Native                = ffi::NATIVE_CONTEXT_API,
-    Egl                   = ffi::EGL_CONTEXT_API,
-    OsMesa                = ffi::OSMESA_CONTEXT_API,
+    Native = ffi::NATIVE_CONTEXT_API,
+    Egl = ffi::EGL_CONTEXT_API,
+    OsMesa = ffi::OSMESA_CONTEXT_API,
 }
 
 /// Specifies how the context should handle swapping the buffers.
@@ -594,7 +617,7 @@ pub enum SwapInterval {
     /// are enabled, allows the adaptively swap the frame. Sometimes called Adaptive V-sync
     Adaptive,
     /// Synchronizes the buffers every N frames. Set to 1 for V-sync
-    Sync(u32)
+    Sync(u32),
 }
 
 /// An OpenGL process address.
@@ -668,9 +691,15 @@ pub enum InitHint {
 /// Wrapper for `glfwInitHint`.
 pub fn init_hint(hint: InitHint) {
     match hint {
-        InitHint::JoystickHatButtons(joystick_hat_buttons) => unsafe { ffi::glfwInitHint(ffi::JOYSTICK_HAT_BUTTONS, joystick_hat_buttons as c_int) },
-        InitHint::CocoaChdirResources(chdir) => unsafe { ffi::glfwInitHint(ffi::COCOA_CHDIR_RESOURCES, chdir as c_int) },
-        InitHint::CocoaMenubar(menubar) => unsafe { ffi::glfwInitHint(ffi::COCOA_MENUBAR, menubar as c_int) },
+        InitHint::JoystickHatButtons(joystick_hat_buttons) => unsafe {
+            ffi::glfwInitHint(ffi::JOYSTICK_HAT_BUTTONS, joystick_hat_buttons as c_int)
+        },
+        InitHint::CocoaChdirResources(chdir) => unsafe {
+            ffi::glfwInitHint(ffi::COCOA_CHDIR_RESOURCES, chdir as c_int)
+        },
+        InitHint::CocoaMenubar(menubar) => unsafe {
+            ffi::glfwInitHint(ffi::COCOA_MENUBAR, menubar as c_int)
+        },
     }
 }
 
@@ -755,26 +784,35 @@ impl Glfw {
     /// // triggers a task failure when a GLFW error is encountered.
     /// glfw.set_error_callback(glfw::FAIL_ON_ERRORS);
     /// ~~~
-    pub fn set_error_callback<UserData: 'static>(&mut self, callback: Option<ErrorCallback<UserData>>) {
+    pub fn set_error_callback<UserData: 'static>(
+        &mut self,
+        callback: Option<ErrorCallback<UserData>>,
+    ) {
         match callback {
             Some(f) => callbacks::error::set(f),
-            None    => callbacks::error::unset(),
+            None => callbacks::error::unset(),
         }
     }
 
     /// Sets the monitor callback, overwriting the previous one stored.
-    pub fn set_monitor_callback<UserData: 'static>(&mut self, callback: Option<MonitorCallback<UserData>>) {
+    pub fn set_monitor_callback<UserData: 'static>(
+        &mut self,
+        callback: Option<MonitorCallback<UserData>>,
+    ) {
         match callback {
             Some(f) => callbacks::monitor::set(f),
-            None    => callbacks::monitor::unset(),
+            None => callbacks::monitor::unset(),
         }
     }
 
     /// Sets the joystick callback, overwriting the previous one stored
-    pub fn set_joystick_callback<UserData: 'static>(&mut self, callback: Option<JoystickCallback<UserData>>) {
+    pub fn set_joystick_callback<UserData: 'static>(
+        &mut self,
+        callback: Option<JoystickCallback<UserData>>,
+    ) {
         match callback {
             Some(f) => callbacks::joystick::set(f),
-            None    => callbacks::joystick::unset(),
+            None => callbacks::joystick::unset(),
         }
     }
 
@@ -790,12 +828,13 @@ impl Glfw {
     ///         m.map_or(glfw::WindowMode::Windowed, |m| glfw::FullScreen(m)))
     /// }).expect("Failed to create GLFW window.");
     /// ~~~
-    pub fn with_primary_monitor<T, F>(&mut self, f: F) -> T where F: Fn(&mut Self, Option<&Monitor>) -> T {
+    pub fn with_primary_monitor<T, F>(&mut self, f: F) -> T
+    where
+        F: Fn(&mut Self, Option<&Monitor>) -> T,
+    {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(self, None),
-            ptr => f(self, Some(&Monitor {
-                ptr: ptr
-            })),
+            ptr => f(self, Some(&Monitor { ptr: ptr })),
         }
     }
 
@@ -817,12 +856,13 @@ impl Glfw {
     ///     window.set_monitor(glfw::WindowMode::FullScreen(&monitor), 0, 0, mode.width, mode.height, Some(mode.refresh_rate));
     /// });
     /// ~~~
-    pub fn with_primary_monitor_mut<T, F>(&mut self, mut f: F) -> T where F: FnMut(&mut Self, Option<&Monitor>) -> T {
+    pub fn with_primary_monitor_mut<T, F>(&mut self, mut f: F) -> T
+    where
+        F: FnMut(&mut Self, Option<&Monitor>) -> T,
+    {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(self, None),
-            ptr => f(self, Some(&Monitor {
-                ptr: ptr
-            })),
+            ptr => f(self, Some(&Monitor { ptr: ptr })),
         }
     }
 
@@ -838,16 +878,20 @@ impl Glfw {
     ///     }
     /// });
     /// ~~~
-    pub fn with_connected_monitors<T, F>(&mut self, f: F) -> T where F: Fn(&mut Self, &[Monitor]) -> T {
+    pub fn with_connected_monitors<T, F>(&mut self, f: F) -> T
+    where
+        F: Fn(&mut Self, &[Monitor]) -> T,
+    {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            f(self,
-              &slice::from_raw_parts(ptr as *const _, count as usize).iter().map(|&ptr| {
-                Monitor {
-                    ptr: ptr
-                }
-            }).collect::<Vec<Monitor>>())
+            f(
+                self,
+                &slice::from_raw_parts(ptr as *const _, count as usize)
+                    .iter()
+                    .map(|&ptr| Monitor { ptr: ptr })
+                    .collect::<Vec<Monitor>>(),
+            )
         }
     }
 
@@ -865,16 +909,20 @@ impl Glfw {
     ///     }
     /// });
     /// ~~~
-    pub fn with_connected_monitors_mut<T, F>(&mut self, mut f: F) -> T where F: FnMut(&mut Self, &[Monitor]) -> T {
+    pub fn with_connected_monitors_mut<T, F>(&mut self, mut f: F) -> T
+    where
+        F: FnMut(&mut Self, &[Monitor]) -> T,
+    {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            f(self,
-              &slice::from_raw_parts(ptr as *const _, count as usize).iter().map(|&ptr| {
-                  Monitor {
-                      ptr: ptr
-                  }
-              }).collect::<Vec<Monitor>>())
+            f(
+                self,
+                &slice::from_raw_parts(ptr as *const _, count as usize)
+                    .iter()
+                    .map(|&ptr| Monitor { ptr: ptr })
+                    .collect::<Vec<Monitor>>(),
+            )
         }
     }
 
@@ -919,10 +967,13 @@ impl Glfw {
         //so `value.unwrap_or(ffi::DONT_CARE)` wouldn't work because of the type difference.
         #[inline(always)]
         unsafe fn dont_care_hint(hint: c_int, value: Option<u32>) {
-            ffi::glfwWindowHint(hint, match value {
-                Some(v) => v as c_int,
-                None => ffi::DONT_CARE
-            })
+            ffi::glfwWindowHint(
+                hint,
+                match value {
+                    Some(v) => v as c_int,
+                    None => ffi::DONT_CARE,
+                },
+            )
         }
 
         #[inline(always)]
@@ -932,57 +983,119 @@ impl Glfw {
             } else {
                 ""
             };
-            with_c_str(value, |value| {
-                ffi::glfwWindowHintString(hint, value)
-            })
+            with_c_str(value, |value| ffi::glfwWindowHintString(hint, value))
         }
 
         match hint {
-            WindowHint::RedBits(bits)                    => unsafe { dont_care_hint(ffi::RED_BITS,                      bits) },
-            WindowHint::GreenBits(bits)                  => unsafe { dont_care_hint(ffi::GREEN_BITS,                    bits) },
-            WindowHint::BlueBits(bits)                   => unsafe { dont_care_hint(ffi::BLUE_BITS,                     bits) },
-            WindowHint::AlphaBits(bits)                  => unsafe { dont_care_hint(ffi::ALPHA_BITS,                    bits) },
-            WindowHint::DepthBits(bits)                  => unsafe { dont_care_hint(ffi::DEPTH_BITS,                    bits) },
-            WindowHint::StencilBits(bits)                => unsafe { dont_care_hint(ffi::STENCIL_BITS,                  bits) },
-            WindowHint::AccumRedBits(bits)               => unsafe { dont_care_hint(ffi::ACCUM_RED_BITS,                bits) },
-            WindowHint::AccumGreenBits(bits)             => unsafe { dont_care_hint(ffi::ACCUM_GREEN_BITS,              bits) },
-            WindowHint::AccumBlueBits(bits)              => unsafe { dont_care_hint(ffi::ACCUM_BLUE_BITS,               bits) },
-            WindowHint::AccumAlphaBits(bits)             => unsafe { dont_care_hint(ffi::ACCUM_ALPHA_BITS,              bits) },
-            WindowHint::AuxBuffers(num_buffers)          => unsafe { dont_care_hint(ffi::AUX_BUFFERS,                   num_buffers) },
-            WindowHint::Samples(num_samples)             => unsafe { dont_care_hint(ffi::SAMPLES,                       num_samples) },
-            WindowHint::RefreshRate(rate)                => unsafe { dont_care_hint(ffi::REFRESH_RATE,                  rate) },
-            WindowHint::Stereo(is_stereo)                => unsafe { ffi::glfwWindowHint(ffi::STEREO,                   is_stereo as c_int) },
-            WindowHint::SRgbCapable(is_capable)          => unsafe { ffi::glfwWindowHint(ffi::SRGB_CAPABLE,             is_capable as c_int) },
-            WindowHint::ClientApi(api)                   => unsafe { ffi::glfwWindowHint(ffi::CLIENT_API,               api as c_int) },
-            WindowHint::ContextVersionMajor(major)       => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR,    major as c_int) },
-            WindowHint::ContextVersionMinor(minor)       => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR,    minor as c_int) },
-            WindowHint::ContextVersion(major, minor)     => unsafe {
+            WindowHint::RedBits(bits) => unsafe { dont_care_hint(ffi::RED_BITS, bits) },
+            WindowHint::GreenBits(bits) => unsafe { dont_care_hint(ffi::GREEN_BITS, bits) },
+            WindowHint::BlueBits(bits) => unsafe { dont_care_hint(ffi::BLUE_BITS, bits) },
+            WindowHint::AlphaBits(bits) => unsafe { dont_care_hint(ffi::ALPHA_BITS, bits) },
+            WindowHint::DepthBits(bits) => unsafe { dont_care_hint(ffi::DEPTH_BITS, bits) },
+            WindowHint::StencilBits(bits) => unsafe { dont_care_hint(ffi::STENCIL_BITS, bits) },
+            WindowHint::AccumRedBits(bits) => unsafe { dont_care_hint(ffi::ACCUM_RED_BITS, bits) },
+            WindowHint::AccumGreenBits(bits) => unsafe {
+                dont_care_hint(ffi::ACCUM_GREEN_BITS, bits)
+            },
+            WindowHint::AccumBlueBits(bits) => unsafe {
+                dont_care_hint(ffi::ACCUM_BLUE_BITS, bits)
+            },
+            WindowHint::AccumAlphaBits(bits) => unsafe {
+                dont_care_hint(ffi::ACCUM_ALPHA_BITS, bits)
+            },
+            WindowHint::AuxBuffers(num_buffers) => unsafe {
+                dont_care_hint(ffi::AUX_BUFFERS, num_buffers)
+            },
+            WindowHint::Samples(num_samples) => unsafe {
+                dont_care_hint(ffi::SAMPLES, num_samples)
+            },
+            WindowHint::RefreshRate(rate) => unsafe { dont_care_hint(ffi::REFRESH_RATE, rate) },
+            WindowHint::Stereo(is_stereo) => unsafe {
+                ffi::glfwWindowHint(ffi::STEREO, is_stereo as c_int)
+            },
+            WindowHint::SRgbCapable(is_capable) => unsafe {
+                ffi::glfwWindowHint(ffi::SRGB_CAPABLE, is_capable as c_int)
+            },
+            WindowHint::ClientApi(api) => unsafe {
+                ffi::glfwWindowHint(ffi::CLIENT_API, api as c_int)
+            },
+            WindowHint::ContextVersionMajor(major) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int)
+            },
+            WindowHint::ContextVersionMinor(minor) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int)
+            },
+            WindowHint::ContextVersion(major, minor) => unsafe {
                 ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MAJOR, major as c_int);
                 ffi::glfwWindowHint(ffi::CONTEXT_VERSION_MINOR, minor as c_int)
             },
-            WindowHint::ContextRobustness(robustness)    => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS,       robustness as c_int) },
-            WindowHint::OpenGlForwardCompat(is_compat)   => unsafe { ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT,    is_compat as c_int) },
-            WindowHint::OpenGlDebugContext(is_debug)     => unsafe { ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT,     is_debug as c_int) },
-            WindowHint::OpenGlProfile(profile)           => unsafe { ffi::glfwWindowHint(ffi::OPENGL_PROFILE,           profile as c_int) },
-            WindowHint::Resizable(is_resizable)          => unsafe { ffi::glfwWindowHint(ffi::RESIZABLE,                is_resizable as c_int) },
-            WindowHint::Visible(is_visible)              => unsafe { ffi::glfwWindowHint(ffi::VISIBLE,                  is_visible as c_int) },
-            WindowHint::Decorated(is_decorated)          => unsafe { ffi::glfwWindowHint(ffi::DECORATED,                is_decorated as c_int) },
-            WindowHint::AutoIconify(auto_iconify)        => unsafe { ffi::glfwWindowHint(ffi::AUTO_ICONIFY,             auto_iconify as c_int) },
-            WindowHint::Floating(is_floating)            => unsafe { ffi::glfwWindowHint(ffi::FLOATING,                 is_floating as c_int) },
-            WindowHint::Focused(is_focused)              => unsafe { ffi::glfwWindowHint(ffi::FOCUSED,                  is_focused as c_int) },
-            WindowHint::ContextNoError(is_no_error)      => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_NO_ERROR,         is_no_error as c_int) },
-            WindowHint::ContextCreationApi(api)          => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API,     api as c_int) },
-            WindowHint::ContextReleaseBehavior(behavior) => unsafe { ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int) },
-            WindowHint::DoubleBuffer(is_dbuffered)       => unsafe { ffi::glfwWindowHint(ffi::DOUBLEBUFFER,             is_dbuffered as c_int) },
-            WindowHint::CenterCursor(center_cursor) => unsafe { ffi::glfwWindowHint(ffi::CENTER_CURSOR, center_cursor as c_int) },
-            WindowHint::TransparentFramebuffer(is_transparent) => unsafe { ffi::glfwWindowHint(ffi::TRANSPARENT_FRAMEBUFFER, is_transparent as c_int) },
-            WindowHint::FocusOnShow(focus) => unsafe { ffi::glfwWindowHint(ffi::FOCUS_ON_SHOW, focus as c_int) },
-            WindowHint::ScaleToMonitor(scale) => unsafe { ffi::glfwWindowHint(ffi::SCALE_TO_MONITOR, scale as c_int) },
-            WindowHint::CocoaRetinaFramebuffer(retina_fb) => unsafe { ffi::glfwWindowHint(ffi::COCOA_RETINA_FRAMEBUFFER, retina_fb as c_int) },
-            WindowHint::CocoaFrameName(name) => unsafe { string_hint(ffi::COCOA_FRAME_NAME, name) }
-            WindowHint::CocoaGraphicsSwitching(graphics_switching) => unsafe { ffi::glfwWindowHint(ffi::COCOA_GRAPHICS_SWITCHING, graphics_switching as c_int) },
-            WindowHint::X11ClassName(class_name) => unsafe { string_hint(ffi::X11_CLASS_NAME, class_name) },
-            WindowHint::X11InstanceName(instance_name) => unsafe { string_hint(ffi::X11_INSTANCE_NAME, instance_name) },
+            WindowHint::ContextRobustness(robustness) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_ROBUSTNESS, robustness as c_int)
+            },
+            WindowHint::OpenGlForwardCompat(is_compat) => unsafe {
+                ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int)
+            },
+            WindowHint::OpenGlDebugContext(is_debug) => unsafe {
+                ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT, is_debug as c_int)
+            },
+            WindowHint::OpenGlProfile(profile) => unsafe {
+                ffi::glfwWindowHint(ffi::OPENGL_PROFILE, profile as c_int)
+            },
+            WindowHint::Resizable(is_resizable) => unsafe {
+                ffi::glfwWindowHint(ffi::RESIZABLE, is_resizable as c_int)
+            },
+            WindowHint::Visible(is_visible) => unsafe {
+                ffi::glfwWindowHint(ffi::VISIBLE, is_visible as c_int)
+            },
+            WindowHint::Decorated(is_decorated) => unsafe {
+                ffi::glfwWindowHint(ffi::DECORATED, is_decorated as c_int)
+            },
+            WindowHint::AutoIconify(auto_iconify) => unsafe {
+                ffi::glfwWindowHint(ffi::AUTO_ICONIFY, auto_iconify as c_int)
+            },
+            WindowHint::Floating(is_floating) => unsafe {
+                ffi::glfwWindowHint(ffi::FLOATING, is_floating as c_int)
+            },
+            WindowHint::Focused(is_focused) => unsafe {
+                ffi::glfwWindowHint(ffi::FOCUSED, is_focused as c_int)
+            },
+            WindowHint::ContextNoError(is_no_error) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_NO_ERROR, is_no_error as c_int)
+            },
+            WindowHint::ContextCreationApi(api) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_CREATION_API, api as c_int)
+            },
+            WindowHint::ContextReleaseBehavior(behavior) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_RELEASE_BEHAVIOR, behavior as c_int)
+            },
+            WindowHint::DoubleBuffer(is_dbuffered) => unsafe {
+                ffi::glfwWindowHint(ffi::DOUBLEBUFFER, is_dbuffered as c_int)
+            },
+            WindowHint::CenterCursor(center_cursor) => unsafe {
+                ffi::glfwWindowHint(ffi::CENTER_CURSOR, center_cursor as c_int)
+            },
+            WindowHint::TransparentFramebuffer(is_transparent) => unsafe {
+                ffi::glfwWindowHint(ffi::TRANSPARENT_FRAMEBUFFER, is_transparent as c_int)
+            },
+            WindowHint::FocusOnShow(focus) => unsafe {
+                ffi::glfwWindowHint(ffi::FOCUS_ON_SHOW, focus as c_int)
+            },
+            WindowHint::ScaleToMonitor(scale) => unsafe {
+                ffi::glfwWindowHint(ffi::SCALE_TO_MONITOR, scale as c_int)
+            },
+            WindowHint::CocoaRetinaFramebuffer(retina_fb) => unsafe {
+                ffi::glfwWindowHint(ffi::COCOA_RETINA_FRAMEBUFFER, retina_fb as c_int)
+            },
+            WindowHint::CocoaFrameName(name) => unsafe { string_hint(ffi::COCOA_FRAME_NAME, name) },
+            WindowHint::CocoaGraphicsSwitching(graphics_switching) => unsafe {
+                ffi::glfwWindowHint(ffi::COCOA_GRAPHICS_SWITCHING, graphics_switching as c_int)
+            },
+            WindowHint::X11ClassName(class_name) => unsafe {
+                string_hint(ffi::X11_CLASS_NAME, class_name)
+            },
+            WindowHint::X11InstanceName(instance_name) => unsafe {
+                string_hint(ffi::X11_INSTANCE_NAME, instance_name)
+            },
         }
     }
 
@@ -991,18 +1104,33 @@ impl Glfw {
     ///
     /// Wrapper for `glfwDefaultWindowHints`.
     pub fn default_window_hints(&mut self) {
-        unsafe { ffi::glfwDefaultWindowHints(); }
+        unsafe {
+            ffi::glfwDefaultWindowHints();
+        }
     }
 
     /// Creates a new window.
     ///
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_window(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
+    pub fn create_window(
+        &self,
+        width: u32,
+        height: u32,
+        title: &str,
+        mode: WindowMode,
+    ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         self.create_window_intern(width, height, title, mode, None)
     }
 
     /// Internal wrapper for `glfwCreateWindow`.
-    fn create_window_intern(&self, width: u32, height: u32, title: &str, mode: WindowMode, share: Option<&Window>) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
+    fn create_window_intern(
+        &self,
+        width: u32,
+        height: u32,
+        title: &str,
+        mode: WindowMode,
+        share: Option<&Window>,
+    ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         let ptr = unsafe {
             with_c_str(title, |title| {
                 ffi::glfwCreateWindow(
@@ -1010,7 +1138,10 @@ impl Glfw {
                     height as c_int,
                     title,
                     mode.to_ptr(),
-                    match share { Some(w) => w.ptr, None => ptr::null_mut() }
+                    match share {
+                        Some(w) => w.ptr,
+                        None => ptr::null_mut(),
+                    },
                 )
             })
         };
@@ -1019,7 +1150,9 @@ impl Glfw {
         } else {
             let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
-            unsafe { ffi::glfwSetWindowUserPointer(ptr, mem::transmute(Box::new(sender))); }
+            unsafe {
+                ffi::glfwSetWindowUserPointer(ptr, mem::transmute(Box::new(sender)));
+            }
             Some((
                 Window {
                     ptr: ptr,
@@ -1027,7 +1160,7 @@ impl Glfw {
                     is_shared: share.is_some(),
                     drop_sender: Some(drop_sender),
                     drop_receiver: drop_receiver,
-                    current_cursor: None
+                    current_cursor: None,
                 },
                 receiver,
             ))
@@ -1041,12 +1174,12 @@ impl Glfw {
     pub fn make_context_current(&mut self, context: Option<&Window>) {
         match context {
             Some(window) => unsafe { ffi::glfwMakeContextCurrent(window.ptr) },
-            None         => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
+            None => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
         }
     }
 
     /// Wrapper for `glfwGetX11Display`
-    #[cfg(target_os="linux")]
+    #[cfg(target_os = "linux")]
     pub fn get_x11_display(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Display() }
     }
@@ -1055,7 +1188,9 @@ impl Glfw {
     ///
     /// Wrapper for `glfwPollEvents`.
     pub fn poll_events(&mut self) {
-        unsafe { ffi::glfwPollEvents(); }
+        unsafe {
+            ffi::glfwPollEvents();
+        }
     }
 
     /// Immediately process the received events. The *unbuffered* variant differs by allowing
@@ -1066,12 +1201,10 @@ impl Glfw {
     ///
     /// Wrapper for `glfwPollEvents`.
     pub fn poll_events_unbuffered<F>(&mut self, mut f: F)
-        where
-            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+    where
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
-        let _unset_handler_guard = unsafe {
-            crate::callbacks::unbuffered::set_handler(&mut f)
-        };
+        let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.poll_events();
     }
 
@@ -1080,7 +1213,9 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEvents`.
     pub fn wait_events(&mut self) {
-        unsafe { ffi::glfwWaitEvents(); }
+        unsafe {
+            ffi::glfwWaitEvents();
+        }
     }
 
     /// Sleep until at least one event has been received, and then perform the
@@ -1088,12 +1223,10 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEvents`.
     pub fn wait_events_unbuffered<F>(&mut self, mut f: F)
-        where
-            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+    where
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
-        let _unset_handler_guard = unsafe {
-            crate::callbacks::unbuffered::set_handler(&mut f)
-        };
+        let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.wait_events();
     }
 
@@ -1103,7 +1236,9 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEventsTimeout`.
     pub fn wait_events_timeout(&mut self, timeout: f64) {
-        unsafe { ffi::glfwWaitEventsTimeout(timeout); }
+        unsafe {
+            ffi::glfwWaitEventsTimeout(timeout);
+        }
     }
 
     /// Sleep until at least one event has been received, or until the specified
@@ -1112,12 +1247,10 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEventsTimeout`.
     pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, mut f: F)
-        where
-            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>
+    where
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
-        let _unset_handler_guard = unsafe {
-            crate::callbacks::unbuffered::set_handler(&mut f)
-        };
+        let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.wait_events_timeout(timeout);
     }
 
@@ -1127,7 +1260,9 @@ impl Glfw {
     ///
     /// Wrapper for `glfwPostEmptyEvent`.
     pub fn post_empty_event(&mut self) {
-        unsafe { ffi::glfwPostEmptyEvent(); }
+        unsafe {
+            ffi::glfwPostEmptyEvent();
+        }
     }
 
     /// Returns the current value of the GLFW timer. Unless the timer has been
@@ -1143,7 +1278,9 @@ impl Glfw {
     ///
     /// Wrapper for `glfwSetTime`.
     pub fn set_time(&mut self, time: f64) {
-        unsafe { ffi::glfwSetTime(time as c_double); }
+        unsafe {
+            ffi::glfwSetTime(time as c_double);
+        }
     }
 
     /// Wrapper for `glfwGetTimerValue`.
@@ -1163,9 +1300,9 @@ impl Glfw {
     pub fn set_swap_interval(&mut self, interval: SwapInterval) {
         unsafe {
             ffi::glfwSwapInterval(match interval {
-                SwapInterval::None           =>  0       as c_int,
-                SwapInterval::Adaptive       => -1       as c_int,
-                SwapInterval::Sync(interval) => interval as c_int
+                SwapInterval::None => 0 as c_int,
+                SwapInterval::Adaptive => -1 as c_int,
+                SwapInterval::Sync(interval) => interval as c_int,
             })
         }
     }
@@ -1195,13 +1332,16 @@ impl Glfw {
         let mut len: c_uint = 0;
 
         unsafe {
-            let raw_extensions: *const *const c_char = ffi::glfwGetRequiredInstanceExtensions(&mut len as *mut c_uint);
+            let raw_extensions: *const *const c_char =
+                ffi::glfwGetRequiredInstanceExtensions(&mut len as *mut c_uint);
 
             if !raw_extensions.is_null() {
-                return Some(slice::from_raw_parts(raw_extensions, len as usize)
-                    .iter()
-                    .map(|extensions| string_from_c_str(*extensions))
-                    .collect());
+                return Some(
+                    slice::from_raw_parts(raw_extensions, len as usize)
+                        .iter()
+                        .map(|extensions| string_from_c_str(*extensions))
+                        .collect(),
+                );
             }
         }
 
@@ -1214,8 +1354,8 @@ impl Glfw {
     /// Wrapper for `glfwGetProcAddress`.
     pub fn get_proc_address_raw(&self, procname: &str) -> GLProc {
         debug_assert!(unsafe { ffi::glfwGetCurrentContext() } != std::ptr::null_mut());
-        with_c_str(procname, |procname| {
-            unsafe { ffi::glfwGetProcAddress(procname) }
+        with_c_str(procname, |procname| unsafe {
+            ffi::glfwGetProcAddress(procname)
         })
     }
 
@@ -1233,8 +1373,8 @@ impl Glfw {
     /// Wrapper for `glfwGetInstanceProcAddress`
     #[cfg(feature = "vulkan")]
     pub fn get_instance_proc_address_raw(&self, instance: VkInstance, procname: &str) -> VkProc {
-        with_c_str(procname, |procname| {
-            unsafe { ffi::glfwGetInstanceProcAddress(instance, procname) }
+        with_c_str(procname, |procname| unsafe {
+            ffi::glfwGetInstanceProcAddress(instance, procname)
         })
     }
 
@@ -1243,13 +1383,28 @@ impl Glfw {
     ///
     /// Wrapper for `glfwGetPhysicalDevicePresentationSupport`
     #[cfg(feature = "vulkan")]
-    pub fn get_physical_device_presentation_support_raw(&self, instance: VkInstance, device: VkPhysicalDevice, queue_family: u32) -> bool {
-        vk::TRUE == unsafe { ffi::glfwGetPhysicalDevicePresentationSupport(instance, device, queue_family as c_uint) as u32 }
+    pub fn get_physical_device_presentation_support_raw(
+        &self,
+        instance: VkInstance,
+        device: VkPhysicalDevice,
+        queue_family: u32,
+    ) -> bool {
+        vk::TRUE
+            == unsafe {
+                ffi::glfwGetPhysicalDevicePresentationSupport(
+                    instance,
+                    device,
+                    queue_family as c_uint,
+                ) as u32
+            }
     }
 
     /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
     pub fn get_joystick(&self, id: JoystickId) -> Joystick {
-        Joystick { id: id, glfw: self.clone() }
+        Joystick {
+            id: id,
+            glfw: self.clone(),
+        }
     }
 
     /// Wrapper for `glfwRawMouseMotionSupported`.
@@ -1287,7 +1442,9 @@ impl Drop for Glfw {
     fn drop(&mut self) {
         let old_diff = REF_COUNT_FOR_GLFW.fetch_sub(1, Ordering::SeqCst);
         if old_diff == 1 {
-            unsafe { ffi::glfwTerminate(); }
+            unsafe {
+                ffi::glfwTerminate();
+            }
         }
     }
 }
@@ -1303,7 +1460,7 @@ pub fn get_version() -> Version {
             major: major as u64,
             minor: minor as u64,
             patch: patch as u64,
-            pre:   Vec::new(),
+            pre: Vec::new(),
             build: Vec::new(),
         }
     }
@@ -1324,7 +1481,10 @@ pub unsafe fn string_from_nullable_c_str(c_str: *const c_char) -> Option<String>
 }
 
 /// Replacement for `ToCStr::with_c_str`
-pub fn with_c_str<F, T>(s: &str, f: F) -> T where F: FnOnce(*const c_char) -> T {
+pub fn with_c_str<F, T>(s: &str, f: F) -> T
+where
+    F: FnOnce(*const c_char) -> T,
+{
     let c_str = CString::new(s.as_bytes());
     f(c_str.unwrap().as_bytes_with_nul().as_ptr() as *const _)
 }
@@ -1341,7 +1501,7 @@ pub type MonitorCallback<UserData> = Callback<fn(Monitor, MonitorEvent, &UserDat
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[allow(missing_copy_implementations)]
 pub struct Monitor {
-    ptr: *mut ffi::GLFWmonitor
+    ptr: *mut ffi::GLFWmonitor,
 }
 
 impl std::fmt::Debug for Monitor {
@@ -1381,7 +1541,10 @@ impl Monitor {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetVideoModes(self.ptr, &mut count);
-            slice::from_raw_parts(ptr, count as usize).iter().map(VidMode::from_glfw_vid_mode).collect()
+            slice::from_raw_parts(ptr, count as usize)
+                .iter()
+                .map(VidMode::from_glfw_vid_mode)
+                .collect()
         }
     }
 
@@ -1400,7 +1563,9 @@ impl Monitor {
 
     /// Wrapper for `glfwSetGamma`.
     pub fn set_gamma(&mut self, gamma: f32) {
-        unsafe { ffi::glfwSetGamma(self.ptr, gamma as c_float); }
+        unsafe {
+            ffi::glfwSetGamma(self.ptr, gamma as c_float);
+        }
     }
 
     /// Wrapper for `glfwGetGammaRamp`.
@@ -1408,12 +1573,18 @@ impl Monitor {
         unsafe {
             let llramp = *ffi::glfwGetGammaRamp(self.ptr);
             GammaRamp {
-                red:    slice::from_raw_parts(llramp.red as *const c_ushort, llramp.size as usize)
-                              .iter().map(|&x| x).collect(),
-                green:  slice::from_raw_parts(llramp.green as *const c_ushort, llramp.size as usize)
-                              .iter().map(|&x| x).collect(),
-                blue:   slice::from_raw_parts(llramp.blue as *const c_ushort, llramp.size as usize)
-                              .iter().map(|&x| x).collect(),
+                red: slice::from_raw_parts(llramp.red as *const c_ushort, llramp.size as usize)
+                    .iter()
+                    .map(|&x| x)
+                    .collect(),
+                green: slice::from_raw_parts(llramp.green as *const c_ushort, llramp.size as usize)
+                    .iter()
+                    .map(|&x| x)
+                    .collect(),
+                blue: slice::from_raw_parts(llramp.blue as *const c_ushort, llramp.size as usize)
+                    .iter()
+                    .map(|&x| x)
+                    .collect(),
             }
         }
     }
@@ -1424,11 +1595,11 @@ impl Monitor {
             ffi::glfwSetGammaRamp(
                 self.ptr,
                 &ffi::GLFWgammaramp {
-                    red:    ramp.red.as_mut_ptr(),
-                    green:  ramp.green.as_mut_ptr(),
-                    blue:   ramp.blue.as_mut_ptr(),
-                    size:   ramp.red.len() as u32,
-                }
+                    red: ramp.red.as_mut_ptr(),
+                    green: ramp.green.as_mut_ptr(),
+                    blue: ramp.blue.as_mut_ptr(),
+                    size: ramp.red.len() as u32,
+                },
             );
         }
     }
@@ -1460,18 +1631,18 @@ impl Monitor {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum MonitorEvent {
-    Connected                   = ffi::CONNECTED,
-    Disconnected                = ffi::DISCONNECTED,
+    Connected = ffi::CONNECTED,
+    Disconnected = ffi::DISCONNECTED,
 }
 
 impl VidMode {
     fn from_glfw_vid_mode(mode: &ffi::GLFWvidmode) -> VidMode {
         VidMode {
-            width:        mode.width as u32,
-            height:       mode.height as u32,
-            red_bits:     mode.redBits as u32,
-            green_bits:   mode.greenBits as u32,
-            blue_bits:    mode.blueBits as u32,
+            width: mode.width as u32,
+            height: mode.height as u32,
+            red_bits: mode.redBits as u32,
+            green_bits: mode.greenBits as u32,
+            blue_bits: mode.blueBits as u32,
             refresh_rate: mode.refreshRate as u32,
         }
     }
@@ -1488,11 +1659,17 @@ impl fmt::Debug for VidMode {
     /// ~"[width] x [height], [total_bits] ([red_bits] [green_bits] [blue_bits]) [refresh_rate] Hz"
     /// ~~~
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} x {}, {} = {} + {} + {}, {} Hz",
-            self.width, self.height,
+        write!(
+            f,
+            "{} x {}, {} = {} + {} + {}, {} Hz",
+            self.width,
+            self.height,
             self.red_bits + self.green_bits + self.blue_bits,
-            self.red_bits, self.green_bits, self.blue_bits,
-            self.refresh_rate)
+            self.red_bits,
+            self.green_bits,
+            self.blue_bits,
+            self.refresh_rate
+        )
     }
 }
 
@@ -1668,27 +1845,27 @@ pub enum WindowHint {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ClientApiHint {
-    NoApi                    = ffi::NO_API,
-    OpenGl                   = ffi::OPENGL_API,
-    OpenGlEs                 = ffi::OPENGL_ES_API,
+    NoApi = ffi::NO_API,
+    OpenGl = ffi::OPENGL_API,
+    OpenGlEs = ffi::OPENGL_ES_API,
 }
 
 /// Context robustness tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ContextRobustnessHint {
-    NoRobustness                = ffi::NO_ROBUSTNESS,
-    NoResetNotification         = ffi::NO_RESET_NOTIFICATION,
-    LoseContextOnReset          = ffi::LOSE_CONTEXT_ON_RESET,
+    NoRobustness = ffi::NO_ROBUSTNESS,
+    NoResetNotification = ffi::NO_RESET_NOTIFICATION,
+    LoseContextOnReset = ffi::LOSE_CONTEXT_ON_RESET,
 }
 
 /// OpenGL profile tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum OpenGlProfileHint {
-    Any            = ffi::OPENGL_ANY_PROFILE,
-    Core           = ffi::OPENGL_CORE_PROFILE,
-    Compat         = ffi::OPENGL_COMPAT_PROFILE,
+    Any = ffi::OPENGL_ANY_PROFILE,
+    Core = ffi::OPENGL_CORE_PROFILE,
+    Compat = ffi::OPENGL_COMPAT_PROFILE,
 }
 
 /// Describes the mode of a window
@@ -1708,7 +1885,7 @@ impl<'a> WindowMode<'a> {
     fn to_ptr(&self) -> *mut ffi::GLFWmonitor {
         match *self {
             WindowMode::FullScreen(ref monitor) => monitor.ptr,
-            WindowMode::Windowed                => ptr::null_mut(),
+            WindowMode::Windowed => ptr::null_mut(),
         }
     }
 }
@@ -1761,7 +1938,9 @@ pub enum WindowEvent {
 ///     // handle event
 /// }
 /// ~~~
-pub fn flush_messages<'a, Message: Send>(receiver: &'a Receiver<Message>) -> FlushedMessages<'a, Message> {
+pub fn flush_messages<'a, Message: Send>(
+    receiver: &'a Receiver<Message>,
+) -> FlushedMessages<'a, Message> {
     FlushedMessages(receiver)
 }
 
@@ -1769,8 +1948,7 @@ pub fn flush_messages<'a, Message: Send>(receiver: &'a Receiver<Message>) -> Flu
 /// `Receiver`'s queue.
 pub struct FlushedMessages<'a, Message: 'a + Send>(&'a Receiver<Message>);
 
-unsafe impl<'a, Message: 'a + Send> Send for FlushedMessages<'a, Message> {
-}
+unsafe impl<'a, Message: 'a + Send> Send for FlushedMessages<'a, Message> {}
 
 impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
     type Item = Message;
@@ -1797,17 +1975,21 @@ pub struct Window {
     drop_receiver: Receiver<()>,
     /// This is here to allow owning the current Cursor object instead
     /// of forcing the user to take care of its lifetime.
-    current_cursor: Option<Cursor>
+    current_cursor: Option<Cursor>,
 }
 
 macro_rules! set_window_callback {
-    ($window:ident, $should_poll:expr, $ll_fn:ident, $callback:ident) => ({
+    ($window:ident, $should_poll:expr, $ll_fn:ident, $callback:ident) => {{
         if $should_poll {
-            unsafe { ffi::$ll_fn($window.ptr, Some(callbacks::$callback)); }
+            unsafe {
+                ffi::$ll_fn($window.ptr, Some(callbacks::$callback));
+            }
         } else {
-            unsafe { ffi::$ll_fn($window.ptr, None); }
+            unsafe {
+                ffi::$ll_fn($window.ptr, None);
+            }
         }
-    })
+    }};
 }
 
 impl Window {
@@ -1846,13 +2028,26 @@ impl Window {
     ///
     /// Wrapper for `glfwGetPhysicalDevicePresentationSupport`
     #[cfg(feature = "vulkan")]
-    pub fn get_physical_device_presentation_support(&self, instance: VkInstance, device: VkPhysicalDevice, queue_family: u32) -> bool {
-        self.glfw.get_physical_device_presentation_support_raw(instance, device, queue_family)
+    pub fn get_physical_device_presentation_support(
+        &self,
+        instance: VkInstance,
+        device: VkPhysicalDevice,
+        queue_family: u32,
+    ) -> bool {
+        self.glfw
+            .get_physical_device_presentation_support_raw(instance, device, queue_family)
     }
 
     /// Wrapper for `glfwCreateWindow`.
-    pub fn create_shared(&self, width: u32, height: u32, title: &str, mode: WindowMode) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
-        self.glfw.create_window_intern(width, height, title, mode, Some(self))
+    pub fn create_shared(
+        &self,
+        width: u32,
+        height: u32,
+        title: &str,
+        mode: WindowMode,
+    ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
+        self.glfw
+            .create_window_intern(width, height, title, mode, Some(self))
     }
 
     /// Calling this method forces the destructor to be called, closing the
@@ -1865,7 +2060,7 @@ impl Window {
         RenderContext {
             ptr: self.ptr,
             // this will only be None after dropping so this is safe
-            drop_sender: self.drop_sender.as_ref().unwrap().clone()
+            drop_sender: self.drop_sender.as_ref().unwrap().clone(),
         }
     }
 
@@ -1902,7 +2097,9 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowPos`.
     pub fn set_pos(&mut self, xpos: i32, ypos: i32) {
-        unsafe { ffi::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int); }
+        unsafe {
+            ffi::glfwSetWindowPos(self.ptr, xpos as c_int, ypos as c_int);
+        }
     }
 
     /// Wrapper for `glfwGetWindowSize`.
@@ -1917,7 +2114,9 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowSize`.
     pub fn set_size(&mut self, width: i32, height: i32) {
-        unsafe { ffi::glfwSetWindowSize(self.ptr, width as c_int, height as c_int); }
+        unsafe {
+            ffi::glfwSetWindowSize(self.ptr, width as c_int, height as c_int);
+        }
     }
 
     /// Wrapper for `glfwGetWindowFrameSize`
@@ -1927,7 +2126,13 @@ impl Window {
         let (mut left, mut top, mut right, mut bottom): (i32, i32, i32, i32) = (0, 0, 0, 0);
 
         unsafe {
-            ffi::glfwGetWindowFrameSize(self.ptr, &mut left as *mut c_int, &mut top as *mut c_int, &mut right as *mut c_int, &mut bottom as *mut c_int);
+            ffi::glfwGetWindowFrameSize(
+                self.ptr,
+                &mut left as *mut c_int,
+                &mut top as *mut c_int,
+                &mut right as *mut c_int,
+                &mut bottom as *mut c_int,
+            );
         }
 
         (left, top, right, bottom)
@@ -1949,18 +2154,36 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowSizeLimits`.
-    pub fn set_size_limits(&mut self, minwidth: u32, minheight: u32, maxwidth: u32, maxheight: u32) {
-        unsafe { ffi::glfwSetWindowSizeLimits(self.ptr , minwidth as c_int, minheight as c_int, maxwidth as c_int, maxheight as c_int) }
+    pub fn set_size_limits(
+        &mut self,
+        minwidth: u32,
+        minheight: u32,
+        maxwidth: u32,
+        maxheight: u32,
+    ) {
+        unsafe {
+            ffi::glfwSetWindowSizeLimits(
+                self.ptr,
+                minwidth as c_int,
+                minheight as c_int,
+                maxwidth as c_int,
+                maxheight as c_int,
+            )
+        }
     }
 
     /// Wrapper for `glfwIconifyWindow`.
     pub fn iconify(&mut self) {
-        unsafe { ffi::glfwIconifyWindow(self.ptr); }
+        unsafe {
+            ffi::glfwIconifyWindow(self.ptr);
+        }
     }
 
     /// Wrapper for `glfwRestoreWindow`.
     pub fn restore(&mut self) {
-        unsafe { ffi::glfwRestoreWindow(self.ptr); }
+        unsafe {
+            ffi::glfwRestoreWindow(self.ptr);
+        }
     }
 
     /// Wrapper for `glfwMaximizeWindow`
@@ -1970,12 +2193,16 @@ impl Window {
 
     /// Wrapper for `glfwShowWindow`.
     pub fn show(&mut self) {
-        unsafe { ffi::glfwShowWindow(self.ptr); }
+        unsafe {
+            ffi::glfwShowWindow(self.ptr);
+        }
     }
 
     /// Wrapper for `glfwHideWindow`.
     pub fn hide(&mut self) {
-        unsafe { ffi::glfwHideWindow(self.ptr); }
+        unsafe {
+            ffi::glfwHideWindow(self.ptr);
+        }
     }
 
     /// Returns whether the window is fullscreen or windowed.
@@ -1990,14 +2217,15 @@ impl Window {
     ///     }
     /// });
     /// ~~~
-    pub fn with_window_mode<T, F>(&self, f: F) -> T where F: Fn(WindowMode) -> T {
+    pub fn with_window_mode<T, F>(&self, f: F) -> T
+    where
+        F: Fn(WindowMode) -> T,
+    {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
             f(WindowMode::Windowed)
         } else {
-            f(WindowMode::FullScreen(&Monitor {
-                ptr: ptr
-            }))
+            f(WindowMode::FullScreen(&Monitor { ptr: ptr }))
         }
     }
 
@@ -2015,26 +2243,47 @@ impl Window {
     ///     }
     /// });
     /// ~~~
-    pub fn with_window_mode_mut<T, F>(&self, mut f: F) -> T where F: FnMut(WindowMode) -> T {
+    pub fn with_window_mode_mut<T, F>(&self, mut f: F) -> T
+    where
+        F: FnMut(WindowMode) -> T,
+    {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
             f(WindowMode::Windowed)
         } else {
-            f(WindowMode::FullScreen(&Monitor {
-                ptr: ptr
-            }))
+            f(WindowMode::FullScreen(&Monitor { ptr: ptr }))
         }
     }
 
     /// Wrapper for `glfwSetWindowMonitor`
-    pub fn set_monitor(&mut self, mode: WindowMode, xpos: i32, ypos: i32, width: u32, height: u32, refresh_rate: Option<u32>) {
-        let monitor_ptr = if let WindowMode::FullScreen(ref monitor) = mode { monitor.ptr } else { ptr::null_mut() };
+    pub fn set_monitor(
+        &mut self,
+        mode: WindowMode,
+        xpos: i32,
+        ypos: i32,
+        width: u32,
+        height: u32,
+        refresh_rate: Option<u32>,
+    ) {
+        let monitor_ptr = if let WindowMode::FullScreen(ref monitor) = mode {
+            monitor.ptr
+        } else {
+            ptr::null_mut()
+        };
 
         unsafe {
-            ffi::glfwSetWindowMonitor(self.ptr, monitor_ptr, xpos as c_int, ypos as c_int, width as c_int, height as c_int, match refresh_rate {
-                Some(value) => value as c_int,
-                None => ffi::DONT_CARE
-            })
+            ffi::glfwSetWindowMonitor(
+                self.ptr,
+                monitor_ptr,
+                xpos as c_int,
+                ypos as c_int,
+                width as c_int,
+                height as c_int,
+                match refresh_rate {
+                    Some(value) => value as c_int,
+                    None => ffi::DONT_CARE,
+                },
+            )
         }
     }
 
@@ -2078,7 +2327,7 @@ impl Window {
                 major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as u64,
                 minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as u64,
                 patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as u64,
-                pre:   Vec::new(),
+                pre: Vec::new(),
                 build: Vec::new(),
             }
         }
@@ -2171,7 +2420,12 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowPosCallback`.
     pub fn set_pos_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowPosCallback, window_pos_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowPosCallback,
+            window_pos_callback
+        );
     }
 
     /// Starts or stops polling for all available events
@@ -2197,32 +2451,62 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowSizeCallback`.
     pub fn set_size_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowSizeCallback, window_size_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowSizeCallback,
+            window_size_callback
+        );
     }
 
     /// Wrapper for `glfwSetWindowCloseCallback`.
     pub fn set_close_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowCloseCallback, window_close_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowCloseCallback,
+            window_close_callback
+        );
     }
 
     /// Wrapper for `glfwSetWindowRefreshCallback`.
     pub fn set_refresh_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowRefreshCallback, window_refresh_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowRefreshCallback,
+            window_refresh_callback
+        );
     }
 
     /// Wrapper for `glfwSetWindowFocusCallback`.
     pub fn set_focus_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowFocusCallback, window_focus_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowFocusCallback,
+            window_focus_callback
+        );
     }
 
     /// Wrapper for `glfwSetWindowIconifyCallback`.
     pub fn set_iconify_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowIconifyCallback, window_iconify_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowIconifyCallback,
+            window_iconify_callback
+        );
     }
 
     /// Wrapper for `glfwSetFramebufferSizeCallback`.
     pub fn set_framebuffer_size_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetFramebufferSizeCallback, framebuffer_size_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetFramebufferSizeCallback,
+            framebuffer_size_callback
+        );
     }
 
     /// Wrapper for `glfwSetDropCallback`.
@@ -2232,12 +2516,22 @@ impl Window {
 
     /// Wrapper for `glfwSetWindowMaximizeCallback`.
     pub fn set_maximize_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowMaximizeCallback, window_maximize_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowMaximizeCallback,
+            window_maximize_callback
+        );
     }
 
     /// Wrapper for `glfwSetWindowContentScaleCallback`.
     pub fn set_content_scale_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetWindowContentScaleCallback, window_content_scale_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowContentScaleCallback,
+            window_content_scale_callback
+        );
     }
 
     /// Wrapper for `glfwGetInputMode` called with `CURSOR`.
@@ -2247,7 +2541,9 @@ impl Window {
 
     /// Wrapper for `glfwSetInputMode` called with `CURSOR`.
     pub fn set_cursor_mode(&mut self, mode: CursorMode) {
-        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::CURSOR, mode as c_int); }
+        unsafe {
+            ffi::glfwSetInputMode(self.ptr, ffi::CURSOR, mode as c_int);
+        }
     }
 
     /// Wrapper for `glfwSetCursor` using `Cursor`
@@ -2260,10 +2556,13 @@ impl Window {
         let previous = mem::replace(&mut self.current_cursor, cursor);
 
         unsafe {
-            ffi::glfwSetCursor(self.ptr, match self.current_cursor {
-                Some(ref cursor) => cursor.ptr,
-                None => ptr::null_mut()
-            })
+            ffi::glfwSetCursor(
+                self.ptr,
+                match self.current_cursor {
+                    Some(ref cursor) => cursor.ptr,
+                    None => ptr::null_mut(),
+                },
+            )
         }
 
         previous
@@ -2288,38 +2587,51 @@ impl Window {
     pub fn set_icon(&mut self, images: Vec<image::RgbaImage>) {
         // When the images are turned into Vecs, the lifetimes of them go into the Vec lifetime
         // So they need to be kept until the function ends.
-        let image_data : Vec<(Vec<_>, u32, u32)> = images.into_iter().map(|image| {
-            let (width, height) = image.dimensions();
+        let image_data: Vec<(Vec<_>, u32, u32)> = images
+            .into_iter()
+            .map(|image| {
+                let (width, height) = image.dimensions();
 
-            (image.into_vec(), width, height)
-        }).collect();
+                (image.into_vec(), width, height)
+            })
+            .collect();
 
-        let glfw_images: Vec<ffi::GLFWimage> = image_data.iter().map(|ref data| {
-            ffi::GLFWimage {
-                width:  data.1 as c_int,
+        let glfw_images: Vec<ffi::GLFWimage> = image_data
+            .iter()
+            .map(|ref data| ffi::GLFWimage {
+                width: data.1 as c_int,
                 height: data.2 as c_int,
-                pixels: data.0.as_ptr() as *const c_uchar
-            }
-        }).collect();
+                pixels: data.0.as_ptr() as *const c_uchar,
+            })
+            .collect();
 
         unsafe {
-            ffi::glfwSetWindowIcon(self.ptr, glfw_images.len() as c_int, glfw_images.as_ptr() as *const ffi::GLFWimage)
+            ffi::glfwSetWindowIcon(
+                self.ptr,
+                glfw_images.len() as c_int,
+                glfw_images.as_ptr() as *const ffi::GLFWimage,
+            )
         }
     }
 
     /// Sets the window icon via `glfwSetWindowIcon` from a set a set of vectors
     /// containing pixels in RGBA format (one pixel per 32-bit integer)
     pub fn set_icon_from_pixels(&mut self, images: Vec<PixelImage>) {
-        let glfw_images: Vec<ffi::GLFWimage> = images.iter().map(|image: &PixelImage| {
-            ffi::GLFWimage {
+        let glfw_images: Vec<ffi::GLFWimage> = images
+            .iter()
+            .map(|image: &PixelImage| ffi::GLFWimage {
                 width: image.width as c_int,
                 height: image.height as c_int,
-                pixels: image.pixels.as_ptr() as *const c_uchar
-            }
-        }).collect();
+                pixels: image.pixels.as_ptr() as *const c_uchar,
+            })
+            .collect();
 
         unsafe {
-            ffi::glfwSetWindowIcon(self.ptr, glfw_images.len() as c_int, glfw_images.as_ptr() as *const ffi::GLFWimage)
+            ffi::glfwSetWindowIcon(
+                self.ptr,
+                glfw_images.len() as c_int,
+                glfw_images.as_ptr() as *const ffi::GLFWimage,
+            )
         }
     }
 
@@ -2330,7 +2642,9 @@ impl Window {
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_KEYS`.
     pub fn set_sticky_keys(&mut self, value: bool) {
-        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_KEYS, value as c_int); }
+        unsafe {
+            ffi::glfwSetInputMode(self.ptr, ffi::STICKY_KEYS, value as c_int);
+        }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `STICKY_MOUSE_BUTTONS`.
@@ -2340,7 +2654,9 @@ impl Window {
 
     /// Wrapper for `glfwSetInputMode` called with `STICKY_MOUSE_BUTTONS`.
     pub fn set_sticky_mouse_buttons(&mut self, value: bool) {
-        unsafe { ffi::glfwSetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS, value as c_int); }
+        unsafe {
+            ffi::glfwSetInputMode(self.ptr, ffi::STICKY_MOUSE_BUTTONS, value as c_int);
+        }
     }
 
     /// Wrapper for `glfwGetInputMode` called with `LOCK_KEY_MODS`
@@ -2385,7 +2701,9 @@ impl Window {
 
     /// Wrapper for `glfwSetCursorPos`.
     pub fn set_cursor_pos(&mut self, xpos: f64, ypos: f64) {
-        unsafe { ffi::glfwSetCursorPos(self.ptr, xpos as c_double, ypos as c_double); }
+        unsafe {
+            ffi::glfwSetCursorPos(self.ptr, xpos as c_double, ypos as c_double);
+        }
     }
 
     /// Wrapper for `glfwSetKeyCallback`.
@@ -2400,22 +2718,42 @@ impl Window {
 
     /// Wrapper for `glfwSetCharModsCallback`
     pub fn set_char_mods_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetCharModsCallback, char_mods_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetCharModsCallback,
+            char_mods_callback
+        );
     }
 
     /// Wrapper for `glfwSetMouseButtonCallback`.
     pub fn set_mouse_button_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetMouseButtonCallback, mouse_button_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetMouseButtonCallback,
+            mouse_button_callback
+        );
     }
 
     /// Wrapper for `glfwSetCursorPosCallback`.
     pub fn set_cursor_pos_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetCursorPosCallback, cursor_pos_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetCursorPosCallback,
+            cursor_pos_callback
+        );
     }
 
     /// Wrapper for `glfwSetCursorEnterCallback`.
     pub fn set_cursor_enter_polling(&mut self, should_poll: bool) {
-        set_window_callback!(self, should_poll, glfwSetCursorEnterCallback, cursor_enter_callback);
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetCursorEnterCallback,
+            cursor_enter_callback
+        );
     }
 
     /// Wrapper for `glfwSetScrollCallback`.
@@ -2463,37 +2801,37 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetWin32Window`
-    #[cfg(target_os="windows")]
+    #[cfg(target_os = "windows")]
     pub fn get_win32_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWin32Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWGLContext`
-    #[cfg(target_os="windows")]
+    #[cfg(target_os = "windows")]
     pub fn get_wgl_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetCocoaWindow`
-    #[cfg(target_os="macos")]
+    #[cfg(target_os = "macos")]
     pub fn get_cocoa_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetNSGLContext`
-    #[cfg(target_os="macos")]
+    #[cfg(target_os = "macos")]
     pub fn get_nsgl_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetNSGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetX11Window`
-    #[cfg(target_os="linux")]
+    #[cfg(target_os = "linux")]
     pub fn get_x11_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetGLXContext`
-    #[cfg(target_os="linux")]
+    #[cfg(target_os = "linux")]
     pub fn get_glx_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetGLXContext(self.ptr) }
     }
@@ -2517,12 +2855,15 @@ impl Drop for Window {
 
         if !self.ptr.is_null() {
             unsafe {
-                let _: Box<Sender<(f64, WindowEvent)>> = mem::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
+                let _: Box<Sender<(f64, WindowEvent)>> =
+                    mem::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
             }
         }
 
         if !self.is_shared {
-            unsafe { ffi::glfwDestroyWindow(self.ptr); }
+            unsafe {
+                ffi::glfwDestroyWindow(self.ptr);
+            }
         }
     }
 }
@@ -2555,7 +2896,9 @@ pub trait Context {
     /// Wrapper for `glfwSwapBuffers`.
     fn swap_buffers(&mut self) {
         let ptr = self.window_ptr();
-        unsafe { ffi::glfwSwapBuffers(ptr); }
+        unsafe {
+            ffi::glfwSwapBuffers(ptr);
+        }
     }
 
     /// Returns `true` if the window is the current context.
@@ -2566,7 +2909,9 @@ pub trait Context {
     /// Wrapper for `glfwMakeContextCurrent`
     fn make_current(&mut self) {
         let ptr = self.window_ptr();
-        unsafe { ffi::glfwMakeContextCurrent(ptr); }
+        unsafe {
+            ffi::glfwMakeContextCurrent(ptr);
+        }
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
@@ -2578,7 +2923,9 @@ pub trait Context {
     /// Wrapper for `glfwSetWindowShouldClose`.
     fn set_should_close(&mut self, value: bool) {
         let ptr = self.window_ptr();
-        unsafe { ffi::glfwSetWindowShouldClose(ptr, value as c_int); }
+        unsafe {
+            ffi::glfwSetWindowShouldClose(ptr, value as c_int);
+        }
     }
 
     /// Wrapper for `glfwPostEmptyEvent`.
@@ -2588,11 +2935,15 @@ pub trait Context {
 }
 
 impl Context for Window {
-    fn window_ptr(&self) -> *mut ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *mut ffi::GLFWwindow {
+        self.ptr
+    }
 }
 
 impl Context for RenderContext {
-    fn window_ptr(&self) -> *mut ffi::GLFWwindow { self.ptr }
+    fn window_ptr(&self) -> *mut ffi::GLFWwindow {
+        self.ptr
+    }
 }
 
 unsafe impl HasRawWindowHandle for Window {
@@ -2623,7 +2974,7 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         })
     }
 
-    #[cfg(any(target_os="linux", target_os="freebsd", target_os="dragonfly"))]
+    #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"))]
     {
         use raw_window_handle::unix::XlibHandle;
         let (window, display) = unsafe {
@@ -2638,14 +2989,18 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         })
     }
 
-    #[cfg(target_os="macos")]
+    #[cfg(target_os = "macos")]
     {
         use raw_window_handle::macos::MacOSHandle;
         let (ns_window, ns_view) = unsafe {
-            let ns_window: *mut objc::runtime::Object = ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
+            let ns_window: *mut objc::runtime::Object =
+                ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
             let ns_view: *mut objc::runtime::Object = objc::msg_send![ns_window, contentView];
             assert_ne!(ns_view, std::ptr::null_mut());
-            (ns_window as *mut std::ffi::c_void, ns_view as *mut std::ffi::c_void)
+            (
+                ns_window as *mut std::ffi::c_void,
+                ns_view as *mut std::ffi::c_void,
+            )
         };
         RawWindowHandle::MacOS(MacOSHandle {
             ns_window,
@@ -2659,7 +3014,7 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
 pub fn make_context_current(context: Option<&dyn Context>) {
     match context {
         Some(ctx) => unsafe { ffi::glfwMakeContextCurrent(ctx.window_ptr()) },
-        None      => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
+        None => unsafe { ffi::glfwMakeContextCurrent(ptr::null_mut()) },
     }
 }
 
@@ -2667,22 +3022,22 @@ pub fn make_context_current(context: Option<&dyn Context>) {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum JoystickId {
-    Joystick1       = ffi::JOYSTICK_1,
-    Joystick2       = ffi::JOYSTICK_2,
-    Joystick3       = ffi::JOYSTICK_3,
-    Joystick4       = ffi::JOYSTICK_4,
-    Joystick5       = ffi::JOYSTICK_5,
-    Joystick6       = ffi::JOYSTICK_6,
-    Joystick7       = ffi::JOYSTICK_7,
-    Joystick8       = ffi::JOYSTICK_8,
-    Joystick9       = ffi::JOYSTICK_9,
-    Joystick10      = ffi::JOYSTICK_10,
-    Joystick11      = ffi::JOYSTICK_11,
-    Joystick12      = ffi::JOYSTICK_12,
-    Joystick13      = ffi::JOYSTICK_13,
-    Joystick14      = ffi::JOYSTICK_14,
-    Joystick15      = ffi::JOYSTICK_15,
-    Joystick16      = ffi::JOYSTICK_16,
+    Joystick1 = ffi::JOYSTICK_1,
+    Joystick2 = ffi::JOYSTICK_2,
+    Joystick3 = ffi::JOYSTICK_3,
+    Joystick4 = ffi::JOYSTICK_4,
+    Joystick5 = ffi::JOYSTICK_5,
+    Joystick6 = ffi::JOYSTICK_6,
+    Joystick7 = ffi::JOYSTICK_7,
+    Joystick8 = ffi::JOYSTICK_8,
+    Joystick9 = ffi::JOYSTICK_9,
+    Joystick10 = ffi::JOYSTICK_10,
+    Joystick11 = ffi::JOYSTICK_11,
+    Joystick12 = ffi::JOYSTICK_12,
+    Joystick13 = ffi::JOYSTICK_13,
+    Joystick14 = ffi::JOYSTICK_14,
+    Joystick15 = ffi::JOYSTICK_15,
+    Joystick16 = ffi::JOYSTICK_16,
 }
 
 impl JoystickId {
@@ -2700,21 +3055,21 @@ impl JoystickId {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum GamepadButton {
-    ButtonA           = ffi::GAMEPAD_BUTTON_A,
-    ButtonB           = ffi::GAMEPAD_BUTTON_B,
-    ButtonX           = ffi::GAMEPAD_BUTTON_X,
-    ButtonY           = ffi::GAMEPAD_BUTTON_Y,
-    ButtonLeftBumper  = ffi::GAMEPAD_BUTTON_LEFT_BUMPER,
+    ButtonA = ffi::GAMEPAD_BUTTON_A,
+    ButtonB = ffi::GAMEPAD_BUTTON_B,
+    ButtonX = ffi::GAMEPAD_BUTTON_X,
+    ButtonY = ffi::GAMEPAD_BUTTON_Y,
+    ButtonLeftBumper = ffi::GAMEPAD_BUTTON_LEFT_BUMPER,
     ButtonRightBumper = ffi::GAMEPAD_BUTTON_RIGHT_BUMPER,
-    ButtonBack        = ffi::GAMEPAD_BUTTON_BACK,
-    ButtonStart       = ffi::GAMEPAD_BUTTON_START,
-    ButtonGuide       = ffi::GAMEPAD_BUTTON_GUIDE,
-    ButtonLeftThumb   = ffi::GAMEPAD_BUTTON_LEFT_THUMB,
-    ButtonRightThumb  = ffi::GAMEPAD_BUTTON_RIGHT_THUMB,
-    ButtonDpadUp      = ffi::GAMEPAD_BUTTON_DPAD_UP,
-    ButtonDpadRight   = ffi::GAMEPAD_BUTTON_DPAD_RIGHT,
-    ButtonDpadDown    = ffi::GAMEPAD_BUTTON_DPAD_DOWN,
-    ButtonDpadLeft    = ffi::GAMEPAD_BUTTON_DPAD_LEFT,
+    ButtonBack = ffi::GAMEPAD_BUTTON_BACK,
+    ButtonStart = ffi::GAMEPAD_BUTTON_START,
+    ButtonGuide = ffi::GAMEPAD_BUTTON_GUIDE,
+    ButtonLeftThumb = ffi::GAMEPAD_BUTTON_LEFT_THUMB,
+    ButtonRightThumb = ffi::GAMEPAD_BUTTON_RIGHT_THUMB,
+    ButtonDpadUp = ffi::GAMEPAD_BUTTON_DPAD_UP,
+    ButtonDpadRight = ffi::GAMEPAD_BUTTON_DPAD_RIGHT,
+    ButtonDpadDown = ffi::GAMEPAD_BUTTON_DPAD_DOWN,
+    ButtonDpadLeft = ffi::GAMEPAD_BUTTON_DPAD_LEFT,
 }
 
 impl GamepadButton {
@@ -2732,11 +3087,11 @@ impl GamepadButton {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum GamepadAxis {
-    AxisLeftX        = ffi::GAMEPAD_AXIS_LEFT_X,
-    AxisLeftY        = ffi::GAMEPAD_AXIS_LEFT_Y,
-    AxisRightX       = ffi::GAMEPAD_AXIS_RIGHT_X,
-    AxisRightY       = ffi::GAMEPAD_AXIS_RIGHT_Y,
-    AxisLeftTrigger  = ffi::GAMEPAD_AXIS_LEFT_TRIGGER,
+    AxisLeftX = ffi::GAMEPAD_AXIS_LEFT_X,
+    AxisLeftY = ffi::GAMEPAD_AXIS_LEFT_Y,
+    AxisRightX = ffi::GAMEPAD_AXIS_RIGHT_X,
+    AxisRightY = ffi::GAMEPAD_AXIS_RIGHT_Y,
+    AxisLeftTrigger = ffi::GAMEPAD_AXIS_LEFT_TRIGGER,
     AxisRightTrigger = ffi::GAMEPAD_AXIS_RIGHT_TRIGGER,
 }
 
@@ -2779,8 +3134,8 @@ pub struct GamepadState {
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum JoystickEvent {
-    Connected                   = ffi::CONNECTED,
-    Disconnected                = ffi::DISCONNECTED,
+    Connected = ffi::CONNECTED,
+    Disconnected = ffi::DISCONNECTED,
 }
 
 /// An joystick callback. This can be supplied with some user data to be passed
@@ -2798,7 +3153,10 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickAxes(self.id as c_int, &mut count);
-            slice::from_raw_parts(ptr, count as usize).iter().map(|&a| a as f32).collect()
+            slice::from_raw_parts(ptr, count as usize)
+                .iter()
+                .map(|&a| a as f32)
+                .collect()
         }
     }
 
@@ -2807,7 +3165,10 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickButtons(self.id as c_int, &mut count);
-            slice::from_raw_parts(ptr, count as usize).iter().map(|&b| b as c_int).collect()
+            slice::from_raw_parts(ptr, count as usize)
+                .iter()
+                .map(|&b| b as c_int)
+                .collect()
         }
     }
 
@@ -2816,7 +3177,10 @@ impl Joystick {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetJoystickHats(self.id as c_int, &mut count);
-            slice::from_raw_parts(ptr, count as usize).iter().map(|&b| mem::transmute(b as c_int)).collect()
+            slice::from_raw_parts(ptr, count as usize)
+                .iter()
+                .map(|&b| mem::transmute(b as c_int))
+                .collect()
         }
     }
 
@@ -2861,15 +3225,20 @@ impl From<ffi::GLFWgamepadstate> for GamepadState {
         let mut buttons = [Action::Release; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize];
         let mut axes = [0_f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize];
         unsafe {
-            state.buttons.iter().map(|&b| mem::transmute(b as c_int))
-                .zip(buttons.iter_mut()).for_each(|(a, b)| *b = a);
+            state
+                .buttons
+                .iter()
+                .map(|&b| mem::transmute(b as c_int))
+                .zip(buttons.iter_mut())
+                .for_each(|(a, b)| *b = a);
         }
-        state.axes.iter().map(|&f| f as f32)
-            .zip(axes.iter_mut()).for_each(|(a, b)| *b = a);
-        Self {
-            buttons,
-            axes,
-        }
+        state
+            .axes
+            .iter()
+            .map(|&f| f as f32)
+            .zip(axes.iter_mut())
+            .for_each(|(a, b)| *b = a);
+        Self { buttons, axes }
     }
 }
 

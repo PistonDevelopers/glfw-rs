@@ -20,7 +20,13 @@ use glfw::{Action, Context, CursorMode, Key};
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(800, 600, "Hello, I am a window.", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(
+            800,
+            600,
+            "Hello, I am a window.",
+            glfw::WindowMode::Windowed,
+        )
         .expect("Failed to create GLFW window.");
 
     window.set_cursor_mode(CursorMode::Disabled);
@@ -39,15 +45,15 @@ fn main() {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::CursorPos(xpos, ypos) => println!("Cursor position: ({:?}, {:?})", xpos, ypos),
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
-        glfw::WindowEvent::Key(Key::Space, _, Action::Press, _) => {
-            match window.get_cursor_mode() {
-                CursorMode::Disabled => window.set_cursor_mode(CursorMode::Normal),
-                CursorMode::Normal   => window.set_cursor_mode(CursorMode::Disabled),
-                _ => {}
-            }
+        glfw::WindowEvent::CursorPos(xpos, ypos) => {
+            println!("Cursor position: ({:?}, {:?})", xpos, ypos)
         }
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
+        glfw::WindowEvent::Key(Key::Space, _, Action::Press, _) => match window.get_cursor_mode() {
+            CursorMode::Disabled => window.set_cursor_mode(CursorMode::Normal),
+            CursorMode::Normal => window.set_cursor_mode(CursorMode::Disabled),
+            _ => {}
+        },
         _ => {}
     }
 }

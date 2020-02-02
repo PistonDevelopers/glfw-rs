@@ -16,23 +16,23 @@
 //! Demonstrates how custom error callbacks with user data can be created
 
 extern crate glfw;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 
 use std::cell::Cell;
 
 fn main() {
-    let mut glfw = glfw::init(Some(
-        glfw::Callback {
-            f: error_callback as fn(glfw::Error, String, &Cell<usize>),
-            data: Cell::new(0),
-        }
-    )).unwrap();
+    let mut glfw = glfw::init(Some(glfw::Callback {
+        f: error_callback as fn(glfw::Error, String, &Cell<usize>),
+        data: Cell::new(0),
+    }))
+    .unwrap();
 
     // Force the error callback to be triggered
     glfw.window_hint(glfw::WindowHint::ContextVersion(40000, 3000)); // Ridiculous!
     let _ = glfw.create_window(300, 300, "Hey this won't work.", glfw::WindowMode::Windowed);
-    let _ = glfw.create_window(300, 300, "Nope, not working.",   glfw::WindowMode::Windowed);
-    let _ = glfw.create_window(300, 300, "Stop it! :(",          glfw::WindowMode::Windowed);
+    let _ = glfw.create_window(300, 300, "Nope, not working.", glfw::WindowMode::Windowed);
+    let _ = glfw.create_window(300, 300, "Stop it! :(", glfw::WindowMode::Windowed);
 }
 
 fn error_callback(_: glfw::Error, description: String, error_count: &Cell<usize>) {

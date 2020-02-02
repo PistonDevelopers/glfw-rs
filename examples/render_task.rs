@@ -18,14 +18,15 @@
 
 extern crate glfw;
 
-use std::sync::mpsc::{channel, Receiver};
 use glfw::{Action, Context, Key};
+use std::sync::mpsc::{channel, Receiver};
 use std::thread::Builder;
 
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
@@ -56,7 +57,9 @@ fn render(mut context: glfw::RenderContext, finish: Receiver<()>) {
     context.make_current();
     loop {
         // Check if the rendering should stop.
-        if finish.try_recv() == Ok(()) { break };
+        if finish.try_recv() == Ok(()) {
+            break;
+        };
 
         // Perform rendering calls
 
@@ -69,9 +72,7 @@ fn render(mut context: glfw::RenderContext, finish: Receiver<()>) {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-            window.set_should_close(true)
-        }
+        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
         _ => {}
     }
 }
