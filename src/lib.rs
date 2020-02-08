@@ -667,7 +667,7 @@ impl error::Error for InitError {
 /// Initialization hints that can be set using the `init_hint` function.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum InitHint {
-    /// Specifies whether to also expose joystick hats as buttons, for compatibility with ealier
+    /// Specifies whether to also expose joystick hats as buttons, for compatibility with earlier
     /// versions of GLFW that did not have `glfwGetJoystickHats`.
     JoystickHatButtons(bool),
     /// Specifies whether to set the current directory to the application to the `Contents/Resources`
@@ -1421,7 +1421,7 @@ impl Glfw {
     ///
     /// # Returns
     ///
-    /// `true` if successful, or `false` if an error occured.
+    /// `true` if successful, or `false` if an error occurred.
     pub fn update_gamepad_mappings(&self, mappings: &str) -> bool {
         unsafe {
             let c_str = CString::new(mappings.as_bytes());
