@@ -967,13 +967,7 @@ impl Glfw {
         //so `value.unwrap_or(ffi::DONT_CARE)` wouldn't work because of the type difference.
         #[inline(always)]
         unsafe fn dont_care_hint(hint: c_int, value: Option<u32>) {
-            ffi::glfwWindowHint(
-                hint,
-                match value {
-                    Some(v) => v as c_int,
-                    None => ffi::DONT_CARE,
-                },
-            )
+            ffi::glfwWindowHint(hint, unwrap_dont_care(value))
         }
 
         #[inline(always)]
@@ -2154,20 +2148,24 @@ impl Window {
     }
 
     /// Wrapper for `glfwSetWindowSizeLimits`.
+    ///
+    /// A value of `None` is equivalent to `GLFW_DONT_CARE`.
+    /// If `minwidth` or `minheight` are `None`, no minimum size is enforced.
+    /// If `maxwidth` or `maxheight` are `None`, no maximum size is enforced.
     pub fn set_size_limits(
         &mut self,
-        minwidth: u32,
-        minheight: u32,
-        maxwidth: u32,
-        maxheight: u32,
+        minwidth: Option<u32>,
+        minheight: Option<u32>,
+        maxwidth: Option<u32>,
+        maxheight: Option<u32>,
     ) {
         unsafe {
             ffi::glfwSetWindowSizeLimits(
                 self.ptr,
-                minwidth as c_int,
-                minheight as c_int,
-                maxwidth as c_int,
-                maxheight as c_int,
+                unwrap_dont_care(minwidth),
+                unwrap_dont_care(minheight),
+                unwrap_dont_care(maxwidth),
+                unwrap_dont_care(maxheight),
             )
         }
     }
@@ -2279,10 +2277,7 @@ impl Window {
                 ypos as c_int,
                 width as c_int,
                 height as c_int,
-                match refresh_rate {
-                    Some(value) => value as c_int,
-                    None => ffi::DONT_CARE,
-                },
+                unwrap_dont_care(refresh_rate),
             )
         }
     }
@@ -3249,5 +3244,13 @@ impl GamepadState {
 
     pub fn get_axis(&self, axis: GamepadAxis) -> f32 {
         self.axes[axis as usize]
+    }
+}
+
+#[inline(always)]
+fn unwrap_dont_care(value: Option<u32>) -> c_int {
+    match value {
+        Some(v) => v as c_int,
+        None => ffi::DONT_CARE,
     }
 }
