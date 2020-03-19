@@ -104,7 +104,7 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 
 #[cfg(feature = "vulkan")]
 use vk_sys::{
-    self as vk, AllocationCallbacks as VkAllocationCallbacks, Instance as VkInstance,
+    self as vk, AllocationCallbacks as VkAllocationCallbacks,
     Instance as VkInstance, PhysicalDevice as VkPhysicalDevice, Result as VkResult,
     SurfaceKHR as VkSurfaceKHR,
 };
