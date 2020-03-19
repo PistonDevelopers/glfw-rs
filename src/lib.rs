@@ -103,7 +103,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 #[cfg(feature = "vulkan")]
-use vk_sys::{self as vk, Instance as VkInstance, PhysicalDevice as VkPhysicalDevice};
+use vk_sys::{
+    self as vk, AllocationCallbacks as VkAllocationCallbacks, Instance as VkInstance,
+    Instance as VkInstance, PhysicalDevice as VkPhysicalDevice, Result as VkResult,
+    SurfaceKHR as VkSurfaceKHR,
+};
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
 pub use self::MouseButton::Button1 as MouseButtonLeft;
@@ -2032,6 +2036,16 @@ impl Window {
             .get_physical_device_presentation_support_raw(instance, device, queue_family)
     }
 
+    /// wrapper for `glfwCreateWindowSurface`
+    #[cfg(feature = "vulkan")]
+    pub fn create_window_surface(
+        &self,
+        instance: VkInstance,
+        allocator: *const VkAllocationCallbacks,
+        surface: *mut VkSurfaceKHR,
+    ) -> VkResult {
+        unsafe { ffi::glfwCreateWindowSurface(instance, self.ptr, allocator, surface) }
+    }
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_shared(
         &self,
