@@ -636,6 +636,7 @@ static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
 /// only be initialized on the main platform thread. Whilst this might make
 /// performing some operations harder, this is to ensure thread safety is enforced
 /// statically.
+#[non_exhaustive]
 pub struct Glfw;
 
 /// An error that might be returned when `glfw::init` is called.
