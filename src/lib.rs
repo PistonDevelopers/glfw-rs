@@ -1963,7 +1963,6 @@ impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
 /// A struct that wraps a `*GLFWwindow` handle.
 pub struct Window {
     ptr: *mut ffi::GLFWwindow,
-    pub glfw: Glfw,
     pub is_shared: bool,
     /// A `Sender` that can be cloned out to child `RenderContext`s.
     drop_sender: Option<Sender<()>>,
@@ -1974,6 +1973,7 @@ pub struct Window {
     /// This is here to allow owning the current Cursor object instead
     /// of forcing the user to take care of its lifetime.
     current_cursor: Option<Cursor>,
+    pub glfw: Glfw,
 }
 
 macro_rules! set_window_callback {
