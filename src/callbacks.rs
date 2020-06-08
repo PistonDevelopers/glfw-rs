@@ -193,7 +193,7 @@ pub mod unbuffered {
 // This makes it more ergonomic to embed in an Option; see set_window_callback! in lib.rs
 macro_rules! window_callback (
     (fn $name:ident () => $event:ident) => (
-        pub static $name: (extern "C" fn(window: *mut ffi::GLFWwindow)) = {
+        pub static $name: extern "C" fn(window: *mut ffi::GLFWwindow) = {
             extern "C" fn actual_callback(window: *mut ffi::GLFWwindow) {
                 unsafe {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$event);
@@ -206,7 +206,7 @@ macro_rules! window_callback (
         };
      );
     (fn $name:ident ($($ext_arg:ident: $ext_arg_ty:ty),*) => $event:ident($($arg_conv:expr),*)) => (
-        pub static $name: (extern "C" fn(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*)) = {
+        pub static $name: extern "C" fn(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) = {
             extern "C" fn actual_callback(window: *mut ffi::GLFWwindow $(, $ext_arg: $ext_arg_ty)*) {
                 unsafe {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$event($($arg_conv),*));

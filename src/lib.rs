@@ -91,7 +91,6 @@ use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_uchar, c_ushort, c_void};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use semver::Version;
-use std::error;
 use std::ffi::{CStr, CString};
 use std::fmt;
 use std::marker::Send;
@@ -399,15 +398,7 @@ pub enum Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use std::error::Error;
-
-        f.write_str(self.description())
-    }
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
+        let description = match *self {
             Error::NoError => "NoError",
             Error::NotInitialized => "NotInitialized",
             Error::NoCurrentContext => "NoCurrentContext",
@@ -419,7 +410,9 @@ impl error::Error for Error {
             Error::PlatformError => "PlatformError",
             Error::FormatUnavailable => "FormatUnavailable",
             Error::NoWindowContext => "NoWindowContext",
-        }
+        };
+
+        f.write_str(description)
     }
 }
 
@@ -653,18 +646,12 @@ pub enum InitError {
 
 impl fmt::Display for InitError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use std::error::Error;
-
-        f.write_str(self.description())
-    }
-}
-
-impl error::Error for InitError {
-    fn description(&self) -> &str {
-        match *self {
+        let description = match *self {
             InitError::AlreadyInitialized => "Already Initialized",
             InitError::Internal => "Internal Initialization Error",
-        }
+        };
+
+        f.write_str(description)
     }
 }
 

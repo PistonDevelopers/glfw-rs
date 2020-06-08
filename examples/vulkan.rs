@@ -70,7 +70,7 @@ fn main() {
 }
 
 unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
-    let mut instance: VkInstance = mem::uninitialized();
+    let mut instance: mem::MaybeUninit<VkInstance> = mem::MaybeUninit::uninit();
 
     //This is literally the bare minimum required to create a blank instance
     //You'll want to fill in this with real data yourself
@@ -89,12 +89,12 @@ unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
     let res: VkResult = entry_points.CreateInstance(
         &info as *const InstanceCreateInfo,
         ptr::null(),
-        &mut instance as *mut VkInstance,
+        instance.as_mut_ptr(),
     );
 
     assert_eq!(res, vk::SUCCESS);
 
-    instance
+    instance.assume_init()
 }
 
 unsafe fn destroy_instance(instance: VkInstance, instance_ptrs: &mut InstancePointers) {
