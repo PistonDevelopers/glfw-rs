@@ -91,6 +91,7 @@ use libc::{c_char, c_double, c_float, c_int};
 use libc::{c_uchar, c_ushort, c_void};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use semver::Version;
+use std::error;
 use std::ffi::{CStr, CString};
 use std::fmt;
 use std::marker::Send;
@@ -416,6 +417,8 @@ impl fmt::Display for Error {
     }
 }
 
+impl error::Error for Error {}
+
 /// An error callback. This can be supplied with some user data to be passed to
 /// the callback function when it is triggered.
 pub type ErrorCallback<UserData> = Callback<fn(Error, String, &UserData), UserData>;
@@ -654,6 +657,8 @@ impl fmt::Display for InitError {
         f.write_str(description)
     }
 }
+
+impl error::Error for InitError {}
 
 /// Initialization hints that can be set using the `init_hint` function.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
