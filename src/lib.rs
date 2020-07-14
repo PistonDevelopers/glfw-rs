@@ -1414,9 +1414,9 @@ impl Glfw {
     /// `true` if successful, or `false` if an error occurred.
     pub fn update_gamepad_mappings(&self, mappings: &str) -> bool {
         unsafe {
-            let c_str = CString::new(mappings.as_bytes());
-            let ptr = c_str.unwrap().as_bytes_with_nul().as_ptr() as *const c_char;
-            ffi::glfwUpdateGamepadMappings(ptr) == ffi::TRUE
+            with_c_str(mappings, |mappings| {
+                ffi::glfwUpdateGamepadMappings(mappings) == ffi::TRUE
+            })
         }
     }
 }
