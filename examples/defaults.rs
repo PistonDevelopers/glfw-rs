@@ -81,8 +81,6 @@ fn main() {
 }
 
 mod gl {
-    extern crate libc;
-
     #[cfg(target_os = "macos")]
     #[link(name = "OpenGL", kind = "framework")]
     extern "C" {}
@@ -91,8 +89,8 @@ mod gl {
     #[link(name = "GL")]
     extern "C" {}
 
-    pub type GLenum = libc::c_uint;
-    pub type GLint = libc::c_int;
+    pub type GLenum = std::os::raw::c_uint;
+    pub type GLint = std::os::raw::c_int;
 
     pub static RED_BITS: GLenum = 0x0D52;
     pub static GREEN_BITS: GLenum = 0x0D53;

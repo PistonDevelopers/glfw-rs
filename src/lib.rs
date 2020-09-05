@@ -70,7 +70,6 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-extern crate libc;
 extern crate semver;
 #[cfg(feature = "vulkan")]
 extern crate vk_sys;
@@ -86,9 +85,9 @@ extern crate raw_window_handle;
 extern crate objc;
 
 #[cfg(feature = "vulkan")]
-use libc::c_uint;
-use libc::{c_char, c_double, c_float, c_int};
-use libc::{c_uchar, c_ushort, c_void};
+use std::os::raw::c_uint;
+use std::os::raw::{c_char, c_double, c_float, c_int};
+use std::os::raw::{c_uchar, c_ushort, c_void};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use semver::Version;
 use std::error;
@@ -1882,7 +1881,7 @@ impl<'a> WindowMode<'a> {
 
 bitflags! {
     #[doc = "Key modifiers (e.g., Shift, Control, Alt, Super)"]
-    pub struct Modifiers: ::libc::c_int {
+    pub struct Modifiers: ::std::os::raw::c_int {
         const Shift       = ::ffi::MOD_SHIFT;
         const Control     = ::ffi::MOD_CONTROL;
         const Alt         = ::ffi::MOD_ALT;
@@ -3109,7 +3108,7 @@ impl GamepadAxis {
 
 bitflags! {
     #[doc = "Joystick hats."]
-    pub struct JoystickHats: ::libc::c_int {
+    pub struct JoystickHats: ::std::os::raw::c_int {
         const Centered = ::ffi::HAT_CENTERED;
         const Up       = ::ffi::HAT_UP;
         const Right    = ::ffi::HAT_RIGHT;

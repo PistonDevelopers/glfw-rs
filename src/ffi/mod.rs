@@ -18,8 +18,8 @@
 
 #![allow(bad_style)] // yeah yeah, but it's ffi
 
-use libc::{c_char, c_double, c_float, c_int, c_ulonglong};
-use libc::{c_uchar, c_uint, c_ushort, c_void};
+use std::os::raw::{c_char, c_double, c_float, c_int, c_ulonglong};
+use std::os::raw::{c_uchar, c_uint, c_ushort, c_void};
 
 #[cfg(feature = "vulkan")]
 use vk_sys::{

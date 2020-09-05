@@ -15,7 +15,7 @@
 
 //! Private callback support functions.
 
-use libc::{c_char, c_double, c_int, c_uint};
+use std::os::raw::{c_char, c_double, c_int, c_uint};
 use std::ffi::CStr;
 use std::mem;
 use std::path::PathBuf;
@@ -73,7 +73,7 @@ macro_rules! callback (
 );
 
 pub mod error {
-    use libc::{c_char, c_int};
+    use std::os::raw::{c_char, c_int};
     use std::cell::RefCell;
     use std::mem;
 
@@ -88,7 +88,7 @@ pub mod error {
 }
 
 pub mod monitor {
-    use libc::c_int;
+    use std::os::raw::c_int;
     use std::cell::RefCell;
     use std::mem;
 
@@ -106,7 +106,7 @@ pub mod monitor {
 }
 
 pub mod joystick {
-    use libc::c_int;
+    use std::os::raw::c_int;
     use std::cell::RefCell;
     use std::mem;
 
