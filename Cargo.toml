@@ -38,5 +38,5 @@ image = "^0.23"
 
 [features]
 all = ["image", "vulkan"]
-default = ["glfw-sys"]
+default = ["all", "glfw-sys"]
 vulkan = ["vk-sys"]
