@@ -40,3 +40,60 @@ image = "^0.23"
 all = ["image", "vulkan"]
 default = ["glfw-sys"]
 vulkan = ["vk-sys"]
+
+[[example]]
+name = "clipboard"
+
+[[example]]
+name = "cursor"
+
+[[example]]
+required-features = ["image"]
+name = "cursor_icon"
+
+[[example]]
+name = "defaults"
+
+[[example]]
+name = "error"
+
+[[example]]
+name = "events"
+
+[[example]]
+name = "fullscreen"
+
+[[example]]
+name = "modes"
+
+[[example]]
+name = "monitors"
+
+[[example]]
+name = "multiwindow"
+
+[[example]]
+name = "raw_window_handle"
+
+[[example]]
+name = "render_task"
+
+[[example]]
+name = "title"
+
+[[example]]
+name = "unbuffered_events"
+
+[[example]]
+name = "version"
+
+[[example]]
+required-features = ["vulkan"]
+name = "vulkan"
+
+[[example]]
+name = "window"
+
+[[example]]
+required-features = ["image"]
+name = "window_icon"
