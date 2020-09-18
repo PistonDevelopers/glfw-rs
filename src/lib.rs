@@ -84,10 +84,6 @@ extern crate raw_window_handle;
 #[macro_use]
 extern crate objc;
 
-#[cfg(feature = "vulkan")]
-use std::os::raw::c_uint;
-use std::os::raw::{c_char, c_double, c_float, c_int};
-use std::os::raw::{c_uchar, c_ushort, c_void};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use semver::Version;
 use std::error;
@@ -95,6 +91,10 @@ use std::ffi::{CStr, CString};
 use std::fmt;
 use std::marker::Send;
 use std::mem;
+#[cfg(feature = "vulkan")]
+use std::os::raw::c_uint;
+use std::os::raw::{c_char, c_double, c_float, c_int};
+use std::os::raw::{c_uchar, c_ushort, c_void};
 use std::path::PathBuf;
 use std::ptr;
 use std::slice;
