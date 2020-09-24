@@ -15,9 +15,9 @@
 
 //! Private callback support functions.
 
-use std::os::raw::{c_char, c_double, c_int, c_uint};
 use std::ffi::CStr;
 use std::mem;
+use std::os::raw::{c_char, c_double, c_int, c_uint};
 use std::path::PathBuf;
 use std::slice;
 use std::str;
@@ -73,9 +73,9 @@ macro_rules! callback (
 );
 
 pub mod error {
-    use std::os::raw::{c_char, c_int};
     use std::cell::RefCell;
     use std::mem;
+    use std::os::raw::{c_char, c_int};
 
     callback!(
         type Args = (error: ::Error, description: String);
@@ -88,9 +88,9 @@ pub mod error {
 }
 
 pub mod monitor {
-    use std::os::raw::c_int;
     use std::cell::RefCell;
     use std::mem;
+    use std::os::raw::c_int;
 
     callback!(
         type Args = (monitor: ::Monitor, event: ::MonitorEvent);
@@ -106,9 +106,9 @@ pub mod monitor {
 }
 
 pub mod joystick {
-    use std::os::raw::c_int;
     use std::cell::RefCell;
     use std::mem;
+    use std::os::raw::c_int;
 
     callback!(
         type Args = (joystick_id: ::JoystickId, event: ::JoystickEvent);
