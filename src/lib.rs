@@ -488,6 +488,7 @@ pub enum StandardCursor {
 ///
 /// Note that the cursor object has a lifetime and will not display
 /// correctly after it has been dropped.
+#[derive(Debug)]
 pub struct Cursor {
     ptr: *mut ffi::GLFWcursor,
 }
@@ -635,6 +636,7 @@ static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
 /// performing some operations harder, this is to ensure thread safety is enforced
 /// statically.
 #[non_exhaustive]
+#[derive(Debug)]
 pub struct Glfw;
 
 /// An error that might be returned when `glfw::init` is called.
@@ -1952,6 +1954,7 @@ impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
 }
 
 /// A struct that wraps a `*GLFWwindow` handle.
+#[derive(Debug)]
 pub struct Window {
     ptr: *mut ffi::GLFWwindow,
     pub is_shared: bool,
