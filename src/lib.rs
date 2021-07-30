@@ -17,6 +17,17 @@
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
 #![crate_name = "glfw"]
+#![deny(
+    rust_2018_compatibility,
+    rust_2018_idioms,
+    nonstandard_style,
+    unused,
+    future_incompatible,
+    missing_copy_implementations,
+    missing_debug_implementations,
+    missing_abi,
+    clippy::doc_markdown
+)]
 #![allow(non_upper_case_globals)]
 
 //! An idiomatic wrapper for the GLFW library.
@@ -70,7 +81,6 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-extern crate semver;
 #[cfg(feature = "vulkan")]
 extern crate vk_sys;
 #[macro_use]
@@ -79,7 +89,6 @@ extern crate log;
 extern crate bitflags;
 #[cfg(feature = "image")]
 extern crate image;
-extern crate raw_window_handle;
 #[cfg(all(target_os = "macos"))]
 #[macro_use]
 extern crate objc;
@@ -257,7 +266,7 @@ pub enum Key {
     Unknown = ffi::KEY_UNKNOWN,
 }
 
-/// Wrapper around 'glfwGetKeyName`
+/// Wrapper around `glfwGetKeyName`
 pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<String> {
     unsafe {
         string_from_nullable_c_str(ffi::glfwGetKeyName(
@@ -270,7 +279,7 @@ pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<Stri
     }
 }
 
-/// Wrapper around 'glfwGetKeyName`
+/// Wrapper around `glfwGetKeyName`
 #[deprecated(
     since = "0.16.0",
     note = "'key_name' can cause a segfault, use 'get_key_name' instead"
@@ -301,7 +310,7 @@ pub fn get_key_scancode(key: Option<Key>) -> Option<Scancode> {
 }
 
 impl Key {
-    /// Wrapper around 'glfwGetKeyName` without scancode
+    /// Wrapper around `glfwGetKeyName` without scancode
     #[deprecated(
         since = "0.16.0",
         note = "Key method 'name' can cause a segfault, use 'get_name' instead"
@@ -311,7 +320,7 @@ impl Key {
         key_name(Some(*self), None)
     }
 
-    /// Wrapper around 'glfwGetKeyName` without scancode
+    /// Wrapper around `glfwGetKeyName` without scancode
     pub fn get_name(&self) -> Option<String> {
         get_key_name(Some(*self), None)
     }
@@ -343,7 +352,7 @@ pub enum MouseButton {
 impl MouseButton {
     /// Converts from `i32`.
     pub fn from_i32(n: i32) -> Option<MouseButton> {
-        if n >= 0 && n <= ffi::MOUSE_BUTTON_LAST {
+        if (0..=ffi::MOUSE_BUTTON_LAST).contains(&n) {
             Some(unsafe { mem::transmute(n) })
         } else {
             None
@@ -362,7 +371,7 @@ impl MouseButton {
 pub struct DebugAliases<T>(pub T);
 
 impl fmt::Debug for DebugAliases<MouseButton> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let DebugAliases(button) = *self;
         match button {
             MouseButtonLeft => write!(f, "MouseButtonLeft"),
@@ -373,7 +382,7 @@ impl fmt::Debug for DebugAliases<MouseButton> {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Callback<Fn, UserData> {
     pub f: Fn,
     pub data: UserData,
@@ -397,7 +406,7 @@ pub enum Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let description = match *self {
             Error::NoError => "NoError",
             Error::NotInitialized => "NotInitialized",
@@ -447,6 +456,7 @@ pub static LOG_ERRORS: Option<ErrorCallback<()>> = Some(Callback {
 
 /// When not using the `image` library, or if you just want to,
 /// you can specify an image from its raw pixel data using this structure.
+#[derive(Debug)]
 pub struct PixelImage {
     /// Width of the image in pixels
     pub width: u32,
@@ -577,6 +587,7 @@ pub struct VidMode {
 }
 
 /// Describes the gamma ramp of a monitor.
+#[derive(Debug)]
 pub struct GammaRamp {
     pub red: Vec<c_ushort>,
     pub green: Vec<c_ushort>,
@@ -649,7 +660,7 @@ pub enum InitError {
 }
 
 impl fmt::Display for InitError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let description = match *self {
             InitError::AlreadyInitialized => "Already Initialized",
             InitError::Internal => "Internal Initialization Error",
@@ -662,7 +673,7 @@ impl fmt::Display for InitError {
 impl error::Error for InitError {}
 
 /// Initialization hints that can be set using the `init_hint` function.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum InitHint {
     /// Specifies whether to also expose joystick hats as buttons, for compatibility with earlier
     /// versions of GLFW that did not have `glfwGetJoystickHats`.
@@ -831,7 +842,7 @@ impl Glfw {
     {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(self, None),
-            ptr => f(self, Some(&Monitor { ptr: ptr })),
+            ptr => f(self, Some(&Monitor { ptr })),
         }
     }
 
@@ -859,7 +870,7 @@ impl Glfw {
     {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(self, None),
-            ptr => f(self, Some(&Monitor { ptr: ptr })),
+            ptr => f(self, Some(&Monitor { ptr })),
         }
     }
 
@@ -886,7 +897,7 @@ impl Glfw {
                 self,
                 &slice::from_raw_parts(ptr as *const _, count as usize)
                     .iter()
-                    .map(|&ptr| Monitor { ptr: ptr })
+                    .map(|&ptr| Monitor { ptr })
                     .collect::<Vec<Monitor>>(),
             )
         }
@@ -917,7 +928,7 @@ impl Glfw {
                 self,
                 &slice::from_raw_parts(ptr as *const _, count as usize)
                     .iter()
-                    .map(|&ptr| Monitor { ptr: ptr })
+                    .map(|&ptr| Monitor { ptr })
                     .collect::<Vec<Monitor>>(),
             )
         }
@@ -1108,7 +1119,7 @@ impl Glfw {
         width: u32,
         height: u32,
         title: &str,
-        mode: WindowMode,
+        mode: WindowMode<'_>,
     ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         self.create_window_intern(width, height, title, mode, None)
     }
@@ -1119,7 +1130,7 @@ impl Glfw {
         width: u32,
         height: u32,
         title: &str,
-        mode: WindowMode,
+        mode: WindowMode<'_>,
         share: Option<&Window>,
     ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         let ptr = unsafe {
@@ -1146,11 +1157,11 @@ impl Glfw {
             }
             Some((
                 Window {
-                    ptr: ptr,
+                    ptr,
                     glfw: self.clone(),
                     is_shared: share.is_some(),
                     drop_sender: Some(drop_sender),
-                    drop_receiver: drop_receiver,
+                    drop_receiver,
                     current_cursor: None,
                 },
                 receiver,
@@ -1291,8 +1302,8 @@ impl Glfw {
     pub fn set_swap_interval(&mut self, interval: SwapInterval) {
         unsafe {
             ffi::glfwSwapInterval(match interval {
-                SwapInterval::None => 0 as c_int,
-                SwapInterval::Adaptive => -1 as c_int,
+                SwapInterval::None => 0_i32,
+                SwapInterval::Adaptive => -1_i32,
                 SwapInterval::Sync(interval) => interval as c_int,
             })
         }
@@ -1393,7 +1404,7 @@ impl Glfw {
     /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
     pub fn get_joystick(&self, id: JoystickId) -> Joystick {
         Joystick {
-            id: id,
+            id,
             glfw: self.clone(),
         }
     }
@@ -1496,7 +1507,7 @@ pub struct Monitor {
 }
 
 impl std::fmt::Debug for Monitor {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Monitor({:p})", self.ptr)
     }
 }
@@ -1566,15 +1577,15 @@ impl Monitor {
             GammaRamp {
                 red: slice::from_raw_parts(llramp.red as *const c_ushort, llramp.size as usize)
                     .iter()
-                    .map(|&x| x)
+                    .copied()
                     .collect(),
                 green: slice::from_raw_parts(llramp.green as *const c_ushort, llramp.size as usize)
                     .iter()
-                    .map(|&x| x)
+                    .copied()
                     .collect(),
                 blue: slice::from_raw_parts(llramp.blue as *const c_ushort, llramp.size as usize)
                     .iter()
-                    .map(|&x| x)
+                    .copied()
                     .collect(),
             }
         }
@@ -1649,7 +1660,7 @@ impl fmt::Debug for VidMode {
     /// ~~~ignore
     /// ~"[width] x [height], [total_bits] ([red_bits] [green_bits] [blue_bits]) [refresh_rate] Hz"
     /// ~~~
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "{} x {}, {} = {} + {} + {}, {} Hz",
@@ -1875,7 +1886,7 @@ impl<'a> WindowMode<'a> {
     /// it returns a null pointer (if it is in windowed mode).
     fn to_ptr(&self) -> *mut ffi::GLFWmonitor {
         match *self {
-            WindowMode::FullScreen(ref monitor) => monitor.ptr,
+            WindowMode::FullScreen(monitor) => monitor.ptr,
             WindowMode::Windowed => ptr::null_mut(),
         }
     }
@@ -1884,12 +1895,12 @@ impl<'a> WindowMode<'a> {
 bitflags! {
     #[doc = "Key modifiers (e.g., Shift, Control, Alt, Super)"]
     pub struct Modifiers: ::std::os::raw::c_int {
-        const Shift       = ::ffi::MOD_SHIFT;
-        const Control     = ::ffi::MOD_CONTROL;
-        const Alt         = ::ffi::MOD_ALT;
-        const Super       = ::ffi::MOD_SUPER;
-        const CapsLock    = ::ffi::MOD_CAPS_LOCK;
-        const NumLock     = ::ffi::MOD_NUM_LOCK;
+        const Shift       = crate::ffi::MOD_SHIFT;
+        const Control     = crate::ffi::MOD_CONTROL;
+        const Alt         = crate::ffi::MOD_ALT;
+        const Super       = crate::ffi::MOD_SUPER;
+        const CapsLock    = crate::ffi::MOD_CAPS_LOCK;
+        const NumLock     = crate::ffi::MOD_NUM_LOCK;
     }
 }
 
@@ -1929,15 +1940,14 @@ pub enum WindowEvent {
 ///     // handle event
 /// }
 /// ~~~
-pub fn flush_messages<'a, Message: Send>(
-    receiver: &'a Receiver<Message>,
-) -> FlushedMessages<'a, Message> {
+pub fn flush_messages<Message: Send>(receiver: &Receiver<Message>) -> FlushedMessages<'_, Message> {
     FlushedMessages(receiver)
 }
 
 /// An iterator that yields until no more messages are contained in the
 /// `Receiver`'s queue.
-pub struct FlushedMessages<'a, Message: 'a + Send>(&'a Receiver<Message>);
+#[derive(Debug)]
+pub struct FlushedMessages<'a, Message: Send>(&'a Receiver<Message>);
 
 unsafe impl<'a, Message: 'a + Send> Send for FlushedMessages<'a, Message> {}
 
@@ -2046,7 +2056,7 @@ impl Window {
         width: u32,
         height: u32,
         title: &str,
-        mode: WindowMode,
+        mode: WindowMode<'_>,
     ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
         self.glfw
             .create_window_intern(width, height, title, mode, Some(self))
@@ -2225,13 +2235,13 @@ impl Window {
     /// ~~~
     pub fn with_window_mode<T, F>(&self, f: F) -> T
     where
-        F: Fn(WindowMode) -> T,
+        F: Fn(WindowMode<'_>) -> T,
     {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
             f(WindowMode::Windowed)
         } else {
-            f(WindowMode::FullScreen(&Monitor { ptr: ptr }))
+            f(WindowMode::FullScreen(&Monitor { ptr }))
         }
     }
 
@@ -2251,27 +2261,27 @@ impl Window {
     /// ~~~
     pub fn with_window_mode_mut<T, F>(&self, mut f: F) -> T
     where
-        F: FnMut(WindowMode) -> T,
+        F: FnMut(WindowMode<'_>) -> T,
     {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
             f(WindowMode::Windowed)
         } else {
-            f(WindowMode::FullScreen(&Monitor { ptr: ptr }))
+            f(WindowMode::FullScreen(&Monitor { ptr }))
         }
     }
 
     /// Wrapper for `glfwSetWindowMonitor`
     pub fn set_monitor(
         &mut self,
-        mode: WindowMode,
+        mode: WindowMode<'_>,
         xpos: i32,
         ypos: i32,
         width: u32,
         height: u32,
         refresh_rate: Option<u32>,
     ) {
-        let monitor_ptr = if let WindowMode::FullScreen(ref monitor) = mode {
+        let monitor_ptr = if let WindowMode::FullScreen(monitor) = mode {
             monitor.ptr
         } else {
             ptr::null_mut()
@@ -2601,7 +2611,7 @@ impl Window {
 
         let glfw_images: Vec<ffi::GLFWimage> = image_data
             .iter()
-            .map(|ref data| ffi::GLFWimage {
+            .map(|data| ffi::GLFWimage {
                 width: data.1 as c_int,
                 height: data.2 as c_int,
                 pixels: data.0.as_ptr() as *const c_uchar,
@@ -2778,12 +2788,12 @@ impl Window {
         unsafe { string_from_nullable_c_str(ffi::glfwGetClipboardString(self.ptr)) }
     }
 
-    /// Wrapper for 'glfwGetWindowOpacity'.
+    /// Wrapper for `glfwGetWindowOpacity`.
     pub fn get_opacity(&self) -> f32 {
         unsafe { ffi::glfwGetWindowOpacity(self.ptr) }
     }
 
-    /// Wrapper for 'glfwSetWindowOpacity'.
+    /// Wrapper for `glfwSetWindowOpacity`.
     pub fn set_opacity(&mut self, opacity: f32) {
         unsafe { ffi::glfwSetWindowOpacity(self.ptr, opacity) }
     }
@@ -2872,6 +2882,7 @@ impl Drop for Window {
 }
 
 /// A rendering context that can be shared between tasks.
+#[derive(Debug)]
 pub struct RenderContext {
     ptr: *mut ffi::GLFWwindow,
     /// As long as this sender is alive, it is not safe to drop the parent
@@ -3046,7 +3057,7 @@ pub enum JoystickId {
 impl JoystickId {
     /// Converts from `i32`.
     pub fn from_i32(n: i32) -> Option<JoystickId> {
-        if n >= 0 && n <= ffi::JOYSTICK_LAST {
+        if (0..=ffi::JOYSTICK_LAST).contains(&n) {
             Some(unsafe { mem::transmute(n) })
         } else {
             None
@@ -3078,7 +3089,7 @@ pub enum GamepadButton {
 impl GamepadButton {
     /// Converts from `i32`.
     pub fn from_i32(n: i32) -> Option<GamepadButton> {
-        if n >= 0 && n <= ffi::GAMEPAD_BUTTON_LAST {
+        if (0..=ffi::GAMEPAD_BUTTON_LAST).contains(&n) {
             Some(unsafe { mem::transmute(n) })
         } else {
             None
@@ -3101,7 +3112,7 @@ pub enum GamepadAxis {
 impl GamepadAxis {
     /// Converts from `i32`.
     pub fn from_i32(n: i32) -> Option<GamepadAxis> {
-        if n >= 0 && n <= ffi::GAMEPAD_AXIS_LAST {
+        if (0..=ffi::GAMEPAD_AXIS_LAST).contains(&n) {
             Some(unsafe { mem::transmute(n) })
         } else {
             None
@@ -3112,22 +3123,23 @@ impl GamepadAxis {
 bitflags! {
     #[doc = "Joystick hats."]
     pub struct JoystickHats: ::std::os::raw::c_int {
-        const Centered = ::ffi::HAT_CENTERED;
-        const Up       = ::ffi::HAT_UP;
-        const Right    = ::ffi::HAT_RIGHT;
-        const Down     = ::ffi::HAT_DOWN;
-        const Left     = ::ffi::HAT_LEFT;
+        const Centered = crate::ffi::HAT_CENTERED;
+        const Up       = crate::ffi::HAT_UP;
+        const Right    = crate::ffi::HAT_RIGHT;
+        const Down     = crate::ffi::HAT_DOWN;
+        const Left     = crate::ffi::HAT_LEFT;
     }
 }
 
 /// A joystick handle.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Joystick {
     pub id: JoystickId,
     pub glfw: Glfw,
 }
 
 /// State of a gamepad.
+#[derive(Copy, Clone, Debug)]
 pub struct GamepadState {
     buttons: [Action; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize],
     axes: [f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize],

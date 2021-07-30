@@ -7,6 +7,7 @@ name = "glfw"
 readme = "README.md"
 repository = "https://github.com/bjz/glfw-rs"
 version = "0.41.0"
+edition = "2018"
 
 [dependencies]
 bitflags = "1.0.0"
