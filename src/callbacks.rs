@@ -40,13 +40,13 @@ macro_rules! callback (
             fn call(&self, args: T);
         }
 
-        impl<UserData> Object<Args> for ::Callback<fn($($arg_ty),*, &UserData), UserData> {
+        impl<UserData> Object<Args> for crate::Callback<fn($($arg_ty),*, &UserData), UserData> {
             fn call(&self, ($($arg),*,): Args) {
                 (self.f)($($arg),*, &self.data);
             }
         }
 
-        pub fn set<UserData: 'static>(f: ::$Callback<UserData>) {
+        pub fn set<UserData: 'static>(f: crate::$Callback<UserData>) {
             let mut boxed_cb = Some(Box::new(f) as Box<dyn Object<Args> + 'static>);
             CALLBACK_KEY.with(|cb| {
                 *cb.borrow_mut() = boxed_cb.take();
@@ -78,11 +78,11 @@ pub mod error {
     use std::os::raw::{c_char, c_int};
 
     callback!(
-        type Args = (error: ::Error, description: String);
+        type Args = (error: crate::Error, description: String);
         type Callback = ErrorCallback;
-        let ext_set = |cb| unsafe { ::ffi::glfwSetErrorCallback(cb) };
+        let ext_set = |cb| unsafe { crate::ffi::glfwSetErrorCallback(cb) };
         fn callback(error: c_int, description: *const c_char) {
-            (mem::transmute(error), ::string_from_c_str(description))
+            (mem::transmute(error), crate::string_from_c_str(description))
         }
     );
 }
@@ -93,11 +93,11 @@ pub mod monitor {
     use std::os::raw::c_int;
 
     callback!(
-        type Args = (monitor: ::Monitor, event: ::MonitorEvent);
+        type Args = (monitor: crate::Monitor, event: crate::MonitorEvent);
         type Callback = MonitorCallback;
-        let ext_set = |cb| unsafe { ::ffi::glfwSetMonitorCallback(cb) };
-        fn callback(monitor: *mut ::ffi::GLFWmonitor, event: c_int) {
-            let monitor = ::Monitor {
+        let ext_set = |cb| unsafe { crate::ffi::glfwSetMonitorCallback(cb) };
+        fn callback(monitor: *mut crate::ffi::GLFWmonitor, event: c_int) {
+            let monitor = crate::Monitor {
                 ptr: monitor
             };
             (monitor, mem::transmute(event))
@@ -111,17 +111,17 @@ pub mod joystick {
     use std::os::raw::c_int;
 
     callback!(
-        type Args = (joystick_id: ::JoystickId, event: ::JoystickEvent);
+        type Args = (joystick_id: crate::JoystickId, event: crate::JoystickEvent);
         type Callback = JoystickCallback;
-        let ext_set = |cb| unsafe { ::ffi::glfwSetJoystickCallback(cb) };
+        let ext_set = |cb| unsafe { crate::ffi::glfwSetJoystickCallback(cb) };
         fn callback(joystick_id: c_int, event: c_int) {
             (mem::transmute(joystick_id), mem::transmute(event))
         }
     );
 }
 
-unsafe fn get_sender<'a>(window: &'a *mut ffi::GLFWwindow) -> &'a Sender<(f64, WindowEvent)> {
-    mem::transmute(ffi::glfwGetWindowUserPointer(*window))
+unsafe fn get_sender(window: &*mut ffi::GLFWwindow) -> &Sender<(f64, WindowEvent)> {
+    &*(ffi::glfwGetWindowUserPointer(*window) as *const std::sync::mpsc::Sender<(f64, WindowEvent)>)
 }
 
 pub mod unbuffered {

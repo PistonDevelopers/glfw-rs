@@ -373,15 +373,18 @@ pub type GLFWwindowmaximizefun = extern "C" fn(*mut GLFWwindow, c_int);
 pub type GLFWwindowcontentscalefun = extern "C" fn(*mut GLFWwindow, c_float, c_float);
 
 #[allow(missing_copy_implementations)]
+#[derive(Debug)]
 pub enum GLFWmonitor {}
 
 #[allow(missing_copy_implementations)]
+#[derive(Debug)]
 pub enum GLFWwindow {}
 
 #[allow(missing_copy_implementations)]
+#[derive(Debug)]
 pub enum GLFWcursor {}
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 pub struct GLFWgammaramp {
     pub red: *mut c_ushort,
@@ -392,6 +395,7 @@ pub struct GLFWgammaramp {
 
 #[allow(missing_copy_implementations)]
 #[repr(C)]
+#[derive(Debug)]
 pub struct GLFWvidmode {
     pub width: c_int,
     pub height: c_int,
@@ -404,6 +408,7 @@ pub struct GLFWvidmode {
 /// Pixels are 4-bytes each, RGBA
 #[allow(missing_copy_implementations)]
 #[repr(C)]
+#[derive(Debug)]
 pub struct GLFWimage {
     pub width: c_int,
     pub height: c_int,
@@ -412,6 +417,7 @@ pub struct GLFWimage {
 
 #[allow(missing_copy_implementations)]
 #[repr(C)]
+#[derive(Debug)]
 pub struct GLFWgamepadstate {
     pub buttons: [c_uchar; (GAMEPAD_BUTTON_LAST + 1) as usize],
     pub axes: [c_float; (GAMEPAD_AXIS_LAST + 1) as usize],
