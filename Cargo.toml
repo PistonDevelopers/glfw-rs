@@ -11,7 +11,6 @@ edition = "2018"
 
 [dependencies]
 bitflags = "1.0.0"
-log = "0.4"
 semver = "0.9"
 raw-window-handle = "0.3"
 
@@ -29,6 +28,10 @@ version = "^3.3"
 optional = true
 version = "^0.23"
 
+[dependencies.log]
+optional = true
+log = "0.4"
+
 [dependencies.vk-sys]
 optional = true
 version = "^0.4"
@@ -36,8 +39,9 @@ version = "^0.4"
 [dev-dependencies]
 vk-sys = "^0.4"
 image = "^0.23"
+log = "0.4"
 
 [features]
-all = ["image", "vulkan"]
+all = ["image", "vulkan", "log"]
 default = ["glfw-sys"]
 vulkan = ["vk-sys"]
