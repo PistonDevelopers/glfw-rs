@@ -30,7 +30,7 @@ version = "^0.23"
 
 [dependencies.log]
 optional = true
-log = "0.4"
+version = "0.4"
 
 [dependencies.vk-sys]
 optional = true
