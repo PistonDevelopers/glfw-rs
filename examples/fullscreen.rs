@@ -68,7 +68,7 @@ fn main() {
                         last_pos = window.get_pos();
                         last_size = window.get_size();
 
-                        glfw.with_primary_monitor_mut(|_: &mut _, m: Option<&glfw::Monitor>| {
+                        glfw.with_primary_monitor(|_: &mut _, m: Option<&glfw::Monitor>| {
                             let monitor = m.unwrap();
 
                             let mode = monitor.get_video_mode().unwrap();
