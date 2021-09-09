@@ -17,7 +17,7 @@
 
 # glfw-rs
 
-[![Crates.io](https://meritbadge.herokuapp.com/glfw)](https://crates.io/crates/glfw)
+[![Crates.io](https://img.shields.io/crates/v/glfw)](https://crates.io/crates/glfw)
 [![Docs.rs](https://docs.rs/glfw/badge.svg)](https://docs.rs/glfw)
 [![Build Status](https://travis-ci.org/PistonDevelopers/glfw-rs.svg?branch=master)](https://travis-ci.org/PistonDevelopers/glfw-rs)
 
