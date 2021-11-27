@@ -30,15 +30,9 @@ fn main() {
     window.make_current();
 
     match window.raw_window_handle() {
-        #[cfg(target_os = "windows")]
-        RawWindowHandle::Windows(handle) => println!("raw handle: {:?}", handle),
-
-        #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"))]
+        RawWindowHandle::Win32(handle) => println!("raw handle: {:?}", handle),
         RawWindowHandle::Xlib(handle) => println!("raw handle: {:?}", handle),
-
-        #[cfg(target_os = "macos")]
-        RawWindowHandle::MacOS(handle) => println!("raw handle: {:?}", handle),
-
+        RawWindowHandle::AppKit(handle) => println!("raw handle: {:?}", handle),
         _ => unimplemented!(),
     }
 

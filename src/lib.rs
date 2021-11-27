@@ -2900,37 +2900,35 @@ unsafe impl HasRawWindowHandle for RenderContext {
 fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
-        use raw_window_handle::windows::WindowsHandle;
+        use raw_window_handle::Win32Handle;
         let (hwnd, hinstance) = unsafe {
             let hwnd = ffi::glfwGetWin32Window(context.window_ptr());
             let hinstance = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null());
             (hwnd, hinstance as _)
         };
-        RawWindowHandle::Windows(WindowsHandle {
-            hwnd,
-            hinstance,
-            ..WindowsHandle::empty()
-        })
+        let mut handle = Win32Handle::empty();
+        handle.hwnd = hwnd;
+        handle.hinstance = hinstance;
+        RawWindowHandle::Win32(handle)
     }
 
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"))]
     {
-        use raw_window_handle::unix::XlibHandle;
+        use raw_window_handle::XlibHandle;
         let (window, display) = unsafe {
             let window = ffi::glfwGetX11Window(context.window_ptr());
             let display = ffi::glfwGetX11Display();
             (window as std::os::raw::c_ulong, display)
         };
-        RawWindowHandle::Xlib(XlibHandle {
-            window,
-            display,
-            ..XlibHandle::empty()
-        })
+        let mut handle = XlibHandle::empty();
+        handle.window = window;
+        handle.display = display;
+        RawWindowHandle::Xlib(handle)
     }
 
     #[cfg(target_os = "macos")]
     {
-        use raw_window_handle::macos::MacOSHandle;
+        use raw_window_handle::AppKitHandle;
         let (ns_window, ns_view) = unsafe {
             let ns_window: *mut objc::runtime::Object =
                 ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
@@ -2941,11 +2939,10 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
                 ns_view as *mut std::ffi::c_void,
             )
         };
-        RawWindowHandle::MacOS(MacOSHandle {
-            ns_window,
-            ns_view,
-            ..MacOSHandle::empty()
-        })
+        let mut handle = AppKitHandle::empty();
+        handle.ns_window = ns_window;
+        handle.ns_view = ns_view;
+        RawWindowHandle::AppKit(handle)
     }
 }
 
