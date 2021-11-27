@@ -95,7 +95,7 @@ extern crate image;
 extern crate objc;
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use semver::Version;
+
 use std::error;
 use std::ffi::{CStr, CString};
 use std::fmt;
@@ -129,6 +129,13 @@ pub mod ffi;
 
 /// Unique identifier for a `Window`.
 pub type WindowId = usize;
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct Version {
+    pub major: u64,
+    pub minor: u64,
+    pub patch: u64,
+}
 
 /// Input actions.
 #[repr(i32)]
@@ -1412,8 +1419,6 @@ pub fn get_version() -> Version {
             major: major as u64,
             minor: minor as u64,
             patch: patch as u64,
-            pre: Vec::new(),
-            build: Vec::new(),
         }
     }
 }
@@ -2264,8 +2269,6 @@ impl Window {
                 major: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MAJOR) as u64,
                 minor: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_VERSION_MINOR) as u64,
                 patch: ffi::glfwGetWindowAttrib(self.ptr, ffi::CONTEXT_REVISION) as u64,
-                pre: Vec::new(),
-                build: Vec::new(),
             }
         }
     }
