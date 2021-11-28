@@ -1928,6 +1928,7 @@ pub struct Window {
     /// Once all  child`RenderContext`s have been dropped, calling `try_recv()`
     /// on the `drop_receiver` will result in an `Err(std::comm::Disconnected)`,
     /// indicating that it is safe to drop the `Window`.
+    #[allow(unused)]
     drop_receiver: Receiver<()>,
     /// This is here to allow owning the current Cursor object instead
     /// of forcing the user to take care of its lifetime.
