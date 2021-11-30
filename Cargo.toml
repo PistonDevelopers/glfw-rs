@@ -36,8 +36,6 @@ optional = true
 version = "^0.4"
 
 [dev-dependencies]
-vk-sys = "^0.4"
-image = "^0.23"
 log = "0.4"
 
 [features]

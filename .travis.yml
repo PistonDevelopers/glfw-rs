@@ -25,6 +25,8 @@ addons:
 script:
   - sudo apt install libgl1
   - sudo apt install libgl1-mesa-dev
+  - cargo build
+  - cargo test
   - cargo build --features "all"
   - cargo test --features "all"
   - cargo doc --features "all"
