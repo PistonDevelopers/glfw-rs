@@ -12,16 +12,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#![cfg(feature = "image")]
 
-extern crate glfw;
-extern crate image;
+#[cfg(not(feature = "image"))]
+fn main() {
+    eprintln!("run with: --features image")
+}
 
+#[cfg(feature = "image")]
+use image::{
+    imageops::{resize, Nearest},
+    open as open_image, DynamicImage,
+};
+
+#[cfg(feature = "image")]
 use glfw::{Action, Context, Key};
 
-use image::imageops::{resize, Nearest};
-use image::{open as open_image, DynamicImage};
-
+#[cfg(feature = "image")]
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
@@ -50,6 +56,7 @@ fn main() {
     }
 }
 
+#[cfg(feature = "image")]
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
         glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),

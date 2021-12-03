@@ -83,7 +83,7 @@
 
 #[cfg(feature = "vulkan")]
 extern crate vk_sys;
-#[cfg(feature="log")]
+#[cfg(feature = "log")]
 #[macro_use]
 extern crate log;
 #[macro_use]
@@ -450,18 +450,17 @@ pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> = Some(Callback {
     data: (),
 });
 
-#[cfg(feature="log")]
+#[cfg(feature = "log")]
 /// The function to be used with the `LOG_ERRORS` callback.
 pub fn log_errors(_: Error, description: String, _: &()) {
     error!("GLFW Error: {}", description);
 }
 
-#[cfg(not(feature="log"))]
+#[cfg(not(feature = "log"))]
 /// The function to be used with the `LOG_ERRORS` callback.
 pub fn log_errors(_: Error, description: String, _: &()) {
     eprintln!("GLFW Error: {}", description);
 }
-
 
 /// A callback that logs each error as it is encountered without triggering a
 /// task failure.
@@ -2788,7 +2787,7 @@ impl Drop for Window {
         drop(self.drop_sender.take());
 
         // Check if all senders from the child `RenderContext`s have hung up.
-        #[cfg(feature="log")]
+        #[cfg(feature = "log")]
         if self.drop_receiver.try_recv() != Err(std::sync::mpsc::TryRecvError::Disconnected) {
             debug!("Attempted to drop a Window before the `RenderContext` was dropped.");
             debug!("Blocking until the `RenderContext` was dropped.");

@@ -12,22 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#![cfg(feature = "vulkan")]
 
-extern crate glfw;
-extern crate vk_sys;
+#[cfg(not(feature = "vulkan"))]
+fn main() {
+    eprintln!("run with: --features vulkan")
+}
 
-use std::mem;
-use std::os::raw::c_void;
-use std::ptr;
-
+#[cfg(feature = "vulkan")]
 use vk_sys::{
     self as vk, EntryPoints, Instance as VkInstance, InstanceCreateInfo, InstancePointers,
     Result as VkResult,
 };
 
+#[cfg(feature = "vulkan")]
+use std::{mem, os::raw::c_void, ptr};
+
+#[cfg(feature = "vulkan")]
 use glfw::Context;
 
+#[cfg(feature = "vulkan")]
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
@@ -69,6 +72,7 @@ fn main() {
     println!("Vulkan instance successfully created and destroyed.");
 }
 
+#[cfg(feature = "vulkan")]
 unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
     let mut instance: mem::MaybeUninit<VkInstance> = mem::MaybeUninit::uninit();
 
@@ -97,6 +101,7 @@ unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
     instance.assume_init()
 }
 
+#[cfg(feature = "vulkan")]
 unsafe fn destroy_instance(instance: VkInstance, instance_ptrs: &mut InstancePointers) {
     instance_ptrs.DestroyInstance(instance, ptr::null());
 }
