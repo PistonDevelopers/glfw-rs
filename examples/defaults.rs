@@ -17,7 +17,7 @@ extern crate glfw;
 
 use glfw::Context;
 
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 fn vulkan_support(glfw: &mut glfw::Glfw) {
     println!("Vulkan supported: {:?}", glfw.vulkan_supported());
     println!(

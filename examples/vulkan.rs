@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(not(feature = "vulkan"))]
+#[cfg(not(feature = "vulkan-common"))]
 fn main() {
-    eprintln!("run with: --features vulkan")
+    eprintln!("run with: --features vulkan or vulkan-ash")
 }
 
 #[cfg(feature = "vulkan")]
@@ -24,13 +24,19 @@ use vk_sys::{
     Result as VkResult,
 };
 
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-ash")]
+use ash::vk::{
+    self as vk, EntryPoints, Instance as VkInstance, InstanceCreateInfo, InstancePointers,
+    Result as VkResult,
+};
+
+#[cfg(feature = "vulkan-common")]
 use std::{mem, os::raw::c_void, ptr};
 
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 use glfw::Context;
 
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
@@ -72,7 +78,7 @@ fn main() {
     println!("Vulkan instance successfully created and destroyed.");
 }
 
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
     let mut instance: mem::MaybeUninit<VkInstance> = mem::MaybeUninit::uninit();
 
@@ -101,7 +107,7 @@ unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
     instance.assume_init()
 }
 
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 unsafe fn destroy_instance(instance: VkInstance, instance_ptrs: &mut InstancePointers) {
     instance_ptrs.DestroyInstance(instance, ptr::null());
 }

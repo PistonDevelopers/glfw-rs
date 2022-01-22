@@ -27,6 +27,12 @@ use vk_sys::{
     PhysicalDevice as VkPhysicalDevice, Result as VkResult, SurfaceKHR as VkSurfaceKHR,
 };
 
+#[cfg(feature = "vulkan-ash")]
+use ash::vk::{
+    AllocationCallbacks as VkAllocationCallbacks, Instance as VkInstance,
+    PhysicalDevice as VkPhysicalDevice, Result as VkResult, SurfaceKHR as VkSurfaceKHR,
+};
+
 mod link;
 
 pub const FALSE: c_int = 0;
@@ -348,7 +354,7 @@ pub const COCOA_MENUBAR: c_int = 0x00051002;
 
 pub type GLFWglproc = *const c_void;
 
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 pub type GLFWvkproc = *const c_void;
 
 pub type GLFWerrorfun = extern "C" fn(c_int, *const c_char);
@@ -653,19 +659,19 @@ extern "C" {
 
     // Vulkan support
 
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn glfwVulkanSupported() -> c_int;
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn glfwGetRequiredInstanceExtensions(count: *mut c_uint) -> *const *const c_char;
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn glfwGetInstanceProcAddress(instance: VkInstance, procname: *const c_char) -> GLFWvkproc;
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn glfwGetPhysicalDevicePresentationSupport(
         instance: VkInstance,
         device: VkPhysicalDevice,
         queuefamily: c_uint,
     ) -> c_int;
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn glfwCreateWindowSurface(
         instance: VkInstance,
         window: *mut GLFWwindow,

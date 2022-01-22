@@ -35,10 +35,16 @@ version = "0.4"
 optional = true
 version = "^0.4"
 
+[dependencies.ash]
+optional = true
+version = "^0.35.0"
+
 [dev-dependencies]
 log = "0.4"
 
 [features]
 all = ["image", "vulkan", "log"]
 default = ["glfw-sys"]
-vulkan = ["vk-sys"]
+vulkan-common = []
+vulkan = ["vk-sys", "vulkan-common"]
+vulkan-ash = ["ash", "vulkan-common"]

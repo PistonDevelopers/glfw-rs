@@ -14,8 +14,8 @@
 // limitations under the License.
 
 #![crate_type = "lib"]
-#![crate_type = "rlib"]
-#![crate_type = "dylib"]
+// #![crate_type = "rlib"]
+// #![crate_type = "dylib"]
 #![crate_name = "glfw"]
 #![deny(
     rust_2018_compatibility,
@@ -83,6 +83,7 @@
 
 #[cfg(feature = "vulkan")]
 extern crate vk_sys;
+
 #[cfg(feature = "log")]
 #[macro_use]
 extern crate log;
@@ -101,7 +102,7 @@ use std::ffi::{CStr, CString};
 use std::fmt;
 use std::marker::Send;
 use std::mem;
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 use std::os::raw::c_uint;
 use std::os::raw::{c_char, c_double, c_float, c_int};
 use std::os::raw::{c_uchar, c_ushort, c_void};
@@ -115,6 +116,12 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use vk_sys::{
     self as vk, AllocationCallbacks as VkAllocationCallbacks, Instance as VkInstance,
     PhysicalDevice as VkPhysicalDevice, Result as VkResult, SurfaceKHR as VkSurfaceKHR,
+};
+
+#[cfg(feature = "vulkan-ash")]
+use ash::vk::{
+    self as vk, AllocationCallbacks as VkAllocationCallbacks, Instance as VkInstance,
+    PhysicalDevice as VkPhysicalDevice, Result as VkResult, SurfaceKHR as VkSurfaceKHR
 };
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
@@ -649,7 +656,7 @@ pub enum SwapInterval {
 pub type GLProc = ffi::GLFWglproc;
 
 /// A Vulkan process address
-#[cfg(feature = "vulkan")]
+#[cfg(feature = "vulkan-common")]
 pub type VkProc = ffi::GLFWvkproc;
 
 /// Counts for (Calling glfwInit) - (Calling glfwTerminate)
@@ -891,7 +898,7 @@ impl Glfw {
     }
 
     /// Queries Vulkan support via `glfwVulkanSupported`
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn vulkan_supported(&self) -> bool {
         unsafe { ffi::glfwVulkanSupported() == ffi::TRUE }
     }
@@ -1285,7 +1292,7 @@ impl Glfw {
     /// additional extensions you can pass this list directly to the `VkInstanceCreateInfo` struct.
     ///
     /// Will return `None` if the API is unavailable.
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn get_required_instance_extensions(&self) -> Option<Vec<String>> {
         let mut len: c_uint = 0;
 
@@ -1329,7 +1336,7 @@ impl Glfw {
     /// If Vulkan is not available on the machine, this function returns `NULL`
     ///
     /// Wrapper for `glfwGetInstanceProcAddress`
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn get_instance_proc_address_raw(&self, instance: VkInstance, procname: &str) -> VkProc {
         with_c_str(procname, |procname| unsafe {
             ffi::glfwGetInstanceProcAddress(instance, procname)
@@ -1340,7 +1347,7 @@ impl Glfw {
     /// physical device supports presentation to the platform GLFW was built for.
     ///
     /// Wrapper for `glfwGetPhysicalDevicePresentationSupport`
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn get_physical_device_presentation_support_raw(
         &self,
         instance: VkInstance,
@@ -1975,7 +1982,7 @@ impl Window {
     /// If Vulkan is not available on the machine, this function returns `NULL`
     ///
     /// Wrapper for `glfwGetInstanceProcAddress`
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn get_instance_proc_address(&mut self, instance: VkInstance, procname: &str) -> VkProc {
         self.glfw.get_instance_proc_address_raw(instance, procname)
     }
@@ -1984,7 +1991,7 @@ impl Window {
     /// physical device supports presentation to the platform GLFW was built for.
     ///
     /// Wrapper for `glfwGetPhysicalDevicePresentationSupport`
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn get_physical_device_presentation_support(
         &self,
         instance: VkInstance,
@@ -1996,7 +2003,7 @@ impl Window {
     }
 
     /// wrapper for `glfwCreateWindowSurface`
-    #[cfg(feature = "vulkan")]
+    #[cfg(feature = "vulkan-common")]
     pub fn create_window_surface(
         &self,
         instance: VkInstance,
