@@ -35,7 +35,17 @@ extern "C" {}
 #[link(name = "shell32")]
 extern "C" {}
 
-#[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"))]
+#[cfg(all(
+    any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+    feature = "wayland"
+))]
+#[link(name = "wayland-client")]
+extern "C" {}
+
+#[cfg(all(
+    any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+    not(feature = "wayland")
+))]
 #[link(name = "X11")]
 extern "C" {}
 

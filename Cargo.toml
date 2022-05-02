@@ -42,3 +42,7 @@ log = "0.4"
 all = ["image", "vulkan", "log"]
 default = ["glfw-sys"]
 vulkan = ["vk-sys"]
+wayland = ["glfw-sys/wayland"]
+
+[patch.crates-io]
+glfw-sys = { git = "https://github.com/maximveligan/glfw-sys-wayland" }
