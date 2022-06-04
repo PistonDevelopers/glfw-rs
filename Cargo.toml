@@ -6,7 +6,7 @@ license = "Apache-2.0"
 name = "glfw"
 readme = "README.md"
 repository = "https://github.com/bjz/glfw-rs"
-version = "0.44.0"
+version = "0.45.0"
 edition = "2018"
 
 [dependencies]
@@ -21,7 +21,7 @@ winapi = { version = "0.3", features = ["libloaderapi"] }
 
 [dependencies.glfw-sys]
 optional = true
-version = "^3.3"
+version = "4.0.0+3.3.5"
 
 [dependencies.image]
 optional = true
