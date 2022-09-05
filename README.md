@@ -63,7 +63,7 @@ fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
 
 Make sure you have [compiled and installed GLFW 3.x](http://www.glfw.org/docs/latest/compile.html).
 You might be able to find it on your package manager, for example on OS X:
-`brew install --static glfw3` (you may need to run `brew tap homebrew/versions`).
+`brew install glfw3` (you may need to run `brew tap homebrew/versions`).
 If not you can download and build the library
 [from the source](http://www.glfw.org/docs/latest/compile.html) supplied on the
 GLFW website. Note that if you compile GLFW with CMake on Linux, you will have
