@@ -1071,12 +1071,17 @@ impl Glfw {
     ///
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_window(
-        &self,
+        &mut self,
         width: u32,
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
     ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
+        #[cfg(feature = "wayland")]
+        {
+            // Has to be set otherwise wayland refuses to open window.
+            self.window_hint(WindowHint::Focused(false));
+        }
         self.create_window_intern(width, height, title, mode, None)
     }
 
@@ -1140,6 +1145,12 @@ impl Glfw {
     #[cfg(all(target_os = "linux", not(feature = "wayland")))]
     pub fn get_x11_display(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Display() }
+    }
+
+    /// Wrapper for `glfwGetWaylandDisplay`
+    #[cfg(all(target_os = "linux", feature = "wayland"))]
+    pub fn get_wayland_display(&self) -> *mut c_void {
+        unsafe { ffi::glfwGetWaylandDisplay() }
     }
 
     /// Immediately process the received events.
@@ -2768,6 +2779,12 @@ impl Window {
     #[cfg(all(target_os = "linux", not(feature = "wayland")))]
     pub fn get_x11_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Window(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetWaylandWindow`
+    #[cfg(all(target_os = "linux", feature = "wayland"))]
+    pub fn get_wayland_window(&self) -> *mut c_void {
+        unsafe { ffi::glfwGetWaylandWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetGLXContext`

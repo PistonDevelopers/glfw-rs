@@ -21,7 +21,7 @@ use std::sync::mpsc::Receiver;
 type WindowInstance = (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
 type WindowVector = Vec<WindowInstance>;
 
-fn add_window(glfw: &glfw::Glfw, window_vector: &mut WindowVector) {
+fn add_window(glfw: &mut glfw::Glfw, window_vector: &mut WindowVector) {
     let (mut window, events) = glfw
         .create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
@@ -42,8 +42,8 @@ fn main() {
 
     // Create two windows
     let mut windows = WindowVector::new();
-    add_window(&glfw, &mut windows);
-    add_window(&glfw, &mut windows);
+    add_window(&mut glfw, &mut windows);
+    add_window(&mut glfw, &mut windows);
 
     // Loop until we no longer have any open windows
     while !windows.is_empty() {
