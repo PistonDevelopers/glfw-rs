@@ -689,7 +689,8 @@ extern "C" {
     pub fn glfwGetX11Window(window: *mut GLFWwindow) -> *mut c_void;
     #[cfg(all(any(target_os = "linux", target_os = "freebsd"), not(feature = "wayland")))]
     pub fn glfwGetX11Display() -> *mut c_void;
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd")))]
+    
+    #[cfg(any(target_os = "linux", target_os = "freebsd"))]
     pub fn glfwGetGLXContext(window: *mut GLFWwindow) -> *mut c_void;
 
     #[cfg(all(any(target_os = "linux", target_os = "freebsd"), feature = "wayland"))]
