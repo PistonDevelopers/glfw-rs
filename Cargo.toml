@@ -22,7 +22,7 @@ winapi = { version = "0.3", features = ["libloaderapi"] }
 
 [dependencies.glfw-sys]
 optional = true
-version = "4.0.0+3.3.5"
+version = "4.0.0"
 
 [dependencies.image]
 optional = true
@@ -44,6 +44,3 @@ all = ["image", "vulkan", "log"]
 default = ["glfw-sys", "wayland"]
 vulkan = ["vk-sys"]
 wayland = ["glfw-sys/wayland"]
-
-[patch.crates-io]
-glfw-sys = { git = "https://github.com/maximveligan/glfw-sys-wayland" }
