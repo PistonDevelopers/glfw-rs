@@ -8,6 +8,7 @@ readme = "README.md"
 repository = "https://github.com/bjz/glfw-rs"
 version = "0.45.0"
 edition = "2018"
+rust-version = "1.40"
 
 [dependencies]
 bitflags = "1.0.0"
