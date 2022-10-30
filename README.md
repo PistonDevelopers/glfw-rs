@@ -81,7 +81,7 @@ Add this to your `Cargo.toml`:
 
 ~~~toml
 [dependencies.glfw]
-git = "https://github.com/bjz/glfw-rs.git"
+version = "*"
 ~~~
 
 #### On Windows
@@ -92,7 +92,7 @@ disable this:
 
 ~~~toml
 [dependencies.glfw]
-git = "https://github.com/bjz/glfw-rs.git"
+version = "*"
 default-features = false
 ~~~
 
