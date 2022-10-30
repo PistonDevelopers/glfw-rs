@@ -1071,12 +1071,17 @@ impl Glfw {
     ///
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_window(
-        &self,
+        &mut self,
         width: u32,
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
     ) -> Option<(Window, Receiver<(f64, WindowEvent)>)> {
+        #[cfg(feature = "wayland")]
+        {
+            // Has to be set otherwise wayland refuses to open window.
+            self.window_hint(WindowHint::Focused(false));
+        }
         self.create_window_intern(width, height, title, mode, None)
     }
 
@@ -1137,9 +1142,15 @@ impl Glfw {
     }
 
     /// Wrapper for `glfwGetX11Display`
-    #[cfg(target_os = "linux")]
+    #[cfg(all(target_os = "linux", not(feature = "wayland")))]
     pub fn get_x11_display(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Display() }
+    }
+
+    /// Wrapper for `glfwGetWaylandDisplay`
+    #[cfg(all(target_os = "linux", feature = "wayland"))]
+    pub fn get_wayland_display(&self) -> *mut c_void {
+        unsafe { ffi::glfwGetWaylandDisplay() }
     }
 
     /// Immediately process the received events.
@@ -2765,9 +2776,15 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetX11Window`
-    #[cfg(target_os = "linux")]
+    #[cfg(all(target_os = "linux", not(feature = "wayland")))]
     pub fn get_x11_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Window(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetWaylandWindow`
+    #[cfg(all(target_os = "linux", feature = "wayland"))]
+    pub fn get_wayland_window(&self) -> *mut c_void {
+        unsafe { ffi::glfwGetWaylandWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetGLXContext`
@@ -2914,8 +2931,7 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         handle.hinstance = hinstance;
         RawWindowHandle::Win32(handle)
     }
-
-    #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"))]
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
     {
         use raw_window_handle::XlibHandle;
         let (window, display) = unsafe {
@@ -2928,7 +2944,19 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         handle.display = display;
         RawWindowHandle::Xlib(handle)
     }
-
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    {
+        use raw_window_handle::WaylandHandle;
+        let (window, display) = unsafe {
+            let window = ffi::glfwGetWaylandWindow(context.window_ptr());
+            let display = ffi::glfwGetWaylandDisplay();
+            (window, display)
+        };
+        let mut handle = WaylandHandle::empty();
+        handle.surface = window;
+        handle.display = display;
+        RawWindowHandle::Wayland(handle)
+    }
     #[cfg(target_os = "macos")]
     {
         use raw_window_handle::AppKitHandle;
