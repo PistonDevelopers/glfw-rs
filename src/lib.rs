@@ -663,7 +663,9 @@ static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
 /// statically.
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct Glfw;
+pub struct Glfw {
+    phantom: std::marker::PhantomData<*const ()>,
+}
 
 /// An error that might be returned when `glfw::init` is called.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -769,7 +771,7 @@ pub fn init<UserData: 'static>(
     // https://www.glfw.org/docs/latest/group__init.html#ga317aac130a235ab08c6db0834907d85e
     if unsafe { ffi::glfwInit() } == ffi::TRUE {
         REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
-        Ok(Glfw)
+        Ok(Glfw {phantom: std::marker::PhantomData})
     } else {
         Err(InitError::Internal)
     }
@@ -1403,7 +1405,7 @@ impl Glfw {
 impl Clone for Glfw {
     fn clone(&self) -> Self {
         REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
-        Glfw
+        Glfw {phantom: std::marker::PhantomData}
     }
 }
 
