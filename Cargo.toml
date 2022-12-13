@@ -41,6 +41,6 @@ log = "0.4"
 
 [features]
 all = ["image", "vulkan", "log"]
-default = ["glfw-sys", "wayland"]
+default = ["glfw-sys"]
 vulkan = ["vk-sys"]
 wayland = ["glfw-sys/wayland"]
