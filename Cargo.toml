@@ -40,7 +40,7 @@ version = "^0.4"
 log = "0.4"
 
 [features]
-all = ["image", "vulkan", "log"]
-default = ["glfw-sys", "wayland"]
+all = ["image", "vulkan", "log", "wayland"]
+default = ["glfw-sys"]
 vulkan = ["vk-sys"]
 wayland = ["glfw-sys/wayland"]

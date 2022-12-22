@@ -22,12 +22,17 @@ addons:
       - libxinerama-dev
       - libxcursor-dev
       - xorg-dev
+      - libwayland-dev
+      - libxkbcommon-dev
 script:
   - sudo apt install libgl1
   - sudo apt install libgl1-mesa-dev
   - cargo build
   - cargo test
   - cargo build --features "all"
+  - cargo build --features "image, log, vulkan"
   - cargo test --features "all"
+  - cargo test --features "image, log, vulkan"
   - cargo doc --features "all"
+  - cargo doc --features "image, log, vulkan"
 
