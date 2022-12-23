@@ -94,7 +94,7 @@ extern crate image;
 #[macro_use]
 extern crate objc;
 
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use raw_window_handle::{HasRawWindowHandle, RawWindowHandle, HasRawDisplayHandle, RawDisplayHandle};
 
 use std::error;
 use std::ffi::{CStr, CString};
@@ -2919,6 +2919,18 @@ unsafe impl HasRawWindowHandle for RenderContext {
     }
 }
 
+unsafe impl HasRawDisplayHandle for Window {
+    fn raw_display_handle(&self) -> RawDisplayHandle {
+        raw_display_handle()
+    }
+}
+
+unsafe impl HasRawDisplayHandle for RenderContext {
+    fn raw_display_handle(&self) -> RawDisplayHandle {
+        raw_display_handle()
+    }
+}
+
 fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
@@ -2976,6 +2988,29 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         handle.ns_window = ns_window;
         handle.ns_view = ns_view;
         RawWindowHandle::AppKit(handle)
+    }
+}
+
+fn raw_display_handle() -> RawDisplayHandle {
+    #[cfg(target_family = "windows")]
+    {
+        use raw_window_handle::WindowsDisplayHandle;
+        RawDisplayHandle::Windows(WindowsDisplayHandle::empty())
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    {
+        use raw_window_handle::XlibDisplayHandle;
+        RawDisplayHandle::Xlib(XLibDisplayHandle::empty())
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    {
+        use raw_window_handle::WaylandDisplayHandle;
+        RawDisplayHandle::Wayland(WaylandDisplayHandle::empty())
+    }
+    #[cfg(target_os = "macos")]
+    {
+        use raw_window_handle::AppKitDisplayHandle;
+        RawDisplayHandle::AppKit(AppKitDisplayHandle::empty())
     }
 }
 
