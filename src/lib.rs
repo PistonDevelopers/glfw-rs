@@ -2948,27 +2948,15 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
     {
         use raw_window_handle::XlibWindowHandle;
-        let (window, display) = unsafe {
-            let window = ffi::glfwGetX11Window(context.window_ptr());
-            let display = ffi::glfwGetX11Display();
-            (window as std::os::raw::c_ulong, display)
-        };
         let mut handle = XlibWindowHandle::empty();
-        handle.window = window;
-        handle.display = display;
+        handle.window = unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
         RawWindowHandle::Xlib(handle)
     }
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
     {
         use raw_window_handle::WaylandWindowHandle;
-        let (window, display) = unsafe {
-            let window = ffi::glfwGetWaylandWindow(context.window_ptr());
-            let display = ffi::glfwGetWaylandDisplay();
-            (window, display)
-        };
         let mut handle = WaylandWindowHandle::empty();
-        handle.surface = window;
-        handle.display = display;
+        handle.surface = unsafe { ffi::glfwGetWaylandWindow(context.window_ptr()) };
         RawWindowHandle::Wayland(handle)
     }
     #[cfg(target_os = "macos")]
@@ -3000,12 +2988,16 @@ fn raw_display_handle() -> RawDisplayHandle {
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
     {
         use raw_window_handle::XlibDisplayHandle;
-        RawDisplayHandle::Xlib(XLibDisplayHandle::empty())
+        let mut handle = XLibDisplayHandle::empty();
+        handle.display = unsafe { ffi::glfwGetX11Display() };
+        RawDisplayHandle::Xlib(handle)
     }
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
     {
         use raw_window_handle::WaylandDisplayHandle;
-        RawDisplayHandle::Wayland(WaylandDisplayHandle::empty())
+        let mut handle = WaylandDisplayHandle::empty();
+        handle.display = unsafe { ffi::glfwGetWaylandDisplay() };
+        RawDisplayHandle::Wayland(handle)
     }
     #[cfg(target_os = "macos")]
     {
