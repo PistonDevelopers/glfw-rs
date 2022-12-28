@@ -16,7 +16,7 @@
 #![crate_type = "lib"]
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
-#![crate_name = "glfw_raw_window_handle_0_5_0"]
+#![crate_name = "glfw"]
 #![deny(
     rust_2018_compatibility,
     rust_2018_idioms,
