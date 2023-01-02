@@ -2924,14 +2924,20 @@ unsafe impl HasRawWindowHandle for RenderContext {
         raw_window_handle(self).0
     }
 }
+
 unsafe impl HasRawDisplayHandle for Window {
-    fn raw_display_handle(&self) -> raw_window_handle::RawDisplayHandle {
+    fn raw_display_handle(&self) -> RawDisplayHandle {
         raw_window_handle(self).1
     }
 }
-fn raw_window_handle<C: Context>(
-    context: &C,
-) -> (RawWindowHandle, raw_window_handle::RawDisplayHandle) {
+
+unsafe impl HasRawDisplayHandle for RenderContext {
+    fn raw_display_handle(&self) -> RawDisplayHandle {
+        raw_window_handle(self).1
+    }
+}
+
+fn raw_window_handle<C: Context>(context: &C) -> (RawWindowHandle, RawDisplayHandle) {
     #[cfg(target_family = "windows")]
     {
         let (hwnd, hinstance) = unsafe {
@@ -2963,6 +2969,7 @@ fn raw_window_handle<C: Context>(
         };
         let mut window_handle = XlibWindowHandle::empty();
         window_handle.window = window;
+        // TODO: get x11 visual id somehow and set it for window handle.
         let mut display_handle = XlibDisplayHandle::empty();
         display_handle.display = display;
         (
