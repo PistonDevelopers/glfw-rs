@@ -94,7 +94,9 @@ extern crate image;
 #[macro_use]
 extern crate objc;
 
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use raw_window_handle::{
+    HasRawDisplayHandle, HasRawWindowHandle, RawDisplayHandle, RawWindowHandle,
+};
 
 use std::error;
 use std::ffi::{CStr, CString};
@@ -771,7 +773,9 @@ pub fn init<UserData: 'static>(
     // https://www.glfw.org/docs/latest/group__init.html#ga317aac130a235ab08c6db0834907d85e
     if unsafe { ffi::glfwInit() } == ffi::TRUE {
         REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
-        Ok(Glfw {phantom: std::marker::PhantomData})
+        Ok(Glfw {
+            phantom: std::marker::PhantomData,
+        })
     } else {
         Err(InitError::Internal)
     }
@@ -1405,7 +1409,9 @@ impl Glfw {
 impl Clone for Glfw {
     fn clone(&self) -> Self {
         REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
-        Glfw {phantom: std::marker::PhantomData}
+        Glfw {
+            phantom: std::marker::PhantomData,
+        }
     }
 }
 
@@ -2909,59 +2915,82 @@ impl Context for RenderContext {
 
 unsafe impl HasRawWindowHandle for Window {
     fn raw_window_handle(&self) -> RawWindowHandle {
-        raw_window_handle(self)
+        raw_window_handle(self).0
     }
 }
 
 unsafe impl HasRawWindowHandle for RenderContext {
     fn raw_window_handle(&self) -> RawWindowHandle {
-        raw_window_handle(self)
+        raw_window_handle(self).0
     }
 }
-
-fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
+unsafe impl HasRawDisplayHandle for Window {
+    fn raw_display_handle(&self) -> raw_window_handle::RawDisplayHandle {
+        raw_window_handle(self).1
+    }
+}
+fn raw_window_handle<C: Context>(
+    context: &C,
+) -> (RawWindowHandle, raw_window_handle::RawDisplayHandle) {
     #[cfg(target_family = "windows")]
     {
-        use raw_window_handle::Win32Handle;
         let (hwnd, hinstance) = unsafe {
             let hwnd = ffi::glfwGetWin32Window(context.window_ptr());
             let hinstance = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null());
             (hwnd, hinstance as _)
         };
-        let mut handle = Win32Handle::empty();
-        handle.hwnd = hwnd;
-        handle.hinstance = hinstance;
-        RawWindowHandle::Win32(handle)
+        let mut window_handle = raw_window_handle::Win32WindowHandle::empty();
+        window_handle.hwnd = hwnd;
+        window_handle.hinstance = hinstance;
+        let display_handle = raw_window_handle::WindowsDisplayHandle::empty();
+
+        (
+            RawWindowHandle::Win32(window_handle),
+            RawDisplayHandle::Windows(display_handle),
+        )
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        not(feature = "wayland")
+    ))]
     {
-        use raw_window_handle::XlibHandle;
+        use raw_window_handle::{XlibDisplayHandle, XlibWindowHandle};
         let (window, display) = unsafe {
             let window = ffi::glfwGetX11Window(context.window_ptr());
             let display = ffi::glfwGetX11Display();
+
             (window as std::os::raw::c_ulong, display)
         };
-        let mut handle = XlibHandle::empty();
-        handle.window = window;
-        handle.display = display;
-        RawWindowHandle::Xlib(handle)
+        let mut window_handle = XlibWindowHandle::empty();
+        window_handle.window = window;
+        let mut display_handle = XlibDisplayHandle::empty();
+        display_handle.display = display;
+        (
+            RawWindowHandle::Xlib(window_handle),
+            raw_window_handle::RawDisplayHandle::Xlib(display_handle),
+        )
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        feature = "wayland"
+    ))]
     {
-        use raw_window_handle::WaylandHandle;
         let (window, display) = unsafe {
             let window = ffi::glfwGetWaylandWindow(context.window_ptr());
             let display = ffi::glfwGetWaylandDisplay();
             (window, display)
         };
-        let mut handle = WaylandHandle::empty();
-        handle.surface = window;
-        handle.display = display;
-        RawWindowHandle::Wayland(handle)
+        let mut window_handle = raw_window_handle::WaylandWindowHandle::empty();
+        window_handle.surface = window;
+        let mut display_handle = raw_window_handle::WaylandDisplayHandle::empty();
+        display_handle.display = display;
+        (
+            RawWindowHandle::Wayland(window_handle),
+            RawDisplayHandle::Wayland(display_handle),
+        )
     }
     #[cfg(target_os = "macos")]
     {
-        use raw_window_handle::AppKitHandle;
         let (ns_window, ns_view) = unsafe {
             let ns_window: *mut objc::runtime::Object =
                 ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
@@ -2972,10 +3001,13 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
                 ns_view as *mut std::ffi::c_void,
             )
         };
-        let mut handle = AppKitHandle::empty();
+        let mut handle = raw_window_handle::AppKitWindowHandle;
         handle.ns_window = ns_window;
         handle.ns_view = ns_view;
-        RawWindowHandle::AppKit(handle)
+        (
+            RawWindowHandle::AppKit(hanndle),
+            RawDisplayHandle::AppKit(raw_window_handle::AppKitDisplayHandle::empty()),
+        )
     }
 }
 
