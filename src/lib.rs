@@ -94,7 +94,7 @@ extern crate image;
 #[macro_use]
 extern crate objc;
 
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use raw_window_handle::{HasRawWindowHandle, RawWindowHandle, HasRawDisplayHandle, RawDisplayHandle};
 
 use std::error;
 use std::ffi::{CStr, CString};
@@ -2919,49 +2919,49 @@ unsafe impl HasRawWindowHandle for RenderContext {
     }
 }
 
+unsafe impl HasRawDisplayHandle for Window {
+    fn raw_display_handle(&self) -> RawDisplayHandle {
+        raw_display_handle()
+    }
+}
+
+unsafe impl HasRawDisplayHandle for RenderContext {
+    fn raw_display_handle(&self) -> RawDisplayHandle {
+        raw_display_handle()
+    }
+}
+
 fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
-        use raw_window_handle::Win32Handle;
+        use raw_window_handle::Win32WindowHandle;
         let (hwnd, hinstance) = unsafe {
             let hwnd = ffi::glfwGetWin32Window(context.window_ptr());
             let hinstance = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null());
             (hwnd, hinstance as _)
         };
-        let mut handle = Win32Handle::empty();
+        let mut handle = Win32WindowHandle::empty();
         handle.hwnd = hwnd;
         handle.hinstance = hinstance;
         RawWindowHandle::Win32(handle)
     }
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
     {
-        use raw_window_handle::XlibHandle;
-        let (window, display) = unsafe {
-            let window = ffi::glfwGetX11Window(context.window_ptr());
-            let display = ffi::glfwGetX11Display();
-            (window as std::os::raw::c_ulong, display)
-        };
-        let mut handle = XlibHandle::empty();
-        handle.window = window;
-        handle.display = display;
+        use raw_window_handle::XlibWindowHandle;
+        let mut handle = XlibWindowHandle::empty();
+        handle.window = unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
         RawWindowHandle::Xlib(handle)
     }
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
     {
-        use raw_window_handle::WaylandHandle;
-        let (window, display) = unsafe {
-            let window = ffi::glfwGetWaylandWindow(context.window_ptr());
-            let display = ffi::glfwGetWaylandDisplay();
-            (window, display)
-        };
-        let mut handle = WaylandHandle::empty();
-        handle.surface = window;
-        handle.display = display;
+        use raw_window_handle::WaylandWindowHandle;
+        let mut handle = WaylandWindowHandle::empty();
+        handle.surface = unsafe { ffi::glfwGetWaylandWindow(context.window_ptr()) };
         RawWindowHandle::Wayland(handle)
     }
     #[cfg(target_os = "macos")]
     {
-        use raw_window_handle::AppKitHandle;
+        use raw_window_handle::AppKitWindowHandle;
         let (ns_window, ns_view) = unsafe {
             let ns_window: *mut objc::runtime::Object =
                 ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
@@ -2972,10 +2972,37 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
                 ns_view as *mut std::ffi::c_void,
             )
         };
-        let mut handle = AppKitHandle::empty();
+        let mut handle = AppKitWindowHandle::empty();
         handle.ns_window = ns_window;
         handle.ns_view = ns_view;
         RawWindowHandle::AppKit(handle)
+    }
+}
+
+fn raw_display_handle() -> RawDisplayHandle {
+    #[cfg(target_family = "windows")]
+    {
+        use raw_window_handle::WindowsDisplayHandle;
+        RawDisplayHandle::Windows(WindowsDisplayHandle::empty())
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    {
+        use raw_window_handle::XlibDisplayHandle;
+        let mut handle = XLibDisplayHandle::empty();
+        handle.display = unsafe { ffi::glfwGetX11Display() };
+        RawDisplayHandle::Xlib(handle)
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    {
+        use raw_window_handle::WaylandDisplayHandle;
+        let mut handle = WaylandDisplayHandle::empty();
+        handle.display = unsafe { ffi::glfwGetWaylandDisplay() };
+        RawDisplayHandle::Wayland(handle)
+    }
+    #[cfg(target_os = "macos")]
+    {
+        use raw_window_handle::AppKitDisplayHandle;
+        RawDisplayHandle::AppKit(AppKitDisplayHandle::empty())
     }
 }
 

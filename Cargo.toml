@@ -7,12 +7,12 @@ name = "glfw"
 readme = "README.md"
 repository = "https://github.com/bjz/glfw-rs"
 version = "0.48.0"
-edition = "2018"
-rust-version = "1.40"
+edition = "2021"
+rust-version = "1.56"
 
 [dependencies]
 bitflags = "1.0.0"
-raw-window-handle = "0.4.2"
+raw-window-handle = "0.5.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc = "0.2"
