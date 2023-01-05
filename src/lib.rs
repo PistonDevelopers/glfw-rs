@@ -2988,7 +2988,7 @@ fn raw_display_handle() -> RawDisplayHandle {
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
     {
         use raw_window_handle::XlibDisplayHandle;
-        let mut handle = XLibDisplayHandle::empty();
+        let mut handle = XlibDisplayHandle::empty();
         handle.display = unsafe { ffi::glfwGetX11Display() };
         RawDisplayHandle::Xlib(handle)
     }
