@@ -22,10 +22,7 @@ use std::os::raw::{c_char, c_double, c_float, c_int, c_ulonglong};
 use std::os::raw::{c_uchar, c_uint, c_ushort, c_void};
 
 #[cfg(feature = "vulkan")]
-use vk_sys::{
-    AllocationCallbacks as VkAllocationCallbacks, Instance as VkInstance,
-    PhysicalDevice as VkPhysicalDevice, Result as VkResult, SurfaceKHR as VkSurfaceKHR,
-};
+use ash::vk;
 
 mod link;
 
@@ -658,20 +655,20 @@ extern "C" {
     #[cfg(feature = "vulkan")]
     pub fn glfwGetRequiredInstanceExtensions(count: *mut c_uint) -> *const *const c_char;
     #[cfg(feature = "vulkan")]
-    pub fn glfwGetInstanceProcAddress(instance: VkInstance, procname: *const c_char) -> GLFWvkproc;
+    pub fn glfwGetInstanceProcAddress(instance: vk::Instance, procname: *const c_char) -> GLFWvkproc;
     #[cfg(feature = "vulkan")]
     pub fn glfwGetPhysicalDevicePresentationSupport(
-        instance: VkInstance,
-        device: VkPhysicalDevice,
+        instance: vk::Instance,
+        device: vk::PhysicalDevice,
         queuefamily: c_uint,
     ) -> c_int;
     #[cfg(feature = "vulkan")]
     pub fn glfwCreateWindowSurface(
-        instance: VkInstance,
+        instance: vk::Instance,
         window: *mut GLFWwindow,
-        allocator: *const VkAllocationCallbacks,
-        surface: *mut VkSurfaceKHR,
-    ) -> VkResult;
+        allocator: *const vk::AllocationCallbacks,
+        surface: *mut vk::SurfaceKHR,
+    ) -> vk::Result;
 
     // native APIs
 
@@ -689,7 +686,7 @@ extern "C" {
     pub fn glfwGetX11Window(window: *mut GLFWwindow) -> *mut c_void;
     #[cfg(all(any(target_os = "linux", target_os = "freebsd"), not(feature = "wayland")))]
     pub fn glfwGetX11Display() -> *mut c_void;
-    
+
     #[cfg(any(target_os = "linux", target_os = "freebsd"))]
     pub fn glfwGetGLXContext(window: *mut GLFWwindow) -> *mut c_void;
 

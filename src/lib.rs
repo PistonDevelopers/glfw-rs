@@ -81,8 +81,6 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
-#[cfg(feature = "vulkan")]
-extern crate vk_sys;
 #[cfg(feature = "log")]
 #[macro_use]
 extern crate log;
@@ -112,10 +110,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 #[cfg(feature = "vulkan")]
-use vk_sys::{
-    self as vk, AllocationCallbacks as VkAllocationCallbacks, Instance as VkInstance,
-    PhysicalDevice as VkPhysicalDevice, Result as VkResult, SurfaceKHR as VkSurfaceKHR,
-};
+use ash::vk;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
 pub use self::MouseButton::Button1 as MouseButtonLeft;
@@ -1343,7 +1338,7 @@ impl Glfw {
     ///
     /// Wrapper for `glfwGetInstanceProcAddress`
     #[cfg(feature = "vulkan")]
-    pub fn get_instance_proc_address_raw(&self, instance: VkInstance, procname: &str) -> VkProc {
+    pub fn get_instance_proc_address_raw(&self, instance: vk::Instance, procname: &str) -> VkProc {
         with_c_str(procname, |procname| unsafe {
             ffi::glfwGetInstanceProcAddress(instance, procname)
         })
@@ -1356,8 +1351,8 @@ impl Glfw {
     #[cfg(feature = "vulkan")]
     pub fn get_physical_device_presentation_support_raw(
         &self,
-        instance: VkInstance,
-        device: VkPhysicalDevice,
+        instance: vk::Instance,
+        device: vk::PhysicalDevice,
         queue_family: u32,
     ) -> bool {
         vk::TRUE
@@ -1989,7 +1984,7 @@ impl Window {
     ///
     /// Wrapper for `glfwGetInstanceProcAddress`
     #[cfg(feature = "vulkan")]
-    pub fn get_instance_proc_address(&mut self, instance: VkInstance, procname: &str) -> VkProc {
+    pub fn get_instance_proc_address(&mut self, instance: vk::Instance, procname: &str) -> VkProc {
         self.glfw.get_instance_proc_address_raw(instance, procname)
     }
 
@@ -2000,8 +1995,8 @@ impl Window {
     #[cfg(feature = "vulkan")]
     pub fn get_physical_device_presentation_support(
         &self,
-        instance: VkInstance,
-        device: VkPhysicalDevice,
+        instance: vk::Instance,
+        device: vk::PhysicalDevice,
         queue_family: u32,
     ) -> bool {
         self.glfw
@@ -2012,10 +2007,10 @@ impl Window {
     #[cfg(feature = "vulkan")]
     pub fn create_window_surface(
         &self,
-        instance: VkInstance,
-        allocator: *const VkAllocationCallbacks,
-        surface: *mut VkSurfaceKHR,
-    ) -> VkResult {
+        instance: vk::Instance,
+        allocator: *const vk::AllocationCallbacks,
+        surface: *mut vk::SurfaceKHR,
+    ) -> vk::Result {
         unsafe { ffi::glfwCreateWindowSurface(instance, self.ptr, allocator, surface) }
     }
     /// Wrapper for `glfwCreateWindow`.
