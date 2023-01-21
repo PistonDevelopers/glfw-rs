@@ -19,28 +19,21 @@ fn main() {
 }
 
 #[cfg(feature = "vulkan")]
-use vk_sys::{
-    self as vk, EntryPoints, Instance as VkInstance, InstanceCreateInfo, InstancePointers,
-    Result as VkResult,
-};
+use ash::vk;
 
 #[cfg(feature = "vulkan")]
-use std::{mem, os::raw::c_void, ptr};
-
-#[cfg(feature = "vulkan")]
-use glfw::Context;
+use std::ptr;
 
 #[cfg(feature = "vulkan")]
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
+    glfw.window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));
 
-    let (mut window, _) = glfw
+    let (window, _) = glfw
         .create_window(640, 480, "Defaults", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
-
-    window.make_current();
 
     assert!(glfw.vulkan_supported());
 
@@ -53,55 +46,39 @@ fn main() {
 
     //Load up all the entry points using 0 as the VkInstance,
     //since you can't have an instance before you get vkCreateInstance...
-    let mut entry_points: EntryPoints = EntryPoints::load(|func| {
-        window.get_instance_proc_address(0, func.to_str().unwrap()) as *const c_void
-    });
+    let entry = unsafe { ash::Entry::load().expect("Failed to load Vulkan library.") };
 
-    let instance: VkInstance = unsafe { create_instance(&mut entry_points) };
+    let instance: ash::Instance = unsafe { create_instance(&entry, &required_extensions) };
 
-    let mut instance_ptrs: InstancePointers = InstancePointers::load(|func| {
-        window.get_instance_proc_address(instance, func.to_str().unwrap()) as *const c_void
-    });
+    let mut surface: std::mem::MaybeUninit<vk::SurfaceKHR> = std::mem::MaybeUninit::uninit();
 
-    //Load other pointers and do other Vulkan stuff here
-
-    unsafe {
-        destroy_instance(instance, &mut instance_ptrs);
+    if window.create_window_surface(instance.handle(), ptr::null(), surface.as_mut_ptr())
+        != vk::Result::SUCCESS
+    {
+        panic!("Failed to create GLFW window surface.");
     }
 
-    println!("Vulkan instance successfully created and destroyed.");
+    // Use other vulkan stuff here.
+
+    println!("Vulkan instance successfully created. Destruction is automatic with Drop.");
 }
 
 #[cfg(feature = "vulkan")]
-unsafe fn create_instance(entry_points: &mut EntryPoints) -> VkInstance {
-    let mut instance: mem::MaybeUninit<VkInstance> = mem::MaybeUninit::uninit();
-
+unsafe fn create_instance(entry: &ash::Entry, extensions: &Vec<String>) -> ash::Instance {
+    // Turn the list of extensions into a format that can be passed in InstanceCreateInfo
+    let extensions: Vec<std::ffi::CString> = extensions
+        .iter()
+        .map(|ext| std::ffi::CString::new(ext.clone()).expect("Failed to convert extension name"))
+        .collect();
+    let extension_pointers: Vec<*const i8> = extensions.iter().map(|ext| ext.as_ptr()).collect();
     //This is literally the bare minimum required to create a blank instance
     //You'll want to fill in this with real data yourself
-    let info: InstanceCreateInfo = InstanceCreateInfo {
-        sType: vk::STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-        pNext: ptr::null(),
-        flags: 0,
-        pApplicationInfo: ptr::null(),
-        enabledLayerCount: 0,
-        ppEnabledLayerNames: ptr::null(),
-        //These two should use the extensions returned by window.get_required_instance_extensions
-        enabledExtensionCount: 0,
-        ppEnabledExtensionNames: ptr::null(),
-    };
+    let info: vk::InstanceCreateInfoBuilder =
+        vk::InstanceCreateInfo::builder().enabled_extension_names(&extension_pointers);
 
-    let res: VkResult = entry_points.CreateInstance(
-        &info as *const InstanceCreateInfo,
-        ptr::null(),
-        instance.as_mut_ptr(),
-    );
-
-    assert_eq!(res, vk::SUCCESS);
-
-    instance.assume_init()
-}
-
-#[cfg(feature = "vulkan")]
-unsafe fn destroy_instance(instance: VkInstance, instance_ptrs: &mut InstancePointers) {
-    instance_ptrs.DestroyInstance(instance, ptr::null());
+    unsafe {
+        entry
+            .create_instance(&info, None)
+            .expect("Unable to create instance.")
+    }
 }
