@@ -102,7 +102,9 @@ use std::mem;
 #[cfg(feature = "vulkan")]
 use std::os::raw::c_uint;
 use std::os::raw::{c_char, c_double, c_float, c_int};
-use std::os::raw::{c_uchar, c_ushort, c_void};
+use std::os::raw::{c_uchar, c_ushort};
+#[cfg(not(target_os = "emscripten"))]
+use std::os::raw::c_void;
 use std::path::PathBuf;
 use std::ptr;
 use std::slice;
@@ -2972,6 +2974,15 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         handle.ns_view = ns_view;
         RawWindowHandle::AppKit(handle)
     }
+    #[cfg(target_os = "emscripten")]
+    {
+        let _ = context; // to avoid unused lint
+        let mut wh = raw_window_handle::WebWindowHandle::empty();
+         // glfw on emscripten only supports a single window. so, just hardcode it
+         // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their canvas element
+        wh.id = 1;
+        RawWindowHandle::Web(wh)
+    }
 }
 
 fn raw_display_handle() -> RawDisplayHandle {
@@ -2998,6 +3009,10 @@ fn raw_display_handle() -> RawDisplayHandle {
     {
         use raw_window_handle::AppKitDisplayHandle;
         RawDisplayHandle::AppKit(AppKitDisplayHandle::empty())
+    }
+    #[cfg(target_os = "emscripten")]
+    {
+        RawDisplayHandle::Web(raw_window_handle::WebDisplayHandle::empty())
     }
 }
 
