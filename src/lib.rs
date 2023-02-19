@@ -934,12 +934,15 @@ impl Glfw {
         }
 
         #[inline(always)]
+        #[allow(unused)]
         unsafe fn string_hint(hint: c_int, value: Option<String>) {
             let value = if let Some(value) = &value {
                 value.as_str()
             } else {
                 ""
             };
+            // glfwWindowHintString is not provided by emscripten. maybe this should be fixed in emscripten?
+            #[cfg(not(target_arch = "wasm32"))]
             with_c_str(value, |value| ffi::glfwWindowHintString(hint, value))
         }
 
