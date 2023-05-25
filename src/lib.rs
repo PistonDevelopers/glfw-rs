@@ -1227,7 +1227,7 @@ impl Glfw {
     /// If no windows exist, this function returns immediately.
     ///
     /// Wrapper for `glfwPostEmptyEvent`.
-    pub fn post_empty_event(&mut self) {
+    pub fn post_empty_event() {
         unsafe {
             ffi::glfwPostEmptyEvent();
         }
