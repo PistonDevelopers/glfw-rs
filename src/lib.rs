@@ -1016,6 +1016,9 @@ impl Glfw {
             WindowHint::Focused(is_focused) => unsafe {
                 ffi::glfwWindowHint(ffi::FOCUSED, is_focused as c_int)
             },
+            WindowHint::Maximized(is_maximized) => unsafe {
+                ffi::glfwWindowHint(ffi::MAXIMIZED, is_maximized as c_int)
+            },
             WindowHint::ContextNoError(is_no_error) => unsafe {
                 ffi::glfwWindowHint(ffi::CONTEXT_NO_ERROR, is_no_error as c_int)
             },
@@ -1748,6 +1751,10 @@ pub enum WindowHint {
     ///
     /// This hint is ignored for full screen and initially hidden windows.
     Focused(bool),
+    /// Specifies whether the windowed mode window will be maximized when created.
+    ///
+    /// This hint is ignored for full screen windows.
+    Maximized(bool),
     /// Specifies whether the OpenGL or OpenGL ES contexts do not emit errors,
     /// allowing for better performance in some situations.
     ContextNoError(bool),
