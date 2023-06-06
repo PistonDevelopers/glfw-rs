@@ -81,6 +81,37 @@
 
 // TODO: Document differences between GLFW and glfw-rs
 
+macro_rules! new_callback {
+    ($callback_func_name:ident ($($rust_args:ty),*), $doc:literal, $glfw_func_name:ident ($($glfw_arg_names:ident: $glfw_args:ty),*), $callback_name:ident ($($sanitize_args:expr),*), $callback_remove_func_name:ident) => {
+        #[doc = $doc]
+        #[allow(unused_unsafe)]
+        pub fn $callback_func_name<T>(&mut self, callback: T)
+        where T: Fn($($rust_args),*) + 'static {
+            #[allow(unused)]
+            use core::ffi::*;
+
+            extern "C" fn actual_callback(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
+                unsafe {
+                    (WindowCallbacks::get_callbacks(window).$callback_name)($($sanitize_args),*);
+                }
+            }
+
+            unsafe {
+                WindowCallbacks::get_callbacks(self.ptr).$callback_name = Box::new(callback);
+                ffi::$glfw_func_name(self.ptr, Some(actual_callback));
+            }
+        }
+
+        #[doc = $doc]
+        #[allow(unused_unsafe)]
+        pub fn $callback_remove_func_name(&mut self) {
+            unsafe {
+                ffi::$glfw_func_name(self.ptr, None);
+            }
+        }
+    }
+}
+
 #[cfg(feature = "log")]
 #[macro_use]
 extern crate log;
@@ -113,6 +144,7 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 
 #[cfg(feature = "vulkan")]
 use ash::vk;
+use crate::ffi::GLFWwindow;
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
 pub use self::MouseButton::Button1 as MouseButtonLeft;
@@ -1115,20 +1147,20 @@ impl Glfw {
         } else {
             let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
-            unsafe {
-                ffi::glfwSetWindowUserPointer(ptr, mem::transmute(Box::new(sender)));
-            }
-            Some((
-                Window {
+            let window = Window {
                     ptr,
                     glfw: self.clone(),
                     is_shared: share.is_some(),
                     drop_sender: Some(drop_sender),
                     drop_receiver,
                     current_cursor: None,
-                },
-                receiver,
-            ))
+            };
+
+            unsafe {
+                ffi::glfwSetWindowUserPointer(ptr, mem::transmute(Box::new(WindowCallbacks::new(sender))));
+            }
+
+            Some((window, receiver))
         }
     }
 
@@ -1416,6 +1448,60 @@ impl Drop for Glfw {
             unsafe {
                 ffi::glfwTerminate();
             }
+        }
+    }
+}
+
+#[allow(dead_code)]
+struct WindowCallbacks {
+    sender: Sender<(f64, WindowEvent)>,
+    pos_callback: Box<dyn Fn(i32, i32)>,
+    size_callback: Box<dyn Fn(i32, i32)>,
+    close_callback: Box<dyn Fn()>,
+    refresh_callback: Box<dyn Fn()>,
+    focus_callback: Box<dyn Fn(bool)>,
+    iconify_callback: Box<dyn Fn(bool)>,
+    framebuffer_size_callback: Box<dyn Fn(i32, i32)>,
+    key_callback: Box<dyn Fn(Key, Scancode, Action, Modifiers)>,
+    char_callback: Box<dyn Fn(char)>,
+    char_mods_callback: Box<dyn Fn(char, Modifiers)>,
+    mouse_button_callback: Box<dyn Fn(MouseButton, Action, Modifiers)>,
+    cursor_pos_callback: Box<dyn Fn(f64, f64)>,
+    cursor_enter_callback: Box<dyn Fn(bool)>,
+    scroll_callback: Box<dyn Fn(f64, f64)>,
+    drag_and_drop_callback: Box<dyn Fn(Vec<PathBuf>)>,
+    maximize_callback: Box<dyn Fn(bool)>,
+    content_scale_callback: Box<dyn Fn(f32, f32)>
+}
+
+impl WindowCallbacks {
+
+    unsafe fn new(receiver: Sender<(f64, WindowEvent)>) -> Self {
+        Self {
+            sender: receiver,
+            pos_callback: Box::new(|_,_| {}),
+            size_callback: Box::new(|_,_| {}),
+            close_callback: Box::new(|| {}),
+            refresh_callback: Box::new(|| {}),
+            focus_callback: Box::new(|_| {}),
+            iconify_callback: Box::new(|_| {}),
+            framebuffer_size_callback: Box::new(|_,_| {}),
+            key_callback: Box::new(|_,_,_,_| {}),
+            char_callback: Box::new(|_| {}),
+            char_mods_callback: Box::new(|_,_| {}),
+            mouse_button_callback: Box::new(|_,_,_| {}),
+            cursor_pos_callback: Box::new(|_,_| {}),
+            cursor_enter_callback: Box::new(|_| {}),
+            scroll_callback: Box::new(|_,_| {}),
+            drag_and_drop_callback: Box::new(|_| {}),
+            maximize_callback: Box::new(|_| {}),
+            content_scale_callback: Box::new(|_,_| {})
+        }
+    }
+
+    fn get_callbacks<'a>(window: *mut GLFWwindow) -> &'a mut WindowCallbacks {
+        unsafe {
+            &mut *(ffi::glfwGetWindowUserPointer(window) as *mut WindowCallbacks)
         }
     }
 }
@@ -2375,15 +2461,117 @@ impl Window {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::HOVERED) == ffi::TRUE }
     }
 
-    /// Wrapper for `glfwSetWindowPosCallback`.
-    pub fn set_pos_polling(&mut self, should_poll: bool) {
-        set_window_callback!(
-            self,
-            should_poll,
-            glfwSetWindowPosCallback,
-            window_pos_callback
-        );
-    }
+    new_callback!(set_pos_callback(i32, i32),
+        "Wrapper for `glfwSetWindowPosCallback`.",
+        glfwSetWindowPosCallback(x: c_int, y: c_int),
+        pos_callback(x as i32, y as i32),
+        unset_pos_callback);
+
+    new_callback!(set_size_callback(i32, i32),
+        "Wrapper for `glfwSetWindowSizeCallback`.",
+        glfwSetWindowSizeCallback(width: c_int, height: c_int),
+        size_callback(width as i32, height as i32),
+        unset_size_callback);
+
+    new_callback!(set_close_callback(),
+        "Wrapper for `glfwSetWindowCloseCallback`.",
+        glfwSetWindowCloseCallback(),
+        close_callback(),
+        unset_close_callback);
+
+    new_callback!(set_refresh_callback(),
+        "Wrapper for `glfwSetWindowRefreshCallback`.",
+        glfwSetWindowRefreshCallback(),
+        refresh_callback(),
+        unset_refresh_callback);
+
+    new_callback!(set_focus_callback(bool),
+        "Wrapper for `glfwSetWindowFocusCallback`.",
+        glfwSetWindowFocusCallback(focused: c_int),
+        focus_callback(focused == ffi::TRUE),
+        unset_focus_callback);
+
+    new_callback!(set_iconify_callback(bool),
+        "Wrapper for `glfwSetWindowIconifyCallback`.",
+        glfwSetWindowIconifyCallback(iconified: c_int),
+        iconify_callback(iconified == ffi::TRUE),
+        unset_iconify_callback);
+
+    new_callback!(set_framebuffer_size_callback(i32, i32),
+        "Wrapper for `glfwSetFramebufferSizeCallback`.",
+        glfwSetFramebufferSizeCallback(width: c_int, height: c_int),
+        framebuffer_size_callback(width as i32, height as i32),
+        unset_framebuffer_size_callback);
+
+    new_callback!(set_key_callback(Key, Scancode, Action, Modifiers),
+        "Wrapper for `glfwSetKeyCallback`.",
+        glfwSetKeyCallback(key: c_int, scancode: c_int, action: c_int, mods: c_int),
+        key_callback(mem::transmute(key), scancode, mem::transmute(action), Modifiers::from_bits(mods).unwrap()),
+        unset_key_callback);
+
+    new_callback!(set_char_callback(char),
+        "Wrapper for `glfwSetCharCallback`.",
+        glfwSetCharCallback(character: c_uint),
+        char_callback(::std::char::from_u32(character).unwrap()),
+        unset_char_callback);
+
+    new_callback!(set_char_mods_callback(char, Modifiers),
+        "Wrapper for `glfwSetCharModsCallback`.",
+        glfwSetCharModsCallback(character: c_uint, mods: c_int),
+        char_mods_callback(::std::char::from_u32(character).unwrap(), Modifiers::from_bits(mods).unwrap()),
+        unset_char_mods_callback);
+
+    new_callback!(set_mouse_button_callback(MouseButton, Action, Modifiers),
+        "Wrapper for `glfwSetMouseButtonCallback`.",
+        glfwSetMouseButtonCallback(button: c_int, action: c_int, mods: c_int),
+        mouse_button_callback(mem::transmute(button), mem::transmute(action), Modifiers::from_bits(mods).unwrap()),
+        unset_mouse_button_callback);
+
+    new_callback!(set_cursor_pos_callback(f64, f64),
+        "Wrapper for `glfwSetCursorPosCallback`.",
+        glfwSetCursorPosCallback(x: c_double, y: c_double),
+        cursor_pos_callback(x as f64, y as f64),
+        unset_cursor_pos_callback);
+
+    new_callback!(set_cursor_enter_callback(bool),
+        "Wrapper for `glfwSetCursorEnterCallback`.",
+        glfwSetCursorEnterCallback(entered: c_int),
+        cursor_enter_callback(entered == ffi::TRUE),
+        unset_cursor_enter_callback);
+
+    new_callback!(set_scroll_callback(f64, f64),
+        "Wrapper for `glfwSetScrollCallback`.",
+        glfwSetScrollCallback(x: c_double, y: c_double),
+        scroll_callback(x as f64, y as f64),
+        unset_scroll_callback);
+
+    new_callback!(set_drag_and_drop_callback(Vec<PathBuf>),
+        "Wrapper for `glfwSetDropCallback`.",
+        glfwSetDropCallback(num_paths: c_int, paths: *mut *const c_char),
+        drag_and_drop_callback({
+            slice::from_raw_parts(paths, num_paths as usize)
+            .iter()
+            .map(|path| PathBuf::from(std::str::from_utf8({
+                CStr::from_ptr(*path)
+                    .to_bytes()
+            })
+            .unwrap()
+            .to_string()))
+            .collect()
+        }),
+        unset_drag_and_drop_callback);
+
+    new_callback!(set_maximize_callback(bool),
+        "Wrapper for `glfwSetWindowMaximizeCallback`.",
+        glfwSetWindowMaximizeCallback(maximized: c_int),
+        maximize_callback(maximized == ffi::TRUE),
+        unset_maximize_callback);
+
+    new_callback!(set_content_scale_callback(f32, f32),
+        "Wrapper for `glfwSetWindowContentScaleCallback`.",
+        glfwSetWindowContentScaleCallback(xscale: c_float, yscale: c_float),
+        content_scale_callback(xscale as f32, yscale as f32),
+        unset_content_scale_callback);
 
     /// Starts or stops polling for all available events
     pub fn set_all_polling(&mut self, should_poll: bool) {
@@ -2404,6 +2592,16 @@ impl Window {
         self.set_drag_and_drop_polling(should_poll);
         self.set_maximize_polling(should_poll);
         self.set_content_scale_polling(should_poll);
+    }
+
+    /// Wrapper for `glfwSetWindowPosCallback`.
+    pub fn set_pos_polling(&mut self, should_poll: bool) {
+        set_window_callback!(
+            self,
+            should_poll,
+            glfwSetWindowPosCallback,
+            window_pos_callback
+        );
     }
 
     /// Wrapper for `glfwSetWindowSizeCallback`.
@@ -2819,7 +3017,7 @@ impl Drop for Window {
 
         if !self.ptr.is_null() {
             unsafe {
-                let _: Box<Sender<(f64, WindowEvent)>> =
+                let _: Box<WindowCallbacks> =
                     mem::transmute(ffi::glfwGetWindowUserPointer(self.ptr));
             }
         }

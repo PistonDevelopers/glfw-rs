@@ -121,7 +121,7 @@ pub mod joystick {
 }
 
 unsafe fn get_sender(window: &*mut ffi::GLFWwindow) -> &Sender<(f64, WindowEvent)> {
-    &*(ffi::glfwGetWindowUserPointer(*window) as *const std::sync::mpsc::Sender<(f64, WindowEvent)>)
+    &(*(ffi::glfwGetWindowUserPointer(*window) as *const WindowCallbacks)).sender
 }
 
 pub mod unbuffered {
