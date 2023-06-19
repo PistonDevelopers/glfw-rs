@@ -82,7 +82,17 @@
 // TODO: Document differences between GLFW and glfw-rs
 
 macro_rules! make_user_callback_functions {
-    ($callback_func_name:ident => $poll_func_name:ident ($($rust_args:ty),*), $doc:literal, $glfw_func_name:ident, $callback_name:ident => $poll_name:ident, $callback_remove_func_name:ident, [$secret_shared_func:ident]) => {
+    (
+        doc -> $doc:literal,
+        set -> $callback_func_name:ident,
+        unset -> $callback_remove_func_name:ident,
+        poll -> $poll_func_name:ident,
+        callback_field -> $callback_name:ident,
+        poll_field -> $poll_name:ident,
+        glfw -> $glfw_func_name:ident,
+        args -> ($($rust_args:ty),*),
+        secret -> $secret_shared_func:ident
+    ) => {
         #[doc = $doc]
         pub fn $callback_func_name<T>(&mut self, callback: T)
         where T: Fn($($rust_args),*) + 'static {
@@ -124,7 +134,18 @@ macro_rules! make_user_callback_functions {
 }
 
 macro_rules! new_callback {
-    ($callback_func_name:ident => $poll_func_name:ident ($($rust_args:ty),*), $doc:literal, $glfw_func_name:ident ($($glfw_arg_names:ident: $glfw_args:ty),*), $callback_name:ident => $poll_name:ident => $enum_element:ident ($($sanitize_args:expr),*), $callback_remove_func_name:ident, [$secret_shared_func:ident]) => {
+    (
+        doc -> $doc:literal,
+        set -> $callback_func_name:ident,
+        unset -> $callback_remove_func_name:ident,
+        poll -> $poll_func_name:ident,
+        callback_field -> $callback_name:ident,
+        poll_field -> $poll_name:ident,
+        window_event -> $enum_element:ident ($($rust_args:ty),+),
+        glfw -> $glfw_func_name:ident ($($glfw_arg_names:ident: $glfw_args:ty),*),
+        convert_args -> ($($sanitize_args:expr),*),
+        secret -> $secret_shared_func:ident
+    ) => {
 
         #[allow(unused_unsafe)]
         extern "C" fn $secret_shared_func(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
@@ -142,10 +163,30 @@ macro_rules! new_callback {
             }
         }
 
-        make_user_callback_functions!($callback_func_name => $poll_func_name ($($rust_args),*), $doc, $glfw_func_name, $callback_name => $poll_name, $callback_remove_func_name, [$secret_shared_func]);
-
+        make_user_callback_functions!(
+            doc -> $doc,
+            set -> $callback_func_name,
+            unset -> $callback_remove_func_name,
+            poll -> $poll_func_name,
+            callback_field -> $callback_name,
+            poll_field -> $poll_name,
+            glfw -> $glfw_func_name,
+            args -> ($($rust_args),*),
+            secret -> $secret_shared_func
+        );
     };
-    ($callback_func_name:ident => $poll_func_name:ident ($($rust_args:ty),*), $doc:literal, $glfw_func_name:ident ($($glfw_arg_names:ident: $glfw_args:ty),*), $callback_name:ident => $poll_name:ident => $enum_element:ident, $callback_remove_func_name:ident, [$secret_shared_func:ident]) => {
+    (
+        doc -> $doc:literal,
+        set -> $callback_func_name:ident,
+        unset -> $callback_remove_func_name:ident,
+        poll -> $poll_func_name:ident,
+        callback_field -> $callback_name:ident,
+        poll_field -> $poll_name:ident,
+        window_event -> $enum_element:ident,
+        glfw -> $glfw_func_name:ident ($($glfw_arg_names:ident: $glfw_args:ty),*),
+        convert_args -> ($($sanitize_args:expr),*),
+        secret -> $secret_shared_func:ident
+    ) => {
 
         #[allow(unused_unsafe)]
         extern "C" fn $secret_shared_func(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
@@ -163,8 +204,17 @@ macro_rules! new_callback {
             }
         }
 
-        make_user_callback_functions!($callback_func_name => $poll_func_name ($($rust_args),*), $doc, $glfw_func_name, $callback_name => $poll_name, $callback_remove_func_name, [$secret_shared_func]);
-
+        make_user_callback_functions!(
+            doc -> $doc,
+            set -> $callback_func_name,
+            unset -> $callback_remove_func_name,
+            poll -> $poll_func_name,
+            callback_field -> $callback_name,
+            poll_field -> $poll_name,
+            glfw -> $glfw_func_name,
+            args -> (),
+            secret -> $secret_shared_func
+        );
     }
 }
 
@@ -2538,108 +2588,209 @@ impl Window {
         unsafe { ffi::glfwGetWindowAttrib(self.ptr, ffi::HOVERED) == ffi::TRUE }
     }
 
-    new_callback!(set_pos_callback => set_pos_polling(i32, i32),
-        "Wrapper for `glfwSetWindowPosCallback`.",
-        glfwSetWindowPosCallback(x: c_int, y: c_int),
-        pos_callback => pos_polling => Pos(x as i32, y as i32),
-        unset_pos_callback,
-        [__pos_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowPosCallback`.",
+        set -> set_pos_callback,
+        unset -> unset_pos_callback,
+        poll -> set_pos_polling,
+        callback_field -> pos_callback,
+        poll_field -> pos_polling,
+        window_event -> Pos(i32, i32),
+        glfw -> glfwSetWindowPosCallback(x: c_int, y: c_int),
+        convert_args -> (x as i32, y as i32),
+        secret -> _pos_callback
+    );
 
-    new_callback!(set_size_callback => set_size_polling(i32, i32),
-        "Wrapper for `glfwSetWindowSizeCallback`.",
-        glfwSetWindowSizeCallback(width: c_int, height: c_int),
-        size_callback => size_polling => Size(width as i32, height as i32),
-        unset_size_callback,
-        [__size_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowSizeCallback`.",
+        set -> set_size_callback,
+        unset -> unset_size_callback,
+        poll -> set_size_polling,
+        callback_field -> size_callback,
+        poll_field -> size_polling,
+        window_event -> Size(i32, i32),
+        glfw -> glfwSetWindowSizeCallback(width: c_int, height: c_int),
+        convert_args -> (width as i32, height as i32),
+        secret -> _size_callback
+    );
 
-    new_callback!(set_close_callback => set_close_polling(),
-        "Wrapper for `glfwSetWindowCloseCallback`.",
-        glfwSetWindowCloseCallback(),
-        close_callback => close_polling => Close,
-        unset_close_callback,
-        [__close_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowCloseCallback`.",
+        set -> set_close_callback,
+        unset -> unset_close_callback,
+        poll -> set_close_polling,
+        callback_field -> close_callback,
+        poll_field -> close_polling,
+        window_event -> Close,
+        glfw -> glfwSetWindowCloseCallback(),
+        convert_args -> (),
+        secret -> _close_callback
+    );
 
-    new_callback!(set_refresh_callback => set_refresh_polling(),
-        "Wrapper for `glfwSetWindowRefreshCallback`.",
-        glfwSetWindowRefreshCallback(),
-        refresh_callback => refresh_polling => Refresh,
-        unset_refresh_callback,
-        [__refresh_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowRefreshCallback`.",
+        set -> set_refresh_callback,
+        unset -> unset_refresh_callback,
+        poll -> set_refresh_polling,
+        callback_field -> refresh_callback,
+        poll_field -> refresh_polling,
+        window_event -> Refresh,
+        glfw -> glfwSetWindowRefreshCallback(),
+        convert_args -> (),
+        secret -> _refresh_callback
+    );
 
-    new_callback!(set_focus_callback => set_focus_polling(bool),
-        "Wrapper for `glfwSetWindowFocusCallback`.",
-        glfwSetWindowFocusCallback(focused: c_int),
-        focus_callback => focus_polling => Focus(focused == ffi::TRUE),
-        unset_focus_callback,
-        [__focus_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowFocusCallback`.",
+        set -> set_focus_callback,
+        unset -> unset_focus_callback,
+        poll -> set_focus_polling,
+        callback_field -> focus_callback,
+        poll_field -> focus_polling,
+        window_event -> Focus(bool),
+        glfw -> glfwSetWindowFocusCallback(focused: c_int),
+        convert_args -> (focused == ffi::TRUE),
+        secret -> _focus_callback
+    );
 
-    new_callback!(set_iconify_callback => set_iconify_polling(bool),
-        "Wrapper for `glfwSetWindowIconifyCallback`.",
-        glfwSetWindowIconifyCallback(iconified: c_int),
-        iconify_callback => iconify_polling => Iconify(iconified == ffi::TRUE),
-        unset_iconify_callback,
-        [__iconify_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowIconifyCallback`.",
+        set -> set_iconify_callback,
+        unset -> unset_iconify_callback,
+        poll -> set_iconify_polling,
+        callback_field -> iconify_callback,
+        poll_field -> iconify_polling,
+        window_event -> Iconify(bool),
+        glfw -> glfwSetWindowIconifyCallback(iconified: c_int),
+        convert_args -> (iconified == ffi::TRUE),
+        secret -> _iconify_callback
+    );
 
-    new_callback!(set_framebuffer_size_callback => set_framebuffer_size_polling(i32, i32),
-        "Wrapper for `glfwSetFramebufferSizeCallback`.",
-        glfwSetFramebufferSizeCallback(width: c_int, height: c_int),
-        framebuffer_size_callback => framebuffer_size_polling => FramebufferSize(width as i32, height as i32),
-        unset_framebuffer_size_callback,
-        [__framebuffer_size_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetFramebufferSizeCallback`.",
+        set -> set_framebuffer_size_callback,
+        unset -> unset_framebuffer_size_callback,
+        poll -> set_framebuffer_size_polling,
+        callback_field -> framebuffer_size_callback,
+        poll_field -> framebuffer_size_polling,
+        window_event -> FramebufferSize(i32, i32),
+        glfw -> glfwSetFramebufferSizeCallback(width: c_int, height: c_int),
+        convert_args -> (width as i32, height as i32),
+        secret -> _framebuffer_size_callback
+    );
 
-    new_callback!(set_key_callback => set_key_polling(Key, Scancode, Action, Modifiers),
-        "Wrapper for `glfwSetKeyCallback`.",
-        glfwSetKeyCallback(key: c_int, scancode: c_int, action: c_int, mods: c_int),
-        key_callback => key_polling => Key(mem::transmute(key), scancode, mem::transmute(action), Modifiers::from_bits(mods).unwrap()),
-        unset_key_callback,
-        [__key_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetKeyCallback`.",
+        set -> set_key_callback,
+        unset -> unset_key_callback,
+        poll -> set_key_polling,
+        callback_field -> key_callback,
+        poll_field -> key_polling,
+        window_event -> Key(Key, Scancode, Action, Modifiers),
+        glfw -> glfwSetKeyCallback(key: c_int, scancode: c_int, action: c_int, mods: c_int),
+        convert_args -> (
+            mem::transmute(key),
+            scancode, mem::transmute(action),
+            Modifiers::from_bits(mods).unwrap()
+        ),
+        secret -> _key_callback
+    );
 
-    new_callback!(set_char_callback => set_char_polling(char),
-        "Wrapper for `glfwSetCharCallback`.",
-        glfwSetCharCallback(character: c_uint),
-        char_callback => char_polling => Char(::std::char::from_u32(character).unwrap()),
-        unset_char_callback,
-        [__char_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetCharCallback`.",
+        set -> set_char_callback,
+        unset -> unset_char_callback,
+        poll -> set_char_polling,
+        callback_field -> char_callback,
+        poll_field -> char_polling,
+        window_event -> Char(char),
+        glfw -> glfwSetCharCallback(character: c_uint),
+        convert_args -> (::std::char::from_u32(character).unwrap()),
+        secret -> _char_callback
+    );
 
-    new_callback!(set_char_mods_callback => set_char_mods_polling(char, Modifiers),
-        "Wrapper for `glfwSetCharModsCallback`.",
-        glfwSetCharModsCallback(character: c_uint, mods: c_int),
-        char_mods_callback => char_mods_polling => CharModifiers(::std::char::from_u32(character).unwrap(), Modifiers::from_bits(mods).unwrap()),
-        unset_char_mods_callback,
-        [__char_mods_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetCharModsCallback`.",
+        set -> set_char_mods_callback,
+        unset -> unset_char_mods_callback,
+        poll -> set_char_mods_polling,
+        callback_field -> char_mods_callback,
+        poll_field -> char_mods_polling,
+        window_event -> CharModifiers(char, Modifiers),
+        glfw -> glfwSetCharModsCallback(character: c_uint, mods: c_int),
+        convert_args -> (
+            ::std::char::from_u32(character).unwrap(),
+            Modifiers::from_bits(mods).unwrap()
+        ),
+        secret -> _char_mods_callback
+    );
 
-    new_callback!(set_mouse_button_callback => set_mouse_button_polling(MouseButton, Action, Modifiers),
-        "Wrapper for `glfwSetMouseButtonCallback`.",
-        glfwSetMouseButtonCallback(button: c_int, action: c_int, mods: c_int),
-        mouse_button_callback => mouse_button_polling => MouseButton(mem::transmute(button), mem::transmute(action), Modifiers::from_bits(mods).unwrap()),
-        unset_mouse_button_callback,
-        [__mouse_button_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetMouseButtonCallback`.",
+        set -> set_mouse_button_callback,
+        unset -> unset_mouse_button_callback,
+        poll -> set_mouse_button_polling,
+        callback_field -> mouse_button_callback,
+        poll_field -> mouse_button_polling,
+        window_event -> MouseButton(MouseButton, Action, Modifiers),
+        glfw -> glfwSetMouseButtonCallback(button: c_int, action: c_int, mods: c_int),
+        convert_args -> (
+            mem::transmute(button),
+            mem::transmute(action),
+            Modifiers::from_bits(mods).unwrap()
+        ),
+        secret -> _mouse_button_callback
+    );
 
-    new_callback!(set_cursor_pos_callback => set_cursor_pos_polling(f64, f64),
-        "Wrapper for `glfwSetCursorPosCallback`.",
-        glfwSetCursorPosCallback(x: c_double, y: c_double),
-        cursor_pos_callback => cursor_pos_polling => CursorPos(x as f64, y as f64),
-        unset_cursor_pos_callback,
-        [__cursor_pos_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetCursorPosCallback`.",
+        set -> set_cursor_pos_callback,
+        unset -> unset_cursor_pos_callback,
+        poll -> set_cursor_pos_polling,
+        callback_field -> cursor_pos_callback,
+        poll_field -> cursor_pos_polling,
+        window_event -> CursorPos(f64, f64),
+        glfw -> glfwSetCursorPosCallback(x: c_double, y: c_double),
+        convert_args -> (x as f64, y as f64),
+        secret -> _cursor_pos_callback
+    );
 
-    new_callback!(set_cursor_enter_callback => set_cursor_enter_polling(bool),
-        "Wrapper for `glfwSetCursorEnterCallback`.",
-        glfwSetCursorEnterCallback(entered: c_int),
-        cursor_enter_callback => cursor_enter_polling => CursorEnter(entered == ffi::TRUE),
-        unset_cursor_enter_callback,
-        [__cursor_enter_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetCursorEnterCallback`.",
+        set -> set_cursor_enter_callback,
+        unset -> unset_cursor_enter_callback,
+        poll -> set_cursor_enter_polling,
+        callback_field -> cursor_enter_callback,
+        poll_field -> cursor_enter_polling,
+        window_event -> CursorEnter(bool),
+        glfw -> glfwSetCursorEnterCallback(entered: c_int),
+        convert_args -> (entered == ffi::TRUE),
+        secret -> _cursor_enter_callback
+    );
 
-    new_callback!(set_scroll_callback => set_scroll_polling(f64, f64),
-        "Wrapper for `glfwSetScrollCallback`.",
-        glfwSetScrollCallback(x: c_double, y: c_double),
-        scroll_callback => scroll_polling => Scroll(x as f64, y as f64),
-        unset_scroll_callback,
-        [__scroll_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetScrollCallback`.",
+        set -> set_scroll_callback,
+        unset -> unset_scroll_callback,
+        poll -> set_scroll_polling,
+        callback_field -> scroll_callback,
+        poll_field -> scroll_polling,
+        window_event -> Scroll(f64, f64),
+        glfw -> glfwSetScrollCallback(x: c_double, y: c_double),
+        convert_args -> (x as f64, y as f64),
+        secret -> _scroll_callback
+    );
 
-    new_callback!(set_drag_and_drop_callback => set_drag_and_drop_polling(Vec<PathBuf>),
-        "Wrapper for `glfwSetDropCallback`.",
-        glfwSetDropCallback(num_paths: c_int, paths: *mut *const c_char),
-        drag_and_drop_callback => drag_and_drop_polling => FileDrop({
+    new_callback!(
+        doc -> "Wrapper for `glfwSetDropCallback`.",
+        set -> set_drag_and_drop_callback,
+        unset -> unset_drag_and_drop_callback,
+        poll -> set_drag_and_drop_polling,
+        callback_field -> drag_and_drop_callback,
+        poll_field -> drag_and_drop_polling,
+        window_event -> FileDrop(Vec<PathBuf>),
+        glfw -> glfwSetDropCallback(num_paths: c_int, paths: *mut *const c_char),
+        convert_args -> ({
             slice::from_raw_parts(paths, num_paths as usize)
             .iter()
             .map(|path| PathBuf::from(std::str::from_utf8({
@@ -2650,22 +2801,34 @@ impl Window {
             .to_string()))
             .collect()
         }),
-        unset_drag_and_drop_callback,
-        [__drag_and_drop_callback]);
+        secret -> _drag_and_drop_callback
+    );
 
-    new_callback!(set_maximize_callback => set_maximize_polling(bool),
-        "Wrapper for `glfwSetWindowMaximizeCallback`.",
-        glfwSetWindowMaximizeCallback(maximized: c_int),
-        maximize_callback => maximize_polling => Maximize(maximized == ffi::TRUE),
-        unset_maximize_callback,
-        [__maximize_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowMaximizeCallback`.",
+        set -> set_maximize_callback,
+        unset -> unset_maximize_callback,
+        poll -> set_maximize_polling,
+        callback_field -> maximize_callback,
+        poll_field -> maximize_polling,
+        window_event -> Maximize(bool),
+        glfw -> glfwSetWindowMaximizeCallback(maximized: c_int),
+        convert_args -> (maximized == ffi::TRUE),
+        secret -> _maximize_callback
+    );
 
-    new_callback!(set_content_scale_callback => set_content_scale_polling(f32, f32),
-        "Wrapper for `glfwSetWindowContentScaleCallback`.",
-        glfwSetWindowContentScaleCallback(xscale: c_float, yscale: c_float),
-        content_scale_callback => content_scale_polling => ContentScale(xscale as f32, yscale as f32),
-        unset_content_scale_callback,
-        [__content_scale_callback]);
+    new_callback!(
+        doc -> "Wrapper for `glfwSetWindowContentScaleCallback`.",
+        set -> set_content_scale_callback,
+        unset -> unset_content_scale_callback,
+        poll -> set_content_scale_polling,
+        callback_field -> content_scale_callback,
+        poll_field -> content_scale_polling,
+        window_event -> ContentScale(f32, f32),
+        glfw -> glfwSetWindowContentScaleCallback(xscale: c_float, yscale: c_float),
+        convert_args -> (xscale as f32, yscale as f32),
+        secret -> _content_scale_callback
+    );
 
     /// Starts or stops polling for all available events
     pub fn set_all_polling(&mut self, should_poll: bool) {
