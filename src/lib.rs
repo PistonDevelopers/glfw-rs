@@ -84,49 +84,49 @@
 macro_rules! make_user_callback_functions {
     (
         doc -> $doc:literal,
-        set -> $callback_func_name:ident,
-        unset -> $callback_remove_func_name:ident,
-        poll -> $poll_func_name:ident,
-        callback_field -> $callback_name:ident,
-        poll_field -> $poll_name:ident,
-        glfw -> $glfw_func_name:ident,
-        args -> ($($rust_args:ty),*),
-        secret -> $secret_shared_func:ident
+        set -> $set:ident,
+        unset -> $unset:ident,
+        poll -> $poll:ident,
+        callback_field -> $callback_field:ident,
+        poll_field -> $poll_field:ident,
+        glfw -> $glfw:ident,
+        args -> ($($args:ty),*),
+        secret -> $secret:ident
     ) => {
         #[doc = $doc]
-        pub fn $callback_func_name<T>(&mut self, callback: T)
-        where T: FnMut($($rust_args),*) + 'static {
+        pub fn $set<T>(&mut self, callback: T)
+        where T: FnMut($($args),*) + 'static {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(self.ptr);
-                callbacks.$callback_name = Some(Box::new(callback));
-                ffi::$glfw_func_name(self.ptr, Some(Self::$secret_shared_func));
+                callbacks.$callback_field = Some(Box::new(callback));
+                ffi::$glfw(self.ptr, Some(Self::$secret));
             }
         }
 
         #[doc = $doc]
-        pub fn $callback_remove_func_name(&mut self) {
+        pub fn $unset(&mut self) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(self.ptr);
-                callbacks.$callback_name = None;
+                callbacks.$callback_field = None;
 
                 // We're removing the callback, if theres no polling either, set to null
-                if !callbacks.$poll_name {
-                    ffi::$glfw_func_name(self.ptr, None);
+                if !callbacks.$poll_field {
+                    ffi::$glfw(self.ptr, None);
                 }
             }
         }
 
         #[doc = $doc]
-        pub fn $poll_func_name(&mut self, should_poll: bool) {
+        pub fn $poll(&mut self, should_poll: bool) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(self.ptr);
-                callbacks.$poll_name = should_poll;
+                callbacks.$poll_field = should_poll;
 
                 // If no polling and not custom callback, set glfw callback to null
                 if should_poll {
-                    ffi::$glfw_func_name(self.ptr, Some(Self::$secret_shared_func));
-                } else if callbacks.$callback_name.is_none() {
-                    ffi::$glfw_func_name(self.ptr, None);
+                    ffi::$glfw(self.ptr, Some(Self::$secret));
+                } else if callbacks.$callback_field.is_none() {
+                    ffi::$glfw(self.ptr, None);
                 }
             }
         }
@@ -136,26 +136,26 @@ macro_rules! make_user_callback_functions {
 macro_rules! new_callback {
     (
         doc -> $doc:literal,
-        set -> $callback_func_name:ident,
-        unset -> $callback_remove_func_name:ident,
-        poll -> $poll_func_name:ident,
-        callback_field -> $callback_name:ident,
-        poll_field -> $poll_name:ident,
-        window_event -> $enum_element:ident ($($rust_args:ty),+),
-        glfw -> $glfw_func_name:ident ($($glfw_arg_names:ident: $glfw_args:ty),*),
-        convert_args -> ($($sanitize_args:expr),*),
-        secret -> $secret_shared_func:ident
+        set -> $set:ident,
+        unset -> $unset:ident,
+        poll -> $poll:ident,
+        callback_field -> $callback_field:ident,
+        poll_field -> $poll_field:ident,
+        window_event -> $window_event:ident ($($args:ty),+),
+        glfw -> $glfw:ident ($($glfw_arg_names:ident: $glfw_args:ty),*),
+        convert_args -> ($($convert_args:expr),*),
+        secret -> $secret:ident
     ) => {
 
         #[allow(unused_unsafe)]
-        extern "C" fn $secret_shared_func(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
+        extern "C" fn $secret(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(window);
-                if let Some(func) = &mut callbacks.$callback_name {
-                    func($($sanitize_args),*);
+                if let Some(func) = &mut callbacks.$callback_field {
+                    func($($convert_args),*);
                 }
-                if callbacks.$poll_name {
-                    let event = (ffi::glfwGetTime() as f64, WindowEvent::$enum_element($($sanitize_args),*));
+                if callbacks.$poll_field {
+                    let event = (ffi::glfwGetTime() as f64, WindowEvent::$window_event($($convert_args),*));
                     if let Some(event) = callbacks::unbuffered::handle(window as WindowId, event) {
                         callbacks.sender.send(event).unwrap();
                     }
@@ -165,38 +165,38 @@ macro_rules! new_callback {
 
         make_user_callback_functions!(
             doc -> $doc,
-            set -> $callback_func_name,
-            unset -> $callback_remove_func_name,
-            poll -> $poll_func_name,
-            callback_field -> $callback_name,
-            poll_field -> $poll_name,
-            glfw -> $glfw_func_name,
-            args -> ($($rust_args),*),
-            secret -> $secret_shared_func
+            set -> $set,
+            unset -> $unset,
+            poll -> $poll,
+            callback_field -> $callback_field,
+            poll_field -> $poll_field,
+            glfw -> $glfw,
+            args -> ($($args),*),
+            secret -> $secret
         );
     };
     (
         doc -> $doc:literal,
-        set -> $callback_func_name:ident,
-        unset -> $callback_remove_func_name:ident,
-        poll -> $poll_func_name:ident,
-        callback_field -> $callback_name:ident,
-        poll_field -> $poll_name:ident,
-        window_event -> $enum_element:ident,
-        glfw -> $glfw_func_name:ident ($($glfw_arg_names:ident: $glfw_args:ty),*),
-        convert_args -> ($($sanitize_args:expr),*),
-        secret -> $secret_shared_func:ident
+        set -> $set:ident,
+        unset -> $unset:ident,
+        poll -> $poll:ident,
+        callback_field -> $callback_field:ident,
+        poll_field -> $poll_field:ident,
+        window_event -> $window_event:ident,
+        glfw -> $glfw:ident ($($glfw_arg_names:ident: $glfw_args:ty),*),
+        convert_args -> ($($convert_args:expr),*),
+        secret -> $secret:ident
     ) => {
 
         #[allow(unused_unsafe)]
-        extern "C" fn $secret_shared_func(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
+        extern "C" fn $secret(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(window);
-                if let Some(func) = &mut callbacks.$callback_name {
+                if let Some(func) = &mut callbacks.$callback_field {
                     func();
                 }
-                if callbacks.$poll_name {
-                    let event = (ffi::glfwGetTime() as f64, WindowEvent::$enum_element);
+                if callbacks.$poll_field {
+                    let event = (ffi::glfwGetTime() as f64, WindowEvent::$window_event);
                     if let Some(event) = callbacks::unbuffered::handle(window as WindowId, event) {
                         callbacks.sender.send(event).unwrap();
                     }
@@ -206,14 +206,14 @@ macro_rules! new_callback {
 
         make_user_callback_functions!(
             doc -> $doc,
-            set -> $callback_func_name,
-            unset -> $callback_remove_func_name,
-            poll -> $poll_func_name,
-            callback_field -> $callback_name,
-            poll_field -> $poll_name,
-            glfw -> $glfw_func_name,
+            set -> $set,
+            unset -> $unset,
+            poll -> $poll,
+            callback_field -> $callback_field,
+            poll_field -> $poll_field,
+            glfw -> $glfw,
             args -> (),
-            secret -> $secret_shared_func
+            secret -> $secret
         );
     }
 }
