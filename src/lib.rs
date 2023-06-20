@@ -95,7 +95,7 @@ macro_rules! make_user_callback_functions {
     ) => {
         #[doc = $doc]
         pub fn $callback_func_name<T>(&mut self, callback: T)
-        where T: Fn($($rust_args),*) + 'static {
+        where T: FnMut($($rust_args),*) + 'static {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(self.ptr);
                 callbacks.$callback_name = Some(Box::new(callback));
@@ -151,7 +151,7 @@ macro_rules! new_callback {
         extern "C" fn $secret_shared_func(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(window);
-                if let Some(func) = &callbacks.$callback_name {
+                if let Some(func) = &mut callbacks.$callback_name {
                     func($($sanitize_args),*);
                 }
                 if callbacks.$poll_name {
@@ -192,7 +192,7 @@ macro_rules! new_callback {
         extern "C" fn $secret_shared_func(window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(window);
-                if let Some(func) = &callbacks.$callback_name {
+                if let Some(func) = &mut callbacks.$callback_name {
                     func();
                 }
                 if callbacks.$poll_name {
@@ -1562,23 +1562,23 @@ impl Drop for Glfw {
 #[allow(dead_code)]
 struct WindowCallbacks {
     sender: Sender<(f64, WindowEvent)>,
-    pos_callback: Option<Box<dyn Fn(i32, i32)>>,
-    size_callback: Option<Box<dyn Fn(i32, i32)>>,
-    close_callback: Option<Box<dyn Fn()>>,
-    refresh_callback: Option<Box<dyn Fn()>>,
-    focus_callback: Option<Box<dyn Fn(bool)>>,
-    iconify_callback: Option<Box<dyn Fn(bool)>>,
-    framebuffer_size_callback: Option<Box<dyn Fn(i32, i32)>>,
-    key_callback: Option<Box<dyn Fn(Key, Scancode, Action, Modifiers)>>,
-    char_callback: Option<Box<dyn Fn(char)>>,
-    char_mods_callback: Option<Box<dyn Fn(char, Modifiers)>>,
-    mouse_button_callback: Option<Box<dyn Fn(MouseButton, Action, Modifiers)>>,
-    cursor_pos_callback: Option<Box<dyn Fn(f64, f64)>>,
-    cursor_enter_callback: Option<Box<dyn Fn(bool)>>,
-    scroll_callback: Option<Box<dyn Fn(f64, f64)>>,
-    drag_and_drop_callback: Option<Box<dyn Fn(Vec<PathBuf>)>>,
-    maximize_callback: Option<Box<dyn Fn(bool)>>,
-    content_scale_callback: Option<Box<dyn Fn(f32, f32)>>,
+    pos_callback: Option<Box<dyn FnMut(i32, i32)>>,
+    size_callback: Option<Box<dyn FnMut(i32, i32)>>,
+    close_callback: Option<Box<dyn FnMut()>>,
+    refresh_callback: Option<Box<dyn FnMut()>>,
+    focus_callback: Option<Box<dyn FnMut(bool)>>,
+    iconify_callback: Option<Box<dyn FnMut(bool)>>,
+    framebuffer_size_callback: Option<Box<dyn FnMut(i32, i32)>>,
+    key_callback: Option<Box<dyn FnMut(Key, Scancode, Action, Modifiers)>>,
+    char_callback: Option<Box<dyn FnMut(char)>>,
+    char_mods_callback: Option<Box<dyn FnMut(char, Modifiers)>>,
+    mouse_button_callback: Option<Box<dyn FnMut(MouseButton, Action, Modifiers)>>,
+    cursor_pos_callback: Option<Box<dyn FnMut(f64, f64)>>,
+    cursor_enter_callback: Option<Box<dyn FnMut(bool)>>,
+    scroll_callback: Option<Box<dyn FnMut(f64, f64)>>,
+    drag_and_drop_callback: Option<Box<dyn FnMut(Vec<PathBuf>)>>,
+    maximize_callback: Option<Box<dyn FnMut(bool)>>,
+    content_scale_callback: Option<Box<dyn FnMut(f32, f32)>>,
     pos_polling: bool,
     size_polling: bool,
     close_polling: bool,
