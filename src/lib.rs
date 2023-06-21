@@ -1369,7 +1369,7 @@ impl Glfw {
     /// If no windows exist, this function returns immediately.
     ///
     /// Wrapper for `glfwPostEmptyEvent`.
-    pub fn post_empty_event(&mut self) {
+    pub fn post_empty_event() {
         unsafe {
             ffi::glfwPostEmptyEvent();
         }
@@ -1707,6 +1707,25 @@ impl std::fmt::Debug for Monitor {
 }
 
 impl Monitor {
+
+    /// Wrapper for `glfwGetPrimaryMonitor`.
+    pub fn from_primary() -> Self {
+        unsafe {
+            Self {
+                ptr: ffi::glfwGetPrimaryMonitor()
+            }
+        }
+    }
+
+    /// Wrapper for `glfwGetWindowMonitor`.
+    pub fn from_window(window: &Window) -> Self {
+        unsafe {
+            Self {
+                ptr: ffi::glfwGetWindowMonitor(window.ptr)
+            }
+        }
+    }
+
     /// Wrapper for `glfwGetMonitorPos`.
     pub fn get_pos(&self) -> (i32, i32) {
         unsafe {
