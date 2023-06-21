@@ -17,44 +17,37 @@
 
 macro_rules! callback (
     (
-        type Args = ($($arg:ident: $arg_ty:ty),*);
-        type Callback = $Callback:ident;
-        let ext_set = $ext_set:expr;
-        fn callback($($ext_arg:ident: $ext_arg_ty:ty),*) $call:expr
+        args -> ($($args:ty),*),
+        glfw -> $glfw:ident ($($glfw_arg_names:ident: $glfw_args:ty),*),
+        convert_args -> ($($convert_args:expr),*)
     ) => (
-        thread_local!(static CALLBACK_KEY: RefCell<Option<Box<dyn Object<Args> + 'static>>> = RefCell::new(None));
+        thread_local!(static CALLBACK_KEY: RefCell<Option<Box<dyn FnMut($($args),*)>>> = RefCell::new(None));
 
-        type Args = ($($arg_ty),*,);
-
-        trait Object<T> {
-            fn call(&self, args: T);
-        }
-
-        impl<UserData> Object<Args> for crate::Callback<fn($($arg_ty),*, &UserData), UserData> {
-            fn call(&self, ($($arg),*,): Args) {
-                (self.f)($($arg),*, &self.data);
-            }
-        }
-
-        pub fn set<UserData: 'static>(f: crate::$Callback<UserData>) {
-            let mut boxed_cb = Some(Box::new(f) as Box<dyn Object<Args> + 'static>);
+        pub fn set<T>(f: T)
+        where T: FnMut($($args),*) + 'static
+        {
+            let boxed_cb = Some(Box::new(f) as Box<dyn FnMut($($args),*)>);
             CALLBACK_KEY.with(|cb| {
-                *cb.borrow_mut() = boxed_cb.take();
+                *cb.borrow_mut() = boxed_cb;
             });
-            ($ext_set)(Some(callback as extern "C" fn($($ext_arg: $ext_arg_ty),*)));
+            unsafe {
+                crate::ffi::$glfw(Some(callback));
+            }
         }
 
         pub fn unset() {
             CALLBACK_KEY.with(|cb| {
                 *cb.borrow_mut() = None;
             });
-            ($ext_set)(None);
+             unsafe {
+                crate::ffi::$glfw(None);
+            }
         }
 
-        extern "C" fn callback($($ext_arg: $ext_arg_ty),*) {
+        extern "C" fn callback($($glfw_arg_names: $glfw_args),*) {
             CALLBACK_KEY.with(|cb| {
-                match *cb.borrow() {
-                    Some(ref cb) => unsafe { cb.call($call) },
+                match *cb.borrow_mut() {
+                    Some(ref mut cb) => unsafe { cb($($convert_args),*) },
                     _ => {}
                 }
             })
@@ -68,12 +61,9 @@ pub mod error {
     use std::os::raw::{c_char, c_int};
 
     callback!(
-        type Args = (error: crate::Error, description: String);
-        type Callback = ErrorCallback;
-        let ext_set = |cb| unsafe { crate::ffi::glfwSetErrorCallback(cb) };
-        fn callback(error: c_int, description: *const c_char) {
-            (mem::transmute(error), crate::string_from_c_str(description))
-        }
+        args -> (crate::Error, String),
+        glfw -> glfwSetErrorCallback(error: c_int, description: *const c_char),
+        convert_args -> (mem::transmute(error), crate::string_from_c_str(description))
     );
 }
 
@@ -83,15 +73,12 @@ pub mod monitor {
     use std::os::raw::c_int;
 
     callback!(
-        type Args = (monitor: crate::Monitor, event: crate::MonitorEvent);
-        type Callback = MonitorCallback;
-        let ext_set = |cb| unsafe { crate::ffi::glfwSetMonitorCallback(cb) };
-        fn callback(monitor: *mut crate::ffi::GLFWmonitor, event: c_int) {
-            let monitor = crate::Monitor {
-                ptr: monitor
-            };
-            (monitor, mem::transmute(event))
-        }
+        args -> (crate::Monitor, crate::MonitorEvent),
+        glfw -> glfwSetMonitorCallback(monitor: *mut crate::ffi::GLFWmonitor, event: c_int),
+        convert_args -> (
+            crate::Monitor { ptr: monitor },
+            mem::transmute(event)
+        )
     );
 }
 
@@ -101,12 +88,9 @@ pub mod joystick {
     use std::os::raw::c_int;
 
     callback!(
-        type Args = (joystick_id: crate::JoystickId, event: crate::JoystickEvent);
-        type Callback = JoystickCallback;
-        let ext_set = |cb| unsafe { crate::ffi::glfwSetJoystickCallback(cb) };
-        fn callback(joystick_id: c_int, event: c_int) {
-            (mem::transmute(joystick_id), mem::transmute(event))
-        }
+        args -> (crate::JoystickId, crate::JoystickEvent),
+        glfw -> glfwSetJoystickCallback(joystick_id: c_int, event: c_int),
+        convert_args -> (mem::transmute(joystick_id), mem::transmute(event))
     );
 }
 

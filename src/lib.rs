@@ -40,7 +40,8 @@ clippy::doc_markdown
 //! use glfw::{Action, Context, Key};
 //!
 //! fn main() {
-//!    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+//!    use glfw::fail_on_errors;
+//! let mut glfw = glfw::init(fail_on_errors!()).unwrap();
 //!
 //!     // Create a windowed mode window and its OpenGL context
 //!     let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
@@ -567,12 +568,6 @@ impl fmt::Debug for DebugAliases<MouseButton> {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct Callback<Fn, UserData> {
-    pub f: Fn,
-    pub data: UserData,
-}
-
 /// Tokens corresponding to various error types.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -612,39 +607,43 @@ impl fmt::Display for Error {
 
 impl error::Error for Error {}
 
-/// An error callback. This can be supplied with some user data to be passed to
-/// the callback function when it is triggered.
-pub type ErrorCallback<UserData> = Callback<fn(Error, String, &UserData), UserData>;
-
-/// The function to be used with the `FAIL_ON_ERRORS` callback.
-pub fn fail_on_errors(_: Error, description: String, _: &()) {
+/// The function to be used with the `fail_on_errors!()` callback.
+pub fn fail_on_errors(_: Error, description: String) {
     panic!("GLFW Error: {}", description);
 }
 
 /// A callback that triggers a task failure when an error is encountered.
-pub static FAIL_ON_ERRORS: Option<ErrorCallback<()>> = Some(Callback {
-    f: fail_on_errors as fn(Error, String, &()),
-    data: (),
-});
+#[macro_export]
+macro_rules! fail_on_errors {
+    () => {{
+        |error, description| {
+            fail_on_errors(error, description);
+        }
+    }}
+}
 
 #[cfg(feature = "log")]
 /// The function to be used with the `LOG_ERRORS` callback.
-pub fn log_errors(_: Error, description: String, _: &()) {
+pub fn log_errors(_: Error, description: String) {
     error!("GLFW Error: {}", description);
 }
 
 #[cfg(not(feature = "log"))]
 /// The function to be used with the `LOG_ERRORS` callback.
-pub fn log_errors(_: Error, description: String, _: &()) {
+pub fn log_errors(_: Error, description: String) {
     eprintln!("GLFW Error: {}", description);
 }
 
 /// A callback that logs each error as it is encountered without triggering a
-/// task failure.
-pub static LOG_ERRORS: Option<ErrorCallback<()>> = Some(Callback {
-    f: log_errors as fn(Error, String, &()),
-    data: (),
-});
+/// task failure
+#[macro_export]
+macro_rules! log_errors {
+    () => {{
+        |error, description| {
+            log_errors(error, description);
+        }
+    }}
+}
 
 /// When not using the `image` library, or if you just want to,
 /// you can specify an image from its raw pixel data using this structure.
@@ -987,7 +986,6 @@ pub fn init_hint(hint: InitHint) {
         },
     }
 }
-
 /// Initializes the GLFW library. This must be called on the main platform
 /// thread.
 ///
@@ -1016,16 +1014,20 @@ pub fn init_hint(hint: InitHint) {
 /// - Subsequent calls to `init` will return `Glfw` token immediately.
 /// - If an initialization error occurred within the GLFW library
 ///   `Err(InternalInitError)` will be returned.
-pub fn init<UserData: 'static>(
-    mut callback: Option<ErrorCallback<UserData>>,
-) -> Result<Glfw, InitError> {
-    // Initialize the error callback if it was supplied. This is done
+pub fn init<T>(callback: T)
+    -> Result<Glfw, InitError>
+    where T: FnMut(Error, String) + 'static
+{
+    // Initialize the error callback. This is done
     // before `ffi::glfwInit` because errors could occur during
     // initialization.
-    match callback.take() {
-        Some(f) => callbacks::error::set(f),
-        None => callbacks::error::unset(),
-    }
+    callbacks::error::set(callback);
+
+    init_no_callbacks()
+}
+
+pub fn init_no_callbacks() -> Result<Glfw, InitError>
+{
     // initialize GLFW.
     // FYI: multiple not terminated ffi::glfwInit() returns ffi::TRUE immediately.
     // https://www.glfw.org/docs/latest/group__init.html#ga317aac130a235ab08c6db0834907d85e
@@ -1043,62 +1045,75 @@ impl Glfw {
     /// # Example
     ///
     /// ~~~ignore
-    /// use std::cell::Cell;
-    ///
-    /// fn error_callback(_: glfw::Error, description: String, error_count: &Cell<usize>) {
-    ///     println!("GLFW error {}: {}", error_count.get(), description);
-    ///     error_count.set(error_count.get() + 1);
-    /// }
-    ///
     /// // sets a new callback
-    /// glfw.set_error_callback(Some(
-    ///     glfw::Callback {
-    ///         f: error_callback,
-    ///         data: Cell::new(0),
-    ///     }
-    /// ));
+    /// let mut error_count: usize = 0;
+    /// glfw.set_error_callback(Some(move |error, description| {
+    ///     println!("GLFW error {}: {}", error_count, description);
+    ///     error_count += 1;
+    /// }));
     ///
     /// // removes the previously set callback
     /// glfw.set_error_callback(None);
     /// ~~~
     ///
-    /// The `FAIL_ON_ERRORS` and `LOG_ERRORS` callbacks are provided for
+    /// The `fail_on_errors!()` and `log_errors!()` callback macros are provided for
     /// convenience. For example:
     ///
     /// ~~~ignore
     /// // triggers a task failure when a GLFW error is encountered.
-    /// glfw.set_error_callback(glfw::FAIL_ON_ERRORS);
+    /// glfw.set_error_callback(fail_on_errors!());
     /// ~~~
-    pub fn set_error_callback<UserData: 'static>(
+    pub fn set_error_callback<T>(
         &mut self,
-        callback: Option<ErrorCallback<UserData>>,
-    ) {
-        match callback {
-            Some(f) => callbacks::error::set(f),
-            None => callbacks::error::unset(),
-        }
+        callback: T,
+    )
+    where T: FnMut(Error, String) + 'static
+    {
+        callbacks::error::set(callback);
+    }
+
+    /// Unsets the monitor callback
+    pub fn unset_error_callback(
+        &mut self,
+    )
+    {
+        callbacks::error::unset();
     }
 
     /// Sets the monitor callback, overwriting the previous one stored.
-    pub fn set_monitor_callback<UserData: 'static>(
+    pub fn set_monitor_callback<T>(
         &mut self,
-        callback: Option<MonitorCallback<UserData>>,
-    ) {
-        match callback {
-            Some(f) => callbacks::monitor::set(f),
-            None => callbacks::monitor::unset(),
-        }
+        callback: T
+    )
+    where T: FnMut(Monitor, MonitorEvent) + 'static
+    {
+        callbacks::monitor::set(callback);
+    }
+
+    /// Unsets the monitor callback
+    pub fn unset_monitor_callback(
+        &mut self,
+    )
+    {
+        callbacks::monitor::unset();
     }
 
     /// Sets the joystick callback, overwriting the previous one stored
-    pub fn set_joystick_callback<UserData: 'static>(
+    pub fn set_joystick_callback<T>(
         &mut self,
-        callback: Option<JoystickCallback<UserData>>,
-    ) {
-        match callback {
-            Some(f) => callbacks::joystick::set(f),
-            None => callbacks::joystick::unset(),
-        }
+        callback: T,
+    )
+    where T: FnMut(JoystickId, JoystickEvent) + 'static
+    {
+        callbacks::joystick::set(callback);
+    }
+
+    /// Unsets the joystick callback
+    pub fn unset_joystick_callback(
+        &mut self,
+    )
+    {
+        callbacks::joystick::unset();
     }
 
     /// Supplies the primary monitor to the closure provided, if it exists.
@@ -1880,10 +1895,6 @@ pub fn with_c_str<F, T>(s: &str, f: F) -> T
 pub fn get_version_string() -> String {
     unsafe { string_from_c_str(ffi::glfwGetVersionString()) }
 }
-
-/// An monitor callback. This can be supplied with some user data to be passed
-/// to the callback function when it is triggered.
-pub type MonitorCallback<UserData> = Callback<fn(Monitor, MonitorEvent, &UserData), UserData>;
 
 /// A struct that wraps a `*GLFWmonitor` handle.
 #[allow(missing_copy_implementations)]
@@ -3712,10 +3723,6 @@ pub enum JoystickEvent {
     Connected = ffi::CONNECTED,
     Disconnected = ffi::DISCONNECTED,
 }
-
-/// An joystick callback. This can be supplied with some user data to be passed
-/// to the callback function when it is triggered.
-pub type JoystickCallback<UserData> = Callback<fn(JoystickId, JoystickEvent, &UserData), UserData>;
 
 impl Joystick {
     /// Wrapper for `glfwJoystickPresent`.
