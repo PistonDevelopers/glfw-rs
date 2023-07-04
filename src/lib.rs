@@ -236,7 +236,7 @@ use raw_window_handle::{HasRawWindowHandle, RawWindowHandle, HasRawDisplayHandle
 use std::error;
 use std::ffi::{CStr, CString};
 use std::fmt;
-use std::marker::{PhantomPinned, Send};
+use std::marker::{Send};
 use std::mem;
 #[cfg(feature = "vulkan")]
 use std::os::raw::c_uint;
@@ -250,7 +250,6 @@ use std::slice;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::ffi::*;
-use std::pin::Pin;
 use std::ptr::null_mut;
 
 #[cfg(feature = "vulkan")]
@@ -1221,7 +1220,7 @@ impl Glfw {
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
-    ) -> Option<(Pin<Box<Window>>, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(Box<Window>, Receiver<(f64, WindowEvent)>)> {
         #[cfg(feature = "wayland")]
         {
             // Has to be set otherwise wayland refuses to open window.
@@ -1238,7 +1237,7 @@ impl Glfw {
         title: &str,
         mode: WindowMode<'_>,
         share: Option<&Window>,
-    ) -> Option<(Pin<Box<Window>>, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(Box<Window>, Receiver<(f64, WindowEvent)>)> {
         let ptr = unsafe {
             with_c_str(title, |title| {
                 ffi::glfwCreateWindow(
@@ -1258,14 +1257,13 @@ impl Glfw {
         } else {
             let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
-            let window = Box::pin(Window {
+            let window = Box::new(Window {
                     ptr,
                     glfw: self.clone(),
                     is_shared: share.is_some(),
                     drop_sender: Some(drop_sender),
                     drop_receiver,
                     current_cursor: None,
-                    phantom_pinned: PhantomPinned {}
             });
             let mut callbacks = Box::new(WindowCallbacks::new(sender));
 
@@ -2205,8 +2203,6 @@ pub struct Window {
     /// of forcing the user to take care of its lifetime.
     current_cursor: Option<Cursor>,
     pub glfw: Glfw,
-    #[allow(unused)]
-    phantom_pinned: PhantomPinned
 }
 
 impl Window {
@@ -2272,7 +2268,7 @@ impl Window {
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
-    ) -> Option<(Pin<Box<Window>>, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(Box<Window>, Receiver<(f64, WindowEvent)>)> {
         self.glfw
             .create_window_intern(width, height, title, mode, Some(self))
     }
