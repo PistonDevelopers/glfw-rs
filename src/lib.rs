@@ -1212,6 +1212,7 @@ impl Glfw {
     }
 
     /// Creates a new window.
+    /// DO NOT Try to unbox the window, as it WILL cause undefined behaviour.
     ///
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_window(
@@ -2261,6 +2262,10 @@ impl Window {
     ) -> vk::Result {
         unsafe { ffi::glfwCreateWindowSurface(instance, self.ptr, allocator, surface) }
     }
+
+    /// Creates a new shared window.
+    /// DO NOT Try to unbox the window, as it WILL cause undefined behaviour.
+    ///
     /// Wrapper for `glfwCreateWindow`.
     pub fn create_shared(
         &self,
