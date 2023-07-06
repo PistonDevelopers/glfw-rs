@@ -40,7 +40,8 @@ version = "0.37.2"
 log = "0.4"
 
 [features]
-all = ["image", "vulkan", "log", "wayland"]
+all = ["image", "vulkan", "log", "wayland", "glfw-callbacks"]
 default = ["glfw-sys"]
 vulkan = ["ash"]
 wayland = ["glfw-sys/wayland"]
+glfw-callbacks = []
