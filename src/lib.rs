@@ -18,15 +18,15 @@
 #![crate_type = "dylib"]
 #![crate_name = "glfw"]
 #![deny(
-    rust_2018_compatibility,
-    rust_2018_idioms,
-    nonstandard_style,
-    unused,
-    future_incompatible,
-    missing_copy_implementations,
-    missing_debug_implementations,
-    missing_abi,
-    clippy::doc_markdown
+rust_2018_compatibility,
+rust_2018_idioms,
+nonstandard_style,
+unused,
+future_incompatible,
+missing_copy_implementations,
+missing_debug_implementations,
+missing_abi,
+clippy::doc_markdown
 )]
 #![allow(non_upper_case_globals)]
 
@@ -265,7 +265,7 @@ use raw_window_handle::{HasRawWindowHandle, RawWindowHandle, HasRawDisplayHandle
 use std::error;
 use std::ffi::{CStr, CString};
 use std::fmt;
-use std::marker::{Send};
+use std::marker::Send;
 use std::mem;
 #[cfg(feature = "vulkan")]
 use std::os::raw::c_uint;
@@ -275,6 +275,7 @@ use std::os::raw::{c_uchar, c_ushort};
 use std::os::raw::c_void;
 use std::path::PathBuf;
 use std::ptr;
+use std::ptr::{null, null_mut};
 use std::slice;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
@@ -465,8 +466,8 @@ pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<Stri
 
 /// Wrapper around `glfwGetKeyName`
 #[deprecated(
-    since = "0.16.0",
-    note = "'key_name' can cause a segfault, use 'get_key_name' instead"
+since = "0.16.0",
+note = "'key_name' can cause a segfault, use 'get_key_name' instead"
 )]
 pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
     unsafe {
@@ -496,8 +497,8 @@ pub fn get_key_scancode(key: Option<Key>) -> Option<Scancode> {
 impl Key {
     /// Wrapper around `glfwGetKeyName` without scancode
     #[deprecated(
-        since = "0.16.0",
-        note = "Key method 'name' can cause a segfault, use 'get_name' instead"
+    since = "0.16.0",
+    note = "Key method 'name' can cause a segfault, use 'get_name' instead"
     )]
     pub fn name(&self) -> String {
         #[allow(deprecated)]
@@ -832,6 +833,89 @@ pub type VkProc = ffi::GLFWvkproc;
 /// It uses for "global" refference counting for Glfw.
 static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
 
+/// A struct that represents a thread safe handle to a `Glfw`
+#[derive(Debug)]
+pub struct ThreadSafeGlfw {
+    glfw: Glfw
+}
+
+impl ThreadSafeGlfw {
+
+    /// Creates a new `Glfw` wrapper that can be shared between threads
+    pub fn from(glfw: &mut Glfw) -> Self {
+        Self {
+            glfw: glfw.clone()
+        }
+    }
+
+    /// Wrapper function, please refer to [`Glfw::set_swap_interval`]
+    pub fn set_swap_interval(&mut self, interval: SwapInterval) {
+        self.glfw.set_swap_interval(interval);
+    }
+
+    /// Wrapper function, please refer to [`Glfw::extension_supported`]
+    pub fn extension_supported(&self, extension: &str) -> bool {
+        self.glfw.extension_supported(extension)
+    }
+
+    /// Wrapper function, please refer to [`Glfw::get_time`]
+    pub fn get_time(&self) -> f64 {
+        self.glfw.get_time()
+    }
+
+    /// Wrapper function, please refer to [`Glfw::set_time`]
+    pub fn set_time(&mut self, time: f64) {
+        self.glfw.set_time(time);
+    }
+
+    /// Wrapper function, please refer to [`Glfw::vulkan_supported`]
+    #[cfg(feature = "vulkan")]
+    pub fn vulkan_supported(&self) -> bool {
+        self.glfw.vulkan_supported()
+    }
+
+    /// Wrapper function, please refer to [`Glfw::get_required_instance_extensions`]
+    #[cfg(feature = "vulkan")]
+    pub fn get_required_instance_extensions(&self) -> Option<Vec<String>> {
+        self.glfw.get_required_instance_extensions()
+    }
+
+    /// Wrapper function, please refer to [`Glfw::get_instance_proc_address_raw`]
+    #[cfg(feature = "vulkan")]
+    pub fn get_instance_proc_address_raw(&self, instance: vk::Instance, procname: &str) -> VkProc {
+        self.glfw.get_instance_proc_address_raw(instance, procname)
+    }
+
+    /// Wrapper function, please refer to [`Glfw::get_physical_device_presentation_support_raw`]
+    #[cfg(feature = "vulkan")]
+    pub fn get_physical_device_presentation_support_raw(
+        &self,
+        instance: vk::Instance,
+        device: vk::PhysicalDevice,
+        queue_family: u32,
+    ) -> bool {
+        self.glfw.get_physical_device_presentation_support_raw(instance, device, queue_family)
+    }
+
+    /// Wrapper function, please refer to [`Glfw::get_timer_value`]
+    pub fn get_timer_value(&self) -> u64 {
+        self.glfw.get_timer_value()
+    }
+
+    /// Wrapper function, please refer to [`Glfw::get_timer_frequency`]
+    pub fn get_timer_frequency(&self) -> u64 {
+        self.glfw.get_timer_frequency()
+    }
+
+    /// Wrapper function, please refer to [`Glfw::post_empty_event`]
+    pub fn post_empty_event(&self) {
+        self.glfw.post_empty_event()
+    }
+
+}
+
+unsafe impl Send for ThreadSafeGlfw {}
+
 /// A token from which to call various GLFW functions. It can be obtained by
 /// calling the `init` function. This cannot be sent to other tasks, and should
 /// only be initialized on the main platform thread. Whilst this might make
@@ -1030,8 +1114,8 @@ impl Glfw {
     /// }).expect("Failed to create GLFW window.");
     /// ~~~
     pub fn with_primary_monitor<T, F>(&mut self, f: F) -> T
-    where
-        F: FnOnce(&mut Self, Option<&Monitor>) -> T,
+        where
+            F: FnOnce(&mut Self, Option<&Monitor>) -> T,
     {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(self, None),
@@ -1052,8 +1136,8 @@ impl Glfw {
     /// });
     /// ~~~
     pub fn with_connected_monitors<T, F>(&mut self, f: F) -> T
-    where
-        F: FnOnce(&mut Self, &[Monitor]) -> T,
+        where
+            F: FnOnce(&mut Self, &[Monitor]) -> T,
     {
         unsafe {
             let mut count = 0;
@@ -1295,18 +1379,18 @@ impl Glfw {
             let (drop_sender, drop_receiver) = channel();
             let (sender, receiver) = channel();
             let window = Window {
-                    ptr,
-                    glfw: self.clone(),
-                    is_shared: share.is_some(),
-                    drop_sender: Some(drop_sender),
-                    drop_receiver,
-                    current_cursor: None,
+                ptr,
+                glfw: self.clone(),
+                is_shared: share.is_some(),
+                drop_sender: Some(drop_sender),
+                drop_receiver,
+                current_cursor: None,
             };
             #[allow(unused_mut)]
-            let mut callbacks = Box::new(WindowCallbacks::new(sender));
+                let mut callbacks = Box::new(WindowCallbacks::new(sender));
 
             #[cfg(feature = "glfw-callbacks")]
-            let window = Box::new(window);
+                let window = Box::new(window);
 
             unsafe {
                 #[cfg(feature = "glfw-callbacks")]
@@ -1360,8 +1444,8 @@ impl Glfw {
     ///
     /// Wrapper for `glfwPollEvents`.
     pub fn poll_events_unbuffered<F>(&mut self, mut f: F)
-    where
-        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
+        where
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
         let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.poll_events();
@@ -1382,8 +1466,8 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEvents`.
     pub fn wait_events_unbuffered<F>(&mut self, mut f: F)
-    where
-        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
+        where
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
         let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.wait_events();
@@ -1406,8 +1490,8 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEventsTimeout`.
     pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, mut f: F)
-    where
-        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
+        where
+            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
         let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.wait_events_timeout(timeout);
@@ -1418,7 +1502,7 @@ impl Glfw {
     /// If no windows exist, this function returns immediately.
     ///
     /// Wrapper for `glfwPostEmptyEvent`.
-    pub fn post_empty_event() {
+    pub fn post_empty_event(&self) {
         unsafe {
             ffi::glfwPostEmptyEvent();
         }
@@ -1443,12 +1527,12 @@ impl Glfw {
     }
 
     /// Wrapper for `glfwGetTimerValue`.
-    pub fn get_timer_value() -> u64 {
+    pub fn get_timer_value(&self) -> u64 {
         unsafe { ffi::glfwGetTimerValue() as u64 }
     }
 
     /// Wrapper for `glfwGetTimerFrequency`
-    pub fn get_timer_frequency() -> u64 {
+    pub fn get_timer_frequency(&self) -> u64 {
         unsafe { ffi::glfwGetTimerFrequency() as u64 }
     }
 
@@ -1550,12 +1634,12 @@ impl Glfw {
     ) -> bool {
         vk::TRUE
             == unsafe {
-                ffi::glfwGetPhysicalDevicePresentationSupport(
-                    instance,
-                    device,
-                    queue_family as c_uint,
-                ) as u32
-            }
+            ffi::glfwGetPhysicalDevicePresentationSupport(
+                instance,
+                device,
+                queue_family as c_uint,
+            ) as u32
+        }
     }
 
     /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
@@ -1738,6 +1822,22 @@ impl WindowCallbacks {
     }
 }
 
+/// Wrapper for `glfwGetError`.
+pub fn get_error() -> Error {
+    unsafe {
+        mem::transmute(ffi::glfwGetError(null_mut()))
+    }
+}
+
+/// Wrapper for `glfwGetError`.
+pub fn get_error_string() -> (Error, String) {
+    unsafe {
+        let mut description: *const c_char = null();
+        let error: Error = mem::transmute(ffi::glfwGetError(&mut description));
+        (error, string_from_c_str(description))
+    }
+}
+
 /// Wrapper for `glfwGetVersion`.
 pub fn get_version() -> Version {
     unsafe {
@@ -1769,8 +1869,8 @@ pub unsafe fn string_from_nullable_c_str(c_str: *const c_char) -> Option<String>
 
 /// Replacement for `ToCStr::with_c_str`
 pub fn with_c_str<F, T>(s: &str, f: F) -> T
-where
-    F: FnOnce(*const c_char) -> T,
+    where
+        F: FnOnce(*const c_char) -> T,
 {
     let c_str = CString::new(s.as_bytes());
     f(c_str.unwrap().as_bytes_with_nul().as_ptr() as *const _)
@@ -2369,6 +2469,7 @@ impl Window {
     pub fn render_context(&mut self) -> RenderContext {
         RenderContext {
             ptr: self.ptr,
+            glfw: self.glfw.clone(),
             // this will only be None after dropping so this is safe
             drop_sender: self.drop_sender.as_ref().unwrap().clone(),
         }
@@ -2532,8 +2633,8 @@ impl Window {
     /// });
     /// ~~~
     pub fn with_window_mode<T, F>(&self, f: F) -> T
-    where
-        F: FnOnce(WindowMode<'_>) -> T,
+        where
+            F: FnOnce(WindowMode<'_>) -> T,
     {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
@@ -3254,10 +3355,52 @@ impl Drop for Window {
 #[derive(Debug)]
 pub struct RenderContext {
     ptr: *mut ffi::GLFWwindow,
+    glfw: Glfw,
     /// As long as this sender is alive, it is not safe to drop the parent
     /// `Window`.
     #[allow(dead_code)]
     drop_sender: Sender<()>,
+}
+
+impl RenderContext {
+
+    /// Wrapper function, please refer to [`Window::get_proc_address`]
+    pub fn get_proc_address(&mut self, procname: &str) -> GLProc {
+        if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
+            self.make_current();
+        }
+
+        self.glfw.get_proc_address_raw(procname)
+    }
+
+    /// Wrapper function, please refer to [`Window::get_instance_proc_address`]
+    #[cfg(feature = "vulkan")]
+    pub fn get_instance_proc_address(&mut self, instance: vk::Instance, procname: &str) -> VkProc {
+        self.glfw.get_instance_proc_address_raw(instance, procname)
+    }
+
+    /// Wrapper function, please refer to [`Window::get_physical_device_presentation_support`]
+    #[cfg(feature = "vulkan")]
+    pub fn get_physical_device_presentation_support(
+        &self,
+        instance: vk::Instance,
+        device: vk::PhysicalDevice,
+        queue_family: u32,
+    ) -> bool {
+        self.glfw
+            .get_physical_device_presentation_support_raw(instance, device, queue_family)
+    }
+
+    /// Wrapper function, please refer to [`Window::create_window_surface`]
+    #[cfg(feature = "vulkan")]
+    pub fn create_window_surface(
+        &self,
+        instance: vk::Instance,
+        allocator: *const vk::AllocationCallbacks,
+        surface: *mut vk::SurfaceKHR,
+    ) -> vk::Result {
+        unsafe { ffi::glfwCreateWindowSurface(instance, self.ptr, allocator, surface) }
+    }
 }
 
 unsafe impl Send for RenderContext {}
@@ -3403,8 +3546,8 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     {
         let _ = context; // to avoid unused lint
         let mut wh = raw_window_handle::WebWindowHandle::empty();
-         // glfw on emscripten only supports a single window. so, just hardcode it
-         // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their canvas element
+        // glfw on emscripten only supports a single window. so, just hardcode it
+        // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their canvas element
         wh.id = 1;
         RawWindowHandle::Web(wh)
     }
