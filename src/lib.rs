@@ -1114,12 +1114,12 @@ impl Glfw {
     /// }).expect("Failed to create GLFW window.");
     /// ~~~
     pub fn with_primary_monitor<T, F>(&mut self, f: F) -> T
-        where
-            F: FnOnce(&mut Self, Option<&Monitor>) -> T,
+    where
+        F: FnOnce(&mut Self, Option<&mut Monitor>) -> T,
     {
         match unsafe { ffi::glfwGetPrimaryMonitor() } {
             ptr if ptr.is_null() => f(self, None),
-            ptr => f(self, Some(&Monitor { ptr })),
+            ptr => f(self, Some(&mut Monitor { ptr })),
         }
     }
 
@@ -1136,15 +1136,15 @@ impl Glfw {
     /// });
     /// ~~~
     pub fn with_connected_monitors<T, F>(&mut self, f: F) -> T
-        where
-            F: FnOnce(&mut Self, &[Monitor]) -> T,
+    where
+        F: FnOnce(&mut Self, &mut [Monitor]) -> T,
     {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
             f(
                 self,
-                &slice::from_raw_parts(ptr as *const _, count as usize)
+                &mut slice::from_raw_parts(ptr as *const _, count as usize)
                     .iter()
                     .map(|&ptr| Monitor { ptr })
                     .collect::<Vec<Monitor>>(),
