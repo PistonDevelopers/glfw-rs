@@ -26,7 +26,7 @@ use std::ptr;
 
 #[cfg(feature = "vulkan")]
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
     glfw.window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));

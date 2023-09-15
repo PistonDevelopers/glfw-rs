@@ -29,7 +29,7 @@ use glfw::{Action, Context, Key};
 
 #[cfg(feature = "image")]
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     let (mut window, events) = glfw
         .create_window(600, 600, "Window Icon Testing", glfw::WindowMode::Windowed)

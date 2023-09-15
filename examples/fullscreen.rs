@@ -20,7 +20,7 @@ extern crate glfw;
 use glfw::{Action, Context, Key};
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     let (mut window, events) = glfw
         .create_window(
@@ -68,7 +68,7 @@ fn main() {
                         last_pos = window.get_pos();
                         last_size = window.get_size();
 
-                        glfw.with_primary_monitor(|_: &mut _, m: Option<&glfw::Monitor>| {
+                        glfw.with_primary_monitor(|_: &mut _, m: Option<&mut glfw::Monitor>| {
                             let monitor = m.unwrap();
 
                             let mode = monitor.get_video_mode().unwrap();

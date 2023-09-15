@@ -19,13 +19,8 @@ extern crate glfw;
 #[macro_use]
 extern crate log;
 
-use std::cell::Cell;
-
 fn main() {
-    let mut glfw = glfw::init(Some(glfw::Callback {
-        f: error_callback as fn(glfw::Error, String, &Cell<usize>),
-        data: Cell::new(0),
-    }))
+    let mut glfw = glfw::init(error_callback)
     .unwrap();
 
     // Force the error callback to be triggered
@@ -35,7 +30,6 @@ fn main() {
     let _ = glfw.create_window(300, 300, "Stop it! :(", glfw::WindowMode::Windowed);
 }
 
-fn error_callback(_: glfw::Error, description: String, error_count: &Cell<usize>) {
-    error!("GLFW error {:?}: {:?}", error_count.get(), description);
-    error_count.set(error_count.get() + 1);
+fn error_callback(err: glfw::Error, description: String) {
+    error!("GLFW error {:?}: {:?}", err, description);
 }

@@ -18,7 +18,7 @@ extern crate glfw;
 use glfw::{Action, Context, Key};
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     let (mut window, events) = glfw
         .create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)

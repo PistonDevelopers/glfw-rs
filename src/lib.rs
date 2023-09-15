@@ -991,19 +991,33 @@ pub fn init_hint(hint: InitHint) {
 ///
 /// Wrapper for `glfwInit`.
 ///
-/// # Error callback
-///
-/// An error callback can be set if desired. This allows for the handling of any
-/// errors that occur during initialization. This can subsequently be changed
-/// using the `Glfw::set_error_callback` function.
-///
 /// # Example
 ///
 /// ~~~no_run
 /// extern crate glfw;
 ///
 /// fn main() {
-///    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+///    let glfw = glfw::init_no_callbacks().unwrap();
+/// }
+/// ~~~
+///
+/// # Error callback
+///
+/// An error callback can be set if desired. This allows for the handling of any
+/// errors that occur during initialization. This can subsequently be changed
+/// using the `glfw::init` function.
+///
+/// ~~~no_run
+/// extern crate glfw;
+/// #[macro_use]
+/// extern crate log;
+///
+/// fn main() {
+///    let glfw = glfw::init(error_callback).unwrap();
+/// }
+///
+/// fn error_callback(err: glfw::Error, description: String) {
+///     error!("GLFW error {:?}: {:?}", err, description);
 /// }
 /// ~~~
 ///

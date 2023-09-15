@@ -16,7 +16,7 @@
 extern crate glfw;
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     glfw.with_primary_monitor(|_, monitor| {
         let _ = monitor.map(|monitor| {
