@@ -27,7 +27,7 @@ fn add_window(glfw: &mut glfw::Glfw, window_vector: &mut WindowVector) {
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
-    window_vector.push((window, events));
+    window_vector.push((*window, events));
 }
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
@@ -38,7 +38,7 @@ fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
 }
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     // Create two windows
     let mut windows = WindowVector::new();

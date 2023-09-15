@@ -30,7 +30,7 @@ fn vulkan_support(glfw: &mut glfw::Glfw) {
 fn vulkan_support(_: &mut glfw::Glfw) {}
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
 

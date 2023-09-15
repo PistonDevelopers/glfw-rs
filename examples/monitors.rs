@@ -18,7 +18,7 @@ extern crate glfw;
 use glfw::{Action, Context, Key};
 
 fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init_no_callbacks().unwrap();
 
     glfw.with_connected_monitors(|_, monitors| {
         for monitor in monitors.iter() {
