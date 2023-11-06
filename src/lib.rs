@@ -95,21 +95,9 @@ macro_rules! make_user_callback_functions {
         secret -> $secret:ident
     ) => {
 
-        #[cfg(feature = "glfw-callbacks")]
         #[doc = $doc]
         pub fn $set<T>(&mut self, callback: T)
         where T: FnMut(&mut Window, $($args),*) + 'static {
-            unsafe {
-                let callbacks = WindowCallbacks::get_callbacks(self.ptr);
-                callbacks.$callback_field = Some(Box::new(callback));
-                ffi::$glfw(self.ptr, Some(Self::$secret));
-            }
-        }
-
-        #[cfg(not(feature = "glfw-callbacks"))]
-        #[doc = $doc]
-        pub fn $set<T>(&mut self, callback: T)
-        where T: FnMut($($args),*) + 'static {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(self.ptr);
                 callbacks.$callback_field = Some(Box::new(callback));
@@ -165,17 +153,9 @@ macro_rules! new_callback {
         extern "C" fn $secret(glfw_window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(glfw_window);
-                #[cfg(feature = "glfw-callbacks")]
                 let window = &mut *callbacks.window_ptr;
                 if let Some(func) = &mut callbacks.$callback_field {
-                    #[cfg(feature = "glfw-callbacks")]
-                    {
-                        func(window, $($convert_args),*);
-                    }
-                    #[cfg(not(feature = "glfw-callbacks"))]
-                    {
-                        func($($convert_args),*);
-                    }
+                    func(window, $($convert_args),*);
                 }
                 if callbacks.$poll_field {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$window_event($($convert_args),*));
@@ -215,17 +195,9 @@ macro_rules! new_callback {
         extern "C" fn $secret(glfw_window: *mut GLFWwindow, $($glfw_arg_names: $glfw_args),*) {
             unsafe {
                 let callbacks = WindowCallbacks::get_callbacks(glfw_window);
-                #[cfg(feature = "glfw-callbacks")]
                 let window = &mut *callbacks.window_ptr;
                 if let Some(func) = &mut callbacks.$callback_field {
-                    #[cfg(feature = "glfw-callbacks")]
-                    {
-                        func(window);
-                    }
-                    #[cfg(not(feature = "glfw-callbacks"))]
-                    {
-                        func();
-                    }
+                    func(window);
                 }
                 if callbacks.$poll_field {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$window_event);
@@ -282,6 +254,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 #[allow(unused)]
 use std::ffi::*;
+use std::ops::{Deref, DerefMut};
 
 #[cfg(feature = "vulkan")]
 use ash::vk;
@@ -297,13 +270,28 @@ pub use self::MouseButton::Button3 as MouseButtonMiddle;
 mod callbacks;
 pub mod ffi;
 
-#[cfg(feature = "glfw-callbacks")]
-/// Type returned by creating a window
-pub type WindowType = Box<Window>;
+#[derive(Debug)]
+#[repr(transparent)]
+pub struct PWindow(Box<Window>);
 
-#[cfg(not(feature = "glfw-callbacks"))]
-/// Type returned by creating a window
-pub type WindowType = Window;
+impl PWindow {
+    fn raw_ptr(&mut self) -> *mut Window {
+        self.0.deref_mut()
+    }
+}
+
+impl Deref for PWindow {
+    type Target = Window;
+    fn deref(&self) -> &Self::Target {
+        self.0.deref()
+    }
+}
+
+impl DerefMut for PWindow {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.0.deref_mut()
+    }
+}
 
 /// Unique identifier for a `Window`.
 pub type WindowId = usize;
@@ -1370,7 +1358,7 @@ impl Glfw {
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
-    ) -> Option<(WindowType, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(PWindow, Receiver<(f64, WindowEvent)>)> {
         #[cfg(feature = "wayland")]
         {
             // Has to be set otherwise wayland refuses to open window.
@@ -1387,7 +1375,7 @@ impl Glfw {
         title: &str,
         mode: WindowMode<'_>,
         share: Option<&Window>,
-    ) -> Option<(WindowType, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(PWindow, Receiver<(f64, WindowEvent)>)> {
         let ptr = unsafe {
             with_c_str(title, |title| {
                 ffi::glfwCreateWindow(
@@ -1415,17 +1403,11 @@ impl Glfw {
                 drop_receiver,
                 current_cursor: None,
             };
-            #[allow(unused_mut)]
-                let mut callbacks = Box::new(WindowCallbacks::new(sender));
-
-            #[cfg(feature = "glfw-callbacks")]
-                let window = Box::new(window);
+            let mut callbacks = Box::new(WindowCallbacks::new(sender));
+            let mut window = PWindow(Box::new(window));
 
             unsafe {
-                #[cfg(feature = "glfw-callbacks")]
-                {
-                    callbacks.window_ptr = mem::transmute(&*window);
-                }
+                callbacks.window_ptr = window.raw_ptr();
                 ffi::glfwSetWindowUserPointer(ptr, mem::transmute(callbacks));
             }
 
@@ -1721,7 +1703,6 @@ impl Drop for Glfw {
     }
 }
 
-#[cfg(feature = "glfw-callbacks")]
 struct WindowCallbacks {
     window_ptr: *mut Window,
     sender: Sender<(f64, WindowEvent)>,
@@ -1761,52 +1742,12 @@ struct WindowCallbacks {
     content_scale_polling: bool
 }
 
-#[cfg(not(feature = "glfw-callbacks"))]
-struct WindowCallbacks {
-    sender: Sender<(f64, WindowEvent)>,
-    pos_callback: Option<Box<dyn FnMut(i32, i32)>>,
-    size_callback: Option<Box<dyn FnMut(i32, i32)>>,
-    close_callback: Option<Box<dyn FnMut()>>,
-    refresh_callback: Option<Box<dyn FnMut()>>,
-    focus_callback: Option<Box<dyn FnMut(bool)>>,
-    iconify_callback: Option<Box<dyn FnMut(bool)>>,
-    framebuffer_size_callback: Option<Box<dyn FnMut(i32, i32)>>,
-    key_callback: Option<Box<dyn FnMut(Key, Scancode, Action, Modifiers)>>,
-    char_callback: Option<Box<dyn FnMut(char)>>,
-    char_mods_callback: Option<Box<dyn FnMut(char, Modifiers)>>,
-    mouse_button_callback: Option<Box<dyn FnMut(MouseButton, Action, Modifiers)>>,
-    cursor_pos_callback: Option<Box<dyn FnMut(f64, f64)>>,
-    cursor_enter_callback: Option<Box<dyn FnMut(bool)>>,
-    scroll_callback: Option<Box<dyn FnMut(f64, f64)>>,
-    drag_and_drop_callback: Option<Box<dyn FnMut(Vec<PathBuf>)>>,
-    maximize_callback: Option<Box<dyn FnMut(bool)>>,
-    content_scale_callback: Option<Box<dyn FnMut(f32, f32)>>,
-    pos_polling: bool,
-    size_polling: bool,
-    close_polling: bool,
-    refresh_polling: bool,
-    focus_polling: bool,
-    iconify_polling: bool,
-    framebuffer_size_polling: bool,
-    key_polling: bool,
-    char_polling: bool,
-    char_mods_polling: bool,
-    mouse_button_polling: bool,
-    cursor_pos_polling: bool,
-    cursor_enter_polling: bool,
-    scroll_polling: bool,
-    drag_and_drop_polling: bool,
-    maximize_polling: bool,
-    content_scale_polling: bool
-}
-
 impl WindowCallbacks {
 
-    fn new(receiver: Sender<(f64, WindowEvent)>) -> Self {
+    fn new(sender: Sender<(f64, WindowEvent)>) -> Self {
         Self {
-            #[cfg(feature = "glfw-callbacks")]
             window_ptr: std::ptr::null_mut(),
-            sender: receiver,
+            sender,
             pos_callback: None,
             size_callback: None,
             close_callback: None,
@@ -2480,7 +2421,7 @@ impl Window {
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
-    ) -> Option<(WindowType, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(PWindow, Receiver<(f64, WindowEvent)>)> {
         self.glfw
             .create_window_intern(width, height, title, mode, Some(self))
     }
