@@ -160,7 +160,7 @@ macro_rules! new_callback {
                 if callbacks.$poll_field {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$window_event($($convert_args),*));
                     if let Some(event) = callbacks::unbuffered::handle(glfw_window as WindowId, event) {
-                        callbacks.sender.send(event).unwrap();
+                        callbacks.sender.send(event);
                     }
                 }
             }
@@ -202,7 +202,7 @@ macro_rules! new_callback {
                 if callbacks.$poll_field {
                     let event = (ffi::glfwGetTime() as f64, WindowEvent::$window_event);
                     if let Some(event) = callbacks::unbuffered::handle(glfw_window as WindowId, event) {
-                        callbacks.sender.send(event).unwrap();
+                        callbacks.sender.send(event);
                     }
                 }
             }
@@ -233,6 +233,7 @@ extern crate image;
 #[macro_use]
 extern crate objc;
 
+use std::collections::VecDeque;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle, HasRawDisplayHandle, RawDisplayHandle};
 
 use std::error;
@@ -255,6 +256,7 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 #[allow(unused)]
 use std::ffi::*;
 use std::ops::{Deref, DerefMut};
+use std::sync::{Arc, Mutex};
 
 #[cfg(feature = "vulkan")]
 use ash::vk;
@@ -1358,7 +1360,7 @@ impl Glfw {
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
-    ) -> Option<(PWindow, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(PWindow, GlfwReceiver<(f64, WindowEvent)>)> {
         #[cfg(feature = "wayland")]
         {
             // Has to be set otherwise wayland refuses to open window.
@@ -1375,7 +1377,7 @@ impl Glfw {
         title: &str,
         mode: WindowMode<'_>,
         share: Option<&Window>,
-    ) -> Option<(PWindow, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(PWindow, GlfwReceiver<(f64, WindowEvent)>)> {
         let ptr = unsafe {
             with_c_str(title, |title| {
                 ffi::glfwCreateWindow(
@@ -1394,7 +1396,7 @@ impl Glfw {
             None
         } else {
             let (drop_sender, drop_receiver) = channel();
-            let (sender, receiver) = channel();
+            let (sender, receiver) = glfw_channel(16, 256);
             let window = Window {
                 ptr,
                 glfw: self.clone(),
@@ -1703,9 +1705,64 @@ impl Drop for Glfw {
     }
 }
 
+fn glfw_channel<T>(initial_capacity: usize, max_len: usize) -> (GlfwSender<T>, GlfwReceiver<T>) {
+    let shared = Arc::new(SharedTransmitter {
+        queue: Mutex::new(VecDeque::with_capacity(initial_capacity)),
+        max_len
+    });
+    let (mpsc_sender, mpsc_receiver) = channel();
+
+    let sender = GlfwSender { transmitter: shared.clone(), sender: mpsc_sender };
+    let receiver = GlfwReceiver { transmitter: shared.clone(), receiver: mpsc_receiver };
+    (sender, receiver)
+}
+
+#[derive(Debug)]
+struct SharedTransmitter<T> {
+    queue: Mutex<VecDeque<T>>,
+    max_len: usize,
+}
+
+#[derive(Debug, Clone)]
+struct GlfwSender<T> {
+    transmitter: Arc<SharedTransmitter<T>>,
+    sender: Sender<T>
+}
+
+impl<T> GlfwSender<T> {
+    fn send(&self, v: T) {
+        let mut queue = self.transmitter.queue.lock().unwrap();
+        if queue.len() >= self.transmitter.max_len {
+            let _ = self.sender.send(v);
+        } else {
+            queue.push_back(v);
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct GlfwReceiver<T> {
+    transmitter: Arc<SharedTransmitter<T>>,
+    receiver: Receiver<T>
+}
+
+impl<T> GlfwReceiver<T> {
+    pub fn receive(&self) -> Option<T> {
+        let ret = self.transmitter.queue.lock().unwrap().pop_front();
+        if ret.is_some() {
+            ret
+        } else {
+            match self.receiver.try_recv() {
+                Ok(ret) => Some(ret),
+                Err(_) => None
+            }
+        }
+    }
+}
+
 struct WindowCallbacks {
     window_ptr: *mut Window,
-    sender: Sender<(f64, WindowEvent)>,
+    sender: GlfwSender<(f64, WindowEvent)>,
     pos_callback: Option<Box<dyn FnMut(&mut Window, i32, i32)>>,
     size_callback: Option<Box<dyn FnMut(&mut Window, i32, i32)>>,
     close_callback: Option<Box<dyn FnMut(&mut Window)>>,
@@ -1743,8 +1800,7 @@ struct WindowCallbacks {
 }
 
 impl WindowCallbacks {
-
-    fn new(sender: Sender<(f64, WindowEvent)>) -> Self {
+    fn new(sender: GlfwSender<(f64, WindowEvent)>) -> Self {
         Self {
             window_ptr: std::ptr::null_mut(),
             sender,
@@ -2314,14 +2370,14 @@ pub enum WindowEvent {
 ///     // handle event
 /// }
 /// ~~~
-pub fn flush_messages<Message: Send>(receiver: &Receiver<Message>) -> FlushedMessages<'_, Message> {
+pub fn flush_messages<Message: Send>(receiver: &GlfwReceiver<Message>) -> FlushedMessages<'_, Message> {
     FlushedMessages(receiver)
 }
 
 /// An iterator that yields until no more messages are contained in the
 /// `Receiver`'s queue.
 #[derive(Debug)]
-pub struct FlushedMessages<'a, Message: Send>(&'a Receiver<Message>);
+pub struct FlushedMessages<'a, Message: Send>(&'a GlfwReceiver<Message>);
 
 unsafe impl<'a, Message: 'a + Send> Send for FlushedMessages<'a, Message> {}
 
@@ -2330,10 +2386,7 @@ impl<'a, Message: 'static + Send> Iterator for FlushedMessages<'a, Message> {
 
     fn next(&mut self) -> Option<Message> {
         let FlushedMessages(receiver) = *self;
-        match receiver.try_recv() {
-            Ok(message) => Some(message),
-            _ => None,
-        }
+        receiver.receive()
     }
 }
 
@@ -2421,7 +2474,7 @@ impl Window {
         height: u32,
         title: &str,
         mode: WindowMode<'_>,
-    ) -> Option<(PWindow, Receiver<(f64, WindowEvent)>)> {
+    ) -> Option<(PWindow, GlfwReceiver<(f64, WindowEvent)>)> {
         self.glfw
             .create_window_intern(width, height, title, mode, Some(self))
     }
