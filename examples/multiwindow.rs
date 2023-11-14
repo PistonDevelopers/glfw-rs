@@ -16,9 +16,9 @@
 extern crate glfw;
 
 use glfw::{Action, Key};
-use std::sync::mpsc::Receiver;
+use glfw::GlfwReceiver as Receiver;
 
-type WindowInstance = (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
+type WindowInstance = (glfw::PWindow, Receiver<(f64, glfw::WindowEvent)>);
 type WindowVector = Vec<WindowInstance>;
 
 fn add_window(glfw: &mut glfw::Glfw, window_vector: &mut WindowVector) {
@@ -27,7 +27,7 @@ fn add_window(glfw: &mut glfw::Glfw, window_vector: &mut WindowVector) {
         .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
-    window_vector.push((*window, events));
+    window_vector.push((window, events));
 }
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
