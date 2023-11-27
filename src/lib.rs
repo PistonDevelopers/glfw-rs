@@ -234,7 +234,7 @@ extern crate image;
 extern crate objc;
 
 use std::collections::VecDeque;
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle, HasRawDisplayHandle, RawDisplayHandle};
+use raw_window_handle::{RawWindowHandle, HasDisplayHandle, HasWindowHandle, WindowHandle, HandleError, DisplayHandle, RawDisplayHandle};
 
 use std::error;
 use std::ffi::{CStr, CString};
@@ -255,6 +255,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 #[allow(unused)]
 use std::ffi::*;
+use std::num::NonZeroIsize;
 use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Mutex};
 
@@ -3491,42 +3492,43 @@ impl Context for RenderContext {
     }
 }
 
-unsafe impl HasRawWindowHandle for Window {
-    fn raw_window_handle(&self) -> RawWindowHandle {
-        raw_window_handle(self)
+impl HasWindowHandle for Window {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        Ok(unsafe { WindowHandle::borrow_raw(raw_window_handle(self)) })
     }
 }
 
-unsafe impl HasRawWindowHandle for RenderContext {
-    fn raw_window_handle(&self) -> RawWindowHandle {
-        raw_window_handle(self)
+impl HasWindowHandle for RenderContext {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        Ok(unsafe { WindowHandle::borrow_raw(raw_window_handle(self)) })
     }
 }
 
-unsafe impl HasRawDisplayHandle for Window {
-    fn raw_display_handle(&self) -> RawDisplayHandle {
-        raw_display_handle()
+impl HasDisplayHandle for Window {
+    fn display_handle(&'_ self) -> Result<DisplayHandle<'_>, HandleError> {
+        Ok(unsafe { DisplayHandle::borrow_raw(raw_display_handle()) })
     }
 }
 
-unsafe impl HasRawDisplayHandle for RenderContext {
-    fn raw_display_handle(&self) -> RawDisplayHandle {
-        raw_display_handle()
+impl HasDisplayHandle for RenderContext {
+    fn display_handle(&'_ self) -> Result<DisplayHandle<'_>, HandleError> {
+        Ok(unsafe { DisplayHandle::borrow_raw(raw_display_handle()) })
     }
 }
+
+
 
 fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
         use raw_window_handle::Win32WindowHandle;
-        let (hwnd, hinstance) = unsafe {
-            let hwnd = ffi::glfwGetWin32Window(context.window_ptr());
-            let hinstance = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null());
+        let (hwnd, hinstance): (*mut std::ffi::c_void, *mut std::ffi::c_void) = unsafe {
+            let hwnd= ffi::glfwGetWin32Window(context.window_ptr());
+            let hinstance: *mut c_void = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null()) as _;
             (hwnd, hinstance as _)
         };
-        let mut handle = Win32WindowHandle::empty();
-        handle.hwnd = hwnd;
-        handle.hinstance = hinstance;
+        let mut handle = Win32WindowHandle::new(NonZeroIsize::new(hwnd as isize).unwrap());
+        handle.hinstance = NonZeroIsize::new(hinstance as isize);
         RawWindowHandle::Win32(handle)
     }
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
@@ -3576,7 +3578,7 @@ fn raw_display_handle() -> RawDisplayHandle {
     #[cfg(target_family = "windows")]
     {
         use raw_window_handle::WindowsDisplayHandle;
-        RawDisplayHandle::Windows(WindowsDisplayHandle::empty())
+        RawDisplayHandle::Windows(WindowsDisplayHandle::new())
     }
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
     {

@@ -17,7 +17,7 @@ extern crate glfw;
 extern crate raw_window_handle;
 
 use glfw::{Action, Context, Key};
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use raw_window_handle::{HasWindowHandle, RawWindowHandle};
 
 fn main() {
     let mut glfw = glfw::init_no_callbacks().unwrap();
@@ -29,7 +29,7 @@ fn main() {
     window.set_key_polling(true);
     window.make_current();
 
-    match window.raw_window_handle() {
+    match window.window_handle().unwrap().as_raw() {
         RawWindowHandle::Win32(handle) => println!("raw handle: {:?}", handle),
         RawWindowHandle::Xlib(handle) => println!("raw handle: {:?}", handle),
         RawWindowHandle::Wayland(handle) => println!("raw handle: {:?}", handle),
