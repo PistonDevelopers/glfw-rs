@@ -3590,8 +3590,6 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     }
     #[cfg(target_os = "macos")]
     {
-        // until I can test
-        compile_error!("macos support for raw-window-handle 0.6 is not yet tested");
         use std::ptr::NonNull;
         use raw_window_handle::AppKitWindowHandle;
         let ns_view = unsafe {
