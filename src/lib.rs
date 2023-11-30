@@ -3622,15 +3622,17 @@ fn raw_display_handle() -> RawDisplayHandle {
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
     {
         use raw_window_handle::XlibDisplayHandle;
-        let mut handle = XlibDisplayHandle::empty();
-        handle.display = unsafe { ffi::glfwGetX11Display() };
+        use std::ptr::NonNull;
+        let display = NonNull::new(unsafe { ffi::glfwGetX11Display() });
+        let handle = XlibDisplayHandle::new(display, 0);
         RawDisplayHandle::Xlib(handle)
     }
     #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
     {
         use raw_window_handle::WaylandDisplayHandle;
-        let mut handle = WaylandDisplayHandle::empty();
-        handle.display = unsafe { ffi::glfwGetWaylandDisplay() };
+        use std::ptr::NonNull;
+        let display = NonNull::new(unsafe { ffi::glfwGetWaylandDisplay() });
+        let handle = WaylandDisplayHandle::new(display, 0);
         RawDisplayHandle::Wayland(handle)
     }
     #[cfg(target_os = "macos")]
