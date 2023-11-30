@@ -307,6 +307,21 @@ impl DerefMut for PWindow {
     }
 }
 
+// these are technically already implemented, but somehow this fixed a error in wgpu
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasWindowHandle for PWindow {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        self.0.window_handle()
+    }
+}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasDisplayHandle for PWindow {
+    fn display_handle(&self) -> Result<DisplayHandle<'_>, HandleError> {
+        self.0.display_handle()
+    }
+}
+
 /// Unique identifier for a `Window`.
 pub type WindowId = usize;
 
