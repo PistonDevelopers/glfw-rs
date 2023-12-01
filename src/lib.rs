@@ -3398,6 +3398,7 @@ impl Drop for Window {
 }
 
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct PRenderContext(Box<RenderContext>);
 
 impl Deref for PRenderContext {
@@ -3452,12 +3453,14 @@ impl PRenderContext {
 unsafe impl Send for PRenderContext {}
 unsafe impl Sync for PRenderContext {}
 
+#[cfg(feature = "raw-window-handle-v0-6")]
 impl HasWindowHandle for PRenderContext {
     fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
         self.0.window_handle()
     }
 }
 
+#[cfg(feature = "raw-window-handle-v0-6")]
 impl HasDisplayHandle for PRenderContext {
     fn display_handle(&self) -> Result<DisplayHandle<'_>, HandleError> {
         self.0.display_handle()
