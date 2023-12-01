@@ -2512,13 +2512,13 @@ impl Window {
 
     /// Returns a render context that can be shared between tasks, allowing
     /// for concurrent rendering.
-    pub fn render_context(&mut self) -> RenderContext {
-        RenderContext {
+    pub fn render_context(&mut self) -> PRenderContext {
+        PRenderContext(Box::new(RenderContext {
             ptr: self.ptr,
             glfw: self.glfw.clone(),
             // this will only be None after dropping so this is safe
             drop_sender: self.drop_sender.as_ref().unwrap().clone(),
-        }
+        }))
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
@@ -3394,6 +3394,73 @@ impl Drop for Window {
                 ffi::glfwDestroyWindow(self.ptr);
             }
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct PRenderContext(Box<RenderContext>);
+
+impl Deref for PRenderContext {
+    type Target = RenderContext;
+    fn deref(&self) -> &Self::Target {
+        self.0.deref()
+    }
+}
+
+impl DerefMut for PRenderContext {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.0.deref_mut()
+    }
+}
+
+impl PRenderContext {
+
+    /// Wrapper function, please refer to [`Window::get_proc_address`]
+    pub fn get_proc_address(&mut self, procname: &str) -> GLProc {
+        self.0.get_proc_address(procname)
+    }
+
+    /// Wrapper function, please refer to [`Window::get_instance_proc_address`]
+    #[cfg(feature = "vulkan")]
+    pub fn get_instance_proc_address(&mut self, instance: vk::Instance, procname: &str) -> VkProc {
+        self.0.get_instance_proc_address(instance, procname)
+    }
+
+    /// Wrapper function, please refer to [`Window::get_physical_device_presentation_support`]
+    #[cfg(feature = "vulkan")]
+    pub fn get_physical_device_presentation_support(
+        &self,
+        instance: vk::Instance,
+        device: vk::PhysicalDevice,
+        queue_family: u32,
+    ) -> bool {
+        self.0.get_physical_device_presentation_support(instance, device, queue_family)
+    }
+
+    /// Wrapper function, please refer to [`Window::create_window_surface`]
+    #[cfg(feature = "vulkan")]
+    pub fn create_window_surface(
+        &self,
+        instance: vk::Instance,
+        allocator: *const vk::AllocationCallbacks,
+        surface: *mut vk::SurfaceKHR,
+    ) -> vk::Result {
+        self.0.create_window_surface(instance, allocator, surface)
+    }
+}
+
+unsafe impl Send for PRenderContext {}
+unsafe impl Sync for PRenderContext {}
+
+impl HasWindowHandle for PRenderContext {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        self.0.window_handle()
+    }
+}
+
+impl HasDisplayHandle for PRenderContext {
+    fn display_handle(&self) -> Result<DisplayHandle<'_>, HandleError> {
+        self.0.display_handle()
     }
 }
 
