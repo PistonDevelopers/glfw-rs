@@ -307,6 +307,10 @@ impl DerefMut for PWindow {
     }
 }
 
+unsafe impl Send for PWindow {}
+
+unsafe impl Sync for PWindow {}
+
 // these are technically already implemented, but somehow this fixed a error in wgpu
 #[cfg(feature = "raw-window-handle-v0-6")]
 impl HasWindowHandle for PWindow {
@@ -3411,42 +3415,6 @@ impl Deref for PRenderContext {
 impl DerefMut for PRenderContext {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.0.deref_mut()
-    }
-}
-
-impl PRenderContext {
-
-    /// Wrapper function, please refer to [`Window::get_proc_address`]
-    pub fn get_proc_address(&mut self, procname: &str) -> GLProc {
-        self.0.get_proc_address(procname)
-    }
-
-    /// Wrapper function, please refer to [`Window::get_instance_proc_address`]
-    #[cfg(feature = "vulkan")]
-    pub fn get_instance_proc_address(&mut self, instance: vk::Instance, procname: &str) -> VkProc {
-        self.0.get_instance_proc_address(instance, procname)
-    }
-
-    /// Wrapper function, please refer to [`Window::get_physical_device_presentation_support`]
-    #[cfg(feature = "vulkan")]
-    pub fn get_physical_device_presentation_support(
-        &self,
-        instance: vk::Instance,
-        device: vk::PhysicalDevice,
-        queue_family: u32,
-    ) -> bool {
-        self.0.get_physical_device_presentation_support(instance, device, queue_family)
-    }
-
-    /// Wrapper function, please refer to [`Window::create_window_surface`]
-    #[cfg(feature = "vulkan")]
-    pub fn create_window_surface(
-        &self,
-        instance: vk::Instance,
-        allocator: *const vk::AllocationCallbacks,
-        surface: *mut vk::SurfaceKHR,
-    ) -> vk::Result {
-        self.0.create_window_surface(instance, allocator, surface)
     }
 }
 
