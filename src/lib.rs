@@ -229,7 +229,7 @@ extern crate log;
 extern crate bitflags;
 #[cfg(feature = "image")]
 extern crate image;
-#[cfg(all(target_os = "macos"))]
+#[cfg(target_os = "macos")]
 #[macro_use]
 extern crate objc;
 
@@ -3646,13 +3646,12 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         use std::ptr::NonNull;
         use raw_window_handle::AppKitWindowHandle;
         let ns_view = unsafe {
+            let ns_window: *mut objc::runtime::Object = ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
             let ns_view: *mut objc::runtime::Object = objc::msg_send![ns_window, contentView];
             assert_ne!(ns_view, std::ptr::null_mut());
-            (
-                ns_view as *mut std::ffi::c_void
-            )
+            ns_view as *mut std::ffi::c_void
         };
-        let mut handle = AppKitWindowHandle::new(NonNull::new(ns_view).unwrap());
+        let handle = AppKitWindowHandle::new(NonNull::new(ns_view).unwrap());
         RawWindowHandle::AppKit(handle)
     }
     #[cfg(target_os = "emscripten")]
