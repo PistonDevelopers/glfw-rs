@@ -251,7 +251,7 @@ use std::path::PathBuf;
 use std::ptr;
 use std::ptr::{null, null_mut};
 use std::slice;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 #[allow(unused)]
 use std::ffi::*;
@@ -1142,6 +1142,26 @@ impl Glfw {
         }
     }
 
+    /// Supplies the window monitor to the closure provided, if it's fullscreen.
+    ///
+    /// # Example
+    ///
+    /// ~~~ignore
+    /// let (window, events) = glfw.with_window_monitor(|_, m| {
+    ///     glfw.create_window(300, 300, "Hello this is window",
+    ///         m.map_or(glfw::WindowMode::Windowed, |m| glfw::FullScreen(m)))
+    /// }).expect("Failed to create GLFW window.");
+    /// ~~~
+    pub fn with_window_monitor<T, F>(&mut self, window: &mut Window, f: F) -> T
+        where
+            F: FnOnce(&mut Self, Option<&mut Monitor>) -> T,
+    {
+        match unsafe { ffi::glfwGetWindowMonitor(window.ptr) } {
+            ptr if ptr.is_null() => f(self, None),
+            ptr => f(self, Some(&mut Monitor { ptr })),
+        }
+    }
+
     /// Supplies a vector of the currently connected monitors to the closure
     /// provided.
     ///
@@ -1156,18 +1176,20 @@ impl Glfw {
     /// ~~~
     pub fn with_connected_monitors<T, F>(&mut self, f: F) -> T
     where
-        F: FnOnce(&mut Self, &mut [Monitor]) -> T,
+        F: FnOnce(&mut Self, &[&mut Monitor]) -> T,
     {
         unsafe {
             let mut count = 0;
             let ptr = ffi::glfwGetMonitors(&mut count);
-            f(
-                self,
-                &mut slice::from_raw_parts(ptr as *const _, count as usize)
-                    .iter()
-                    .map(|&ptr| Monitor { ptr })
-                    .collect::<Vec<Monitor>>(),
-            )
+            let mut monitors = slice::from_raw_parts(ptr as *const _, count as usize)
+                .iter()
+                .map(|&ptr| Monitor { ptr })
+                .collect::<Vec<Monitor>>();
+
+            let refs: Vec<&mut Monitor> = monitors
+                .iter_mut()
+                .collect();
+            f(self, &refs)
         }
     }
 
@@ -1920,25 +1942,6 @@ impl std::fmt::Debug for Monitor {
 }
 
 impl Monitor {
-
-    /// Wrapper for `glfwGetPrimaryMonitor`.
-    pub fn from_primary() -> Self {
-        unsafe {
-            Self {
-                ptr: ffi::glfwGetPrimaryMonitor()
-            }
-        }
-    }
-
-    /// Wrapper for `glfwGetWindowMonitor`.
-    pub fn from_window(window: &Window) -> Self {
-        unsafe {
-            Self {
-                ptr: ffi::glfwGetWindowMonitor(window.ptr)
-            }
-        }
-    }
-
     /// Wrapper for `glfwGetMonitorPos`.
     pub fn get_pos(&self) -> (i32, i32) {
         unsafe {
