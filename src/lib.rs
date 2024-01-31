@@ -251,7 +251,7 @@ use std::path::PathBuf;
 use std::ptr;
 use std::ptr::{null, null_mut};
 use std::slice;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 #[allow(unused)]
 use std::ffi::*;
