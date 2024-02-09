@@ -1417,6 +1417,62 @@ impl Glfw {
         }
     }
 
+    /// Creates a new window, but have it be hidden.
+    /// Useful for a headless OpenGL context for computational applications.
+    ///
+    /// Wrapper for `glfwCreateWindow`.
+    pub fn create_hidden_window(
+        &mut self
+    ) -> Option<(PWindow, GlfwReceiver<(f64, WindowEvent)>)> {
+        #[cfg(feature = "wayland")]
+        {
+            // Has to be set otherwise wayland refuses to open window.
+            self.window_hint(WindowHint::Focused(false));
+        }
+        self.create_hidden_window_intern("Hidden Window")
+    }
+
+    /// Internal wrapper for `glfwCreateWindow`.
+    fn create_hidden_window_intern(
+        &self,
+        title: &str
+    ) -> Option<(PWindow, GlfwReceiver<(f64, WindowEvent)>)> {
+        let ptr = unsafe {
+            with_c_str(title, |title| {
+                ffi::glfwCreateWindow(
+                    1 as c_int,
+                    1 as c_int,
+                    title,
+                    ptr::null_mut(),
+                    ptr::null_mut()
+                )
+            })
+        };
+        if ptr.is_null() {
+            None
+        } else {
+            let (drop_sender, drop_receiver) = channel();
+            let (sender, receiver) = glfw_channel(16, 256);
+            let window = Window {
+                ptr,
+                glfw: self.clone(),
+                is_shared: share.is_some(),
+                drop_sender: Some(drop_sender),
+                drop_receiver,
+                current_cursor: None,
+            };
+            let mut callbacks = Box::new(WindowCallbacks::new(sender));
+            let mut window = PWindow(Box::new(window));
+
+            unsafe {
+                callbacks.window_ptr = window.raw_ptr();
+                ffi::glfwSetWindowUserPointer(ptr, mem::transmute(callbacks));
+            }
+
+            Some((window, receiver))
+        }
+    }
+
     /// Makes the context of the specified window current. If no window is given
     /// then the current context is detached.
     ///
