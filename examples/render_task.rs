@@ -53,7 +53,7 @@ fn main() {
     let _ = render_task_done;
 }
 
-fn render(mut context: glfw::RenderContext, finish: Receiver<()>) {
+fn render(mut context: glfw::PRenderContext, finish: Receiver<()>) {
     context.make_current();
     loop {
         // Check if the rendering should stop.

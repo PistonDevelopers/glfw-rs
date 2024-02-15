@@ -229,12 +229,24 @@ extern crate log;
 extern crate bitflags;
 #[cfg(feature = "image")]
 extern crate image;
-#[cfg(all(target_os = "macos"))]
+#[cfg(target_os = "macos")]
 #[macro_use]
 extern crate objc;
 
+#[cfg(feature = "raw-window-handle-v0-6")]
+extern crate raw_window_handle_0_6 as raw_window_handle;
+
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
+extern crate raw_window_handle_0_5 as raw_window_handle;
+
 use std::collections::VecDeque;
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle, HasRawDisplayHandle, RawDisplayHandle};
+
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
+use raw_window_handle::{HasRawWindowHandle, HasRawDisplayHandle};
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+use raw_window_handle::{HasDisplayHandle, HasWindowHandle, WindowHandle, HandleError, DisplayHandle};
+use raw_window_handle::{RawWindowHandle, RawDisplayHandle};
 
 use std::error;
 use std::ffi::{CStr, CString};
@@ -292,6 +304,25 @@ impl Deref for PWindow {
 impl DerefMut for PWindow {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.0.deref_mut()
+    }
+}
+
+unsafe impl Send for PWindow {}
+
+unsafe impl Sync for PWindow {}
+
+// these are technically already implemented, but somehow this fixed a error in wgpu
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasWindowHandle for PWindow {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        self.0.window_handle()
+    }
+}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasDisplayHandle for PWindow {
+    fn display_handle(&self) -> Result<DisplayHandle<'_>, HandleError> {
+        self.0.display_handle()
     }
 }
 
@@ -2485,13 +2516,13 @@ impl Window {
 
     /// Returns a render context that can be shared between tasks, allowing
     /// for concurrent rendering.
-    pub fn render_context(&mut self) -> RenderContext {
-        RenderContext {
+    pub fn render_context(&mut self) -> PRenderContext {
+        PRenderContext(Box::new(RenderContext {
             ptr: self.ptr,
             glfw: self.glfw.clone(),
             // this will only be None after dropping so this is safe
             drop_sender: self.drop_sender.as_ref().unwrap().clone(),
-        }
+        }))
     }
 
     /// Wrapper for `glfwWindowShouldClose`.
@@ -3370,6 +3401,40 @@ impl Drop for Window {
     }
 }
 
+#[derive(Debug)]
+#[repr(transparent)]
+pub struct PRenderContext(Box<RenderContext>);
+
+impl Deref for PRenderContext {
+    type Target = RenderContext;
+    fn deref(&self) -> &Self::Target {
+        self.0.deref()
+    }
+}
+
+impl DerefMut for PRenderContext {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.0.deref_mut()
+    }
+}
+
+unsafe impl Send for PRenderContext {}
+unsafe impl Sync for PRenderContext {}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasWindowHandle for PRenderContext {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        self.0.window_handle()
+    }
+}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasDisplayHandle for PRenderContext {
+    fn display_handle(&self) -> Result<DisplayHandle<'_>, HandleError> {
+        self.0.display_handle()
+    }
+}
+
 /// A rendering context that can be shared between tasks.
 #[derive(Debug)]
 pub struct RenderContext {
@@ -3491,30 +3556,149 @@ impl Context for RenderContext {
     }
 }
 
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasWindowHandle for Window {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        Ok(unsafe { WindowHandle::borrow_raw(raw_window_handle(self)) })
+    }
+}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasWindowHandle for RenderContext {
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        Ok(unsafe { WindowHandle::borrow_raw(raw_window_handle(self)) })
+    }
+}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasDisplayHandle for Window {
+    fn display_handle(&'_ self) -> Result<DisplayHandle<'_>, HandleError> {
+        Ok(unsafe { DisplayHandle::borrow_raw(raw_display_handle()) })
+    }
+}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+impl HasDisplayHandle for RenderContext {
+    fn display_handle(&'_ self) -> Result<DisplayHandle<'_>, HandleError> {
+        Ok(unsafe { DisplayHandle::borrow_raw(raw_display_handle()) })
+    }
+}
+
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
 unsafe impl HasRawWindowHandle for Window {
     fn raw_window_handle(&self) -> RawWindowHandle {
         raw_window_handle(self)
     }
 }
 
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
 unsafe impl HasRawWindowHandle for RenderContext {
     fn raw_window_handle(&self) -> RawWindowHandle {
         raw_window_handle(self)
     }
 }
 
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
 unsafe impl HasRawDisplayHandle for Window {
     fn raw_display_handle(&self) -> RawDisplayHandle {
         raw_display_handle()
     }
 }
 
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
 unsafe impl HasRawDisplayHandle for RenderContext {
     fn raw_display_handle(&self) -> RawDisplayHandle {
         raw_display_handle()
     }
 }
 
+#[cfg(feature = "raw-window-handle-v0-6")]
+fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
+    #[cfg(target_family = "windows")]
+    {
+        use raw_window_handle::Win32WindowHandle;
+        use std::num::NonZeroIsize;
+        let (hwnd, hinstance): (*mut std::ffi::c_void, *mut std::ffi::c_void) = unsafe {
+            let hwnd= ffi::glfwGetWin32Window(context.window_ptr());
+            let hinstance: *mut c_void = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null()) as _;
+            (hwnd, hinstance as _)
+        };
+        let mut handle = Win32WindowHandle::new(NonZeroIsize::new(hwnd as isize).unwrap());
+        handle.hinstance = NonZeroIsize::new(hinstance as isize);
+        RawWindowHandle::Win32(handle)
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    {
+        use raw_window_handle::XlibWindowHandle;
+        let window = unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
+        RawWindowHandle::Xlib(XlibWindowHandle::new(window))
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    {
+        use raw_window_handle::WaylandWindowHandle;
+        use std::ptr::NonNull;
+        let surface = unsafe { ffi::glfwGetWaylandWindow(context.window_ptr()) };
+        let mut handle = WaylandWindowHandle::new(NonNull::new(surface));
+        RawWindowHandle::Wayland(handle)
+    }
+    #[cfg(target_os = "macos")]
+    {
+        use std::ptr::NonNull;
+        use raw_window_handle::AppKitWindowHandle;
+        let ns_view = unsafe {
+            let ns_window: *mut objc::runtime::Object = ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
+            let ns_view: *mut objc::runtime::Object = objc::msg_send![ns_window, contentView];
+            assert_ne!(ns_view, std::ptr::null_mut());
+            ns_view as *mut std::ffi::c_void
+        };
+        let handle = AppKitWindowHandle::new(NonNull::new(ns_view).unwrap());
+        RawWindowHandle::AppKit(handle)
+    }
+    #[cfg(target_os = "emscripten")]
+    {
+        let _ = context; // to avoid unused lint
+        let mut wh = raw_window_handle::WebWindowHandle::new(1);
+        // glfw on emscripten only supports a single window. so, just hardcode it
+        // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their canvas element
+        RawWindowHandle::Web(wh)
+    }
+}
+
+#[cfg(feature = "raw-window-handle-v0-6")]
+fn raw_display_handle() -> RawDisplayHandle {
+    #[cfg(target_family = "windows")]
+    {
+        use raw_window_handle::WindowsDisplayHandle;
+        RawDisplayHandle::Windows(WindowsDisplayHandle::new())
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    {
+        use raw_window_handle::XlibDisplayHandle;
+        use std::ptr::NonNull;
+        let display = NonNull::new(unsafe { ffi::glfwGetX11Display() });
+        let handle = XlibDisplayHandle::new(display, 0);
+        RawDisplayHandle::Xlib(handle)
+    }
+    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    {
+        use raw_window_handle::WaylandDisplayHandle;
+        use std::ptr::NonNull;
+        let display = NonNull::new(unsafe { ffi::glfwGetWaylandDisplay() });
+        let handle = WaylandDisplayHandle::new(display, 0);
+        RawDisplayHandle::Wayland(handle)
+    }
+    #[cfg(target_os = "macos")]
+    {
+        use raw_window_handle::AppKitDisplayHandle;
+        RawDisplayHandle::AppKit(AppKitDisplayHandle::new())
+    }
+    #[cfg(target_os = "emscripten")]
+    {
+        RawDisplayHandle::Web(raw_window_handle::WebDisplayHandle::new())
+    }
+}
+
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
 fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
@@ -3572,6 +3756,7 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     }
 }
 
+#[cfg(not(feature = "raw-window-handle-v0-6"))]
 fn raw_display_handle() -> RawDisplayHandle {
     #[cfg(target_family = "windows")]
     {
@@ -3602,6 +3787,7 @@ fn raw_display_handle() -> RawDisplayHandle {
         RawDisplayHandle::Web(raw_window_handle::WebDisplayHandle::empty())
     }
 }
+
 
 /// Wrapper for `glfwMakeContextCurrent`.
 pub fn make_context_current(context: Option<&dyn Context>) {

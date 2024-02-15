@@ -12,7 +12,9 @@ rust-version = "1.56"
 
 [dependencies]
 bitflags = "1.0.0"
-raw-window-handle = "0.5.0"
+# would like one to enable when raw-window-handle-v0-6 is not enabled, but have not figured out how
+raw-window-handle-0-5 = { package = "raw-window-handle", version = "0.5.0"}
+raw-window-handle-0-6 = { package = "raw-window-handle", version = "0.6.0", optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc = "0.2"
@@ -40,7 +42,8 @@ version = "0.37.2"
 log = "0.4"
 
 [features]
-all = ["image", "vulkan", "log", "wayland"]
-default = ["glfw-sys"]
+all = ["image", "vulkan", "log", "wayland", "raw-window-handle-v0-6"]
+default = ["glfw-sys", "raw-window-handle-v0-6"]
 vulkan = ["ash"]
 wayland = ["glfw-sys/wayland"]
+raw-window-handle-v0-6 = ["dep:raw-window-handle-0-6"]
