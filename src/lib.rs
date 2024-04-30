@@ -229,9 +229,6 @@ extern crate log;
 extern crate bitflags;
 #[cfg(feature = "image")]
 extern crate image;
-#[cfg(target_os = "macos")]
-#[macro_use]
-extern crate objc;
 
 #[cfg(feature = "raw-window-handle-v0-6")]
 extern crate raw_window_handle_0_6 as raw_window_handle;
@@ -3646,15 +3643,17 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     }
     #[cfg(target_os = "macos")]
     {
-        use std::ptr::NonNull;
+        use objc2::msg_send_id;
+        use objc2::rc::Id;
+        use objc2::runtime::NSObject;
         use raw_window_handle::AppKitWindowHandle;
-        let ns_view = unsafe {
-            let ns_window: *mut objc::runtime::Object = ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _;
-            let ns_view: *mut objc::runtime::Object = objc::msg_send![ns_window, contentView];
-            assert_ne!(ns_view, std::ptr::null_mut());
-            ns_view as *mut std::ffi::c_void
-        };
-        let handle = AppKitWindowHandle::new(NonNull::new(ns_view).unwrap());
+        use std::ptr::NonNull;
+        let ns_window: *mut NSObject =
+            unsafe { ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _ };
+        let ns_view: Option<Id<NSObject>> = unsafe { msg_send_id![ns_window, contentView] };
+        let ns_view = ns_view.expect("failed to access contentView on GLFW NSWindow");
+        let ns_view: NonNull<NSObject> = NonNull::from(&*ns_view);
+        let handle = AppKitWindowHandle::new(ns_view.cast());
         RawWindowHandle::AppKit(handle)
     }
     #[cfg(target_os = "emscripten")]
