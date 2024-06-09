@@ -101,7 +101,7 @@ default-features = false
 By default, `glfw-rs` uses raw-window-handle at v0.6.0. If your project is depending on `glfw-rs`
 with raw-window-handle v0.5.0, then use this line in your Cargo.toml:
 ~~~
-glfw = { version = 0.56.0 , default-features = false, features = ["with-window-handle-0-5"] }
+glfw = { version = 0.56.0 , default-features = false, features = ["with-window-handle-v0-5"] }
 ~~~
 
 ## Support
