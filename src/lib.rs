@@ -233,12 +233,12 @@ extern crate image;
 #[cfg(feature = "raw-window-handle-v0-6")]
 extern crate raw_window_handle_0_6 as raw_window_handle;
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 extern crate raw_window_handle_0_5 as raw_window_handle;
 
 use std::collections::VecDeque;
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 use raw_window_handle::{HasRawWindowHandle, HasRawDisplayHandle};
 
 #[cfg(feature = "raw-window-handle-v0-6")]
@@ -3584,28 +3584,28 @@ impl HasDisplayHandle for RenderContext {
     }
 }
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 unsafe impl HasRawWindowHandle for Window {
     fn raw_window_handle(&self) -> RawWindowHandle {
         raw_window_handle(self)
     }
 }
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 unsafe impl HasRawWindowHandle for RenderContext {
     fn raw_window_handle(&self) -> RawWindowHandle {
         raw_window_handle(self)
     }
 }
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 unsafe impl HasRawDisplayHandle for Window {
     fn raw_display_handle(&self) -> RawDisplayHandle {
         raw_display_handle()
     }
 }
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 unsafe impl HasRawDisplayHandle for RenderContext {
     fn raw_display_handle(&self) -> RawDisplayHandle {
         raw_display_handle()
@@ -3700,7 +3700,7 @@ fn raw_display_handle() -> RawDisplayHandle {
     }
 }
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
@@ -3758,7 +3758,7 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     }
 }
 
-#[cfg(not(feature = "raw-window-handle-v0-6"))]
+#[cfg(feature = "raw-window-handle-v0-5")]
 fn raw_display_handle() -> RawDisplayHandle {
     #[cfg(target_family = "windows")]
     {

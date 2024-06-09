@@ -43,6 +43,7 @@ log = "0.4"
 [features]
 all = ["image", "vulkan", "log", "wayland", "raw-window-handle-v0-6"]
 default = ["glfw-sys", "raw-window-handle-v0-6"]
+with-window-handle-v0-5 = ["glfw-sys", "raw-window-handle-v0-5"]
 vulkan = ["ash"]
 wayland = ["glfw-sys/wayland"]
 raw-window-handle-v0-6 = ["dep:raw-window-handle-0-6"]
