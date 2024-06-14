@@ -3638,7 +3638,7 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         use raw_window_handle::WaylandWindowHandle;
         use std::ptr::NonNull;
         let surface = unsafe { ffi::glfwGetWaylandWindow(context.window_ptr()) };
-        let mut handle = WaylandWindowHandle::new(NonNull::new(surface).expect("wayland window surface is null"));
+        let handle = WaylandWindowHandle::new(NonNull::new(surface).expect("wayland window surface is null"));
         RawWindowHandle::Wayland(handle)
     }
     #[cfg(target_os = "macos")]
@@ -3685,8 +3685,8 @@ fn raw_display_handle() -> RawDisplayHandle {
     {
         use raw_window_handle::WaylandDisplayHandle;
         use std::ptr::NonNull;
-        let display = NonNull::new(unsafe { ffi::glfwGetWaylandDisplay() });
-        let handle = WaylandDisplayHandle::new(display, 0);
+        let display = NonNull::new(unsafe { ffi::glfwGetWaylandDisplay() }).expect("wayland display is null");
+        let handle = WaylandDisplayHandle::new(display);
         RawDisplayHandle::Wayland(handle)
     }
     #[cfg(target_os = "macos")]
