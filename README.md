@@ -116,3 +116,14 @@ or [post an issue](https://github.com/bjz/glfw-rs/issues/new) on GitHub.
 - [Jeaye/q3](https://github.com/Jeaye/q3)
 - [cyndis/rsmc](https://github.com/cyndis/rsmc/)
 - [ozkriff/zoc](https://github.com/ozkriff/zoc)
+
+## glfw-rs with other graphical APIs
+
+In certain circumstances OpenGL which GLFW uses can conflict with the new handle that the 
+graphical API is also trying to use, causing crashes, to fix this add
+~~~rust
+glfw.window_hint(WindowHint::ClientApi(ClientApiHint::NoApi));
+~~~
+before creating the window. If using this however you cannot use certain built-in functions, 
+such as `window.swap_buffers()`, `window.make_current()`, and `glfw.set_swap_interval()`, but
+these should have equivalents provided by the graphical API.
