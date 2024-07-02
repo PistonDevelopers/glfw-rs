@@ -2490,7 +2490,7 @@ impl Window {
     pub fn create_window_surface(
         &self,
         instance: vk::Instance,
-        allocator: *const vk::AllocationCallbacks,
+        allocator: *const vk::AllocationCallbacks<'_>,
         surface: *mut vk::SurfaceKHR,
     ) -> vk::Result {
         unsafe { ffi::glfwCreateWindowSurface(instance, self.ptr, allocator, surface) }
@@ -3480,7 +3480,7 @@ impl RenderContext {
     pub fn create_window_surface(
         &self,
         instance: vk::Instance,
-        allocator: *const vk::AllocationCallbacks,
+        allocator: *const vk::AllocationCallbacks<'_>,
         surface: *mut vk::SurfaceKHR,
     ) -> vk::Result {
         unsafe { ffi::glfwCreateWindowSurface(instance, self.ptr, allocator, surface) }

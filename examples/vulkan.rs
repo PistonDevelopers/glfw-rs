@@ -73,8 +73,8 @@ unsafe fn create_instance(entry: &ash::Entry, extensions: &Vec<String>) -> ash::
     let extension_pointers: Vec<*const i8> = extensions.iter().map(|ext| ext.as_ptr()).collect();
     //This is literally the bare minimum required to create a blank instance
     //You'll want to fill in this with real data yourself
-    let info: vk::InstanceCreateInfoBuilder =
-        vk::InstanceCreateInfo::builder().enabled_extension_names(&extension_pointers);
+    let info: vk::InstanceCreateInfo =
+        vk::InstanceCreateInfo::default().enabled_extension_names(&extension_pointers);
 
     unsafe {
         entry
