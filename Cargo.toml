@@ -35,7 +35,7 @@ version = "0.4"
 
 [dependencies.ash]
 optional = true
-version = "0.37.2"
+version = "0.38"
 
 [dev-dependencies]
 log = "0.4"

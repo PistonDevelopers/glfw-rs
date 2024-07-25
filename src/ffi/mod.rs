@@ -666,7 +666,7 @@ extern "C" {
     pub fn glfwCreateWindowSurface(
         instance: vk::Instance,
         window: *mut GLFWwindow,
-        allocator: *const vk::AllocationCallbacks,
+        allocator: *const vk::AllocationCallbacks<'_>,
         surface: *mut vk::SurfaceKHR,
     ) -> vk::Result;
 
