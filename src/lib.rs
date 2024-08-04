@@ -554,6 +554,13 @@ pub enum MouseButton {
 }
 
 impl MouseButton {
+    /// Alias to `MouseButton1`, supplied for improved clarity.
+    pub const Left: Self = MouseButton::Button1;
+    /// Alias to `MouseButton2`, supplied for improved clarity.
+    pub const Right: Self = MouseButton::Button2;
+    /// Alias to `MouseButton3`, supplied for improved clarity.
+    pub const Middle: Self = MouseButton::Button3;
+
     /// Converts from `i32`.
     pub fn from_i32(n: i32) -> Option<MouseButton> {
         if (0..=ffi::MOUSE_BUTTON_LAST).contains(&n) {
