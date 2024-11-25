@@ -18,15 +18,15 @@
 #![crate_type = "dylib"]
 #![crate_name = "glfw"]
 #![deny(
-rust_2018_compatibility,
-rust_2018_idioms,
-nonstandard_style,
-unused,
-future_incompatible,
-missing_copy_implementations,
-missing_debug_implementations,
-missing_abi,
-clippy::doc_markdown
+    rust_2018_compatibility,
+    rust_2018_idioms,
+    nonstandard_style,
+    unused,
+    future_incompatible,
+    missing_copy_implementations,
+    missing_debug_implementations,
+    missing_abi,
+    clippy::doc_markdown
 )]
 #![allow(non_upper_case_globals)]
 
@@ -44,8 +44,8 @@ clippy::doc_markdown
 //! let mut glfw = glfw::init(fail_on_errors!()).unwrap();
 //!
 //!     // Create a windowed mode window and its OpenGL context
-//!     let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
-//!         .expect("Failed to create GLFW window.");
+//!     let (mut window, events) = glfw.create_window(300, 300, "Hello this is window",
+//! glfw::WindowMode::Windowed)         .expect("Failed to create GLFW window.");
 //!
 //!     // Make the window's context current
 //!     window.make_current();
@@ -78,7 +78,6 @@ clippy::doc_markdown
 //! Use the `image` feature flag to enable use of the [`image`](https://github.com/PistonDevelopers/image) library for cursors and icons.
 //!
 //! Use the `all` feature flag to enable both at the same time.
-//!
 
 // TODO: Document differences between GLFW and glfw-rs
 
@@ -237,39 +236,34 @@ extern crate raw_window_handle_0_6 as raw_window_handle;
 extern crate raw_window_handle_0_5 as raw_window_handle;
 
 use std::collections::VecDeque;
-
-#[cfg(feature = "raw-window-handle-v0-5")]
-use raw_window_handle::{HasRawWindowHandle, HasRawDisplayHandle};
-
-#[cfg(feature = "raw-window-handle-v0-6")]
-use raw_window_handle::{HasDisplayHandle, HasWindowHandle, WindowHandle, HandleError, DisplayHandle};
-use raw_window_handle::{RawWindowHandle, RawDisplayHandle};
-
-use std::error;
-use std::ffi::{CStr, CString};
-use std::fmt;
-use std::marker::Send;
-use std::mem;
-#[cfg(feature = "vulkan")]
-use std::os::raw::c_uint;
-use std::os::raw::{c_char, c_double, c_float, c_int};
-use std::os::raw::{c_uchar, c_ushort};
-#[cfg(not(target_os = "emscripten"))]
-use std::os::raw::c_void;
-use std::path::PathBuf;
-use std::ptr;
-use std::ptr::{null, null_mut};
-use std::slice;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::mpsc::{channel, Receiver, Sender};
 #[allow(unused)]
 use std::ffi::*;
+use std::ffi::{CStr, CString};
+use std::marker::Send;
 use std::ops::{Deref, DerefMut};
+#[cfg(feature = "vulkan")]
+use std::os::raw::c_uint;
+#[cfg(not(target_os = "emscripten"))]
+use std::os::raw::c_void;
+use std::os::raw::{c_char, c_double, c_float, c_int, c_uchar, c_ushort};
+use std::path::PathBuf;
+use std::ptr::{null, null_mut};
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
+use std::{error, fmt, mem, ptr, slice};
 
 #[cfg(feature = "vulkan")]
 use ash::vk;
-use crate::ffi::GLFWwindow;
+#[cfg(feature = "raw-window-handle-v0-6")]
+use raw_window_handle::{
+    DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, WindowHandle,
+};
+#[cfg(feature = "raw-window-handle-v0-5")]
+use raw_window_handle::{HasRawDisplayHandle, HasRawWindowHandle};
+use raw_window_handle::{RawDisplayHandle, RawWindowHandle};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Alias to `MouseButton1`, supplied for improved clarity.
 pub use self::MouseButton::Button1 as MouseButtonLeft;
@@ -277,6 +271,7 @@ pub use self::MouseButton::Button1 as MouseButtonLeft;
 pub use self::MouseButton::Button2 as MouseButtonRight;
 /// Alias to `MouseButton3`, supplied for improved clarity.
 pub use self::MouseButton::Button3 as MouseButtonMiddle;
+use crate::ffi::GLFWwindow;
 
 mod callbacks;
 pub mod ffi;
@@ -327,6 +322,7 @@ impl HasDisplayHandle for PWindow {
 pub type WindowId = usize;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Version {
     pub major: u64,
     pub minor: u64,
@@ -336,6 +332,7 @@ pub struct Version {
 /// Input actions.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Action {
     Release = ffi::RELEASE,
     Press = ffi::PRESS,
@@ -345,6 +342,7 @@ pub enum Action {
 /// Input keys.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Key {
     Space = ffi::KEY_SPACE,
     Apostrophe = ffi::KEY_APOSTROPHE,
@@ -485,8 +483,8 @@ pub fn get_key_name(key: Option<Key>, scancode: Option<Scancode>) -> Option<Stri
 
 /// Wrapper around `glfwGetKeyName`
 #[deprecated(
-since = "0.16.0",
-note = "'key_name' can cause a segfault, use 'get_key_name' instead"
+    since = "0.16.0",
+    note = "'key_name' can cause a segfault, use 'get_key_name' instead"
 )]
 pub fn key_name(key: Option<Key>, scancode: Option<Scancode>) -> String {
     unsafe {
@@ -516,8 +514,8 @@ pub fn get_key_scancode(key: Option<Key>) -> Option<Scancode> {
 impl Key {
     /// Wrapper around `glfwGetKeyName` without scancode
     #[deprecated(
-    since = "0.16.0",
-    note = "Key method 'name' can cause a segfault, use 'get_name' instead"
+        since = "0.16.0",
+        note = "Key method 'name' can cause a segfault, use 'get_name' instead"
     )]
     pub fn name(&self) -> String {
         #[allow(deprecated)]
@@ -539,6 +537,7 @@ impl Key {
 /// `MouseButtonMiddle` aliases are supplied for convenience.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum MouseButton {
     /// The left mouse button. A `MouseButtonLeft` alias is provided to improve clarity.
     Button1 = ffi::MOUSE_BUTTON_1,
@@ -596,6 +595,7 @@ impl fmt::Debug for DebugAliases<MouseButton> {
 /// Tokens corresponding to various error types.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Error {
     NoError = ffi::NO_ERROR,
     NotInitialized = ffi::NOT_INITIALIZED,
@@ -644,7 +644,7 @@ macro_rules! fail_on_errors {
         |error, description| {
             fail_on_errors(error, description);
         }
-    }}
+    }};
 }
 
 #[cfg(feature = "log")]
@@ -667,7 +667,7 @@ macro_rules! log_errors {
         |error, description| {
             log_errors(error, description);
         }
-    }}
+    }};
 }
 
 /// When not using the `image` library, or if you just want to,
@@ -685,6 +685,7 @@ pub struct PixelImage {
 /// Cursor modes.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum CursorMode {
     Normal = ffi::CURSOR_NORMAL,
     Hidden = ffi::CURSOR_HIDDEN,
@@ -694,6 +695,7 @@ pub enum CursorMode {
 /// Standard cursors provided by GLFW
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum StandardCursor {
     /// The regular arrow cursor shape.
     Arrow = ffi::ARROW_CURSOR,
@@ -793,6 +795,7 @@ impl Cursor {
 
 /// Describes a single video mode.
 #[derive(Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VidMode {
     pub width: u32,
     pub height: u32,
@@ -804,6 +807,7 @@ pub struct VidMode {
 
 /// Describes the gamma ramp of a monitor.
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GammaRamp {
     pub red: Vec<c_ushort>,
     pub green: Vec<c_ushort>,
@@ -813,9 +817,11 @@ pub struct GammaRamp {
 /// `ContextReleaseBehavior` specifies the release behavior to be used by the context.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ContextReleaseBehavior {
     Any = ffi::ANY_RELEASE_BEHAVIOR,
-    /// `Flush` tells the context to flush the pipeline whenever the context is released from being the current one.
+    /// `Flush` tells the context to flush the pipeline whenever the context is released from being
+    /// the current one.
     Flush = ffi::RELEASE_BEHAVIOR_FLUSH,
     /// `None` tells the context to NOT flush the pipeline on release
     None = ffi::RELEASE_BEHAVIOR_NONE,
@@ -824,6 +830,7 @@ pub enum ContextReleaseBehavior {
 /// Specifies the API to use to create the context
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ContextCreationApi {
     Native = ffi::NATIVE_CONTEXT_API,
     Egl = ffi::EGL_CONTEXT_API,
@@ -836,6 +843,7 @@ pub enum ContextCreationApi {
 /// `glfwSwapBuffers`/`context.swap_buffers`
 /// was called before swapping the buffers and returning.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum SwapInterval {
     /// Specifies no waits
     None,
@@ -860,16 +868,13 @@ static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
 /// A struct that represents a thread safe handle to a `Glfw`
 #[derive(Debug)]
 pub struct ThreadSafeGlfw {
-    glfw: Glfw
+    glfw: Glfw,
 }
 
 impl ThreadSafeGlfw {
-
     /// Creates a new `Glfw` wrapper that can be shared between threads
     pub fn from(glfw: &mut Glfw) -> Self {
-        Self {
-            glfw: glfw.clone()
-        }
+        Self { glfw: glfw.clone() }
     }
 
     /// Wrapper function, please refer to [`Glfw::set_swap_interval`]
@@ -918,7 +923,8 @@ impl ThreadSafeGlfw {
         device: vk::PhysicalDevice,
         queue_family: u32,
     ) -> bool {
-        self.glfw.get_physical_device_presentation_support_raw(instance, device, queue_family)
+        self.glfw
+            .get_physical_device_presentation_support_raw(instance, device, queue_family)
     }
 
     /// Wrapper function, please refer to [`Glfw::get_timer_value`]
@@ -935,7 +941,6 @@ impl ThreadSafeGlfw {
     pub fn post_empty_event(&self) {
         self.glfw.post_empty_event()
     }
-
 }
 
 unsafe impl Send for ThreadSafeGlfw {}
@@ -953,6 +958,7 @@ pub struct Glfw {
 
 /// An error that might be returned when `glfw::init` is called.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum InitError {
     /// Deprecated. Does not occur.
     AlreadyInitialized,
@@ -975,12 +981,13 @@ impl error::Error for InitError {}
 
 /// Initialization hints that can be set using the `init_hint` function.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum InitHint {
     /// Specifies whether to also expose joystick hats as buttons, for compatibility with earlier
     /// versions of GLFW that did not have `glfwGetJoystickHats`.
     JoystickHatButtons(bool),
-    /// Specifies whether to set the current directory to the application to the `Contents/Resources`
-    /// subdirectory of the application's bundle, if present.
+    /// Specifies whether to set the current directory to the application to the
+    /// `Contents/Resources` subdirectory of the application's bundle, if present.
     ///
     /// This is ignored on platforms besides macOS.
     CocoaChdirResources(bool),
@@ -1048,14 +1055,14 @@ pub fn init_hint(hint: InitHint) {
 ///
 /// # Returns
 ///
-/// - If initialization was successful a `Glfw` token will be returned along
-///   with a `Receiver` from which errors can be intercepted.
+/// - If initialization was successful a `Glfw` token will be returned along with a `Receiver` from
+///   which errors can be intercepted.
 /// - Subsequent calls to `init` will return `Glfw` token immediately.
-/// - If an initialization error occurred within the GLFW library
-///   `Err(InternalInitError)` will be returned.
-pub fn init<T>(callback: T)
-    -> Result<Glfw, InitError>
-    where T: FnMut(Error, String) + 'static
+/// - If an initialization error occurred within the GLFW library `Err(InternalInitError)` will be
+///   returned.
+pub fn init<T>(callback: T) -> Result<Glfw, InitError>
+where
+    T: FnMut(Error, String) + 'static,
 {
     // Initialize the error callback. This is done
     // before `ffi::glfwInit` because errors could occur during
@@ -1065,14 +1072,15 @@ pub fn init<T>(callback: T)
     init_no_callbacks()
 }
 
-pub fn init_no_callbacks() -> Result<Glfw, InitError>
-{
+pub fn init_no_callbacks() -> Result<Glfw, InitError> {
     // initialize GLFW.
     // FYI: multiple not terminated ffi::glfwInit() returns ffi::TRUE immediately.
     // https://www.glfw.org/docs/latest/group__init.html#ga317aac130a235ab08c6db0834907d85e
     if unsafe { ffi::glfwInit() } == ffi::TRUE {
         REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
-        Ok(Glfw {phantom: std::marker::PhantomData})
+        Ok(Glfw {
+            phantom: std::marker::PhantomData,
+        })
     } else {
         Err(InitError::Internal)
     }
@@ -1102,56 +1110,41 @@ impl Glfw {
     /// // triggers a task failure when a GLFW error is encountered.
     /// glfw.set_error_callback(fail_on_errors!());
     /// ~~~
-    pub fn set_error_callback<T>(
-        &mut self,
-        callback: T,
-    )
-    where T: FnMut(Error, String) + 'static
+    pub fn set_error_callback<T>(&mut self, callback: T)
+    where
+        T: FnMut(Error, String) + 'static,
     {
         callbacks::error::set(callback);
     }
 
     /// Unsets the monitor callback
-    pub fn unset_error_callback(
-        &mut self,
-    )
-    {
+    pub fn unset_error_callback(&mut self) {
         callbacks::error::unset();
     }
 
     /// Sets the monitor callback, overwriting the previous one stored.
-    pub fn set_monitor_callback<T>(
-        &mut self,
-        callback: T
-    )
-    where T: FnMut(Monitor, MonitorEvent) + 'static
+    pub fn set_monitor_callback<T>(&mut self, callback: T)
+    where
+        T: FnMut(Monitor, MonitorEvent) + 'static,
     {
         callbacks::monitor::set(callback);
     }
 
     /// Unsets the monitor callback
-    pub fn unset_monitor_callback(
-        &mut self,
-    )
-    {
+    pub fn unset_monitor_callback(&mut self) {
         callbacks::monitor::unset();
     }
 
     /// Sets the joystick callback, overwriting the previous one stored
-    pub fn set_joystick_callback<T>(
-        &mut self,
-        callback: T,
-    )
-    where T: FnMut(JoystickId, JoystickEvent) + 'static
+    pub fn set_joystick_callback<T>(&mut self, callback: T)
+    where
+        T: FnMut(JoystickId, JoystickEvent) + 'static,
     {
         callbacks::joystick::set(callback);
     }
 
     /// Unsets the joystick callback
-    pub fn unset_joystick_callback(
-        &mut self,
-    )
-    {
+    pub fn unset_joystick_callback(&mut self) {
         callbacks::joystick::unset();
     }
 
@@ -1188,8 +1181,8 @@ impl Glfw {
     /// }).expect("Failed to create GLFW window.");
     /// ~~~
     pub fn with_window_monitor<T, F>(&mut self, window: &mut Window, f: F) -> T
-        where
-            F: FnOnce(&mut Self, Option<&mut Monitor>) -> T,
+    where
+        F: FnOnce(&mut Self, Option<&mut Monitor>) -> T,
     {
         match unsafe { ffi::glfwGetWindowMonitor(window.ptr) } {
             ptr if ptr.is_null() => f(self, None),
@@ -1221,9 +1214,7 @@ impl Glfw {
                 .map(|&ptr| Monitor { ptr })
                 .collect::<Vec<Monitor>>();
 
-            let refs: Vec<&mut Monitor> = monitors
-                .iter_mut()
-                .collect();
+            let refs: Vec<&mut Monitor> = monitors.iter_mut().collect();
             f(self, &refs)
         }
     }
@@ -1264,9 +1255,10 @@ impl Glfw {
     /// glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
     /// ~~~
     pub fn window_hint(&mut self, hint: WindowHint) {
-        //This is just a simple function to unwrap the option and convert it to `c_int` or use `GLFW_DONT_CARE`,
-        //then call `glfwWindowHint` with the result. It was required because `GLFW_DONT_CARE` is signed,
-        //so `value.unwrap_or(ffi::DONT_CARE)` wouldn't work because of the type difference.
+        //This is just a simple function to unwrap the option and convert it to `c_int` or use
+        // `GLFW_DONT_CARE`, then call `glfwWindowHint` with the result. It was required because
+        // `GLFW_DONT_CARE` is signed, so `value.unwrap_or(ffi::DONT_CARE)` wouldn't work because
+        // of the type difference.
         #[inline(always)]
         unsafe fn dont_care_hint(hint: c_int, value: Option<u32>) {
             ffi::glfwWindowHint(hint, unwrap_dont_care(value))
@@ -1514,8 +1506,8 @@ impl Glfw {
     ///
     /// Wrapper for `glfwPollEvents`.
     pub fn poll_events_unbuffered<F>(&mut self, mut f: F)
-        where
-            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
+    where
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
         let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.poll_events();
@@ -1536,8 +1528,8 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEvents`.
     pub fn wait_events_unbuffered<F>(&mut self, mut f: F)
-        where
-            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
+    where
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
         let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.wait_events();
@@ -1560,8 +1552,8 @@ impl Glfw {
     ///
     /// Wrapper for `glfwWaitEventsTimeout`.
     pub fn wait_events_timeout_unbuffered<F>(&mut self, timeout: f64, mut f: F)
-        where
-            F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
+    where
+        F: FnMut(WindowId, (f64, WindowEvent)) -> Option<(f64, WindowEvent)>,
     {
         let _unset_handler_guard = unsafe { crate::callbacks::unbuffered::set_handler(&mut f) };
         self.wait_events_timeout(timeout);
@@ -1704,12 +1696,12 @@ impl Glfw {
     ) -> bool {
         vk::TRUE
             == unsafe {
-            ffi::glfwGetPhysicalDevicePresentationSupport(
-                instance,
-                device,
-                queue_family as c_uint,
-            ) as u32
-        }
+                ffi::glfwGetPhysicalDevicePresentationSupport(
+                    instance,
+                    device,
+                    queue_family as c_uint,
+                ) as u32
+            }
     }
 
     /// Constructs a `Joystick` handle corresponding to the supplied `JoystickId`.
@@ -1747,7 +1739,9 @@ impl Glfw {
 impl Clone for Glfw {
     fn clone(&self) -> Self {
         REF_COUNT_FOR_GLFW.fetch_add(1, Ordering::SeqCst);
-        Glfw {phantom: std::marker::PhantomData}
+        Glfw {
+            phantom: std::marker::PhantomData,
+        }
     }
 }
 
@@ -1765,12 +1759,18 @@ impl Drop for Glfw {
 fn glfw_channel<T>(initial_capacity: usize, max_len: usize) -> (GlfwSender<T>, GlfwReceiver<T>) {
     let shared = Arc::new(SharedTransmitter {
         queue: Mutex::new(VecDeque::with_capacity(initial_capacity)),
-        max_len
+        max_len,
     });
     let (mpsc_sender, mpsc_receiver) = channel();
 
-    let sender = GlfwSender { transmitter: shared.clone(), sender: mpsc_sender };
-    let receiver = GlfwReceiver { transmitter: shared.clone(), receiver: mpsc_receiver };
+    let sender = GlfwSender {
+        transmitter: shared.clone(),
+        sender: mpsc_sender,
+    };
+    let receiver = GlfwReceiver {
+        transmitter: shared.clone(),
+        receiver: mpsc_receiver,
+    };
     (sender, receiver)
 }
 
@@ -1783,7 +1783,7 @@ struct SharedTransmitter<T> {
 #[derive(Debug, Clone)]
 struct GlfwSender<T> {
     transmitter: Arc<SharedTransmitter<T>>,
-    sender: Sender<T>
+    sender: Sender<T>,
 }
 
 impl<T> GlfwSender<T> {
@@ -1800,7 +1800,7 @@ impl<T> GlfwSender<T> {
 #[derive(Debug)]
 pub struct GlfwReceiver<T> {
     transmitter: Arc<SharedTransmitter<T>>,
-    receiver: Receiver<T>
+    receiver: Receiver<T>,
 }
 
 impl<T> GlfwReceiver<T> {
@@ -1811,7 +1811,7 @@ impl<T> GlfwReceiver<T> {
         } else {
             match self.receiver.try_recv() {
                 Ok(ret) => Some(ret),
-                Err(_) => None
+                Err(_) => None,
             }
         }
     }
@@ -1853,7 +1853,7 @@ struct WindowCallbacks {
     scroll_polling: bool,
     drag_and_drop_polling: bool,
     maximize_polling: bool,
-    content_scale_polling: bool
+    content_scale_polling: bool,
 }
 
 impl WindowCallbacks {
@@ -1894,22 +1894,18 @@ impl WindowCallbacks {
             scroll_polling: false,
             drag_and_drop_polling: false,
             maximize_polling: false,
-            content_scale_polling: false
+            content_scale_polling: false,
         }
     }
 
     fn get_callbacks<'a>(window: *mut GLFWwindow) -> &'a mut WindowCallbacks {
-        unsafe {
-            &mut *(ffi::glfwGetWindowUserPointer(window) as *mut WindowCallbacks)
-        }
+        unsafe { &mut *(ffi::glfwGetWindowUserPointer(window) as *mut WindowCallbacks) }
     }
 }
 
 /// Wrapper for `glfwGetError`.
 pub fn get_error() -> Error {
-    unsafe {
-        mem::transmute(ffi::glfwGetError(null_mut()))
-    }
+    unsafe { mem::transmute(ffi::glfwGetError(null_mut())) }
 }
 
 /// Wrapper for `glfwGetError`.
@@ -1952,8 +1948,8 @@ pub unsafe fn string_from_nullable_c_str(c_str: *const c_char) -> Option<String>
 
 /// Replacement for `ToCStr::with_c_str`
 pub fn with_c_str<F, T>(s: &str, f: F) -> T
-    where
-        F: FnOnce(*const c_char) -> T,
+where
+    F: FnOnce(*const c_char) -> T,
 {
     let c_str = CString::new(s.as_bytes());
     f(c_str.unwrap().as_bytes_with_nul().as_ptr() as *const _)
@@ -2017,7 +2013,8 @@ impl Monitor {
     /// Wrapper for `glfwGetVideoMode`.
     pub fn get_video_mode(&self) -> Option<VidMode> {
         unsafe {
-            // TODO: Can be returned to as_ref + map as in previous commit when (if?) as_ref stabilizes.
+            // TODO: Can be returned to as_ref + map as in previous commit when (if?) as_ref
+            // stabilizes.
             let ptr = ffi::glfwGetVideoMode(self.ptr);
             if ptr.is_null() {
                 None
@@ -2096,6 +2093,7 @@ impl Monitor {
 /// Monitor events.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum MonitorEvent {
     Connected = ffi::CONNECTED,
     Disconnected = ffi::DISCONNECTED,
@@ -2141,6 +2139,7 @@ impl fmt::Debug for VidMode {
 
 /// Window hints that can be set using the `window_hint` function.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum WindowHint {
     /// Specifies the desired bit depth of the red component of the default framebuffer.
     RedBits(Option<u32>),
@@ -2272,13 +2271,13 @@ pub enum WindowHint {
     CenterCursor(bool),
     /// Specifies whether the window framebuffer will be transparent.
     ///
-    /// If enabled and supported by the system, the window framebuffer alpha channel will be used to
-    /// combine the framebuffer with the background. This does not affect window decorations.
+    /// If enabled and supported by the system, the window framebuffer alpha channel will be used
+    /// to combine the framebuffer with the background. This does not affect window decorations.
     TransparentFramebuffer(bool),
     /// Specifies whether the window will be given input focus when `Window::show` is called.
     FocusOnShow(bool),
-    /// Specifies whether the window content area should be resized based on the monitor current scale
-    /// of any monitor it is placed on.
+    /// Specifies whether the window content area should be resized based on the monitor current
+    /// scale of any monitor it is placed on.
     ///
     /// This includes the initial placement when the window is created.
     ScaleToMonitor(bool),
@@ -2286,14 +2285,14 @@ pub enum WindowHint {
     ///
     /// This is ignored on platforms besides macOS.
     CocoaRetinaFramebuffer(bool),
-    /// Specifies the UTF-8 encoded name to use for autosaving the window frame, or if empty disables
-    /// frame autosaving for the window.
+    /// Specifies the UTF-8 encoded name to use for autosaving the window frame, or if empty
+    /// disables frame autosaving for the window.
     ///
     /// This is ignored on platforms besides macOS.
     CocoaFrameName(Option<String>),
-    /// Specifies whether to in participate in Automatic Graphics Switching, i.e. to allow the system
-    /// to choose the integrated GPU for the OpenGL context and move it between GPUs if necessary or
-    /// whether to force it to always run on the discrete GPU.
+    /// Specifies whether to in participate in Automatic Graphics Switching, i.e. to allow the
+    /// system to choose the integrated GPU for the OpenGL context and move it between GPUs if
+    /// necessary or whether to force it to always run on the discrete GPU.
     ///
     /// Simpler programs and tools may want to enable this to save power, while games and other
     /// applications performing advanced rendering will want to leave it disabled.
@@ -2302,8 +2301,8 @@ pub enum WindowHint {
     // declare this in its `Info.plist` by setting the `NSSupportsAutomaticGraphicsSwitching` key to
     // `true`.
     ///
-    /// This only affects systems with both integrated and discrete GPUs. This is ignored on platforms
-    /// besides macOS.
+    /// This only affects systems with both integrated and discrete GPUs. This is ignored on
+    /// platforms besides macOS.
     CocoaGraphicsSwitching(bool),
     /// Specifies the desired ASCII-encoded class part of the ICCCM `WM_CLASS` window property.
     X11ClassName(Option<String>),
@@ -2314,6 +2313,7 @@ pub enum WindowHint {
 /// Client API tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ClientApiHint {
     NoApi = ffi::NO_API,
     OpenGl = ffi::OPENGL_API,
@@ -2323,6 +2323,7 @@ pub enum ClientApiHint {
 /// Context robustness tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ContextRobustnessHint {
     NoRobustness = ffi::NO_ROBUSTNESS,
     NoResetNotification = ffi::NO_RESET_NOTIFICATION,
@@ -2332,6 +2333,7 @@ pub enum ContextRobustnessHint {
 /// OpenGL profile tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum OpenGlProfileHint {
     Any = ffi::OPENGL_ANY_PROFILE,
     Core = ffi::OPENGL_CORE_PROFILE,
@@ -2362,6 +2364,7 @@ impl<'a> WindowMode<'a> {
 
 bitflags! {
     #[doc = "Key modifiers (e.g., Shift, Control, Alt, Super)"]
+    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     pub struct Modifiers: ::std::os::raw::c_int {
         const Shift       = crate::ffi::MOD_SHIFT;
         const Control     = crate::ffi::MOD_CONTROL;
@@ -2377,6 +2380,7 @@ pub type Scancode = c_int;
 
 /// Window event messages.
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum WindowEvent {
     Pos(i32, i32),
     Size(i32, i32),
@@ -2408,7 +2412,9 @@ pub enum WindowEvent {
 ///     // handle event
 /// }
 /// ~~~
-pub fn flush_messages<Message: Send>(receiver: &GlfwReceiver<Message>) -> FlushedMessages<'_, Message> {
+pub fn flush_messages<Message: Send>(
+    receiver: &GlfwReceiver<Message>,
+) -> FlushedMessages<'_, Message> {
     FlushedMessages(receiver)
 }
 
@@ -2690,8 +2696,8 @@ impl Window {
     /// });
     /// ~~~
     pub fn with_window_mode<T, F>(&self, f: F) -> T
-        where
-            F: FnOnce(WindowMode<'_>) -> T,
+    where
+        F: FnOnce(WindowMode<'_>) -> T,
     {
         let ptr = unsafe { ffi::glfwGetWindowMonitor(self.ptr) };
         if ptr.is_null() {
@@ -3158,18 +3164,19 @@ impl Window {
 
     /// Sets the window icon from the given images by called `glfwSetWindowIcon`
     ///
-    /// Multiple images can be specified for allowing the OS to choose the best size where necessary.
+    /// Multiple images can be specified for allowing the OS to choose the best size where
+    /// necessary.
     ///
     /// Example:
     ///
     /// ```ignore
-    ///if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
+    /// if let DynamicImage::ImageRgba8(icon) = image::open("examples/icon.png").unwrap() {
     ///    window.set_icon(vec![
     ///        imageops::resize(&icon, 16, 16, image::imageops::Lanczos3),
     ///        imageops::resize(&icon, 32, 32, image::imageops::Lanczos3),
     ///        imageops::resize(&icon, 48, 48, image::imageops::Lanczos3)
     ///    ]);
-    ///}
+    /// }
     /// ```
     #[cfg(feature = "image")]
     pub fn set_icon(&mut self, images: Vec<image::RgbaImage>) {
@@ -3454,7 +3461,6 @@ pub struct RenderContext {
 }
 
 impl RenderContext {
-
     /// Wrapper function, please refer to [`Window::get_proc_address`]
     pub fn get_proc_address(&mut self, procname: &str) -> GLProc {
         if self.ptr != unsafe { ffi::glfwGetCurrentContext() } {
@@ -3623,38 +3629,51 @@ unsafe impl HasRawDisplayHandle for RenderContext {
 fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
     #[cfg(target_family = "windows")]
     {
-        use raw_window_handle::Win32WindowHandle;
         use std::num::NonZeroIsize;
+
+        use raw_window_handle::Win32WindowHandle;
         let (hwnd, hinstance): (*mut std::ffi::c_void, *mut std::ffi::c_void) = unsafe {
-            let hwnd= ffi::glfwGetWin32Window(context.window_ptr());
-            let hinstance: *mut c_void = winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null()) as _;
+            let hwnd = ffi::glfwGetWin32Window(context.window_ptr());
+            let hinstance: *mut c_void =
+                winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null()) as _;
             (hwnd, hinstance as _)
         };
         let mut handle = Win32WindowHandle::new(NonZeroIsize::new(hwnd as isize).unwrap());
         handle.hinstance = NonZeroIsize::new(hinstance as isize);
         RawWindowHandle::Win32(handle)
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        not(feature = "wayland")
+    ))]
     {
         use raw_window_handle::XlibWindowHandle;
-        let window = unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
+        let window =
+            unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
         RawWindowHandle::Xlib(XlibWindowHandle::new(window))
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        feature = "wayland"
+    ))]
     {
-        use raw_window_handle::WaylandWindowHandle;
         use std::ptr::NonNull;
+
+        use raw_window_handle::WaylandWindowHandle;
         let surface = unsafe { ffi::glfwGetWaylandWindow(context.window_ptr()) };
-        let handle = WaylandWindowHandle::new(NonNull::new(surface).expect("wayland window surface is null"));
+        let handle = WaylandWindowHandle::new(
+            NonNull::new(surface).expect("wayland window surface is null"),
+        );
         RawWindowHandle::Wayland(handle)
     }
     #[cfg(target_os = "macos")]
     {
+        use std::ptr::NonNull;
+
         use objc2::msg_send_id;
         use objc2::rc::Id;
         use objc2::runtime::NSObject;
         use raw_window_handle::AppKitWindowHandle;
-        use std::ptr::NonNull;
         let ns_window: *mut NSObject =
             unsafe { ffi::glfwGetCocoaWindow(context.window_ptr()) as *mut _ };
         let ns_view: Option<Id<NSObject>> = unsafe { msg_send_id![ns_window, contentView] };
@@ -3668,7 +3687,8 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         let _ = context; // to avoid unused lint
         let mut wh = raw_window_handle::WebWindowHandle::new(1);
         // glfw on emscripten only supports a single window. so, just hardcode it
-        // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their canvas element
+        // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their
+        // canvas element
         RawWindowHandle::Web(wh)
     }
 }
@@ -3680,19 +3700,28 @@ fn raw_display_handle() -> RawDisplayHandle {
         use raw_window_handle::WindowsDisplayHandle;
         RawDisplayHandle::Windows(WindowsDisplayHandle::new())
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        not(feature = "wayland")
+    ))]
     {
-        use raw_window_handle::XlibDisplayHandle;
         use std::ptr::NonNull;
+
+        use raw_window_handle::XlibDisplayHandle;
         let display = NonNull::new(unsafe { ffi::glfwGetX11Display() });
         let handle = XlibDisplayHandle::new(display, 0);
         RawDisplayHandle::Xlib(handle)
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        feature = "wayland"
+    ))]
     {
-        use raw_window_handle::WaylandDisplayHandle;
         use std::ptr::NonNull;
-        let display = NonNull::new(unsafe { ffi::glfwGetWaylandDisplay() }).expect("wayland display is null");
+
+        use raw_window_handle::WaylandDisplayHandle;
+        let display =
+            NonNull::new(unsafe { ffi::glfwGetWaylandDisplay() }).expect("wayland display is null");
         let handle = WaylandDisplayHandle::new(display);
         RawDisplayHandle::Wayland(handle)
     }
@@ -3722,14 +3751,21 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         handle.hinstance = hinstance;
         RawWindowHandle::Win32(handle)
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        not(feature = "wayland")
+    ))]
     {
         use raw_window_handle::XlibWindowHandle;
         let mut handle = XlibWindowHandle::empty();
-        handle.window = unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
+        handle.window =
+            unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
         RawWindowHandle::Xlib(handle)
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        feature = "wayland"
+    ))]
     {
         use raw_window_handle::WaylandWindowHandle;
         let mut handle = WaylandWindowHandle::empty();
@@ -3759,7 +3795,8 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         let _ = context; // to avoid unused lint
         let mut wh = raw_window_handle::WebWindowHandle::empty();
         // glfw on emscripten only supports a single window. so, just hardcode it
-        // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their canvas element
+        // sdl2 crate does the same. users can just add `data-raw-handle="1"` attribute to their
+        // canvas element
         wh.id = 1;
         RawWindowHandle::Web(wh)
     }
@@ -3772,14 +3809,20 @@ fn raw_display_handle() -> RawDisplayHandle {
         use raw_window_handle::WindowsDisplayHandle;
         RawDisplayHandle::Windows(WindowsDisplayHandle::empty())
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), not(feature = "wayland")))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        not(feature = "wayland")
+    ))]
     {
         use raw_window_handle::XlibDisplayHandle;
         let mut handle = XlibDisplayHandle::empty();
         handle.display = unsafe { ffi::glfwGetX11Display() };
         RawDisplayHandle::Xlib(handle)
     }
-    #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"), feature = "wayland"))]
+    #[cfg(all(
+        any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly"),
+        feature = "wayland"
+    ))]
     {
         use raw_window_handle::WaylandDisplayHandle;
         let mut handle = WaylandDisplayHandle::empty();
@@ -3797,7 +3840,6 @@ fn raw_display_handle() -> RawDisplayHandle {
     }
 }
 
-
 /// Wrapper for `glfwMakeContextCurrent`.
 pub fn make_context_current(context: Option<&dyn Context>) {
     match context {
@@ -3809,6 +3851,7 @@ pub fn make_context_current(context: Option<&dyn Context>) {
 /// Joystick identifier tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum JoystickId {
     Joystick1 = ffi::JOYSTICK_1,
     Joystick2 = ffi::JOYSTICK_2,
@@ -3842,6 +3885,7 @@ impl JoystickId {
 /// Button identifier tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum GamepadButton {
     ButtonA = ffi::GAMEPAD_BUTTON_A,
     ButtonB = ffi::GAMEPAD_BUTTON_B,
@@ -3874,6 +3918,7 @@ impl GamepadButton {
 /// Axis identifier tokens.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum GamepadAxis {
     AxisLeftX = ffi::GAMEPAD_AXIS_LEFT_X,
     AxisLeftY = ffi::GAMEPAD_AXIS_LEFT_Y,
@@ -3896,6 +3941,7 @@ impl GamepadAxis {
 
 bitflags! {
     #[doc = "Joystick hats."]
+    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     pub struct JoystickHats: ::std::os::raw::c_int {
         const Centered = crate::ffi::HAT_CENTERED;
         const Up       = crate::ffi::HAT_UP;
@@ -3914,6 +3960,7 @@ pub struct Joystick {
 
 /// State of a gamepad.
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GamepadState {
     buttons: [Action; (ffi::GAMEPAD_BUTTON_LAST + 1) as usize],
     axes: [f32; (ffi::GAMEPAD_AXIS_LAST + 1) as usize],
@@ -3922,6 +3969,7 @@ pub struct GamepadState {
 /// Joystick events.
 #[repr(i32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum JoystickEvent {
     Connected = ffi::CONNECTED,
     Disconnected = ffi::DISCONNECTED,

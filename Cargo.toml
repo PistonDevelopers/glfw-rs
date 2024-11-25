@@ -37,6 +37,11 @@ version = "0.4"
 optional = true
 version = "0.38"
 
+[dependencies.serde]
+optional = true
+version = "1"
+features = ["derive"]
+
 [dev-dependencies]
 log = "0.4"
 
@@ -48,3 +53,4 @@ vulkan = ["ash"]
 wayland = ["glfw-sys/wayland"]
 raw-window-handle-v0-6 = ["dep:raw-window-handle-0-6"]
 raw-window-handle-v0-5 = ["dep:raw-window-handle-0-5"]
+serde = ["dep:serde"]
