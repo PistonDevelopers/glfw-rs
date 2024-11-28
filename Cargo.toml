@@ -6,7 +6,7 @@ license = "Apache-2.0"
 name = "glfw"
 readme = "README.md"
 repository = "https://github.com/bjz/glfw-rs"
-version = "0.58.0"
+version = "0.59.0"
 edition = "2021"
 rust-version = "1.56"
 
