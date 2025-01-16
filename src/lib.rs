@@ -3535,6 +3535,12 @@ impl Window {
         unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
     }
 
+    /// Wrapper for `glfwGetCocoaView`
+    #[cfg(target_os = "macos")]
+    pub fn get_cocoa_view(&self) -> *mut c_void {
+        unsafe { ffi::glfwGetCocoaView(self.ptr) }
+    }
+
     /// Wrapper for `glfwGetNSGLContext`
     #[cfg(target_os = "macos")]
     pub fn get_nsgl_context(&self) -> *mut c_void {
