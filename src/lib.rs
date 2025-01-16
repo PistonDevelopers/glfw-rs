@@ -1389,8 +1389,8 @@ impl Glfw {
             WindowHint::OpenGlForwardCompat(is_compat) => unsafe {
                 ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int)
             },
-            WindowHint::OpenGlDebugContext(is_debug) => unsafe {
-                ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT, is_debug as c_int)
+            WindowHint::ContextDebug(is_debug) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_DEBUG, is_debug as c_int)
             },
             WindowHint::OpenGlProfile(profile) => unsafe {
                 ffi::glfwWindowHint(ffi::OPENGL_PROFILE, profile as c_int)
@@ -1440,8 +1440,21 @@ impl Glfw {
             WindowHint::ScaleToMonitor(scale) => unsafe {
                 ffi::glfwWindowHint(ffi::SCALE_TO_MONITOR, scale as c_int)
             },
-            WindowHint::CocoaRetinaFramebuffer(retina_fb) => unsafe {
-                ffi::glfwWindowHint(ffi::COCOA_RETINA_FRAMEBUFFER, retina_fb as c_int)
+            WindowHint::ScaleFramebuffer(scale_fb) => unsafe {
+                ffi::glfwWindowHint(ffi::SCALE_FRAMEBUFFER, scale_fb as c_int)
+            },
+            WindowHint::MousePassthrough(passthrough) => unsafe {
+                ffi::glfwWindowHint(ffi::MOUSE_PASSTHROUGH, passthrough as c_int)
+            },
+            WindowHint::Position(x, y) => unsafe {
+                ffi::glfwWindowHint(ffi::POSITION_X, x.map(|v| v as c_int).unwrap_or(ffi::ANY_POSITION));
+                ffi::glfwWindowHint(ffi::POSITION_X, y.map(|v| v as c_int).unwrap_or(ffi::ANY_POSITION));
+            },
+            WindowHint::Win32KeyboardMenu(keyboard_menu) => unsafe {
+                ffi::glfwWindowHint(ffi::WIN32_KEYBOARD_MENU, keyboard_menu as c_int)
+            },
+            WindowHint::Win32ShowDefault(show_default) => unsafe {
+                ffi::glfwWindowHint(ffi::WIN32_SHOWDEFAULT, show_default as c_int)
             },
             WindowHint::CocoaFrameName(name) => unsafe { string_hint(ffi::COCOA_FRAME_NAME, name) },
             WindowHint::CocoaGraphicsSwitching(graphics_switching) => unsafe {
@@ -1453,6 +1466,9 @@ impl Glfw {
             WindowHint::X11InstanceName(instance_name) => unsafe {
                 string_hint(ffi::X11_INSTANCE_NAME, instance_name)
             },
+            WindowHint::WaylandAppId(app_id) => unsafe {
+                string_hint(ffi::WAYLAND_APP_ID, app_id)
+            }
         }
     }
 
@@ -2274,11 +2290,9 @@ pub enum WindowHint {
     ///
     /// If another client API is requested, this hint is ignored.
     OpenGlForwardCompat(bool),
-    /// Specifies whether to create a debug OpenGL context, which may have
-    /// additional error and performance issue reporting functionality.
-    ///
-    /// If another client API is requested, this hint is ignored.
-    OpenGlDebugContext(bool),
+    /// Specifies whether the context should be created in debug mode, which may provide additional
+    /// error and diagnostic reporting functionality
+    ContextDebug(bool),
     /// Specifies which OpenGL profile to create the context for. If requesting
     /// an OpenGL version below 3.2, `OpenGlAnyProfile` must be used.
     ///
@@ -2347,10 +2361,34 @@ pub enum WindowHint {
     ///
     /// This includes the initial placement when the window is created.
     ScaleToMonitor(bool),
-    /// Specifies whether to use full resolution framebuffers on Retina displays.
+    /// Specifies whether the framebuffer should be resized based on content scale changes. This
+    /// can be because of a global user settings change or because the window was moved to a
+    /// monitor with different scale settings.
     ///
-    /// This is ignored on platforms besides macOS.
-    CocoaRetinaFramebuffer(bool),
+    /// This hint only has an effect on platforms where screen coordinates can be scaled relative
+    /// to pixel coordinates, such as macOS and Wayland. On platforms like Windows and X11 the
+    /// framebuffer and window content area sizes always map 1:1.
+    ScaleFramebuffer(bool),
+    /// Specifies whether the window is transparent to mouse input, letting any mouse events pass
+    /// through to whatever window is behind it. This is only supported for undecorated windows.
+    /// Decorated windows with this enabled will behave differently between platforms.
+    MousePassthrough(bool),
+    /// Specify the desired initial position of the window. The window manager may modify or
+    /// ignore these coordinates. If either or both of these hints are set to [`None`](Option)
+    /// then the window manager will position the window where it thinks the user will prefer it.
+    Position(Option<i32>, Option<i32>),
+    /// Specifies whether to allow access to the window menu via the Alt+Space and
+    /// Alt-and-then-Space keyboard shortcuts.
+    ///
+    /// This is ignored on other platforms
+    Win32KeyboardMenu(bool),
+    /// Specifies whether to show the window the way specified in the program's STARTUPINFO when
+    /// it is shown for the first time. This is the same information as the Run option in the
+    /// shortcut properties window. If this information was not specified when the program was
+    /// started, GLFW behaves as if this hint was set to `false`.
+    ///
+    /// This is ignored on other platforms.
+    Win32ShowDefault(bool),
     /// Specifies the UTF-8 encoded name to use for autosaving the window frame, or if empty
     /// disables frame autosaving for the window.
     ///
@@ -2370,6 +2408,9 @@ pub enum WindowHint {
     /// This only affects systems with both integrated and discrete GPUs. This is ignored on
     /// platforms besides macOS.
     CocoaGraphicsSwitching(bool),
+    /// Specifies the Wayland app_id for a window, used by window managers to identify types of
+    /// windows.
+    WaylandAppId(Option<String>),
     /// Specifies the desired ASCII-encoded class part of the ICCCM `WM_CLASS` window property.
     X11ClassName(Option<String>),
     /// Specifies the desired ASCII-encoded instance part of the ICCCM `WM_CLASS` window property.
