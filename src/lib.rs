@@ -979,6 +979,39 @@ impl fmt::Display for InitError {
 
 impl error::Error for InitError {}
 
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum AnglePlatformType {
+    None = ffi::ANGLE_PLATFORM_TYPE_NONE,
+    OpenGL = ffi::ANGLE_PLATFORM_TYPE_OPENGL,
+    OpenGLES = ffi::ANGLE_PLATFORM_TYPE_OPENGLES,
+    D3D9 = ffi::ANGLE_PLATFORM_TYPE_D3D9,
+    D3D11 = ffi::ANGLE_PLATFORM_TYPE_D3D11,
+    Vulkan = ffi::ANGLE_PLATFORM_TYPE_VULKAN,
+    Metal = ffi::ANGLE_PLATFORM_TYPE_METAL,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum Platform {
+    Any = ffi::ANY_PLATFORM,
+    Win32 = ffi::PLATFORM_WIN32,
+    Cocoa = ffi::PLATFORM_COCOA,
+    Wayland = ffi::PLATFORM_WAYLAND,
+    X11 = ffi::PLATFORM_X11,
+    Null = ffi::PLATFORM_NULL,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum LibdecorPreference {
+    Prefer = ffi::WAYLAND_PREFER_LIBDECOR,
+    Disable = ffi::WAYLAND_DISABLE_LIBDECOR,
+}
+
 /// Initialization hints that can be set using the `init_hint` function.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -986,6 +1019,18 @@ pub enum InitHint {
     /// Specifies whether to also expose joystick hats as buttons, for compatibility with earlier
     /// versions of GLFW that did not have `glfwGetJoystickHats`.
     JoystickHatButtons(bool),
+    /// Specifies the platform type (rendering backend) to request when using OpenGL ES and EGL
+    /// via ANGLE. If the requested platform type is unavailable, ANGLE will use its default.
+    ///
+    /// The ANGLE platform type is specified via the EGL_ANGLE_platform_angle extension. This
+    /// extension is not used if this hint is [None](AnglePlatformType), which is the default
+    /// value.
+    AnglePlatformType(AnglePlatformType),
+    /// Specifies the platform to use for windowing and input.
+    ///
+    /// The default value is [Any](Platform), which will choose any platform the library includes
+    /// support for except for the Null backend.
+    Platform(Platform),
     /// Specifies whether to set the current directory to the application to the
     /// `Contents/Resources` subdirectory of the application's bundle, if present.
     ///
@@ -996,6 +1041,15 @@ pub enum InitHint {
     ///
     /// This is ignored on platforms besides macOS.
     CocoaMenubar(bool),
+    /// Specifies whether to use libdecor for window decorations where available.
+    ///
+    /// This is ignored on other platforms.
+    WaylandLibdecor(LibdecorPreference),
+    /// Specifies whether to prefer the VK_KHR_xcb_surface extension for creating Vulkan surfaces,
+    /// or whether to use the VK_KHR_xlib_surface extension.
+    ///
+    /// This is ignored on other platforms.
+    X11XCBVulkanSurface(bool),
 }
 
 /// Sets hints for the next initialization of GLFW.
@@ -1010,12 +1064,24 @@ pub fn init_hint(hint: InitHint) {
         InitHint::JoystickHatButtons(joystick_hat_buttons) => unsafe {
             ffi::glfwInitHint(ffi::JOYSTICK_HAT_BUTTONS, joystick_hat_buttons as c_int)
         },
+        InitHint::AnglePlatformType(platform_type) => unsafe {
+            ffi::glfwInitHint(ffi::ANGLE_PLATFORM_TYPE, platform_type as c_int)
+        }
+        InitHint::Platform(platform) => unsafe {
+            ffi::glfwInitHint(ffi::PLATFORM, platform as c_int)
+        }
         InitHint::CocoaChdirResources(chdir) => unsafe {
             ffi::glfwInitHint(ffi::COCOA_CHDIR_RESOURCES, chdir as c_int)
         },
         InitHint::CocoaMenubar(menubar) => unsafe {
             ffi::glfwInitHint(ffi::COCOA_MENUBAR, menubar as c_int)
         },
+        InitHint::WaylandLibdecor(preference) => unsafe {
+            ffi::glfwInitHint(ffi::WAYLAND_LIBDECOR, preference as c_int)
+        }
+        InitHint::X11XCBVulkanSurface(xcb_surface) => unsafe {
+            ffi::glfwInitHint(ffi::X11_XCB_VULKAN_SURFACE, xcb_surface as c_int)
+        }
     }
 }
 /// Initializes the GLFW library. This must be called on the main platform
