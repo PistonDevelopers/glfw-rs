@@ -862,7 +862,7 @@ pub type GLProc = ffi::GLFWglproc;
 pub type VkProc = ffi::GLFWvkproc;
 
 /// Counts for (Calling glfwInit) - (Calling glfwTerminate)
-/// It uses for "global" refference counting for Glfw.
+/// It uses for "global" reference counting for Glfw.
 static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
 
 /// A struct that represents a thread safe handle to a `Glfw`
@@ -1117,7 +1117,7 @@ impl Glfw {
         callbacks::error::set(callback);
     }
 
-    /// Unsets the monitor callback
+    /// Unsets the error callback
     pub fn unset_error_callback(&mut self) {
         callbacks::error::unset();
     }
@@ -1628,10 +1628,12 @@ impl Glfw {
     ///
     /// This function returns a Vector of names of Vulkan instance extensions
     /// required by GLFW for creating Vulkan surfaces for GLFW windows. If successful,
-    /// the list will always contains `VK_KHR_surface`, so if you don't require any
+    /// the list will always contain `VK_KHR_surface`, so if you don't require any
     /// additional extensions you can pass this list directly to the `VkInstanceCreateInfo` struct.
     ///
     /// Will return `None` if the API is unavailable.
+    ///
+    /// Wrapper for `glfwGetRequiredInstanceExtensions`
     #[cfg(feature = "vulkan")]
     pub fn get_required_instance_extensions(&self) -> Option<Vec<String>> {
         let mut len: c_uint = 0;
@@ -2265,7 +2267,7 @@ pub enum WindowHint {
     /// Note that setting this to false will make `swap_buffers` do nothing useful,
     /// and your scene will have to be displayed some other way.
     DoubleBuffer(bool),
-    /// Speficies whether the cursor should be centered over newly created full screen windows.
+    /// Specifies whether the cursor should be centered over newly created full screen windows.
     ///
     /// This hint is ignored for windowed mode windows.
     CenterCursor(bool),
