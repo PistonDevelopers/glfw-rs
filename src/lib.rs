@@ -1130,6 +1130,29 @@ pub fn init_hint(hint: InitHint) {
         }
     }
 }
+
+/// This function sets the vkGetInstanceProcAddr function that GLFW will use for all Vulkan
+/// related entry point queries.
+///
+/// This feature is mostly useful on macOS, if your copy of the Vulkan loader is in a location
+/// where GLFW cannot find it through dynamic loading, or if you are still using the static
+/// library version of the loader.
+///
+/// If set to NULL, GLFW will try to load the Vulkan loader dynamically by its standard name
+/// and get this function from there. This is the default behavior.
+///
+/// The standard name of the loader is vulkan-1.dll on Windows, libvulkan.so.1 on Linux and
+/// other Unix-like systems and libvulkan.1.dylib on macOS. If your code is also loading it via
+/// these names then you probably don't need to use this function.
+///
+/// The function address you set is never reset by GLFW, but it only takes effect during
+/// initialization. Once GLFW has been initialized, any updates will be ignored until the
+/// library is terminated and initialized again.
+#[cfg(feature = "vulkan")]
+pub fn init_vulkan_loader(loader: vk::PFN_vkGetInstanceProcAddr) {
+    unsafe { ffi::glfwInitVulkanLoader(loader) }
+}
+
 /// Initializes the GLFW library. This must be called on the main platform
 /// thread.
 ///
