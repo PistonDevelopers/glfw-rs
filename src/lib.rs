@@ -2298,10 +2298,10 @@ pub enum WindowHint {
     ///
     /// Simpler programs and tools may want to enable this to save power, while games and other
     /// applications performing advanced rendering will want to leave it disabled.
-    //
-    //  A bundled application that wishes to participate in Automatic Graphics Switching should also
-    // declare this in its `Info.plist` by setting the `NSSupportsAutomaticGraphicsSwitching` key to
-    // `true`.
+    ///
+    ///  A bundled application that wishes to participate in Automatic Graphics Switching should also
+    /// declare this in its `Info.plist` by setting the `NSSupportsAutomaticGraphicsSwitching` key to
+    /// `true`.
     ///
     /// This only affects systems with both integrated and discrete GPUs. This is ignored on
     /// platforms besides macOS.
