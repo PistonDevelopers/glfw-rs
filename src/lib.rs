@@ -1624,8 +1624,6 @@ impl Glfw {
         }
     }
 
-    /// Wrapper for `glfwGetRequiredInstanceExtensions`
-    ///
     /// This function returns a Vector of names of Vulkan instance extensions
     /// required by GLFW for creating Vulkan surfaces for GLFW windows. If successful,
     /// the list will always contain `VK_KHR_surface`, so if you don't require any
