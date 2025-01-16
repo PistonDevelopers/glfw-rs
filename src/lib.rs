@@ -608,6 +608,10 @@ pub enum Error {
     PlatformError = ffi::PLATFORM_ERROR,
     FormatUnavailable = ffi::FORMAT_UNAVAILABLE,
     NoWindowContext = ffi::NO_WINDOW_CONTEXT,
+    CursorUnavailable = ffi::CURSOR_UNAVAILABLE,
+    FeatureUnavailable = ffi::FEATURE_UNAVAILABLE,
+    FeatureUnimplemented = ffi::FEATURE_UNIMPLEMENTED,
+    PlatformUnavailable = ffi::PLATFORM_UNAVAILABLE,
 }
 
 impl fmt::Display for Error {
@@ -624,6 +628,10 @@ impl fmt::Display for Error {
             Error::PlatformError => "PlatformError",
             Error::FormatUnavailable => "FormatUnavailable",
             Error::NoWindowContext => "NoWindowContext",
+            Error::CursorUnavailable => "CursorUnavailable",
+            Error::FeatureUnavailable => "FeatureUnavailable",
+            Error::FeatureUnimplemented => "FeatureUnimplemented",
+            Error::PlatformUnavailable => "PlatformUnavailable",
         };
 
         f.write_str(description)
