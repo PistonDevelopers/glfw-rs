@@ -690,6 +690,7 @@ pub enum CursorMode {
     Normal = ffi::CURSOR_NORMAL,
     Hidden = ffi::CURSOR_HIDDEN,
     Disabled = ffi::CURSOR_DISABLED,
+    Captured = ffi::CURSOR_CAPTURED,
 }
 
 /// Standard cursors provided by GLFW
