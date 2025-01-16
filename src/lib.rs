@@ -701,14 +701,51 @@ pub enum StandardCursor {
     Arrow = ffi::ARROW_CURSOR,
     /// The text input I-beam cursor shape.
     IBeam = ffi::IBEAM_CURSOR,
-    /// The crosshair shape.
+    /// The crosshair cursor shape.
     Crosshair = ffi::CROSSHAIR_CURSOR,
-    /// The hand shape.
-    Hand = ffi::HAND_CURSOR,
-    /// The horizontal resize arrow shape.
-    HResize = ffi::HRESIZE_CURSOR,
-    /// The vertical resize arrow shape.
-    VResize = ffi::VRESIZE_CURSOR,
+    /// The pointing hand cursor shape.
+    PointingHand = ffi::POINTING_HAND_CURSOR,
+    /// The horizontal resize/move arrow shape. This is usually a horizontal
+    /// double-headed arrow.
+    ResizeEW = ffi::RESIZE_EW_CURSOR,
+    /// The vertical resize/move arrow shape. This is usually a vertical double-headed
+    /// arrow.
+    ResizeNS = ffi::RESIZE_NS_CURSOR,
+    /// The top-left to bottom-right diagonal resize/move arrow shape.
+    ///
+    /// Note that on macOS this shape is provided by a private system API and may fail
+    /// with [`ffi::CURSOR_UNAVAILABLE`] in the future.
+    ///
+    /// Note that on Wayland this shape is provided by a newer standard not supported by
+    /// all cursor themes.
+    ///
+    /// Note that on X11 this shape is provided by a newer standard not supported by all
+    /// cursor themes.
+    ResizeNWSE = ffi::RESIZE_NWSE_CURSOR,
+    /// The top-right to bottom-left diagonal resize/move arrow shape. This is usually a diagonal
+    /// double-headed arrow.
+    ///
+    /// Note that on macOS this shape is provided by a private system API and may fail
+    /// with [`ffi::CURSOR_UNAVAILABLE`] in the future.
+    ///
+    /// Note that on Wayland this shape is provided by a newer standard not supported by
+    /// all cursor themes.
+    ///
+    /// Note that on X11 this shape is provided by a newer standard not supported by all
+    /// cursor themes.
+    ResizeNESW = ffi::RESIZE_NESW_CURSOR,
+    /// The omnidirectional resize cursor/move shape.  This is usually either a combined
+    /// horizontal and vertical double-headed arrow or a grabbing hand.
+    ResizeAll = ffi::RESIZE_ALL_CURSOR,
+    /// The operation-not-allowed shape.  This is usually a circle with a diagonal line
+    /// through it.
+    ///
+    /// Note that on Wayland this shape is provided by a newer standard not supported by
+    /// all cursor themes.
+    ///
+    /// Note that on X11 this shape is provided by a newer standard not supported by all
+    /// cursor themes.
+    NotAllowed = ffi::NOT_ALLOWED_CURSOR,
 }
 
 /// Represents a window cursor that can be used to display any
