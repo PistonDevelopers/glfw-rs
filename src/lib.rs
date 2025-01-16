@@ -1697,6 +1697,20 @@ impl Glfw {
             ffi::glfwPostEmptyEvent();
         }
     }
+    /// This function returns the platform that was selected during initialization.
+    ///
+    /// Wrapper for `glfwGetPlatform`
+    pub fn get_platform(&self) -> Platform {
+        unsafe { mem::transmute(ffi::glfwGetPlatform()) }
+    }
+
+    /// This function returns whether the library was compiled with support for the specified
+    /// platform.
+    ///
+    /// Wrapper for `glfwPlatformSupported`
+    pub fn platform_supported(&self, platform: Platform) -> bool {
+        unsafe { ffi::glfwPlatformSupported(platform as c_int) == ffi::TRUE  }
+    }
 
     /// Returns the current value of the GLFW timer. Unless the timer has been
     /// set using `glfw::set_time`, the timer measures time elapsed since GLFW
@@ -2699,6 +2713,16 @@ impl Window {
     /// Wrapper for `glfwSetWindowShouldClose`.
     pub fn set_should_close(&mut self, value: bool) {
         unsafe { ffi::glfwSetWindowShouldClose(self.ptr, value as c_int) }
+    }
+
+    /// This function returns the title of the window. This is
+    /// the title set previously by ['Glfw::create_window'] or [`Window::set_title`].
+    ///
+    /// Wrapper for `glfwGetWindowTitle`
+    pub fn get_title(&self) -> Option<String> {
+        unsafe {
+            string_from_nullable_c_str(ffi::glfwGetWindowTitle(self.ptr))
+        }
     }
 
     /// Sets the title of the window.
