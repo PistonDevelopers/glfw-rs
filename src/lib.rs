@@ -608,6 +608,10 @@ pub enum Error {
     PlatformError = ffi::PLATFORM_ERROR,
     FormatUnavailable = ffi::FORMAT_UNAVAILABLE,
     NoWindowContext = ffi::NO_WINDOW_CONTEXT,
+    CursorUnavailable = ffi::CURSOR_UNAVAILABLE,
+    FeatureUnavailable = ffi::FEATURE_UNAVAILABLE,
+    FeatureUnimplemented = ffi::FEATURE_UNIMPLEMENTED,
+    PlatformUnavailable = ffi::PLATFORM_UNAVAILABLE,
 }
 
 impl fmt::Display for Error {
@@ -624,6 +628,10 @@ impl fmt::Display for Error {
             Error::PlatformError => "PlatformError",
             Error::FormatUnavailable => "FormatUnavailable",
             Error::NoWindowContext => "NoWindowContext",
+            Error::CursorUnavailable => "CursorUnavailable",
+            Error::FeatureUnavailable => "FeatureUnavailable",
+            Error::FeatureUnimplemented => "FeatureUnimplemented",
+            Error::PlatformUnavailable => "PlatformUnavailable",
         };
 
         f.write_str(description)
@@ -690,6 +698,7 @@ pub enum CursorMode {
     Normal = ffi::CURSOR_NORMAL,
     Hidden = ffi::CURSOR_HIDDEN,
     Disabled = ffi::CURSOR_DISABLED,
+    Captured = ffi::CURSOR_CAPTURED,
 }
 
 /// Standard cursors provided by GLFW
@@ -701,14 +710,51 @@ pub enum StandardCursor {
     Arrow = ffi::ARROW_CURSOR,
     /// The text input I-beam cursor shape.
     IBeam = ffi::IBEAM_CURSOR,
-    /// The crosshair shape.
+    /// The crosshair cursor shape.
     Crosshair = ffi::CROSSHAIR_CURSOR,
-    /// The hand shape.
-    Hand = ffi::HAND_CURSOR,
-    /// The horizontal resize arrow shape.
-    HResize = ffi::HRESIZE_CURSOR,
-    /// The vertical resize arrow shape.
-    VResize = ffi::VRESIZE_CURSOR,
+    /// The pointing hand cursor shape.
+    PointingHand = ffi::POINTING_HAND_CURSOR,
+    /// The horizontal resize/move arrow shape. This is usually a horizontal
+    /// double-headed arrow.
+    ResizeEW = ffi::RESIZE_EW_CURSOR,
+    /// The vertical resize/move arrow shape. This is usually a vertical double-headed
+    /// arrow.
+    ResizeNS = ffi::RESIZE_NS_CURSOR,
+    /// The top-left to bottom-right diagonal resize/move arrow shape.
+    ///
+    /// Note that on macOS this shape is provided by a private system API and may fail
+    /// with [`ffi::CURSOR_UNAVAILABLE`] in the future.
+    ///
+    /// Note that on Wayland this shape is provided by a newer standard not supported by
+    /// all cursor themes.
+    ///
+    /// Note that on X11 this shape is provided by a newer standard not supported by all
+    /// cursor themes.
+    ResizeNWSE = ffi::RESIZE_NWSE_CURSOR,
+    /// The top-right to bottom-left diagonal resize/move arrow shape. This is usually a diagonal
+    /// double-headed arrow.
+    ///
+    /// Note that on macOS this shape is provided by a private system API and may fail
+    /// with [`ffi::CURSOR_UNAVAILABLE`] in the future.
+    ///
+    /// Note that on Wayland this shape is provided by a newer standard not supported by
+    /// all cursor themes.
+    ///
+    /// Note that on X11 this shape is provided by a newer standard not supported by all
+    /// cursor themes.
+    ResizeNESW = ffi::RESIZE_NESW_CURSOR,
+    /// The omnidirectional resize cursor/move shape.  This is usually either a combined
+    /// horizontal and vertical double-headed arrow or a grabbing hand.
+    ResizeAll = ffi::RESIZE_ALL_CURSOR,
+    /// The operation-not-allowed shape.  This is usually a circle with a diagonal line
+    /// through it.
+    ///
+    /// Note that on Wayland this shape is provided by a newer standard not supported by
+    /// all cursor themes.
+    ///
+    /// Note that on X11 this shape is provided by a newer standard not supported by all
+    /// cursor themes.
+    NotAllowed = ffi::NOT_ALLOWED_CURSOR,
 }
 
 /// Represents a window cursor that can be used to display any
@@ -862,7 +908,7 @@ pub type GLProc = ffi::GLFWglproc;
 pub type VkProc = ffi::GLFWvkproc;
 
 /// Counts for (Calling glfwInit) - (Calling glfwTerminate)
-/// It uses for "global" refference counting for Glfw.
+/// It uses for "global" reference counting for Glfw.
 static REF_COUNT_FOR_GLFW: AtomicUsize = AtomicUsize::new(0);
 
 /// A struct that represents a thread safe handle to a `Glfw`
@@ -979,6 +1025,39 @@ impl fmt::Display for InitError {
 
 impl error::Error for InitError {}
 
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum AnglePlatformType {
+    None = ffi::ANGLE_PLATFORM_TYPE_NONE,
+    OpenGL = ffi::ANGLE_PLATFORM_TYPE_OPENGL,
+    OpenGLES = ffi::ANGLE_PLATFORM_TYPE_OPENGLES,
+    D3D9 = ffi::ANGLE_PLATFORM_TYPE_D3D9,
+    D3D11 = ffi::ANGLE_PLATFORM_TYPE_D3D11,
+    Vulkan = ffi::ANGLE_PLATFORM_TYPE_VULKAN,
+    Metal = ffi::ANGLE_PLATFORM_TYPE_METAL,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum Platform {
+    Any = ffi::ANY_PLATFORM,
+    Win32 = ffi::PLATFORM_WIN32,
+    Cocoa = ffi::PLATFORM_COCOA,
+    Wayland = ffi::PLATFORM_WAYLAND,
+    X11 = ffi::PLATFORM_X11,
+    Null = ffi::PLATFORM_NULL,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum LibdecorPreference {
+    Prefer = ffi::WAYLAND_PREFER_LIBDECOR,
+    Disable = ffi::WAYLAND_DISABLE_LIBDECOR,
+}
+
 /// Initialization hints that can be set using the `init_hint` function.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -986,6 +1065,18 @@ pub enum InitHint {
     /// Specifies whether to also expose joystick hats as buttons, for compatibility with earlier
     /// versions of GLFW that did not have `glfwGetJoystickHats`.
     JoystickHatButtons(bool),
+    /// Specifies the platform type (rendering backend) to request when using OpenGL ES and EGL
+    /// via ANGLE. If the requested platform type is unavailable, ANGLE will use its default.
+    ///
+    /// The ANGLE platform type is specified via the EGL_ANGLE_platform_angle extension. This
+    /// extension is not used if this hint is [None](AnglePlatformType), which is the default
+    /// value.
+    AnglePlatformType(AnglePlatformType),
+    /// Specifies the platform to use for windowing and input.
+    ///
+    /// The default value is [Any](Platform), which will choose any platform the library includes
+    /// support for except for the Null backend.
+    Platform(Platform),
     /// Specifies whether to set the current directory to the application to the
     /// `Contents/Resources` subdirectory of the application's bundle, if present.
     ///
@@ -996,6 +1087,15 @@ pub enum InitHint {
     ///
     /// This is ignored on platforms besides macOS.
     CocoaMenubar(bool),
+    /// Specifies whether to use libdecor for window decorations where available.
+    ///
+    /// This is ignored on other platforms.
+    WaylandLibdecor(LibdecorPreference),
+    /// Specifies whether to prefer the VK_KHR_xcb_surface extension for creating Vulkan surfaces,
+    /// or whether to use the VK_KHR_xlib_surface extension.
+    ///
+    /// This is ignored on other platforms.
+    X11XCBVulkanSurface(bool),
 }
 
 /// Sets hints for the next initialization of GLFW.
@@ -1010,14 +1110,49 @@ pub fn init_hint(hint: InitHint) {
         InitHint::JoystickHatButtons(joystick_hat_buttons) => unsafe {
             ffi::glfwInitHint(ffi::JOYSTICK_HAT_BUTTONS, joystick_hat_buttons as c_int)
         },
+        InitHint::AnglePlatformType(platform_type) => unsafe {
+            ffi::glfwInitHint(ffi::ANGLE_PLATFORM_TYPE, platform_type as c_int)
+        }
+        InitHint::Platform(platform) => unsafe {
+            ffi::glfwInitHint(ffi::PLATFORM, platform as c_int)
+        }
         InitHint::CocoaChdirResources(chdir) => unsafe {
             ffi::glfwInitHint(ffi::COCOA_CHDIR_RESOURCES, chdir as c_int)
         },
         InitHint::CocoaMenubar(menubar) => unsafe {
             ffi::glfwInitHint(ffi::COCOA_MENUBAR, menubar as c_int)
         },
+        InitHint::WaylandLibdecor(preference) => unsafe {
+            ffi::glfwInitHint(ffi::WAYLAND_LIBDECOR, preference as c_int)
+        }
+        InitHint::X11XCBVulkanSurface(xcb_surface) => unsafe {
+            ffi::glfwInitHint(ffi::X11_XCB_VULKAN_SURFACE, xcb_surface as c_int)
+        }
     }
 }
+
+/// This function sets the vkGetInstanceProcAddr function that GLFW will use for all Vulkan
+/// related entry point queries.
+///
+/// This feature is mostly useful on macOS, if your copy of the Vulkan loader is in a location
+/// where GLFW cannot find it through dynamic loading, or if you are still using the static
+/// library version of the loader.
+///
+/// If set to NULL, GLFW will try to load the Vulkan loader dynamically by its standard name
+/// and get this function from there. This is the default behavior.
+///
+/// The standard name of the loader is vulkan-1.dll on Windows, libvulkan.so.1 on Linux and
+/// other Unix-like systems and libvulkan.1.dylib on macOS. If your code is also loading it via
+/// these names then you probably don't need to use this function.
+///
+/// The function address you set is never reset by GLFW, but it only takes effect during
+/// initialization. Once GLFW has been initialized, any updates will be ignored until the
+/// library is terminated and initialized again.
+#[cfg(feature = "vulkan")]
+pub fn init_vulkan_loader(loader: vk::PFN_vkGetInstanceProcAddr) {
+    unsafe { ffi::glfwInitVulkanLoader(loader) }
+}
+
 /// Initializes the GLFW library. This must be called on the main platform
 /// thread.
 ///
@@ -1117,7 +1252,7 @@ impl Glfw {
         callbacks::error::set(callback);
     }
 
-    /// Unsets the monitor callback
+    /// Unsets the error callback
     pub fn unset_error_callback(&mut self) {
         callbacks::error::unset();
     }
@@ -1323,8 +1458,8 @@ impl Glfw {
             WindowHint::OpenGlForwardCompat(is_compat) => unsafe {
                 ffi::glfwWindowHint(ffi::OPENGL_FORWARD_COMPAT, is_compat as c_int)
             },
-            WindowHint::OpenGlDebugContext(is_debug) => unsafe {
-                ffi::glfwWindowHint(ffi::OPENGL_DEBUG_CONTEXT, is_debug as c_int)
+            WindowHint::ContextDebug(is_debug) => unsafe {
+                ffi::glfwWindowHint(ffi::CONTEXT_DEBUG, is_debug as c_int)
             },
             WindowHint::OpenGlProfile(profile) => unsafe {
                 ffi::glfwWindowHint(ffi::OPENGL_PROFILE, profile as c_int)
@@ -1374,8 +1509,21 @@ impl Glfw {
             WindowHint::ScaleToMonitor(scale) => unsafe {
                 ffi::glfwWindowHint(ffi::SCALE_TO_MONITOR, scale as c_int)
             },
-            WindowHint::CocoaRetinaFramebuffer(retina_fb) => unsafe {
-                ffi::glfwWindowHint(ffi::COCOA_RETINA_FRAMEBUFFER, retina_fb as c_int)
+            WindowHint::ScaleFramebuffer(scale_fb) => unsafe {
+                ffi::glfwWindowHint(ffi::SCALE_FRAMEBUFFER, scale_fb as c_int)
+            },
+            WindowHint::MousePassthrough(passthrough) => unsafe {
+                ffi::glfwWindowHint(ffi::MOUSE_PASSTHROUGH, passthrough as c_int)
+            },
+            WindowHint::Position(x, y) => unsafe {
+                ffi::glfwWindowHint(ffi::POSITION_X, x.map(|v| v as c_int).unwrap_or(ffi::ANY_POSITION));
+                ffi::glfwWindowHint(ffi::POSITION_X, y.map(|v| v as c_int).unwrap_or(ffi::ANY_POSITION));
+            },
+            WindowHint::Win32KeyboardMenu(keyboard_menu) => unsafe {
+                ffi::glfwWindowHint(ffi::WIN32_KEYBOARD_MENU, keyboard_menu as c_int)
+            },
+            WindowHint::Win32ShowDefault(show_default) => unsafe {
+                ffi::glfwWindowHint(ffi::WIN32_SHOWDEFAULT, show_default as c_int)
             },
             WindowHint::CocoaFrameName(name) => unsafe { string_hint(ffi::COCOA_FRAME_NAME, name) },
             WindowHint::CocoaGraphicsSwitching(graphics_switching) => unsafe {
@@ -1387,6 +1535,9 @@ impl Glfw {
             WindowHint::X11InstanceName(instance_name) => unsafe {
                 string_hint(ffi::X11_INSTANCE_NAME, instance_name)
             },
+            WindowHint::WaylandAppId(app_id) => unsafe {
+                string_hint(ffi::WAYLAND_APP_ID, app_id)
+            }
         }
     }
 
@@ -1569,6 +1720,20 @@ impl Glfw {
             ffi::glfwPostEmptyEvent();
         }
     }
+    /// This function returns the platform that was selected during initialization.
+    ///
+    /// Wrapper for `glfwGetPlatform`
+    pub fn get_platform(&self) -> Platform {
+        unsafe { mem::transmute(ffi::glfwGetPlatform()) }
+    }
+
+    /// This function returns whether the library was compiled with support for the specified
+    /// platform.
+    ///
+    /// Wrapper for `glfwPlatformSupported`
+    pub fn platform_supported(&self, platform: Platform) -> bool {
+        unsafe { ffi::glfwPlatformSupported(platform as c_int) == ffi::TRUE  }
+    }
 
     /// Returns the current value of the GLFW timer. Unless the timer has been
     /// set using `glfw::set_time`, the timer measures time elapsed since GLFW
@@ -1624,14 +1789,14 @@ impl Glfw {
         }
     }
 
-    /// Wrapper for `glfwGetRequiredInstanceExtensions`
-    ///
     /// This function returns a Vector of names of Vulkan instance extensions
     /// required by GLFW for creating Vulkan surfaces for GLFW windows. If successful,
-    /// the list will always contains `VK_KHR_surface`, so if you don't require any
+    /// the list will always contain `VK_KHR_surface`, so if you don't require any
     /// additional extensions you can pass this list directly to the `VkInstanceCreateInfo` struct.
     ///
     /// Will return `None` if the API is unavailable.
+    ///
+    /// Wrapper for `glfwGetRequiredInstanceExtensions`
     #[cfg(feature = "vulkan")]
     pub fn get_required_instance_extensions(&self) -> Option<Vec<String>> {
         let mut len: c_uint = 0;
@@ -2208,11 +2373,9 @@ pub enum WindowHint {
     ///
     /// If another client API is requested, this hint is ignored.
     OpenGlForwardCompat(bool),
-    /// Specifies whether to create a debug OpenGL context, which may have
-    /// additional error and performance issue reporting functionality.
-    ///
-    /// If another client API is requested, this hint is ignored.
-    OpenGlDebugContext(bool),
+    /// Specifies whether the context should be created in debug mode, which may provide additional
+    /// error and diagnostic reporting functionality
+    ContextDebug(bool),
     /// Specifies which OpenGL profile to create the context for. If requesting
     /// an OpenGL version below 3.2, `OpenGlAnyProfile` must be used.
     ///
@@ -2265,7 +2428,7 @@ pub enum WindowHint {
     /// Note that setting this to false will make `swap_buffers` do nothing useful,
     /// and your scene will have to be displayed some other way.
     DoubleBuffer(bool),
-    /// Speficies whether the cursor should be centered over newly created full screen windows.
+    /// Specifies whether the cursor should be centered over newly created full screen windows.
     ///
     /// This hint is ignored for windowed mode windows.
     CenterCursor(bool),
@@ -2281,10 +2444,34 @@ pub enum WindowHint {
     ///
     /// This includes the initial placement when the window is created.
     ScaleToMonitor(bool),
-    /// Specifies whether to use full resolution framebuffers on Retina displays.
+    /// Specifies whether the framebuffer should be resized based on content scale changes. This
+    /// can be because of a global user settings change or because the window was moved to a
+    /// monitor with different scale settings.
     ///
-    /// This is ignored on platforms besides macOS.
-    CocoaRetinaFramebuffer(bool),
+    /// This hint only has an effect on platforms where screen coordinates can be scaled relative
+    /// to pixel coordinates, such as macOS and Wayland. On platforms like Windows and X11 the
+    /// framebuffer and window content area sizes always map 1:1.
+    ScaleFramebuffer(bool),
+    /// Specifies whether the window is transparent to mouse input, letting any mouse events pass
+    /// through to whatever window is behind it. This is only supported for undecorated windows.
+    /// Decorated windows with this enabled will behave differently between platforms.
+    MousePassthrough(bool),
+    /// Specify the desired initial position of the window. The window manager may modify or
+    /// ignore these coordinates. If either or both of these hints are set to [`None`](Option)
+    /// then the window manager will position the window where it thinks the user will prefer it.
+    Position(Option<i32>, Option<i32>),
+    /// Specifies whether to allow access to the window menu via the Alt+Space and
+    /// Alt-and-then-Space keyboard shortcuts.
+    ///
+    /// This is ignored on other platforms
+    Win32KeyboardMenu(bool),
+    /// Specifies whether to show the window the way specified in the program's STARTUPINFO when
+    /// it is shown for the first time. This is the same information as the Run option in the
+    /// shortcut properties window. If this information was not specified when the program was
+    /// started, GLFW behaves as if this hint was set to `false`.
+    ///
+    /// This is ignored on other platforms.
+    Win32ShowDefault(bool),
     /// Specifies the UTF-8 encoded name to use for autosaving the window frame, or if empty
     /// disables frame autosaving for the window.
     ///
@@ -2296,14 +2483,17 @@ pub enum WindowHint {
     ///
     /// Simpler programs and tools may want to enable this to save power, while games and other
     /// applications performing advanced rendering will want to leave it disabled.
-    //
-    //  A bundled application that wishes to participate in Automatic Graphics Switching should also
-    // declare this in its `Info.plist` by setting the `NSSupportsAutomaticGraphicsSwitching` key to
-    // `true`.
+    ///
+    ///  A bundled application that wishes to participate in Automatic Graphics Switching should also
+    /// declare this in its `Info.plist` by setting the `NSSupportsAutomaticGraphicsSwitching` key to
+    /// `true`.
     ///
     /// This only affects systems with both integrated and discrete GPUs. This is ignored on
     /// platforms besides macOS.
     CocoaGraphicsSwitching(bool),
+    /// Specifies the Wayland app_id for a window, used by window managers to identify types of
+    /// windows.
+    WaylandAppId(Option<String>),
     /// Specifies the desired ASCII-encoded class part of the ICCCM `WM_CLASS` window property.
     X11ClassName(Option<String>),
     /// Specifies the desired ASCII-encoded instance part of the ICCCM `WM_CLASS` window property.
@@ -2546,6 +2736,16 @@ impl Window {
     /// Wrapper for `glfwSetWindowShouldClose`.
     pub fn set_should_close(&mut self, value: bool) {
         unsafe { ffi::glfwSetWindowShouldClose(self.ptr, value as c_int) }
+    }
+
+    /// This function returns the title of the window. This is
+    /// the title set previously by ['Glfw::create_window'] or [`Window::set_title`].
+    ///
+    /// Wrapper for `glfwGetWindowTitle`
+    pub fn get_title(&self) -> Option<String> {
+        unsafe {
+            string_from_nullable_c_str(ffi::glfwGetWindowTitle(self.ptr))
+        }
     }
 
     /// Sets the title of the window.
@@ -3356,6 +3556,12 @@ impl Window {
     #[cfg(target_os = "macos")]
     pub fn get_cocoa_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
+    }
+
+    /// Wrapper for `glfwGetCocoaView`
+    #[cfg(target_os = "macos")]
+    pub fn get_cocoa_view(&self) -> *mut c_void {
+        unsafe { ffi::glfwGetCocoaView(self.ptr) }
     }
 
     /// Wrapper for `glfwGetNSGLContext`

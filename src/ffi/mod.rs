@@ -246,6 +246,10 @@ pub const VERSION_UNAVAILABLE: c_int = 0x00010007;
 pub const PLATFORM_ERROR: c_int = 0x00010008;
 pub const FORMAT_UNAVAILABLE: c_int = 0x00010009;
 pub const NO_WINDOW_CONTEXT: c_int = 0x0001000A;
+pub const CURSOR_UNAVAILABLE: c_int = 0x0001000B;
+pub const FEATURE_UNAVAILABLE: c_int = 0x0001000C;
+pub const FEATURE_UNIMPLEMENTED: c_int = 0x0001000D;
+pub const PLATFORM_UNAVAILABLE: c_int = 0x0001000E;
 
 pub const FOCUSED: c_int = 0x00020001;
 pub const ICONIFIED: c_int = 0x00020002;
@@ -259,6 +263,9 @@ pub const CENTER_CURSOR: c_int = 0x00020009;
 pub const TRANSPARENT_FRAMEBUFFER: c_int = 0x0002000A;
 pub const HOVERED: c_int = 0x0002000B;
 pub const FOCUS_ON_SHOW: c_int = 0x0002000C;
+pub const MOUSE_PASSTHROUGH: c_int = 0x0002000D;
+pub const POSITION_X: c_int = 0x0002000E;
+pub const POSITION_Y: c_int = 0x0002000F;
 
 pub const RED_BITS: c_int = 0x00021001;
 pub const GREEN_BITS: c_int = 0x00021002;
@@ -283,12 +290,16 @@ pub const CONTEXT_VERSION_MINOR: c_int = 0x00022003;
 pub const CONTEXT_REVISION: c_int = 0x00022004;
 pub const CONTEXT_ROBUSTNESS: c_int = 0x00022005;
 pub const OPENGL_FORWARD_COMPAT: c_int = 0x00022006;
-pub const OPENGL_DEBUG_CONTEXT: c_int = 0x00022007;
+pub const CONTEXT_DEBUG: c_int = 0x00022007;
 pub const OPENGL_PROFILE: c_int = 0x00022008;
 pub const CONTEXT_RELEASE_BEHAVIOR: c_int = 0x00022009;
 pub const CONTEXT_NO_ERROR: c_int = 0x0002200A;
 pub const CONTEXT_CREATION_API: c_int = 0x0002200B;
 pub const SCALE_TO_MONITOR: c_int = 0x0002200C;
+pub const SCALE_FRAMEBUFFER: c_int = 0x0002200D;
+
+// alias for compatibility
+pub const OPENGL_DEBUG_CONTEXT: c_int = CONTEXT_DEBUG;
 
 pub const COCOA_RETINA_FRAMEBUFFER: c_int = 0x00023001;
 pub const COCOA_FRAME_NAME: c_int = 0x00023002;
@@ -296,6 +307,11 @@ pub const COCOA_GRAPHICS_SWITCHING: c_int = 0x00023003;
 
 pub const X11_CLASS_NAME: c_int = 0x00024001;
 pub const X11_INSTANCE_NAME: c_int = 0x00024002;
+
+pub const WIN32_KEYBOARD_MENU: c_int = 0x00025001;
+pub const WIN32_SHOWDEFAULT: c_int = 0x00025002;
+
+pub const WAYLAND_APP_ID: c_int = 0x00026001;
 
 pub const NO_API: c_int = 0x00000000;
 pub const OPENGL_API: c_int = 0x00030001;
@@ -318,6 +334,7 @@ pub const RAW_MOUSE_MOTION: c_int = 0x00033005;
 pub const CURSOR_NORMAL: c_int = 0x00034001;
 pub const CURSOR_HIDDEN: c_int = 0x00034002;
 pub const CURSOR_DISABLED: c_int = 0x00034003;
+pub const CURSOR_CAPTURED: c_int = 0x00034004;
 
 pub const ANY_RELEASE_BEHAVIOR: c_int = 0;
 pub const RELEASE_BEHAVIOR_FLUSH: c_int = 0x00035001;
@@ -327,12 +344,35 @@ pub const NATIVE_CONTEXT_API: c_int = 0x00036001;
 pub const EGL_CONTEXT_API: c_int = 0x00036002;
 pub const OSMESA_CONTEXT_API: c_int = 0x00036003;
 
+pub const ANGLE_PLATFORM_TYPE_NONE: c_int = 0x00037001;
+pub const ANGLE_PLATFORM_TYPE_OPENGL: c_int = 0x00037002;
+pub const ANGLE_PLATFORM_TYPE_OPENGLES: c_int = 0x00037003;
+pub const ANGLE_PLATFORM_TYPE_D3D9: c_int = 0x00037004;
+pub const ANGLE_PLATFORM_TYPE_D3D11: c_int = 0x00037005;
+pub const ANGLE_PLATFORM_TYPE_VULKAN: c_int = 0x00037007;
+pub const ANGLE_PLATFORM_TYPE_METAL: c_int = 0x00037008;
+
+pub const WAYLAND_PREFER_LIBDECOR: c_int = 0x00038001;
+pub const WAYLAND_DISABLE_LIBDECOR: c_int = 0x00038002;
+
+#[allow(overflowing_literals)]
+pub const ANY_POSITION: c_int = 0x80000000;
+
 pub const ARROW_CURSOR: c_int = 0x00036001;
 pub const IBEAM_CURSOR: c_int = 0x00036002;
 pub const CROSSHAIR_CURSOR: c_int = 0x00036003;
-pub const HAND_CURSOR: c_int = 0x00036004;
-pub const HRESIZE_CURSOR: c_int = 0x00036005;
-pub const VRESIZE_CURSOR: c_int = 0x00036006;
+pub const POINTING_HAND_CURSOR: c_int = 0x00036004;
+pub const RESIZE_EW_CURSOR: c_int = 0x00036005;
+pub const RESIZE_NS_CURSOR: c_int = 0x00036006;
+pub const RESIZE_NWSE_CURSOR: c_int = 0x00036007;
+pub const RESIZE_NESW_CURSOR: c_int = 0x00036008;
+pub const RESIZE_ALL_CURSOR: c_int = 0x00036009;
+pub const NOT_ALLOWED_CURSOR: c_int = 0x0003600A;
+
+// aliases for compatibility
+pub const HAND_CURSOR: c_int = POINTING_HAND_CURSOR;
+pub const HRESIZE_CURSOR: c_int = RESIZE_EW_CURSOR;
+pub const VRESIZE_CURSOR: c_int = RESIZE_NS_CURSOR;
 
 pub const CONNECTED: c_int = 0x00040001;
 pub const DISCONNECTED: c_int = 0x00040002;
@@ -340,14 +380,28 @@ pub const DISCONNECTED: c_int = 0x00040002;
 pub const DONT_CARE: c_int = -1; //negative one is the correct value
 
 pub const JOYSTICK_HAT_BUTTONS: c_int = 0x00050001;
+pub const ANGLE_PLATFORM_TYPE: c_int = 0x00050002;
+pub const PLATFORM: c_int = 0x00050003;
 pub const COCOA_CHDIR_RESOURCES: c_int = 0x00051001;
 pub const COCOA_MENUBAR: c_int = 0x00051002;
+pub const X11_XCB_VULKAN_SURFACE: c_int = 0x0005200;
+pub const WAYLAND_LIBDECOR: c_int = 0x00053001;
+
+pub const ANY_PLATFORM: c_int = 0x00060000;
+pub const PLATFORM_WIN32: c_int = 0x00060001;
+pub const PLATFORM_COCOA: c_int = 0x00060002;
+pub const PLATFORM_WAYLAND: c_int = 0x00060003;
+pub const PLATFORM_X11: c_int = 0x00060004;
+pub const PLATFORM_NULL: c_int = 0x00060005;
 
 pub type GLFWglproc = *const c_void;
 
 #[cfg(feature = "vulkan")]
 pub type GLFWvkproc = *const c_void;
 
+pub type GLFWallocatefun = extern "C" fn(size: usize, user: *const c_void) -> *const c_void;
+pub type GLFWreallocatefun = extern "C" fn(block: *const c_void, size: usize, user: *const c_void);
+pub type GLFWdeallocatefun = extern "C" fn(block: *const c_void, user: *const c_void);
 pub type GLFWerrorfun = extern "C" fn(c_int, *const c_char);
 pub type GLFWwindowposfun = extern "C" fn(*mut GLFWwindow, c_int, c_int);
 pub type GLFWwindowsizefun = extern "C" fn(*mut GLFWwindow, c_int, c_int);
@@ -418,6 +472,16 @@ pub struct GLFWimage {
 pub struct GLFWgamepadstate {
     pub buttons: [c_uchar; (GAMEPAD_BUTTON_LAST + 1) as usize],
     pub axes: [c_float; (GAMEPAD_AXIS_LAST + 1) as usize],
+}
+
+#[allow(missing_copy_implementations)]
+#[repr(C)]
+#[derive(Debug)]
+pub struct GLFWallocator {
+    pub allocate: GLFWallocatefun,
+    pub reallocate: GLFWreallocatefun,
+    pub deallocate: GLFWdeallocatefun,
+    pub user: *mut c_void,
 }
 
 // C function bindings
@@ -648,6 +712,13 @@ extern "C" {
     pub fn glfwGetGamepadName(jid: c_int) -> *const c_char;
     pub fn glfwGetGamepadState(jid: c_int, state: *mut GLFWgamepadstate) -> c_int;
 
+    // Added in 3.4
+
+    pub fn glfwInitAllocator(allocator: *const GLFWallocator);
+    pub fn glfwGetPlatform() -> c_int;
+    pub fn glfwPlatformSupported(platform: c_int) -> c_int;
+    pub fn glfwGetWindowTitle(window: *mut GLFWwindow) -> *const c_char;
+
     // Vulkan support
 
     #[cfg(feature = "vulkan")]
@@ -669,6 +740,8 @@ extern "C" {
         allocator: *const vk::AllocationCallbacks<'_>,
         surface: *mut vk::SurfaceKHR,
     ) -> vk::Result;
+    #[cfg(feature = "vulkan")]
+    pub fn glfwInitVulkanLoader(loader: vk::PFN_vkGetInstanceProcAddr);
 
     // native APIs
 
@@ -679,6 +752,8 @@ extern "C" {
 
     #[cfg(target_os = "macos")]
     pub fn glfwGetCocoaWindow(window: *mut GLFWwindow) -> *mut c_void;
+    #[cfg(target_os = "macos")]
+    pub fn glfwGetCocoaView(window: *mut GLFWwindow) -> *mut c_void;
     #[cfg(target_os = "macos")]
     pub fn glfwGetNSGLContext(window: *mut GLFWwindow) -> *mut c_void;
 
