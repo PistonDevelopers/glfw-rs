@@ -1,0 +1,29 @@
+# run cargo check on all platforms
+name: Check
+on: [push]
+jobs:
+    check:
+        name: Check
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest, windows-latest]
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                submodules: true
+            
+            - uses: dtolnay/rust-toolchain@stable
+            - uses: lukka/get-cmake@latest
+            
+            - name: Install dependencies
+              if: matrix.os == 'ubuntu-latest'
+              run: |
+                sudo apt update
+                sudo apt install -y libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libwayland-dev libxkbcommon-dev libglfw3-dev cmake
+
+            - name: Cargo
+              run: |
+                cargo run --example=version
+                cargo run --example=version --features=src-build
+                cargo run --example=version --features=src-build,static-link

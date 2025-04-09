@@ -14,16 +14,8 @@ rust-version = "1.56"
 bitflags = "1.0.0"
 raw-window-handle-0-5 = { package = "raw-window-handle", version = "0.5.0", optional = true }
 raw-window-handle-0-6 = { package = "raw-window-handle", version = "0.6.0", optional = true }
+glfw-sys = {version = "*", git = "https://github.com/coderedart/glfw-sys"}
 
-[target.'cfg(target_os = "macos")'.dependencies]
-objc2 = "0.5.1"
-
-[target.'cfg(target_os = "windows")'.dependencies]
-winapi = { version = "0.3", features = ["libloaderapi"] }
-
-[dependencies.glfw-sys]
-optional = true
-version = "5.0.0"
 
 [dependencies.image]
 optional = true
@@ -33,9 +25,6 @@ version = "^0.25.1"
 optional = true
 version = "0.4"
 
-[dependencies.ash]
-optional = true
-version = "0.38"
 
 [dependencies.serde]
 optional = true
@@ -44,13 +33,23 @@ features = ["derive"]
 
 [dev-dependencies]
 log = "0.4"
+ash = "*"
 
 [features]
-all = ["image", "vulkan", "log", "wayland", "raw-window-handle-v0-6"]
-default = ["glfw-sys", "raw-window-handle-v0-6"]
-with-window-handle-v0-5 = ["glfw-sys", "raw-window-handle-v0-5"]
-vulkan = ["ash"]
+all = ["image", "vulkan", "log", "wayland", "x11", "raw-window-handle-v0-6"]
+default = ["all"]
+with-window-handle-v0-5 = ["raw-window-handle-v0-5"]
+vulkan = ["glfw-sys/vulkan"]
 wayland = ["glfw-sys/wayland"]
-raw-window-handle-v0-6 = ["dep:raw-window-handle-0-6"]
-raw-window-handle-v0-5 = ["dep:raw-window-handle-0-5"]
+x11 = ["glfw-sys/x11"]
+native-handles = ["glfw-sys/native_handles"]
+src-build = ["glfw-sys/src_build"]
+static-link = ["glfw-sys/static_link"]
+raw-window-handle-v0-6 = ["dep:raw-window-handle-0-6", "native-handles"]
+raw-window-handle-v0-5 = ["dep:raw-window-handle-0-5", "native-handles"]
 serde = ["dep:serde"]
+
+
+[package.metadata.docs.rs]
+features = ["all"]
+
