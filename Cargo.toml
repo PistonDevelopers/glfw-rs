@@ -17,6 +17,12 @@ raw-window-handle-0-6 = { package = "raw-window-handle", version = "0.6.0", opti
 # TODO: remove the package attribute after glfw-sys is published
 glfw-sys = { version = "6", package = "glfw-sys-passthrough"} 
 
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.5.1"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+winapi = { version = "0.3", features = ["libloaderapi"] }
+
 
 [dependencies.image]
 optional = true
