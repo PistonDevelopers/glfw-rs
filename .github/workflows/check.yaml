@@ -21,9 +21,13 @@ jobs:
               run: |
                 sudo apt update
                 sudo apt install -y libglfw3-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libwayland-dev libxkbcommon-dev libglfw3-dev cmake
+            
+            # glfw 3.4 is not available on ubuntu yet. So, skip pkg-config check for now.
+            - name: PreBuilt Libs
+              if: matrix.os != 'ubuntu-latest' 
+              run: cargo run --example=version --features=prebuilt-libs
 
-            - name: Cargo
-              run: |
-                cargo run --example=version
+            - name: Src Builds
+              run: |       
                 cargo run --example=version --features=src-build
                 cargo run --example=version --features=src-build,static-link
