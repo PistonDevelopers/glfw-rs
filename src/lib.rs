@@ -3730,7 +3730,7 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
         use std::num::NonZeroIsize;
 
         use raw_window_handle::Win32WindowHandle;
-        let (hwnd, hinstance): (*mut std::ffi::GLFW_c_void, *mut std::ffi::GLFW_c_void) = unsafe {
+        let (hwnd, hinstance): (*mut std::ffi::c_void, *mut std::ffi::c_void) = unsafe {
             let hwnd = ffi::glfwGetWin32Window(context.window_ptr());
             let hinstance: *mut c_void =
                 winapi::um::libloaderapi::GetModuleHandleW(std::ptr::null()) as _;
@@ -3879,8 +3879,8 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
             let ns_view: *mut objc::runtime::Object = objc::msg_send![ns_window, contentView];
             assert_ne!(ns_view, std::ptr::null_mut());
             (
-                ns_window as *mut std::ffi::GLFW_c_void,
-                ns_view as *mut std::ffi::GLFW_c_void,
+                ns_window as *mut std::ffi::c_void,
+                ns_view as *mut std::ffi::c_void,
             )
         };
         let mut handle = AppKitWindowHandle::empty();
