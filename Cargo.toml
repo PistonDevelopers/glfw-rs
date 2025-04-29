@@ -14,7 +14,8 @@ rust-version = "1.56"
 bitflags = "1.0.0"
 raw-window-handle-0-5 = { package = "raw-window-handle", version = "0.5.0", optional = true }
 raw-window-handle-0-6 = { package = "raw-window-handle", version = "0.6.0", optional = true }
-glfw-sys = {version = "*", git = "https://github.com/coderedart/glfw-sys"}
+# TODO: remove the package attribute after glfw-sys is published
+glfw-sys = { version = "6", package = "glfw-sys-passthrough"} 
 
 
 [dependencies.image]
@@ -33,18 +34,19 @@ features = ["derive"]
 
 [dev-dependencies]
 log = "0.4"
-ash = "*"
+ash = "0.38"
 
 [features]
 all = ["image", "vulkan", "log", "wayland", "x11", "raw-window-handle-v0-6"]
-default = ["all"]
+default = ["all", "prebuilt-libs"]
 with-window-handle-v0-5 = ["raw-window-handle-v0-5"]
 vulkan = ["glfw-sys/vulkan"]
 wayland = ["glfw-sys/wayland"]
 x11 = ["glfw-sys/x11"]
-native-handles = ["glfw-sys/native_handles"]
-src-build = ["glfw-sys/src_build"]
-static-link = ["glfw-sys/static_link"]
+native-handles = ["glfw-sys/native-handles"]
+src-build = ["glfw-sys/src-build"]
+prebuilt-libs = ["glfw-sys/prebuilt-libs"]
+static-link = ["glfw-sys/static-link"]
 raw-window-handle-v0-6 = ["dep:raw-window-handle-0-6", "native-handles"]
 raw-window-handle-v0-5 = ["dep:raw-window-handle-0-5", "native-handles"]
 serde = ["dep:serde"]
@@ -52,4 +54,5 @@ serde = ["dep:serde"]
 
 [package.metadata.docs.rs]
 features = ["all"]
-
+no-default-features = true
+targets = ["x86_64-unknown-linux-gnu", "x86_64-apple-darwin", "x86_64-pc-windows-msvc"]
