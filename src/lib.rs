@@ -1011,7 +1011,7 @@ pub enum InitHint {
 
 /// The platform to use when initializing GLFW.
 /// see [InitHint::Platform]
-/// 
+///
 /// To check if a particular platform is supported, use [`Platform::is_supported`]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
