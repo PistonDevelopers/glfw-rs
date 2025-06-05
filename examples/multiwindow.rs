@@ -15,8 +15,8 @@
 
 extern crate glfw;
 
-use glfw::{Action, Key};
 use glfw::GlfwReceiver as Receiver;
+use glfw::{Action, Key};
 
 type WindowInstance = (glfw::PWindow, Receiver<(f64, glfw::WindowEvent)>);
 type WindowVector = Vec<WindowInstance>;

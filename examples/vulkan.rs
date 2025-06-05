@@ -26,6 +26,8 @@ use std::ptr;
 
 #[cfg(feature = "vulkan")]
 fn main() {
+    use ash::vk::Handle;
+
     let mut glfw = glfw::init_no_callbacks().unwrap();
 
     glfw.window_hint(glfw::WindowHint::Visible(true));
@@ -52,8 +54,13 @@ fn main() {
 
     let mut surface: std::mem::MaybeUninit<vk::SurfaceKHR> = std::mem::MaybeUninit::uninit();
 
-    if window.create_window_surface(instance.handle(), ptr::null(), surface.as_mut_ptr())
-        != vk::Result::SUCCESS
+    if unsafe {
+        window.create_window_surface(
+            instance.handle().as_raw() as _,
+            ptr::null(),
+            surface.as_mut_ptr() as _,
+        )
+    } != vk::Result::SUCCESS.as_raw()
     {
         panic!("Failed to create GLFW window surface.");
     }

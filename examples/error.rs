@@ -20,8 +20,7 @@ extern crate glfw;
 extern crate log;
 
 fn main() {
-    let mut glfw = glfw::init(error_callback)
-    .unwrap();
+    let mut glfw = glfw::init(error_callback).unwrap();
 
     // Force the error callback to be triggered
     glfw.window_hint(glfw::WindowHint::ContextVersion(40000, 3000)); // Ridiculous!

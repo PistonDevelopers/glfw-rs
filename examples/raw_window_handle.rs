@@ -21,10 +21,10 @@ extern crate raw_window_handle_0_6 as raw_window_handle;
 extern crate raw_window_handle_0_5 as raw_window_handle;
 
 use glfw::{Action, Context, Key};
-#[cfg(feature = "raw-window-handle-v0-6")]
-use raw_window_handle::{HasWindowHandle, RawWindowHandle};
 #[cfg(not(feature = "raw-window-handle-v0-6"))]
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+#[cfg(feature = "raw-window-handle-v0-6")]
+use raw_window_handle::{HasWindowHandle, RawWindowHandle};
 
 fn main() {
     let mut glfw = glfw::init_no_callbacks().unwrap();
