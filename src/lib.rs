@@ -606,6 +606,57 @@ pub enum Error {
     PlatformError = ffi::GLFW_PLATFORM_ERROR,
     FormatUnavailable = ffi::GLFW_FORMAT_UNAVAILABLE,
     NoWindowContext = ffi::GLFW_NO_WINDOW_CONTEXT,
+    CursorUnavailable = ffi::GLFW_CURSOR_UNAVAILABLE,
+    FeatureUnavailable = ffi::GLFW_FEATURE_UNAVAILABLE,
+    FeatureUnimplemented = ffi::GLFW_FEATURE_UNIMPLEMENTED,
+    PlatformUnavailable = ffi::GLFW_PLATFORM_UNAVAILABLE,
+    Unknown(c_int),
+}
+
+impl Error {
+    /// Converts a raw GLFW error code without assuming it is known by this crate.
+    pub const fn from_raw(raw: c_int) -> Self {
+        match raw {
+            ffi::GLFW_NO_ERROR => Self::NoError,
+            ffi::GLFW_NOT_INITIALIZED => Self::NotInitialized,
+            ffi::GLFW_NO_CURRENT_CONTEXT => Self::NoCurrentContext,
+            ffi::GLFW_INVALID_ENUM => Self::InvalidEnum,
+            ffi::GLFW_INVALID_VALUE => Self::InvalidValue,
+            ffi::GLFW_OUT_OF_MEMORY => Self::OutOfMemory,
+            ffi::GLFW_API_UNAVAILABLE => Self::ApiUnavailable,
+            ffi::GLFW_VERSION_UNAVAILABLE => Self::VersionUnavailable,
+            ffi::GLFW_PLATFORM_ERROR => Self::PlatformError,
+            ffi::GLFW_FORMAT_UNAVAILABLE => Self::FormatUnavailable,
+            ffi::GLFW_NO_WINDOW_CONTEXT => Self::NoWindowContext,
+            ffi::GLFW_CURSOR_UNAVAILABLE => Self::CursorUnavailable,
+            ffi::GLFW_FEATURE_UNAVAILABLE => Self::FeatureUnavailable,
+            ffi::GLFW_FEATURE_UNIMPLEMENTED => Self::FeatureUnimplemented,
+            ffi::GLFW_PLATFORM_UNAVAILABLE => Self::PlatformUnavailable,
+            raw => Self::Unknown(raw),
+        }
+    }
+
+    /// Returns the raw GLFW error code represented by this value.
+    pub const fn as_raw(self) -> c_int {
+        match self {
+            Self::NoError => ffi::GLFW_NO_ERROR,
+            Self::NotInitialized => ffi::GLFW_NOT_INITIALIZED,
+            Self::NoCurrentContext => ffi::GLFW_NO_CURRENT_CONTEXT,
+            Self::InvalidEnum => ffi::GLFW_INVALID_ENUM,
+            Self::InvalidValue => ffi::GLFW_INVALID_VALUE,
+            Self::OutOfMemory => ffi::GLFW_OUT_OF_MEMORY,
+            Self::ApiUnavailable => ffi::GLFW_API_UNAVAILABLE,
+            Self::VersionUnavailable => ffi::GLFW_VERSION_UNAVAILABLE,
+            Self::PlatformError => ffi::GLFW_PLATFORM_ERROR,
+            Self::FormatUnavailable => ffi::GLFW_FORMAT_UNAVAILABLE,
+            Self::NoWindowContext => ffi::GLFW_NO_WINDOW_CONTEXT,
+            Self::CursorUnavailable => ffi::GLFW_CURSOR_UNAVAILABLE,
+            Self::FeatureUnavailable => ffi::GLFW_FEATURE_UNAVAILABLE,
+            Self::FeatureUnimplemented => ffi::GLFW_FEATURE_UNIMPLEMENTED,
+            Self::PlatformUnavailable => ffi::GLFW_PLATFORM_UNAVAILABLE,
+            Self::Unknown(raw) => raw,
+        }
+    }
 }
 
 impl fmt::Display for Error {
@@ -622,6 +673,11 @@ impl fmt::Display for Error {
             Error::PlatformError => "PlatformError",
             Error::FormatUnavailable => "FormatUnavailable",
             Error::NoWindowContext => "NoWindowContext",
+            Error::CursorUnavailable => "CursorUnavailable",
+            Error::FeatureUnavailable => "FeatureUnavailable",
+            Error::FeatureUnimplemented => "FeatureUnimplemented",
+            Error::PlatformUnavailable => "PlatformUnavailable",
+            Error::Unknown(raw) => return write!(f, "Unknown({raw})"),
         };
 
         f.write_str(description)
@@ -1975,15 +2031,20 @@ impl WindowCallbacks {
 
 /// Wrapper for `glfwGetError`.
 pub fn get_error() -> Error {
-    unsafe { mem::transmute(ffi::glfwGetError(null_mut())) }
+    Error::from_raw(unsafe { ffi::glfwGetError(null_mut()) })
 }
 
 /// Wrapper for `glfwGetError`.
 pub fn get_error_string() -> (Error, String) {
     unsafe {
         let mut description: *const c_char = null();
-        let error: Error = mem::transmute(ffi::glfwGetError(&mut description));
-        (error, string_from_c_str(description))
+        let error = Error::from_raw(ffi::glfwGetError(&mut description));
+        let description = if description.is_null() {
+            String::new()
+        } else {
+            string_from_c_str(description)
+        };
+        (error, description)
     }
 }
 

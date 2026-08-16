@@ -57,13 +57,12 @@ macro_rules! callback (
 
 pub mod error {
     use std::cell::RefCell;
-    use std::mem;
     use std::os::raw::{c_char, c_int};
 
     callback!(
         args -> (crate::Error, String),
         glfw -> glfwSetErrorCallback(error: c_int, description: *const c_char),
-        convert_args -> (mem::transmute(error), crate::string_from_c_str(description))
+        convert_args -> (crate::Error::from_raw(error), crate::string_from_c_str(description))
     );
 }
 
