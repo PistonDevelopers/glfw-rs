@@ -30,4 +30,4 @@ jobs:
             - name: Src Builds
               run: |       
                 cargo run --example=version --features=src-build
-                cargo run --example=version --features=src-build,static-link
+                cargo run --example=version --features=src-build,dynamic-link

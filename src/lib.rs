@@ -256,11 +256,13 @@ use std::{error, fmt, mem, ptr, slice};
 
 #[cfg(feature = "raw-window-handle-v0-6")]
 use raw_window_handle::{
-    DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, WindowHandle,
+    DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, RawDisplayHandle,
+    RawWindowHandle, WindowHandle,
 };
 #[cfg(feature = "raw-window-handle-v0-5")]
-use raw_window_handle::{HasRawDisplayHandle, HasRawWindowHandle};
-use raw_window_handle::{RawDisplayHandle, RawWindowHandle};
+use raw_window_handle::{
+    HasRawDisplayHandle, HasRawWindowHandle, RawDisplayHandle, RawWindowHandle,
+};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -3758,15 +3760,14 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
             #[cfg(feature = "x11")]
             Platform::X11 => {
                 use raw_window_handle::XlibWindowHandle;
-                let window = unsafe {
-                    ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong
-                };
+                let window =
+                    unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
                 RawWindowHandle::Xlib(XlibWindowHandle::new(window))
             }
             #[cfg(feature = "wayland")]
             Platform::Wayland => {
-                use std::ptr::NonNull;
                 use raw_window_handle::WaylandWindowHandle;
+                use std::ptr::NonNull;
                 let surface = unsafe { ffi::glfwGetWaylandWindow(context.window_ptr()) };
                 let handle = WaylandWindowHandle::new(
                     NonNull::new(surface).expect("wayland window surface is null"),
@@ -3819,16 +3820,16 @@ fn raw_display_handle() -> RawDisplayHandle {
         match platform {
             #[cfg(feature = "x11")]
             Platform::X11 => {
-                use std::ptr::NonNull;
                 use raw_window_handle::XlibDisplayHandle;
+                use std::ptr::NonNull;
                 let display = NonNull::new(unsafe { ffi::glfwGetX11Display() });
                 let handle = XlibDisplayHandle::new(display, 0);
                 RawDisplayHandle::Xlib(handle)
             }
             #[cfg(feature = "wayland")]
             Platform::Wayland => {
-                use std::ptr::NonNull;
                 use raw_window_handle::WaylandDisplayHandle;
+                use std::ptr::NonNull;
                 let display = NonNull::new(unsafe { ffi::glfwGetWaylandDisplay().cast_mut() })
                     .expect("wayland display is null");
                 let handle = WaylandDisplayHandle::new(display);
@@ -3874,9 +3875,8 @@ fn raw_window_handle<C: Context>(context: &C) -> RawWindowHandle {
             Platform::X11 => {
                 use raw_window_handle::XlibWindowHandle;
                 let mut handle = XlibWindowHandle::empty();
-                handle.window = unsafe {
-                    ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong
-                };
+                handle.window =
+                    unsafe { ffi::glfwGetX11Window(context.window_ptr()) as std::os::raw::c_ulong };
                 RawWindowHandle::Xlib(handle)
             }
             #[cfg(feature = "wayland")]
