@@ -3448,25 +3448,25 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetWin32Window`
-    #[cfg(target_os = "windows")]
+    #[cfg(all(target_os = "windows", feature = "native-handles"))]
     pub fn get_win32_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWin32Window(self.ptr) }
     }
 
     /// Wrapper for `glfwGetWGLContext`
-    #[cfg(target_os = "windows")]
+    #[cfg(all(target_os = "windows", feature = "native-handles"))]
     pub fn get_wgl_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWGLContext(self.ptr) }
     }
 
     /// Wrapper for `glfwGetCocoaWindow`
-    #[cfg(target_os = "macos")]
+    #[cfg(all(target_os = "macos", feature = "native-handles"))]
     pub fn get_cocoa_window(&self) -> *mut c_void {
         unsafe { ffi::glfwGetCocoaWindow(self.ptr) }
     }
 
     /// Wrapper for `glfwGetNSGLContext`
-    #[cfg(target_os = "macos")]
+    #[cfg(all(target_os = "macos", feature = "native-handles"))]
     pub fn get_nsgl_context(&self) -> *mut c_void {
         unsafe { ffi::glfwGetNSGLContext(self.ptr) }
     }
