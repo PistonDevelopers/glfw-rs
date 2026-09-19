@@ -1538,7 +1538,13 @@ impl Glfw {
     }
 
     /// Wrapper for `glfwGetX11Display`
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos"), feature = "x11"))]
+    #[cfg(all(
+        not(target_os = "windows"),
+        not(target_os = "macos"),
+        not(target_os = "emscripten"),
+        feature = "x11",
+        feature = "native-handles"
+    ))]
     pub fn get_x11_display(&self) -> *mut c_void {
         unsafe { ffi::glfwGetX11Display() }
     }
@@ -1547,7 +1553,9 @@ impl Glfw {
     #[cfg(all(
         not(target_os = "windows"),
         not(target_os = "macos"),
-        feature = "wayland"
+        not(target_os = "emscripten"),
+        feature = "wayland",
+        feature = "native-handles"
     ))]
     pub fn get_wayland_display(&self) -> *mut c_void {
         unsafe { ffi::glfwGetWaylandDisplay().cast_mut() }
@@ -3464,7 +3472,13 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetX11Window`
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos"), feature = "x11"))]
+    #[cfg(all(
+        not(target_os = "windows"),
+        not(target_os = "macos"),
+        not(target_os = "emscripten"),
+        feature = "x11",
+        feature = "native-handles"
+    ))]
     pub fn get_x11_window(&self) -> usize {
         unsafe { ffi::glfwGetX11Window(self.ptr) }
     }
@@ -3473,6 +3487,8 @@ impl Window {
     #[cfg(all(
         not(target_os = "windows"),
         not(target_os = "macos"),
+        not(target_os = "emscripten"),
+        feature = "native-handles",
         feature = "wayland"
     ))]
     pub fn get_wayland_window(&self) -> *mut c_void {
@@ -3480,7 +3496,13 @@ impl Window {
     }
 
     /// Wrapper for `glfwGetGLXContext`
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos"), feature = "x11"))]
+    #[cfg(all(
+        not(target_os = "windows"),
+        not(target_os = "macos"),
+        not(target_os = "emscripten"),
+        feature = "native-handles",
+        feature = "x11"
+    ))]
     pub fn get_glx_context(&self) -> usize {
         unsafe { ffi::glfwGetGLXContext(self.ptr) }
     }
