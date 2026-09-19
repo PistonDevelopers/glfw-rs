@@ -244,9 +244,8 @@ use std::ffi::*;
 use std::ffi::{CStr, CString};
 use std::marker::Send;
 use std::ops::{Deref, DerefMut};
-#[cfg(not(target_os = "emscripten"))]
-use std::os::raw::c_void;
-use std::os::raw::{c_char, c_double, c_float, c_int, c_ushort};
+#[allow(unused)]
+use std::os::raw::{c_char, c_double, c_float, c_int, c_ushort, c_void};
 use std::path::PathBuf;
 use std::ptr::{null, null_mut};
 use std::sync::atomic::{AtomicUsize, Ordering};
