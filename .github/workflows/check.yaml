@@ -31,3 +31,4 @@ jobs:
               run: |       
                 cargo run --example=version --features=src-build
                 cargo run --example=version --features=src-build,dynamic-link
+                cargo run --example=version --no-default-features --features=src-build
