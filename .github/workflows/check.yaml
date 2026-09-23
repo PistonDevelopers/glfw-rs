@@ -28,6 +28,6 @@ jobs:
               run: cargo run --example=version --features=prebuilt-libs
 
             - name: Src Builds
-              run: |       
-                cargo run --example=version --features=src-build
-                cargo run --example=version --features=src-build,static-link
+              run: |
+                cargo run --example=version --no-default-features --features=all,src-build
+                cargo run --example=version --no-default-features --features=all,src-build,dynamic-link
